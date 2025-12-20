@@ -5,10 +5,14 @@ import { getAllDraftPicks, transferDraftPick } from '@/lib/draftPicks';
 export async function GET() {
   try {
     const picks = await getAllDraftPicks();
-    return NextResponse.json(picks);
-  } catch (err: any) {
+
+    // SAFETY: always return an array
+    return NextResponse.json(Array.isArray(picks) ? picks : []);
+  } catch (error) {
+    console.error('API /draft-picks GET failed:', error);
+
     return NextResponse.json(
-      { error: err.message },
+      { error: 'Failed to load draft picks' },
       { status: 500 }
     );
   }
@@ -26,13 +30,19 @@ export async function POST(req: Request) {
       );
     }
 
-    await transferDraftPick(fromTeam, toTeam, Number(year), Number(round));
+    await transferDraftPick(
+      fromTeam,
+      toTeam,
+      Number(year),
+      Number(round)
+    );
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    console.error('Draft pick transfer error:', err);
+  } catch (error) {
+    console.error('API /draft-picks POST failed:', error);
+
     return NextResponse.json(
-      { error: err.message },
+      { error: 'Draft pick transfer failed' },
       { status: 500 }
     );
   }

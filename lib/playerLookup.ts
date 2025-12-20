@@ -1,28 +1,28 @@
-import { buildPlayerIdentity } from './players';
+export function findPlayerRowIndex(
+  rows: string[][],
+  target: { identity: string }
+): number {
+  const [, ...data] = rows; // skip header
 
-export function findPlayerRowIndex(rows: string[][], target: any): number {
-  const [header, ...data] = rows;
+  const foundIndex = data.findIndex((row) => {
+    const identity = [
+      row[2],               // first
+      row[3],               // last
+      Number(row[5]),       // age
+      row[6] || '',         // offense
+      row[7] || '',         // defense
+      row[8] || '',         // special
+    ]
+      .join('|')
+      .toLowerCase();
 
-  const index = Object.fromEntries(
-    header.map((key, i) => [key.toLowerCase(), i])
-  );
+    return identity === target.identity;
+  });
 
-const foundIndex = data.findIndex(row => {
-  const player = {
-  first: row[2],
-  last: row[3],
-  age: Number(row[5]),
-  offense: row[6] || '',
-  defense: row[7] || '',
-  special: row[8] || '',
-};
+  if (foundIndex === -1) {
+    throw new Error('Player row index not found');
+  }
 
-  return buildPlayerIdentity(player) === target.identity;
-});
-
-if (foundIndex === -1) {
-  throw new Error('Player row index not found');
-}
-
-return foundIndex + 2;
+  // +2 = header row + 1-based sheet index
+  return foundIndex + 2;
 }

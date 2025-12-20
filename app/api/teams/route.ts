@@ -1,24 +1,39 @@
 import { NextResponse } from 'next/server';
-import { sheets, SHEET_ID } from '../../../lib/googleSheets';
+import { sheets, SHEET_ID } from '@/lib/googleSheets';
 
 export async function GET() {
-  const result = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: 'Config',
-  });
+  try {
+    const result = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Config',
+    });
 
-  const [header, ...rows] = result.data.values || [];
+    const values = result.data.values;
 
-  const index = Object.fromEntries(
-    header.map((h: string, i: number) => [h.toLowerCase(), i])
-  );
+    if (!values || values.length === 0) {
+      return NextResponse.json([], { status: 200 });
+    }
 
-  const teams = rows.map(row => ({
-    name: row[index.team],
-    short: row[index.teamshort],
-    coach: row[index.coach],
-    commissioner: row[index.commissioner] === 'TRUE',
-  }));
+    const [header, ...rows] = values;
 
-  return NextResponse.json(teams);
+    const index: Record<string, number> = Object.fromEntries(
+      header.map((h: string, i: number) => [h.toLowerCase(), i])
+    );
+
+    const teams = rows.map((row) => ({
+      name: row[index.team] ?? '',
+      short: row[index.teamshort] ?? '',
+      coach: row[index.coach] ?? '',
+      commissioner: row[index.commissioner] === 'TRUE',
+    }));
+
+    return NextResponse.json(teams);
+  } catch (error) {
+    console.error('API /teams failed:', error);
+
+    return NextResponse.json(
+      { error: 'Failed to load teams' },
+      { status: 500 }
+    );
+  }
 }

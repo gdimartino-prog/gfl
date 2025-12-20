@@ -1,57 +1,80 @@
 export type Player = {
+  team: string;
   first: string;
   last: string;
   age: number;
-  team: string;
   offense: string;
   defense: string;
   special: string;
-  position: string; // new field
+  position: string;
   isIR: boolean;
   identity: string;
 };
 
+/**
+ * Builds a stable identity string for a player.
+ * This MUST stay consistent across the app.
+ */
 export function buildPlayerIdentity(player: Player): string {
   return [
-    player.first,
-    player.last,
-    player.age,
-    player.offense,
-    player.defense,
-    player.special,
+    player.first || '',
+    player.last || '',
+    player.age ?? '',
+    player.offense || '',
+    player.defense || '',
+    player.special || '',
   ]
     .join('|')
     .toLowerCase();
 }
 
+/**
+ * Parse players from the Google Sheet "Players" tab
+ *
+ * Expected columns:
+ * 0 team
+ * 1 original team (unused here)
+ * 2 first
+ * 3 last
+ * 4 nickname (unused)
+ * 5 age
+ * 6 offense
+ * 7 defense
+ * 8 special
+ */
 export function parsePlayers(rows: string[][]): Player[] {
   const [, ...data] = rows; // skip header row
 
-  return data.map((row) => {
-    const team = row[0];
+  return data.map((row, rowIndex) => {
+    try {
+      const team = row[0] || '';
 
-    const offense = row[6] || '';
-    const defense = row[7] || '';
-    const special = row[8] || '';
+      const offense = row[6] || '';
+      const defense = row[7] || '';
+      const special = row[8] || '';
 
-    const position = [offense, defense, special].filter((p) => p).join('/');
+      const position = [offense, defense, special].filter(Boolean).join('/');
 
-    const player: Player = {
-      team,
-      first: row[2],
-      last: row[3],
-      age: Number(row[5]),
-      offense,
-      defense,
-      special,
-      position, // set concatenated position
-      isIR: team?.includes('-IR'),
-      identity: '', // will fill below
-    };
+      const player: Player = {
+        team,
+        first: row[2] || '',
+        last: row[3] || '',
+        age: Number(row[5]) || 0,
+        offense,
+        defense,
+        special,
+        position,
+        isIR: team.includes('-IR'),
+        identity: '', // will set next
+      };
 
-    return {
-      ...player,
-      identity: buildPlayerIdentity(player),
-    };
-  });
+      return {
+        ...player,
+        identity: buildPlayerIdentity(player),
+      };
+    } catch (err) {
+      console.error(`Error parsing row ${rowIndex + 2}:`, err);
+      return null;
+    }
+  }).filter(Boolean) as Player[];
 }

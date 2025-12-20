@@ -12,3 +12,11 @@ export const sheets = google.sheets({
 });
 
 export const SHEET_ID = process.env.GOOGLE_SHEET_ID!;
+
+if (
+  !process.env.GOOGLE_CLIENT_EMAIL ||
+  !process.env.GOOGLE_PRIVATE_KEY ||
+  !process.env.GOOGLE_SHEET_ID
+) {
+  throw new Error('Missing Google Sheets environment variables');
+}

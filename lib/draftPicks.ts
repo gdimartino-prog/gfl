@@ -2,22 +2,37 @@ import { sheets, SHEET_ID } from './googleSheets';
 
 const SHEET = 'DraftPicks';
 
+export type DraftPick = {
+  year: number;
+  round: number;
+  team: string;
+};
+
 /**
  * Get all draft picks
  */
-export async function getAllDraftPicks() {
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: `${SHEET}!A2:C`,
-  });
+export async function getAllDraftPicks(): Promise<DraftPick[]> {
+  try {
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET}!A2:C`,
+    });
 
-  const rows = res.data.values || [];
+    const rows = res.data.values;
 
-  return rows.map(r => ({
-    year: Number(r[0]),
-    round: Number(r[1]),
-    team: r[2],
-  }));
+    if (!Array.isArray(rows)) {
+      return [];
+    }
+
+    return rows.map(r => ({
+      year: Number(r[0]),
+      round: Number(r[1]),
+      team: r[2],
+    }));
+  } catch (error) {
+    console.error('getAllDraftPicks failed:', error);
+    throw error;
+  }
 }
 
 /**
@@ -28,18 +43,13 @@ export async function findDraftPick(
   year: number,
   round: number
 ) {
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: `${SHEET}!A2:C`,
-  });
-
-  const rows = res.data.values || [];
+  const rows = await getAllDraftPicks();
 
   return rows.find(
     r =>
-      Number(r[0]) === year &&
-      Number(r[1]) === round &&
-      r[2] === team
+      r.year === year &&
+      r.round === round &&
+      r.team === team
   );
 }
 
@@ -52,34 +62,39 @@ export async function transferDraftPick(
   year: number,
   round: number
 ) {
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: `${SHEET}!A2:C`,
-  });
+  try {
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET}!A2:C`,
+    });
 
-  const rows = res.data.values || [];
+    const rows = res.data.values || [];
 
-  const rowIndex = rows.findIndex(
-    r =>
-      Number(r[0]) === year &&
-      Number(r[1]) === round &&
-      r[2] === fromTeam
-  );
-
-  if (rowIndex === -1) {
-    throw new Error(
-      `Draft pick ${year} R${round} not owned by ${fromTeam}`
+    const rowIndex = rows.findIndex(
+      r =>
+        Number(r[0]) === year &&
+        Number(r[1]) === round &&
+        r[2] === fromTeam
     );
+
+    if (rowIndex === -1) {
+      throw new Error(
+        `Draft pick ${year} R${round} not owned by ${fromTeam}`
+      );
+    }
+
+    const sheetRow = rowIndex + 2;
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET}!C${sheetRow}`,
+      valueInputOption: 'RAW',
+      requestBody: {
+        values: [[toTeam]],
+      },
+    });
+  } catch (error) {
+    console.error('transferDraftPick failed:', error);
+    throw error;
   }
-
-  const sheetRow = rowIndex + 2;
-
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: SHEET_ID,
-    range: `${SHEET}!C${sheetRow}`,
-    valueInputOption: 'RAW',
-    requestBody: {
-      values: [[toTeam]],
-    },
-  });
 }
