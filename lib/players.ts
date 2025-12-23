@@ -1,3 +1,5 @@
+import { sheets, SHEET_ID } from './googleSheets';
+
 export type Player = {
   team: string;
   first: string;
@@ -77,4 +79,51 @@ export function parsePlayers(rows: string[][]): Player[] {
       return null;
     }
   }).filter(Boolean) as Player[];
+}
+
+/**
+ * Remove rows in the "Players" sheet where first and last names are both blank.
+ */
+export async function removeBlankPlayerRows() {
+  try {
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Players',
+    });
+
+    const rows = res.data.values || [];
+
+    // Keep header row and rows where first or last name is present
+    const filteredRows = rows.filter((row, index) => {
+      if (index === 0) return true; // header
+      const first = row[2]?.trim();
+      const last = row[3]?.trim();
+      return first || last;
+    });
+
+    if (filteredRows.length === rows.length) {
+      console.log('No blank player rows to remove.');
+      return;
+    }
+
+    // Clear the sheet
+    await sheets.spreadsheets.values.clear({
+      spreadsheetId: SHEET_ID,
+      range: 'Players',
+    });
+
+    // Write back filtered rows
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: 'Players',
+      valueInputOption: 'RAW',
+      requestBody: {
+        values: filteredRows,
+      },
+    });
+
+    console.log(`Removed ${rows.length - filteredRows.length} blank player rows.`);
+  } catch (err) {
+    console.error('Error removing blank player rows:', err);
+  }
 }

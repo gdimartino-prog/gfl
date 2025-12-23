@@ -8,8 +8,40 @@ type Transaction = {
   coach: string;
 };
 
+function capitalize(word: string) {
+  if (!word) return '';
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
+// Keep this for ADD/DROP/IR logic
+function formatMessage(identity: string) {
+  // If the string doesn't look like a raw pipe-delimited ID, 
+  // or if it's already a formatted list, return it as is.
+  if (!identity.includes('|')) return identity;
+
+  const [first, last, , off, def] = identity.split('|');
+  const positionRaw = off || def || '';
+  const position = positionRaw.toUpperCase();
+  const firstName = capitalize(first);
+  const lastName = capitalize(last);
+
+  return `${position} - ${firstName} ${lastName}`;
+}
+
+function formatDateMMDDYYYY(date: Date) {
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  return `${mm}/${dd}/${yyyy}`;
+}
+
 export async function logTransaction(tx: Transaction) {
-  const timestamp = new Date().toISOString();
+  const date = formatDateMMDDYYYY(new Date());
+
+  // LOGIC CHANGE: 
+  // If it's a TRADE, use tx.identity directly (since we formatted it in the API).
+  // Otherwise, use formatMessage to handle the raw player ID.
+  const finalMessage = tx.type === 'TRADE' ? tx.identity : formatMessage(tx.identity);
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID,
@@ -17,9 +49,9 @@ export async function logTransaction(tx: Transaction) {
     valueInputOption: 'RAW',
     requestBody: {
       values: [[
-        timestamp,
+        date,
         tx.type,
-        tx.identity,
+        finalMessage, // This will now be clean for trades!
         tx.fromTeam || '',
         tx.toTeam || '',
         tx.coach,

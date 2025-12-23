@@ -7,11 +7,11 @@ export async function POST(req: Request) {
   try {
     // 1️⃣ Parse request body
     const body = await req.json();
-    console.log('TRANSACTION BODY:', body);
+    console.log('TRANSACTION REQUEST:', body);
 
     const {
       type,        // ADD | DROP | IR
-      identity,    // concatenated identity string
+      identity,    // first|last|age|offense|defense|special
       fromTeam,
       toTeam,
       coach
@@ -20,12 +20,12 @@ export async function POST(req: Request) {
     // 2️⃣ Basic validation
     if (!type || !identity || !coach) {
       return Response.json(
-        { success: false, error: 'Missing required fields' },
+        { success: false, error: 'Missing required fields (type, identity, or coach)' },
         { status: 400 }
       );
     }
 
-    // 3️⃣ Load Players sheet
+    // 3️⃣ Load Players sheet to find the current state of the player
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'Players',
@@ -35,48 +35,55 @@ export async function POST(req: Request) {
     const players = parsePlayers(rows);
 
     // 4️⃣ Find player by identity
-    const player = players.find(p => p.identity === identity);
+    // We trim and lowercase to ensure a perfect match
+    const player = players.find(p => p.identity.trim().toLowerCase() === identity.trim().toLowerCase());
 
     if (!player) {
       return Response.json(
-        { success: false, error: 'Player not found' },
+        { success: false, error: `Player not found: ${identity}` },
         { status: 404 }
       );
     }
 
-    // 5️⃣ Find row index in sheet
+    // 5️⃣ Find row index in sheet (Helper usually returns 1-based index or index + offset)
     const rowIndex = findPlayerRowIndex(rows, player);
+    if (rowIndex === -1) {
+      throw new Error('Player found in list but row index could not be determined.');
+    }
 
-    // 6️⃣ Handle transaction types
+    // 6️⃣ Handle transaction types and determine the new Team value
     let newTeam = player.team;
 
     if (type === 'ADD') {
       if (!toTeam) {
-        return Response.json(
-          { success: false, error: 'toTeam required for ADD' },
-          { status: 400 }
-        );
+        return Response.json({ success: false, error: 'toTeam required for ADD' }, { status: 400 });
       }
-
       newTeam = toTeam;
     }
 
-    if (type === 'DROP') {
+    else if (type === 'DROP') {
       newTeam = 'FA';
     }
 
-    if (type === 'IR') {
+    else if (type === 'IR') {
       if (player.team.endsWith('-IR')) {
         return Response.json(
-          { success: false, error: 'Player already on IR' },
+          { success: false, error: 'Player is already on Injured Reserve' },
           { status: 400 }
         );
       }
-
+      // Only move to IR if they are currently on a team
+      if (player.team === 'FA') {
+        return Response.json(
+          { success: false, error: 'Cannot move Free Agent to IR. Add them to a team first.' },
+          { status: 400 }
+        );
+      }
       newTeam = `${player.team}-IR`;
     }
 
-    // 7️⃣ Update team column (column A)
+    // 7️⃣ Update team column (Column A) in the Spreadsheet
+    // We target 'Players!A' + rowIndex
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: `Players!A${rowIndex}`,
@@ -86,7 +93,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // 8️⃣ Log transaction
+    // 8️⃣ Log the transaction to the 'Transactions' sheet for history
     await logTransaction({
       type,
       identity,
@@ -95,14 +102,17 @@ export async function POST(req: Request) {
       coach,
     });
 
-    // 9️⃣ Success
-    return Response.json({ success: true });
+    // 9️⃣ Final Success Response
+    return Response.json({ 
+      success: true, 
+      message: `Successfully processed ${type} for ${identity}`,
+      updatedTeam: newTeam 
+    });
 
   } catch (err: any) {
-    console.error('TRANSACTION ERROR:', err);
-
+    console.error('TRANSACTION SERVER ERROR:', err);
     return Response.json(
-      { success: false, error: err.message || 'Unknown error' },
+      { success: false, error: err.message || 'Internal Server Error' },
       { status: 500 }
     );
   }
