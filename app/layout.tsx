@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-// 1. Import the Navbar component
-import Navbar from "../components/Navbar"; 
+import Navbar from "@/components/Navbar"; // Ensure this path matches your Navbar location
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,13 +26,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
       >
-        {/* 2. Place the Navbar here so it shows on every page */}
+        {/* The Navbar shows on every page */}
         <Navbar />
         
-        {/* 3. The 'children' are your individual pages (Home, Rosters, etc.) */}
-        <main>
+        {/* Main content area */}
+        <main className="min-h-screen">
           {children}
         </main>
       </body>

@@ -28,15 +28,21 @@ function formatMessage(identity: string) {
   return `${position} - ${firstName} ${lastName}`;
 }
 
-function formatDateMMDDYYYY(date: Date) {
+function formatTimestamp(date: Date) {
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
   const yyyy = date.getFullYear();
-  return `${mm}/${dd}/${yyyy}`;
+  
+  const hh = String(date.getHours()).padStart(2, '0');
+  const min = String(date.getMinutes()).padStart(2, '0');
+  const ss = String(date.getSeconds()).padStart(2, '0');
+
+  return `${mm}/${dd}/${yyyy} ${hh}:${min}:${ss}`;
 }
 
 export async function logTransaction(tx: Transaction) {
-  const date = formatDateMMDDYYYY(new Date());
+  // Use the new timestamp function
+  const timestamp = formatTimestamp(new Date());
 
   // LOGIC CHANGE: 
   // If it's a TRADE, use tx.identity directly (since we formatted it in the API).

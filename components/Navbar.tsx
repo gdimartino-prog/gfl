@@ -9,7 +9,8 @@ export default function Navbar() {
   const navItems = [
     { name: 'Front Office', href: '/' },
     { name: 'Rosters', href: '/rosters' },
-    { name: 'Transactions', href: '/transactions' },
+    { name: 'Transactions', href: '/transactions' }, 
+    { name: 'Draft Board', href: '/draft' }, // Added the new Draft Board link
   ];
 
   return (

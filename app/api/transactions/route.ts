@@ -3,29 +3,38 @@ import { parsePlayers } from '@/lib/players';
 import { findPlayerRowIndex } from '@/lib/playerLookup';
 import { logTransaction } from '@/lib/transactions';
 
+// --- GET: Fetch all logs from the Transactions sheet ---
+export async function GET() {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Transactions!A:F', // Date, Type, Identity, From, To, Coach
+    });
+
+    const rows = response.data.values || [];
+    
+    // Convert to objects, skip header, and reverse for newest-first
+    const transactions = rows.slice(1).map((row) => ({
+      timestamp: row[0],
+      type: row[1],
+      details: row[2], // The "Identity" string (e.g., DE-LB - Bryce Huff)
+      from: row[3],
+      to: row[4],
+      coach: row[5],
+    })).reverse();
+
+    return Response.json(transactions);
+  } catch (error: any) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+}
+
+// --- POST: Process single-player moves (Add/Drop/IR) ---
 export async function POST(req: Request) {
   try {
-    // 1️⃣ Parse request body
     const body = await req.json();
-    console.log('TRANSACTION REQUEST:', body);
+    const { type, identity, toTeam, coach } = body;
 
-    const {
-      type,        // ADD | DROP | IR
-      identity,    // first|last|age|offense|defense|special
-      fromTeam,
-      toTeam,
-      coach
-    } = body;
-
-    // 2️⃣ Basic validation
-    if (!type || !identity || !coach) {
-      return Response.json(
-        { success: false, error: 'Missing required fields (type, identity, or coach)' },
-        { status: 400 }
-      );
-    }
-
-    // 3️⃣ Load Players sheet to find the current state of the player
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'Players',
@@ -33,67 +42,26 @@ export async function POST(req: Request) {
 
     const rows = res.data.values || [];
     const players = parsePlayers(rows);
-
-    // 4️⃣ Find player by identity
-    // We trim and lowercase to ensure a perfect match
     const player = players.find(p => p.identity.trim().toLowerCase() === identity.trim().toLowerCase());
 
-    if (!player) {
-      return Response.json(
-        { success: false, error: `Player not found: ${identity}` },
-        { status: 404 }
-      );
-    }
+    if (!player) return Response.json({ success: false, error: 'Player not found' }, { status: 404 });
 
-    // 5️⃣ Find row index in sheet (Helper usually returns 1-based index or index + offset)
     const rowIndex = findPlayerRowIndex(rows, player);
-    if (rowIndex === -1) {
-      throw new Error('Player found in list but row index could not be determined.');
-    }
-
-    // 6️⃣ Handle transaction types and determine the new Team value
     let newTeam = player.team;
 
-    if (type === 'ADD') {
-      if (!toTeam) {
-        return Response.json({ success: false, error: 'toTeam required for ADD' }, { status: 400 });
-      }
-      newTeam = toTeam;
-    }
+    if (type === 'ADD') newTeam = toTeam;
+    else if (type === 'DROP') newTeam = 'FA';
+    else if (type === 'IR') newTeam = `${player.team}-IR`;
 
-    else if (type === 'DROP') {
-      newTeam = 'FA';
-    }
-
-    else if (type === 'IR') {
-      if (player.team.endsWith('-IR')) {
-        return Response.json(
-          { success: false, error: 'Player is already on Injured Reserve' },
-          { status: 400 }
-        );
-      }
-      // Only move to IR if they are currently on a team
-      if (player.team === 'FA') {
-        return Response.json(
-          { success: false, error: 'Cannot move Free Agent to IR. Add them to a team first.' },
-          { status: 400 }
-        );
-      }
-      newTeam = `${player.team}-IR`;
-    }
-
-    // 7️⃣ Update team column (Column A) in the Spreadsheet
-    // We target 'Players!A' + rowIndex
+    // Update Player Sheet
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: `Players!A${rowIndex}`,
       valueInputOption: 'RAW',
-      requestBody: {
-        values: [[newTeam]],
-      },
+      requestBody: { values: [[newTeam]] },
     });
 
-    // 8️⃣ Log the transaction to the 'Transactions' sheet for history
+    // Log to Transactions Sheet
     await logTransaction({
       type,
       identity,
@@ -102,18 +70,8 @@ export async function POST(req: Request) {
       coach,
     });
 
-    // 9️⃣ Final Success Response
-    return Response.json({ 
-      success: true, 
-      message: `Successfully processed ${type} for ${identity}`,
-      updatedTeam: newTeam 
-    });
-
+    return Response.json({ success: true, updatedTeam: newTeam });
   } catch (err: any) {
-    console.error('TRANSACTION SERVER ERROR:', err);
-    return Response.json(
-      { success: false, error: err.message || 'Internal Server Error' },
-      { status: 500 }
-    );
+    return Response.json({ success: false, error: err.message }, { status: 500 });
   }
 }

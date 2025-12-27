@@ -17,31 +17,40 @@ export async function GET(req: Request, { params }: RouteContext) {
       }),
       sheets.spreadsheets.values.get({ 
         spreadsheetId: SHEET_ID, 
-        range: 'DraftPicks!A:C' // Corrected tab name
+        range: 'DraftPicks!A:G' // Expanded range to A:G for the 7 columns
       })
     ]);
 
     const allPlayers = playersRes.data.values || [];
     const allPicks = picksRes.data.values || [];
 
-    // Filter Players
+    // 1. Process Players
     const roster = allPlayers
       .filter(row => row[0]?.toUpperCase() === teamShort)
       .map(row => ({
-        name: `${row[1]} ${row[2]}`,
-        // Col G (6), H (7), I (8)
+        // Using row[2] and row[3] for First Last name
+        name: `${row[2]} ${row[3]}`,
+        // Mapping positions from G, H, I columns
         pos: (row[6] || row[7] || row[8] || '??').toUpperCase(),
         group: row[6] ? 'OFF' : row[7] ? 'DEF' : 'SPEC'
       }));
 
-    // Filter Draft Picks
+    // 2. Process Draft Picks
+    // Column Index Mapping: 0:Year, 1:Round, 3:Overall, 4:Original Team, 5:Current Owner
     const picks = allPicks
-      .filter(row => row[2]?.toUpperCase() === teamShort)
+      .filter(row => row[5]?.toUpperCase() === teamShort) // Filter by CURRENT OWNER (Index 5)
       .map(row => ({
         year: row[0],
-        round: row[1]
+        round: row[1],
+        overall: row[3],
+        originalTeam: row[4],
+        currentOwner: row[5]
       }))
-      .sort((a, b) => Number(a.year) - Number(b.year) || Number(a.round) - Number(b.round));
+      // Sort by Year first, then by Overall pick number
+      .sort((a, b) => 
+        Number(a.year) - Number(b.year) || 
+        Number(a.overall) - Number(b.overall)
+      );
 
     return Response.json({ roster, picks });
   } catch (error: any) {
