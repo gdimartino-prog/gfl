@@ -22,6 +22,7 @@ export async function GET() {
       fromShort: row[5], // PHI
       toShort: row[6],   // DAL
       coach: row[7],
+      status: row[8]
     })).reverse());
   } catch (error: any) {
     return Response.json({ error: error.message }, { status: 500 });

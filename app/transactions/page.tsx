@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react'; // Added useMemo
 import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
 import IRPanel from './components/IRPanel';
@@ -11,16 +11,16 @@ export default function TransactionsPage() {
   const [selectedTeam, setSelectedTeam] = useState('');
   const [coach, setCoach] = useState('');
   
-  // New state for logs
   const [logs, setLogs] = useState<any[]>([]);
   const [loadingLogs, setLoadingLogs] = useState(true);
+  
+  // NEW: State for filtering the log table
+  const [filterTeam, setFilterTeam] = useState('');
 
-  // 1. Fetch Teams
   useEffect(() => {
     fetch('/api/teams').then(res => res.json()).then(setTeams);
   }, []);
 
-  // 2. Fetch Logs (Run once on mount)
   useEffect(() => {
     fetchLogs();
   }, []);
@@ -43,14 +43,22 @@ export default function TransactionsPage() {
     setCoach(teamObj ? teamObj.coach : '');
   }, [selectedTeam, teams]);
 
+  // NEW: Filtering logic using useMemo for performance
+  const filteredLogs = useMemo(() => {
+    if (!filterTeam) return logs;
+    return logs.filter(log => 
+      log.fromShort === filterTeam || log.toShort === filterTeam
+    );
+  }, [logs, filterTeam]);
+
   return (
-    <div className="max-w-6xl mx-auto p-8 space-y-12">
-      <h1 className="text-3xl font-bold border-b pb-4">GFL Transaction Center</h1>
+    <div className="max-w-7xl mx-auto p-8 space-y-12">
+      <h1 className="text-3xl font-bold border-b pb-4 text-left text-gray-800">GFL Transaction Center</h1>
 
       {/* GLOBAL SELECTOR SECTION */}
       <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row gap-6 items-end">
-        <div className="flex-1 w-full">
-          <label className="block text-xs font-bold text-gray-500 mb-1 uppercase text-left">Select Active Team</label>
+        <div className="flex-1 w-full text-left">
+          <label className="block text-xs font-bold text-gray-500 mb-1 uppercase">Select Active Team</label>
           <select 
             className="border p-3 w-full rounded bg-white shadow-sm focus:ring-2 focus:ring-blue-500 outline-none"
             value={selectedTeam}
@@ -63,7 +71,7 @@ export default function TransactionsPage() {
         <div className="flex-1 w-full text-left">
           <label className="block text-xs font-bold text-gray-500 mb-1 uppercase">Coach (Auto-filled)</label>
           <input 
-            className="border p-3 w-full rounded bg-gray-100 text-gray-600" 
+            className="border p-3 w-full rounded bg-gray-100 text-gray-600 focus:outline-none" 
             value={coach} 
             readOnly 
             placeholder="Coach name will appear here..."
@@ -76,7 +84,6 @@ export default function TransactionsPage() {
           <p className="text-xl">Select a team at the top to enable transaction tools.</p>
         </div>
       ) : (
-        /* THE 2x2 GRID */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <FreeAgentPanel team={selectedTeam} coach={coach} />
           <DropPlayer team={selectedTeam} coach={coach} />
@@ -85,58 +92,84 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      {/* --- TRANSACTION LOG SECTION --- */}
+      {/* --- UPDATED TRANSACTION LOG SECTION --- */}
       <div className="space-y-4">
-        <div className="flex justify-between items-center border-b pb-2">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center border-b pb-4 gap-4">
           <h2 className="text-xl font-bold text-gray-700">Recent Transaction History</h2>
-          <button 
-            onClick={fetchLogs}
-            className="text-xs bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded transition"
-          >
-            Refresh Log
-          </button>
+          
+          <div className="flex items-center gap-3">
+            {/* NEW: Filter Dropdown */}
+            <select 
+              className="text-sm border rounded-lg px-3 py-2 bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500"
+              value={filterTeam}
+              onChange={(e) => setFilterTeam(e.target.value)}
+            >
+              <option value="">Show All Teams</option>
+              {teams.map(t => (
+                <option key={t.short} value={t.short}>{t.name}</option>
+              ))}
+            </select>
+
+            <button 
+              onClick={fetchLogs}
+              className="text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-lg transition-all flex items-center gap-2 border"
+            >
+              🔄 Refresh
+            </button>
+          </div>
         </div>
 
         <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
+          <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
             <table className="w-full text-left text-sm">
-              <thead className="bg-gray-100 sticky top-0 z-10">
+              <thead className="bg-gray-100 sticky top-0 z-10 border-b">
                 <tr>
-                  <th className="p-4 font-bold text-gray-600 uppercase text-[10px]">Date</th>
+                  <th className="p-4 font-bold text-gray-600 uppercase text-[10px]">Timestamp</th>
                   <th className="p-4 font-bold text-gray-600 uppercase text-[10px]">Type</th>
+                  <th className="p-4 font-bold text-gray-600 uppercase text-[10px]">Teams Involved</th>
                   <th className="p-4 font-bold text-gray-600 uppercase text-[10px]">Details</th>
                   <th className="p-4 font-bold text-gray-600 uppercase text-[10px]">Coach</th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody className="divide-y divide-gray-100">
                 {loadingLogs ? (
-                  <tr><td colSpan={4} className="p-10 text-center text-gray-400 italic">Updating history...</td></tr>
-                ) : logs.length === 0 ? (
-                  <tr><td colSpan={4} className="p-10 text-center text-gray-400">No transactions recorded yet.</td></tr>
+                  <tr><td colSpan={5} className="p-10 text-center text-gray-400 italic">Updating history...</td></tr>
+                ) : filteredLogs.length === 0 ? (
+                  <tr><td colSpan={5} className="p-10 text-center text-gray-400">No transactions found for this filter.</td></tr>
                 ) : (
-                  logs.map((log, i) => (
-                    <tr key={i} className="hover:bg-blue-50/30 transition">
-                      <td className="p-4 text-gray-500 whitespace-nowrap">
-                        {new Date(log.timestamp).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  filteredLogs.map((log, i) => (
+                    <tr key={i} className="hover:bg-blue-50/40 transition-colors">
+                      <td className="p-4 text-gray-400 whitespace-nowrap font-mono text-[11px]">
+                        {log.timestamp}
                       </td>
                       <td className="p-4">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-black tracking-wider ${
                           log.type === 'TRADE' ? 'bg-blue-100 text-blue-700' :
                           log.type === 'ADD' ? 'bg-green-100 text-green-700' :
-                          log.type === 'DROP' ? 'bg-red-100 text-red-700' : 'bg-gray-100'
+                          log.type === 'DROP' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
                         }`}>
                           {log.type}
                         </span>
                       </td>
+                      
                       <td className="p-4">
                         <div className="flex flex-col">
-                          <span className="font-semibold text-gray-800">{log.details}</span>
-                          <span className="text-[10px] text-gray-400 italic lowercase">
-                            {log.from} &rarr; {log.to}
+                          <span className="font-bold text-gray-900">
+                            {log.fullTo || log.toShort}
                           </span>
+                          {(log.type === 'TRADE' || log.type === 'DROP') && (
+                            <span className="text-[10px] text-gray-400 italic">
+                              {log.type === 'TRADE' ? 'from ' : 'released by '} 
+                              {log.fullFrom || log.fromShort}
+                            </span>
+                          )}
                         </div>
                       </td>
-                      <td className="p-4 text-gray-600 font-medium">{log.coach}</td>
+
+                      <td className="p-4">
+                        <span className="font-medium text-gray-800">{log.details}</span>
+                      </td>
+                      <td className="p-4 text-gray-500">{log.coach}</td>
                     </tr>
                   ))
                 )}

@@ -10,6 +10,7 @@ export async function POST(req: Request) {
       rawIdentitiesFrom, rawIdentitiesTo 
     } = body;
 
+    // --- 1. FETCH DATA (Expanded range to column I to catch all positions) ---
     const [playerRes, draftRes] = await Promise.all([
       sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'Players!A:I' }),
       sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'DraftPicks!A:G' })
@@ -18,71 +19,82 @@ export async function POST(req: Request) {
     const playerRows = playerRes.data.values || [];
     const draftRows = draftRes.data.values || [];
 
-    // --- IMPROVED FORMATTER ---
-    const formatAssetString = (playerIdentities: string[], pickStrings: string[]) => {
+    const formatAssetString = (players: string[], picks: any[]) => {
       const titleCase = (str: string) => 
         str.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 
-      const formattedPlayers = (playerIdentities || []).map(p => {
+      // 1. FORMAT PLAYERS
+      const formattedPlayers = (players || []).map(p => {
         if (p.includes('|')) {
           const parts = p.split('|');
           const firstName = titleCase(parts[0] || '');
           const lastName = titleCase(parts[1] || '');
           
-          // Hunt for position starting earlier (Index 2+) 
-          // to catch "te" in "jake|ferguson|25|te||"
-          const position = parts.slice(2).find(part => 
+          // POSITION HUNT: 
+          // 1. Check Special Teams (parts[8]), then Defense (parts[7]), then Offense (parts[6])
+          // 2. Allow up to 5 characters to catch "DE-LB"
+          const position = (parts[8] || parts[7] || parts[6] || parts.slice(2).find(part => 
             part && part.length >= 1 && part.length <= 5 && isNaN(Number(part))
-          ) || 'PLAYER';
+          ) || 'PLAYER').trim();
 
-          return `${position.toUpperCase()} - ${firstName} ${lastName}`;
+          return `${position.toUpperCase()} - ${firstName} ${lastName}`.trim();
         }
         return titleCase(p);
       });
 
-      return [...formattedPlayers, ...(pickStrings || [])].filter(Boolean).join(', ');
+      // 2. FORMAT DRAFT PICKS
+      const formattedPicks = (picks || []).map(overall => {
+        const pickData = draftRows.find(r => 
+          String(r[2]).trim() === String(overall).trim() || 
+          String(r[3]).trim() === String(overall).trim()
+        );
+        
+        if (pickData) {
+          return `Draft Pick Year ${pickData[0]} Round ${pickData[1]}`;
+        }
+        return `Pick #${overall}`;
+      });
+
+      // 3. COMBINE AND CLEAN
+      const allAssets = [...formattedPlayers, ...formattedPicks].filter(Boolean);
+      return allAssets.join(', ');
     };
 
-    // Separate the strings clearly for each side of the trade
-    const cleanAssetsFrom = formatAssetString(rawIdentitiesFrom, draftPicksFrom);
-    const cleanAssetsTo = formatAssetString(rawIdentitiesTo, draftPicksTo);
+    const cleanAssetsFrom = formatAssetString(playersFrom, draftPicksFrom);
+    const cleanAssetsTo = formatAssetString(playersTo, draftPicksTo);
 
-    // --- EXECUTE UPDATES ---
+    // --- 2. EXECUTE UPDATES ---
     const updatePromises: Promise<any>[] = [];
 
     const findPlayerRow = (id: string) => playerRows.findIndex(r => 
       `${r[1]}|${r[2]}|${r[3]}|${r[4]}|${r[5]}|${r[6]}`.toLowerCase() === id.toLowerCase()
     );
 
-    const findDraftRow = (pickString: string) => {
-      const match = pickString.match(/#(\d+)/);
-      if (!match) return -1;
-      return draftRows.findIndex(r => String(r[2]).trim() === String(match[1]).trim());
-    };
-
-    // Updates for Proposer -> Partner
-    rawIdentitiesFrom?.forEach(id => {
+    rawIdentitiesFrom?.forEach((id: string) => {
       const idx = findPlayerRow(id);
       if (idx !== -1) updatePromises.push(updateCell('Players', 'A', idx + 1, toTeam));
     });
-    draftPicksFrom?.forEach(pick => {
-      const idx = findDraftRow(pick);
-      if (idx !== -1) updatePromises.push(updateCell('DraftPicks', 'E', idx + 1, toTeam));
-    });
 
-    // Updates for Partner -> Proposer
-    rawIdentitiesTo?.forEach(id => {
+    rawIdentitiesTo?.forEach((id: string) => {
       const idx = findPlayerRow(id);
       if (idx !== -1) updatePromises.push(updateCell('Players', 'A', idx + 1, fromTeam));
     });
-    draftPicksTo?.forEach(pick => {
-      const idx = findDraftRow(pick);
-      if (idx !== -1) updatePromises.push(updateCell('DraftPicks', 'E', idx + 1, fromTeam));
+
+    const findDraftRow = (overall: string) => draftRows.findIndex(r => String(r[3]).trim() === String(overall).trim());
+
+    draftPicksFrom?.forEach((overall: string) => {
+      const idx = findDraftRow(overall);
+      if (idx !== -1) updatePromises.push(updateCell('DraftPicks', 'F', idx + 1, toTeam));
+    });
+
+    draftPicksTo?.forEach((overall: string) => {
+      const idx = findDraftRow(overall);
+      if (idx !== -1) updatePromises.push(updateCell('DraftPicks', 'F', idx + 1, fromTeam));
     });
 
     await Promise.all(updatePromises);
 
-    // --- LOG TRANSACTIONS (Two separate entries for the log) ---
+    // --- 3. LOG TRANSACTIONS ---
     if (cleanAssetsFrom) {
       await logTransaction({
         type: 'TRADE',

@@ -8,6 +8,48 @@ type Transaction = {
   coach: string;
 };
 
+/**
+ * Updates the 'Current Owner' in the DraftPicks sheet when a pick is traded.
+ */
+async function updatePickOwner(details: string, newOwnerShort: string) {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'DraftPicks!A:F',
+    });
+    const rows = response.data.values || [];
+
+    // Regex to find Year and Round from the message (e.g., "2026 Round 1")
+    const match = details.match(/(\d{4})\s+Round\s+(\d+)/i);
+    if (!match) return;
+
+    const [_, year, round] = match;
+
+    // Find the row index where Year (Col A/0) and Round (Col B/1) match
+    const rowIndex = rows.findIndex(row => 
+      row[0] === year && row[1] === round
+    );
+
+    if (rowIndex !== -1) {
+      // Column E is Index 4, so we update Column E at the found row index
+      // +1 because Sheets are 1-indexed
+      const rangeToUpdate = `DraftPicks!E${rowIndex + 1}`; 
+      
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SHEET_ID,
+        range: rangeToUpdate,
+        valueInputOption: 'RAW',
+        requestBody: {
+          values: [[newOwnerShort.toUpperCase()]],
+        },
+      });
+      console.log(`Successfully moved ${year} R${round} to ${newOwnerShort}`);
+    }
+  } catch (err) {
+    console.error("DraftPicks update failed:", err);
+  }
+}
+
 function capitalize(word: string) {
   if (!word) return '';
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -23,7 +65,6 @@ function formatMessage(identity: string) {
   return `${position} - ${firstName} ${lastName}`;
 }
 
-// Full timestamp with HH:MM:SS
 function formatTimestamp(date: Date) {
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
@@ -57,22 +98,28 @@ export async function logTransaction(tx: Transaction) {
 
   const finalMessage = tx.type === 'TRADE' ? tx.identity : formatMessage(tx.identity);
 
-  // --- 2. RESTORED tx.type AND APPEND ---
+  // --- 2. UPDATE DRAFT PICKS SHEET IF NECESSARY ---
+  // If the trade identity contains "Round", we update the DraftPicks sheet
+  if (tx.type === 'TRADE' && tx.identity.toLowerCase().includes('round')) {
+    await updatePickOwner(tx.identity, tx.toTeam || '');
+  }
+
+  // --- 3. APPEND TO TRANSACTION LOG ---
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID,
-    range: 'Transactions!A:I', // Extended range to Column I
+    range: 'Transactions!A:I',
     valueInputOption: 'RAW',
     requestBody: {
       values: [[
-        timestamp,            // A: Date + Time
-        tx.type,              // B: Type (ADD, DROP, etc.) - RESTORED
-        finalMessage,        // C: Formatted Identity
-        fullFrom,            // D: Full From Team
-        fullTo,              // E: Full To Team
-        tx.fromTeam || 'FA',  // F: Short From Team
-        tx.toTeam || 'FA',    // G: Short To Team
-        tx.coach,             // H: Coach Name
-        tx.type === 'TRADE' ? 'PENDING' : 'INSTANT' // I: Status
+        timestamp,
+        tx.type,
+        finalMessage,
+        fullFrom,
+        fullTo,
+        tx.fromTeam || 'FA',
+        tx.toTeam || 'FA',
+        tx.coach,
+        tx.type === 'TRADE' ? 'PENDING' : 'INSTANT'
       ]],
     },
   });

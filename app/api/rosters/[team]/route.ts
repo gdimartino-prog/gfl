@@ -38,13 +38,13 @@ export async function GET(req: Request, { params }: RouteContext) {
     // 2. Process Draft Picks
     // Column Index Mapping: 0:Year, 1:Round, 3:Overall, 4:Original Team, 5:Current Owner
     const picks = allPicks
-      .filter(row => row[5]?.toUpperCase() === teamShort) // Filter by CURRENT OWNER (Index 5)
+      .filter(row => row[4]?.toUpperCase() === teamShort) // Filter by CURRENT OWNER (Index 5)
       .map(row => ({
         year: row[0],
         round: row[1],
-        overall: row[3],
-        originalTeam: row[4],
-        currentOwner: row[5]
+        overall: row[2],
+        originalTeam: row[3],
+        currentOwner: row[4]
       }))
       // Sort by Year first, then by Overall pick number
       .sort((a, b) => 
