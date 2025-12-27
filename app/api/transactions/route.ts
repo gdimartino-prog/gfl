@@ -8,22 +8,21 @@ export async function GET() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'Transactions!A:F', // Date, Type, Identity, From, To, Coach
+      range: 'Transactions!A:H', 
     });
 
     const rows = response.data.values || [];
     
-    // Convert to objects, skip header, and reverse for newest-first
-    const transactions = rows.slice(1).map((row) => ({
+    return Response.json(rows.slice(1).map((row) => ({
       timestamp: row[0],
       type: row[1],
-      details: row[2], // The "Identity" string (e.g., DE-LB - Bryce Huff)
-      from: row[3],
-      to: row[4],
-      coach: row[5],
-    })).reverse();
-
-    return Response.json(transactions);
+      details: row[2],
+      fullFrom: row[3], // Philadelphia Eagles
+      fullTo: row[4],   // Dallas Cowboys
+      fromShort: row[5], // PHI
+      toShort: row[6],   // DAL
+      coach: row[7],
+    })).reverse());
   } catch (error: any) {
     return Response.json({ error: error.message }, { status: 500 });
   }
