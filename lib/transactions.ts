@@ -23,6 +23,7 @@ function formatMessage(identity: string) {
   return `${position} - ${firstName} ${lastName}`;
 }
 
+// Full timestamp with HH:MM:SS
 function formatTimestamp(date: Date) {
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
@@ -36,45 +37,42 @@ function formatTimestamp(date: Date) {
 export async function logTransaction(tx: Transaction) {
   const timestamp = formatTimestamp(new Date());
 
-  // --- 1. TEAM NAME LOOKUP LOGIC ---
-  let fullFrom = tx.fromTeam || '';
-  let fullTo = tx.toTeam || '';
+  // --- 1. TEAM NAME LOOKUP ---
+  let fullFrom = tx.fromTeam || 'FA';
+  let fullTo = tx.toTeam || 'FA';
   
   try {
     const configRes = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'Config!A:B', // Column A: Full Name, Column B: Short Name
+      range: 'Config!A:B', 
     });
     const configRows = configRes.data.values || [];
-    
-    // Create a lookup map: { "PHI": "Philadelphia Eagles", "DAL": "Dallas Cowboys" }
     const teamMap = new Map(configRows.map(row => [row[1], row[0]]));
     
-    // Replace short names if they exist in the map
-    if (teamMap.has(tx.fromTeam || '')) fullFrom = teamMap.get(tx.fromTeam!)!;
-    if (teamMap.has(tx.toTeam || '')) fullTo = teamMap.get(tx.toTeam!)!;
-    
+    if (tx.fromTeam && teamMap.has(tx.fromTeam)) fullFrom = teamMap.get(tx.fromTeam)!;
+    if (tx.toTeam && teamMap.has(tx.toTeam)) fullTo = teamMap.get(tx.toTeam)!;
   } catch (err) {
-    console.error("Team lookup failed:", err);
+    console.error("Team name lookup failed:", err);
   }
 
   const finalMessage = tx.type === 'TRADE' ? tx.identity : formatMessage(tx.identity);
 
-  // --- 2. APPEND TO SHEET ---
+  // --- 2. RESTORED tx.type AND APPEND ---
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID,
-    range: 'Transactions!A:H',
+    range: 'Transactions!A:I', // Extended range to Column I
     valueInputOption: 'RAW',
     requestBody: {
       values: [[
-        timestamp,      // A
-        tx.type,       // B
-        finalMessage,  // C
-        fullFrom,      // D (Full Name Sender)
-        fullTo,        // E (Full Name Receiver)
-        tx.fromTeam,   // F (Short Name Sender - useful for filtering)
-        tx.toTeam,     // G (Short Name Receiver)
-        tx.coach       // H
+        timestamp,            // A: Date + Time
+        tx.type,              // B: Type (ADD, DROP, etc.) - RESTORED
+        finalMessage,        // C: Formatted Identity
+        fullFrom,            // D: Full From Team
+        fullTo,              // E: Full To Team
+        tx.fromTeam || 'FA',  // F: Short From Team
+        tx.toTeam || 'FA',    // G: Short To Team
+        tx.coach,             // H: Coach Name
+        tx.type === 'TRADE' ? 'PENDING' : 'INSTANT' // I: Status
       ]],
     },
   });
