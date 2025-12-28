@@ -11,6 +11,7 @@ export default function DraftPage() {
   const [picks, setPicks] = useState<any[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false); // New state for refresh button
   
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,7 +25,8 @@ export default function DraftPage() {
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
   const [progress, setProgress] = useState<number>(100);
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (showRefreshState = false) => {
+    if (showRefreshState) setIsRefreshing(true);
     try {
       const [pRes, tRes] = await Promise.all([
         fetch('/api/draft-picks', { cache: 'no-store' }).then(res => res.json()),
@@ -35,16 +37,19 @@ export default function DraftPage() {
         : [];
       setPicks(sortedPicks);
       setTeams(tRes);
-    } catch (err) { console.error("Error:", err); } finally { setLoading(false); }
+    } catch (err) { 
+      console.error("Error:", err); 
+    } finally { 
+      setLoading(false); 
+      setIsRefreshing(false);
+    }
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
 
   // --- LOGIC: IDENTIFY CLOCK STATUS ---
   const { onClockPick, previousPick, onDeckPicks } = useMemo(() => {
-    // FIX: Look for the pick that is specifically marked "Active" in the Sheet to drive the timer
     const currentIndex = picks.findIndex(p => p.status === "Active");
-    
     return {
       onClockPick: picks[currentIndex],
       previousPick: currentIndex > 0 ? picks[currentIndex - 1] : null,
@@ -94,7 +99,6 @@ export default function DraftPage() {
     return team ? team.name : shortCode;
   };
 
-  // --- LOGIC: FILTERED PICKS ---
   const filteredPicks = useMemo(() => {
     return picks.filter(p => {
       const searchStr = searchTerm.toLowerCase();
@@ -155,49 +159,47 @@ export default function DraftPage() {
         </div>
       )}
 
-      {/* FILTER BAR */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-        <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Year</label>
-          <select 
-            className="p-3 border rounded-lg bg-gray-50 text-xs font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-            value={yearFilter} onChange={(e) => setYearFilter(e.target.value)}
-          >
-            <option value="All">All Years</option>
-            {Array.from(new Set(picks.map(p => p.year))).sort().map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
+      {/* FILTER BAR + REFRESH */}
+      <div className="flex flex-col xl:flex-row gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex-1">
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Year</label>
+            <select className="p-3 border rounded-lg bg-gray-50 text-xs font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500" value={yearFilter} onChange={(e) => setYearFilter(e.target.value)}>
+              <option value="All">All Years</option>
+              {Array.from(new Set(picks.map(p => p.year))).sort().map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Team</label>
+            <select className="p-3 border rounded-lg bg-gray-50 text-xs font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500" value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)}>
+              <option value="All Teams">All Teams</option>
+              {Array.from(new Set(picks.map(p => getFullTeamName(p.currentOwner)))).sort().map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Round</label>
+            <select className="p-3 border rounded-lg bg-gray-50 text-xs font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500" value={roundFilter} onChange={(e) => setRoundFilter(e.target.value)}>
+              <option value="All Rounds">All Rounds</option>
+              {Array.from(new Set(picks.map(p => p.round))).sort((a,b)=>a-b).map(r => <option key={r} value={r.toString()}>Round {r}</option>)}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Search</label>
+            <input type="text" placeholder="Search player..." className="p-3 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+          </div>
         </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Team</label>
-          <select 
-            className="p-3 border rounded-lg bg-gray-50 text-xs font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-            value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)}
-          >
-            <option value="All Teams">All Teams</option>
-            {Array.from(new Set(picks.map(p => getFullTeamName(p.currentOwner)))).sort().map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Round</label>
-          <select 
-            className="p-3 border rounded-lg bg-gray-50 text-xs font-bold uppercase outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-            value={roundFilter} onChange={(e) => setRoundFilter(e.target.value)}
-          >
-            <option value="All Rounds">All Rounds</option>
-            {Array.from(new Set(picks.map(p => p.round))).sort((a,b)=>a-b).map(r => <option key={r} value={r.toString()}>Round {r}</option>)}
-          </select>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Search</label>
-          <input 
-            type="text" placeholder="Search player..."
-            className="p-3 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+        
+        {/* REFRESH BUTTON */}
+        <button 
+          onClick={() => loadData(true)}
+          disabled={isRefreshing}
+          className="bg-white border border-gray-200 hover:bg-gray-50 text-slate-600 px-6 py-4 rounded-xl shadow-sm flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50"
+        >
+          <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span className="text-xs font-black uppercase tracking-widest">Refresh Board</span>
+        </button>
       </div>
 
       {/* DRAFT TABLE */}
@@ -214,7 +216,6 @@ export default function DraftPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filteredPicks.map((pick) => {
-                // FIX: Status is drafted if there is a name that ISN'T the "SKIPPED" text
                 const isDrafted = !!pick.draftedPlayer && !pick.draftedPlayer.includes("SKIPPED");
                 const isSkipped = !!pick.draftedPlayer && pick.draftedPlayer.includes("SKIPPED");
                 const isOnClock = onClockPick && pick.overall === onClockPick.overall;
@@ -222,9 +223,7 @@ export default function DraftPage() {
                 return (
                   <tr key={pick.overall} className={`transition-colors ${isOnClock ? 'bg-blue-50/80 ring-2 ring-blue-500 ring-inset' : ''}`}>
                     <td className="px-6 py-6">
-                      <span className={`text-2xl font-black ${isOnClock ? 'text-blue-600' : 'text-slate-200'}`}>
-                        #{pick.overall}
-                      </span>
+                      <span className={`text-2xl font-black ${isOnClock ? 'text-blue-600' : 'text-slate-200'}`}>#{pick.overall}</span>
                     </td>
                     <td className="px-6 py-4">
                       {isDrafted ? (
@@ -238,32 +237,19 @@ export default function DraftPage() {
                           <span className="text-[9px] font-bold text-slate-400 uppercase italic tracking-tight">Can still make late selection</span>
                         </div>
                       ) : (
-                        <span className="text-slate-300 italic text-xs uppercase font-bold tracking-widest">
-                          {isOnClock ? 'On the Clock' : 'Pending'}
-                        </span>
+                        <span className="text-slate-300 italic text-xs uppercase font-bold tracking-widest">{isOnClock ? 'On the Clock' : 'Pending'}</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`font-black uppercase ${isOnClock ? 'text-blue-900' : 'text-slate-700'}`}>
-                        {getFullTeamName(pick.currentOwner)}
-                      </span>
+                      <span className={`font-black uppercase ${isOnClock ? 'text-blue-900' : 'text-slate-700'}`}>{getFullTeamName(pick.currentOwner)}</span>
                     </td>
                     <td className="px-6 py-4 text-center">
                       {(isOnClock || isSkipped) && !isDrafted ? (
-                        <button 
-                          onClick={() => setSelectedPick(pick)}
-                          className={`${
-                            isOnClock 
-                              ? "bg-blue-600 hover:bg-blue-700 animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.3)]" 
-                              : "bg-[#f59e0b] hover:bg-[#d97706]" // RESTORED: Orange for Late Selection
-                          } text-white text-[10px] font-black py-2.5 px-5 rounded-lg shadow-lg uppercase transition-all`}
-                        >
+                        <button onClick={() => setSelectedPick(pick)} className={`${isOnClock ? "bg-blue-600 hover:bg-blue-700 animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.3)]" : "bg-[#f59e0b] hover:bg-[#d97706]"} text-white text-[10px] font-black py-2.5 px-5 rounded-lg shadow-lg uppercase transition-all`}>
                           {isSkipped ? "Make Late Selection" : "Make Selection"}
                         </button>
                       ) : isDrafted ? (
-                        <span className="text-green-500 font-black text-[10px] border border-green-200 bg-green-50 px-3 py-1 rounded-full uppercase">
-                          Completed
-                        </span>
+                        <span className="text-green-500 font-black text-[10px] border border-green-200 bg-green-50 px-3 py-1 rounded-full uppercase">Completed</span>
                       ) : (
                         <span className="text-slate-300 font-black text-[10px] uppercase">Locked</span>
                       )}
@@ -278,11 +264,7 @@ export default function DraftPage() {
 
       {selectedPick && (
         <SelectionModal 
-          pick={{
-            ...selectedPick,
-            currentOwner: getFullTeamName(selectedPick.currentOwner),
-            currentOwnerCode: resolveCode(selectedPick.currentOwner)
-          }}
+          pick={{...selectedPick, currentOwner: getFullTeamName(selectedPick.currentOwner), currentOwnerCode: resolveCode(selectedPick.currentOwner)}}
           onClose={() => setSelectedPick(null)}
           onComplete={() => { setSelectedPick(null); loadData(); }}
         />
