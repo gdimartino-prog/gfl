@@ -68,7 +68,8 @@ export async function transferDraftPick(
   fromTeam: string,
   toTeam: string,
   year: number,
-  round: number
+  round: number,
+  overall: number
 ) {
   try {
     // 1. Fetch the data to find the row index
