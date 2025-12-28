@@ -1,27 +1,32 @@
 import { NextResponse } from 'next/server';
-import { getAllDraftPicks, transferDraftPick } from '@/lib/draftPicks';
+import { sheets, SHEET_ID } from '@/lib/googleSheets'; // Import direct sheets access
+import { transferDraftPick } from '@/lib/draftPicks';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
-    const picks = await getAllDraftPicks();
+    // We bypass the lib function here to ensure we get EXACTLY columns A through H
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'DraftPicks!A:H', 
+    });
 
-    // If picks is already an array of objects (from your lib), just return it.
-    // If it's raw rows from Google Sheets, we map it using the 6-column indices:
-    const formattedPicks = Array.isArray(picks) ? picks.map((p: any) => {
-      // If 'p' is already an object (has a 'year' property), return it as is
-      if (p.year) return p;
+    const rows = response.data.values;
+    if (!rows || rows.length === 0) return NextResponse.json([]);
 
-      // If 'p' is a raw array row, map it:
-      // Index 0: Year | 1: Round | 2: Overall | 3: Original | 4: Owner | 5: Status
-      return {
-        year: p[0],
-        round: p[1],
-        overall: p[2],
-        originalTeam: p[3],
-        currentOwner: p[4], // This is Column E
-        status: p[5]
-      };
-    }) : [];
+    // Map the rows to objects including the new G and H columns
+    const formattedPicks = rows.slice(1).map((p: any) => ({
+      year: p[0] || '',
+      round: p[1] || '',
+      overall: p[2] || '',
+      originalTeam: p[3] || '',
+      currentOwner: p[4] || '',
+      status: p[5] || '',
+      draftedPlayer: p[6] || '', // Column G
+      timestamp: p[7] || ''      // Column H
+    }));
 
     return NextResponse.json(formattedPicks);
   } catch (error) {
@@ -33,12 +38,12 @@ export async function GET() {
   }
 }
 
+// KEEPING YOUR TRADE LOGIC BELOW
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { fromTeam, toTeam, year, round, overall } = body;
 
-    // Use 'overall' if you have it, as it's the most precise way to find a pick
     if (!fromTeam || !toTeam || !year || !round) {
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -46,7 +51,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // This updates the 'current owner' column in your Google Sheet
     await transferDraftPick(
       fromTeam,
       toTeam,
