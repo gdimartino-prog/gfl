@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
-import { sheets, SHEET_ID } from '@/lib/googleSheets';
+import { sheets, SHEET_ID } from '@/lib/googleSheets'; // Import direct sheets access
+import { transferDraftPick } from '@/lib/draftPicks';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET() {
   try {
+    // We bypass the lib function here to ensure we get EXACTLY columns A through H
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'DraftPicks!A:H', 
@@ -14,6 +16,7 @@ export async function GET() {
     const rows = response.data.values;
     if (!rows || rows.length === 0) return NextResponse.json([]);
 
+    // Map the rows to objects including the new G and H columns
     const formattedPicks = rows.slice(1).map((p: any) => ({
       year: p[0] || '',
       round: p[1] || '',
@@ -21,37 +24,48 @@ export async function GET() {
       originalTeam: p[3] || '',
       currentOwner: p[4] || '',
       status: p[5] || '',
-      draftedPlayer: p[6] || '',
-      timestamp: p[7] || ''
+      draftedPlayer: p[6] || '', // Column G
+      timestamp: p[7] || ''      // Column H
     }));
 
     return NextResponse.json(formattedPicks);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to load picks' }, { status: 500 });
+    console.error('API /draft-picks GET failed:', error);
+    return NextResponse.json(
+      { error: 'Failed to load draft picks' },
+      { status: 500 }
+    );
   }
 }
 
+// KEEPING YOUR TRADE LOGIC BELOW
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { fromTeam, toTeam, year, round, overall } = body;
 
-    // We pass everything as an array to hide the argument count from the compiler
-    const args: any[] = [
+    if (!fromTeam || !toTeam || !year || !round) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    //@ts-ignore
+    await transferDraftPick(
       fromTeam,
       toTeam,
       Number(year),
-      Number(round)
-    ];
-    
-    // Only add the 5th argument if it exists
-    if (overall) args.push(Number(overall));
-
-    // @ts-ignore
-    await (transferDraftPick as any)(...args);
+      Number(round),
+      overall ? Number(overall) : undefined
+  );
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Transfer failed' }, { status: 500 });
+    console.error('API /draft-picks POST failed:', error);
+    return NextResponse.json(
+      { error: 'Draft pick transfer failed' },
+      { status: 500 }
+    );
   }
 }
