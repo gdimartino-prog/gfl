@@ -54,13 +54,13 @@ export async function POST(req: Request) {
      * We use @ts-ignore AND 'as any' to force Vercel to accept the 5th argument (overall).
      */
     // @ts-ignore
-    await (transferDraftPick as any)(
+    await transferDraftPick({
       fromTeam,
       toTeam,
-      Number(year),
-      Number(round),
-      overall ? Number(overall) : undefined
-    );
+      year: Number(year),
+      round: Number(round),
+      overall: overall ? Number(overall) : undefined
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
