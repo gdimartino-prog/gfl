@@ -52,7 +52,6 @@ export async function POST(req: Request) {
     }
 
     // @ts-ignore
-    
     await transferDraftPick(
       fromTeam,
       toTeam,
