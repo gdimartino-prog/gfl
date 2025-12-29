@@ -64,7 +64,7 @@ export async function findDraftPick(
  * Note: Index 4 is Column E. Index 5 is Column F. 
  * Based on your GET request in the route, currentOwner is index 4 (Col E).
  */
-export async function transferDraftPick(data: {
+export async function transferDraftPick2(data: {
   fromTeam: string,
   toTeam: string,
   year: number,

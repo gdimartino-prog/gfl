@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
-import { transferDraftPick } from '@/lib/draftPicks';
+import { transferDraftPick2 } from '@/lib/draftPicks';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
      * We use @ts-ignore AND 'as any' to force Vercel to accept the 5th argument (overall).
      */
     // @ts-ignore
-    await transferDraftPick({
+    await transferDraftPick2({
       fromTeam,
       toTeam,
       year: Number(year),
