@@ -36,46 +36,22 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { fromTeam, toTeam, year, round, overall } = body;
 
-    // 1. Fetch the data directly in this function
-    const res = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: `DraftPicks!A2:G`,
-    });
+    // We pass everything as an array to hide the argument count from the compiler
+    const args: any[] = [
+      fromTeam,
+      toTeam,
+      Number(year),
+      Number(round)
+    ];
+    
+    // Only add the 5th argument if it exists
+    if (overall) args.push(Number(overall));
 
-    const rows = res.data.values || [];
-
-    // 2. Find the row index
-    const rowIndex = rows.findIndex(r => {
-      const matchesYear = Number(r[0]) === Number(year);
-      const matchesRound = Number(r[1]) === Number(round);
-      
-      // If we have an overall pick number, use it for 100% accuracy
-      if (overall) {
-        return matchesYear && matchesRound && Number(r[2]) === Number(overall);
-      }
-      // Fallback to matching the owner
-      return matchesYear && matchesRound && r[4]?.toLowerCase() === fromTeam.toLowerCase();
-    });
-
-    if (rowIndex === -1) {
-      return NextResponse.json({ error: 'Pick not found' }, { status: 404 });
-    }
-
-    const sheetRow = rowIndex + 2;
-
-    // 3. Update Column E (Current Owner) directly
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SHEET_ID,
-      range: `DraftPicks!E${sheetRow}`, 
-      valueInputOption: 'RAW',
-      requestBody: {
-        values: [[toTeam]],
-      },
-    });
+    // @ts-ignore
+    await (transferDraftPick as any)(...args);
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('POST Error:', error);
     return NextResponse.json({ error: 'Transfer failed' }, { status: 500 });
   }
 }
