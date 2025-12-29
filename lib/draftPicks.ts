@@ -2,14 +2,14 @@ import { sheets, SHEET_ID } from './googleSheets';
 
 const SHEET = 'DraftPicks';
 
-// Updated to match your 7-column spreadsheet structure
+// Updated to match your spreadsheet structure
 export type DraftPick = {
   year: number;
   round: number;
-  overall: number;     // Overall Pick Number (Col D)
-  originalTeam: string; // Original Team (Col E)
-  currentOwner: string; // Current Owner (Col F)
-  status: string;      // Status (Col G)
+  overall: number;     
+  originalTeam: string; 
+  currentOwner: string; 
+  status: string;      
 };
 
 /**
@@ -17,17 +17,13 @@ export type DraftPick = {
  */
 export async function getAllDraftPicks(): Promise<DraftPick[]> {
   try {
-    // Range A to G covers all your columns
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: `${SHEET}!A2:G`,
     });
 
     const rows = res.data.values;
-
-    if (!Array.isArray(rows)) {
-      return [];
-    }
+    if (!Array.isArray(rows)) return [];
 
     return rows.map(r => ({
       year: Number(r[0]),
@@ -49,7 +45,8 @@ export async function getAllDraftPicks(): Promise<DraftPick[]> {
 export async function findDraftPick(
   currentOwner: string,
   year: number,
-  round: number
+  round: number,
+  overall?: number // Added overall here for consistency
 ) {
   const rows = await getAllDraftPicks();
 
@@ -57,22 +54,24 @@ export async function findDraftPick(
     r =>
       r.year === year &&
       r.round === round &&
-      r.currentOwner.toLowerCase() === currentOwner.toLowerCase()
+      r.currentOwner.toLowerCase() === currentOwner.toLowerCase() &&
+      (!overall || r.overall === overall) // Match pick number if provided
   );
 }
 
 /**
- * Transfer a draft pick by updating the 'Current Owner' (Column F)
+ * Transfer a draft pick by updating the 'Current Owner' (Column E)
+ * Note: Index 4 is Column E. Index 5 is Column F. 
+ * Based on your GET request in the route, currentOwner is index 4 (Col E).
  */
 export async function transferDraftPick(
   fromTeam: string,
   toTeam: string,
   year: number,
   round: number,
-  overall?: number
+  overall?: number // FIX: This 5th argument now exists!
 ) {
   try {
-    // 1. Fetch the data to find the row index
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: `${SHEET}!A2:G`,
@@ -80,27 +79,28 @@ export async function transferDraftPick(
 
     const rows = res.data.values || [];
 
-    // 2. Find the row where Year, Round, and CURRENT OWNER match the trade
-    const rowIndex = rows.findIndex(
-      r =>
-        Number(r[0]) === year &&
-        Number(r[1]) === round &&
-        r[5]?.toLowerCase() === fromTeam.toLowerCase() // Column F is index 5
-    );
+    // Find the row. We prioritize 'overall' if it's available.
+    const rowIndex = rows.findIndex(r => {
+      const matchesYear = Number(r[0]) === year;
+      const matchesRound = Number(r[1]) === round;
+      const matchesOwner = r[4]?.toLowerCase() === fromTeam.toLowerCase();
+      
+      if (overall) {
+        return matchesYear && matchesRound && Number(r[2]) === overall;
+      }
+      return matchesYear && matchesRound && matchesOwner;
+    });
 
     if (rowIndex === -1) {
-      throw new Error(
-        `Pick ${year} R${round} not found for owner ${fromTeam}`
-      );
+      throw new Error(`Pick ${year} R${round} (Pick #${overall}) not found for ${fromTeam}`);
     }
 
-    // rowIndex is 0-based for the data range starting at A2, so add 2
     const sheetRow = rowIndex + 2;
 
-    // 3. Update Column F (Current Owner) only
+    // Update Column E (Index 4) which is the Current Owner
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET}!F${sheetRow}`, // Specifically target Column F
+      range: `${SHEET}!E${sheetRow}`, 
       valueInputOption: 'RAW',
       requestBody: {
         values: [[toTeam]],
