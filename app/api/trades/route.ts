@@ -81,7 +81,7 @@ export async function POST(req: Request) {
     };
 
     // 1. Update Proposer Assets -> Move to Partner Team
-    rawIdentitiesFrom?.forEach((id string)=> {
+    rawIdentitiesFrom?.forEach((id: string)=> {
       const idx = findPlayerRow(id);
       if (idx !== -1) updatePromises.push(updateCell('Players', 'A', idx + 1, toTeam));
       else console.warn(`Player not found for update: ${id}`);
