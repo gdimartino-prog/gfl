@@ -87,7 +87,7 @@ export async function POST(req: Request) {
       else console.warn(`Player not found for update: ${id}`);
     });
     
-    draftPicksFrom?.forEach(pick => {
+    draftPicksFrom?.forEach((pick: any) => {
       const idx = findDraftRow(pick);
       if (idx !== -1) updatePromises.push(updateCell('DraftPicks', 'E', idx + 1, toTeam));
     });
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
       else console.warn(`Player not found for update: ${id}`);
     });
 
-    draftPicksTo?.forEach(pick => {
+    draftPicksTo?.forEach((pick: any) => {
       const idx = findDraftRow(pick);
       if (idx !== -1) updatePromises.push(updateCell('DraftPicks', 'E', idx + 1, fromTeam));
     });
