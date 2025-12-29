@@ -81,7 +81,7 @@ export async function POST(req: Request) {
     };
 
     // 1. Update Proposer Assets -> Move to Partner Team
-    rawIdentitiesFrom?.forEach(id => {
+    rawIdentitiesFrom?.forEach((id string)=> {
       const idx = findPlayerRow(id);
       if (idx !== -1) updatePromises.push(updateCell('Players', 'A', idx + 1, toTeam));
       else console.warn(`Player not found for update: ${id}`);
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     });
 
     // 2. Update Partner Assets -> Move to Proposer Team
-    rawIdentitiesTo?.forEach(id => {
+    rawIdentitiesTo?.forEach((id string) => {
       const idx = findPlayerRow(id);
       if (idx !== -1) updatePromises.push(updateCell('Players', 'A', idx + 1, fromTeam));
       else console.warn(`Player not found for update: ${id}`);
