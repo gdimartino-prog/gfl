@@ -20,6 +20,7 @@ export async function POST(req: Request) {
     const draftRows = draftRes.data.values || [];
 
     // --- ASSET FORMATTER FOR LOGS ---
+    // Added explicit string[] types here to prevent build errors
     const formatAssetString = (playerIdentities: string[], pickStrings: string[]) => {
       const titleCase = (str: string) => 
         str.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
@@ -29,7 +30,6 @@ export async function POST(req: Request) {
           const parts = p.split('|');
           const firstName = titleCase(parts[0] || '');
           const lastName = titleCase(parts[1] || '');
-          // Identify position by looking for short text strings in the identity parts
           const position = parts.slice(2).find(part => 
             part && part.length >= 1 && part.length <= 5 && isNaN(Number(part))
           ) || 'PLAYER';
@@ -47,18 +47,12 @@ export async function POST(req: Request) {
     // --- EXECUTE UPDATES ---
     const updatePromises: Promise<any>[] = [];
 
-    /**
-     * UNIQUE PLAYER FINDER
-     * p[0]=First (Col C) | p[1]=Last (Col D) | p[2]=Age (Col F)
-     * p[3]=Pos1 (Col G)  | p[4]=Pos2 (Col H) | p[5]=Pos3 (Col I)
-     */
     const findPlayerRow = (id: string) => {
       if (!id || !id.includes('|')) return -1;
       const p = id.toLowerCase().split('|');
 
       return playerRows.findIndex(r => {
         const match = (sheetVal: any, identityVal: any) => {
-          // If the identity part is empty or missing, skip the check for that column
           if (identityVal === undefined || identityVal === '') return true;
           return String(sheetVal || '').toLowerCase().trim() === String(identityVal).toLowerCase().trim();
         };
@@ -81,13 +75,14 @@ export async function POST(req: Request) {
     };
 
     // 1. Update Proposer Assets -> Move to Partner Team
-    rawIdentitiesFrom?.forEach((id: string)=> {
+    rawIdentitiesFrom?.forEach((id: string) => {
       const idx = findPlayerRow(id);
       if (idx !== -1) updatePromises.push(updateCell('Players', 'A', idx + 1, toTeam));
       else console.warn(`Player not found for update: ${id}`);
     });
     
-    draftPicksFrom?.forEach((pick: any) => {
+    // FIXED: Added string type to pick
+    draftPicksFrom?.forEach((pick: string) => {
       const idx = findDraftRow(pick);
       if (idx !== -1) updatePromises.push(updateCell('DraftPicks', 'E', idx + 1, toTeam));
     });
@@ -99,7 +94,8 @@ export async function POST(req: Request) {
       else console.warn(`Player not found for update: ${id}`);
     });
 
-    draftPicksTo?.forEach((pick: any) => {
+    // FIXED: Added string type to pick
+    draftPicksTo?.forEach((pick: string) => {
       const idx = findDraftRow(pick);
       if (idx !== -1) updatePromises.push(updateCell('DraftPicks', 'E', idx + 1, fromTeam));
     });
