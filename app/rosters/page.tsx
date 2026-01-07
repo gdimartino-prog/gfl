@@ -26,7 +26,6 @@ export default function RosterPage() {
     fetch(`/api/rosters/${selectedTeam}`)
       .then(res => res.json())
       .then(json => {
-        // Ensure picks is always an array to avoid .length errors
         setData({
           roster: json.roster || [],
           picks: json.picks || []
@@ -43,6 +42,11 @@ export default function RosterPage() {
     OFF: data?.roster.filter(p => p.group === 'OFF') || [],
     DEF: data?.roster.filter(p => p.group === 'DEF') || [],
     SPEC: data?.roster.filter(p => p.group === 'SPEC') || [],
+  };
+
+  // Helper to generate the Google search URL
+  const getGoogleSearchUrl = (name: string) => {
+    return `https://www.google.com/search?q=${encodeURIComponent(name)}`;
   };
 
   return (
@@ -97,7 +101,17 @@ export default function RosterPage() {
                     {(groups[unit] || []).map((p: any, i: number) => (
                       <tr key={i} className="border-b last:border-0 border-gray-50 hover:bg-gray-50">
                         <td className="py-2 px-3 font-mono text-xs font-bold text-blue-600 w-12 text-left">{p.pos}</td>
-                        <td className="py-2 px-3 text-sm text-gray-800 uppercase font-semibold text-left">{p.name}</td>
+                        <td className="py-2 px-3 text-sm text-gray-800 uppercase font-semibold text-left">
+                          {/* UPDATED: Link added here */}
+                          <a 
+                            href={getGoogleSearchUrl(p.name)} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="hover:text-blue-600 hover:underline transition-colors"
+                          >
+                            {p.name}
+                          </a>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -117,13 +131,23 @@ export default function RosterPage() {
                 {groups.SPEC.map((p: any, i: number) => (
                   <div key={i} className="flex px-3 py-2 border-b last:border-0 border-gray-50 text-sm items-center">
                     <span className="font-mono text-indigo-600 w-12 font-bold text-left">{p.pos}</span>
-                    <span className="text-gray-800 uppercase font-semibold text-left">{p.name}</span>
+                    <span className="text-gray-800 uppercase font-semibold text-left">
+                      {/* UPDATED: Link added here */}
+                      <a 
+                        href={getGoogleSearchUrl(p.name)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="hover:text-indigo-600 hover:underline transition-colors"
+                      >
+                        {p.name}
+                      </a>
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* DRAFT CAPITAL SECTION - FIXED */}
+            {/* DRAFT CAPITAL SECTION */}
             <div className="bg-amber-50 rounded-xl shadow-sm border border-amber-200 overflow-hidden">
               <div className="px-4 py-3 font-bold text-amber-900 bg-amber-200 flex justify-between items-center">
                 <span className="tracking-tight uppercase">Draft Capital</span>
@@ -134,7 +158,6 @@ export default function RosterPage() {
               <div className="p-4 space-y-3">
                 {data.picks && data.picks.length > 0 ? (
                   data.picks.map((pick: any, i: number) => {
-                    // Normalize comparison to handle cases like "Vico Vikes" vs "VKS"
                     const isViaTrade = pick.originalTeam && 
                                      pick.originalTeam.toLowerCase() !== selectedTeam.toLowerCase();
                     
