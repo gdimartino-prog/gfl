@@ -31,44 +31,56 @@ export default function CutsPage() {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [rosterLoading, setRosterLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // 1. Load Config & Teams
+  // 1. Initial Load: Get Config and League Summary
   useEffect(() => {
     async function init() {
       try {
-        const configRes = await fetch('/api/cuts/config');
+        setLoading(true);
+        const configRes = await fetch('/api/cuts/config', { cache: 'no-store' });
         const cfg = await configRes.json();
         setConfig(cfg);
 
         const [tRes, sRes] = await Promise.all([
-          fetch('/api/teams').then(r => r.json()),
-          fetch(`/api/cuts?year=${cfg.cuts_year}`).then(r => r.json())
+          fetch('/api/teams', { cache: 'no-store' }).then(r => r.json()),
+          fetch(`/api/cuts?year=${cfg.cuts_year}`, { cache: 'no-store' }).then(r => r.json())
         ]);
+        
         setTeams(tRes);
         setSummary(sRes.summary || {});
-      } catch (e) { console.error(e); } finally { setLoading(false); }
+      } catch (e) {
+        console.error("Initialization error:", e);
+      } finally {
+        setLoading(false);
+      }
     }
     init();
   }, []);
 
-  // 2. Load Team Data
+  // 2. Load Team Data (Roster + Saved Selections)
   useEffect(() => {
     if (!selectedTeam || !config.cuts_year) return;
     async function loadTeam() {
+      setRosterLoading(true);
       try {
         const [pRes, cRes] = await Promise.all([
-          fetch(`/api/players?team=${selectedTeam}`).then(r => r.json()),
-          fetch(`/api/cuts?team=${selectedTeam}&year=${config.cuts_year}`).then(r => r.json())
+          fetch(`/api/players?team=${selectedTeam}`, { cache: 'no-store' }).then(r => r.json()),
+          fetch(`/api/cuts?team=${selectedTeam}&year=${config.cuts_year}`, { cache: 'no-store' }).then(r => r.json())
         ]);
         setRoster([...pRes].sort((a, b) => (a.last || '').localeCompare(b.last || '')));
         setSelections(cRes.selections || {});
-      } catch (e) { console.error(e); }
+      } catch (e) {
+        console.error("Load team error:", e);
+      } finally {
+        setRosterLoading(false);
+      }
     }
     loadTeam();
   }, [selectedTeam, config.cuts_year]);
 
-  // 3. Stats Logic
+  // 3. Stats Logic (Calculates totals and position counts)
   const stats = useMemo(() => {
     const getStats = (type: string): GroupStats => {
       const list = roster.filter(p => (selections[p.identity] || 'cut') === type);
@@ -84,7 +96,11 @@ export default function CutsPage() {
         posMap
       };
     };
-    return { protected: getStats('protected'), pullback: getStats('pullback'), cut: getStats('cut') };
+    return { 
+      protected: getStats('protected'), 
+      pullback: getStats('pullback'), 
+      cut: getStats('cut') 
+    };
   }, [roster, selections]);
 
   const filteredRoster = roster.filter(p => 
@@ -94,8 +110,8 @@ export default function CutsPage() {
 
   const handleToggle = (id: string, s: string) => {
     if (selections[id] !== s) {
-      if (s === 'protected' && stats.protected.count >= config.protected) return alert("Limit reached");
-      if (s === 'pullback' && stats.pullback.count >= config.pullback) return alert("Limit reached");
+      if (s === 'protected' && stats.protected.count >= config.protected) return alert(`Max ${config.protected} Protected reached.`);
+      if (s === 'pullback' && stats.pullback.count >= config.pullback) return alert(`Max ${config.pullback} Pullback reached.`);
     }
     setSelections(prev => ({ ...prev, [id]: prev[id] === s ? 'cut' : s }));
   };
@@ -103,26 +119,37 @@ export default function CutsPage() {
   const save = async () => {
     setSaving(true);
     try {
-      await fetch('/api/cuts', {
+      const res = await fetch('/api/cuts', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           team: selectedTeam, 
           year: config.cuts_year, 
           selections: roster.map(p => ({ identity: p.identity, status: selections[p.identity] || 'cut' })) 
         })
       });
-      const sRes = await fetch(`/api/cuts?year=${config.cuts_year}`).then(r => r.json());
-      setSummary(sRes.summary || {});
-      alert("Saved Successfully.");
-    } catch { alert("Error saving."); } finally { setSaving(false); }
+      if (res.ok) {
+        const sRes = await fetch(`/api/cuts?year=${config.cuts_year}`, { cache: 'no-store' }).then(r => r.json());
+        setSummary(sRes.summary || {});
+        alert("Roster Updated Successfully.");
+      }
+    } catch { 
+      alert("Error saving roster."); 
+    } finally { 
+      setSaving(false); 
+    }
   };
 
-  if (loading) return <div className="p-20 text-center font-black animate-pulse text-slate-400">LOADING {config.cuts_year}...</div>;
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 uppercase font-black text-slate-400 animate-pulse">
+      Syncing {config.cuts_year || 'League'} Data...
+    </div>
+  );
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-[#f8fafc] min-h-screen">
       
-      {/* 1. LEAGUE COMPLIANCE DASHBOARD (Full Names) */}
+      {/* 1. COMPLIANCE DASHBOARD (Long Names) */}
       <div className="bg-[#1e293b] rounded-3xl p-6 shadow-2xl border border-slate-700">
         <h2 className="text-blue-400 text-[10px] font-black uppercase tracking-[0.3em] mb-6 flex items-center gap-2">
            LEAGUE COMPLIANCE BOARD ({config.cuts_year})
@@ -176,11 +203,11 @@ export default function CutsPage() {
           <div className="sticky top-4 z-50 bg-[#0f172a] shadow-2xl p-4 rounded-[2rem] flex flex-col md:flex-row justify-between items-center px-8 border border-slate-700 gap-4">
              <div className="flex gap-10 text-white font-black">
                 <div className="flex flex-col">
-                  <span className="text-[9px] text-slate-500 uppercase tracking-widest">Protected</span>
+                  <span className="text-[9px] text-slate-500 uppercase tracking-widest leading-tight">Protected</span>
                   <span className={`text-2xl ${stats.protected.count === config.protected ? 'text-emerald-400' : 'text-white'}`}>{stats.protected.count} / {config.protected}</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[9px] text-slate-500 uppercase tracking-widest">Pullback</span>
+                  <span className="text-[9px] text-slate-500 uppercase tracking-widest leading-tight">Pullback</span>
                   <span className={`text-2xl ${stats.pullback.count === config.pullback ? 'text-blue-400' : 'text-white'}`}>{stats.pullback.count} / {config.pullback}</span>
                 </div>
              </div>
@@ -195,7 +222,7 @@ export default function CutsPage() {
                 />
              </div>
 
-             <button onClick={save} disabled={saving} className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-black uppercase text-xs transition-all shadow-lg active:scale-95">
+             <button onClick={save} disabled={saving || rosterLoading} className="bg-blue-600 hover:bg-blue-500 text-white px-10 py-4 rounded-2xl font-black uppercase text-xs transition-all shadow-lg active:scale-95 disabled:opacity-50">
                {saving ? 'SAVING...' : 'Submit Final Cuts'}
              </button>
           </div>
@@ -247,8 +274,6 @@ function StatCard({ title, stats, color, border }: any) {
 }
 
 function StatusBtn({ label, active, color, onClick, isCutType }: any) {
-  // If active, use the specific color (Green, Blue, or Red)
-  // If inactive AND is the Cut button, we keep a red outline/text style
   const baseClasses = "px-6 py-3 rounded-2xl text-[10px] font-black uppercase border-2 transition-all min-w-[100px]";
   
   if (active) {
