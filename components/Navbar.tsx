@@ -10,9 +10,9 @@ export default function Navbar() {
     { name: 'Front Office', href: '/' },
     { name: 'Rosters', href: '/rosters' },
     { name: 'Transactions', href: '/transactions' }, 
-    { name: 'Draft Board', href: '/draft' }, // Added the new Draft Board link
+    { name: 'Draft Board', href: '/draft' },
     { name: 'Cuts', href: '/cuts' },
-  ];
+   ];
 
   return (
     <nav className="w-full bg-slate-900 text-white shadow-md sticky top-0 z-[100]">
