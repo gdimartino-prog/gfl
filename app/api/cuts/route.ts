@@ -10,6 +10,8 @@ export async function GET(req: NextRequest) {
   const team = searchParams.get('team');
   const yearParam = searchParams.get('year');
 
+  console.log(`[DEBUG] API Triggered - Year: ${yearParam}, Team: ${team}`);
+
   try {
     const result = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
@@ -17,20 +19,19 @@ export async function GET(req: NextRequest) {
     });
 
     const rows = result.data.values || [];
+    console.log(`[DEBUG] Total rows fetched from Sheets: ${rows.length}`);
+
     const leagueSummary: Record<string, { protected: number, pullback: number, lastUpdated: string }> = {};
     const selections: Record<string, string> = {};
     let lastTime = "";
 
-    // Process rows starting after the header
-    rows.slice(1).forEach(row => {
-      if (!row || row.length < 2) return;
-      
+    rows.slice(1).forEach((row, index) => {
       const rowYear = String(row[0] || '').trim();
       const rowTeam = String(row[1] || '').trim();
       const targetYear = String(yearParam || '').trim();
 
       if (rowYear === targetYear) {
-        // 1. Compliance Summary Logic
+        // Summary Logic
         if (rowTeam) {
           if (!leagueSummary[rowTeam]) {
             leagueSummary[rowTeam] = { protected: 0, pullback: 0, lastUpdated: "" };
@@ -38,47 +39,29 @@ export async function GET(req: NextRequest) {
           const status = String(row[8] || '').trim().toLowerCase();
           if (status === 'protected') leagueSummary[rowTeam].protected++;
           if (status === 'pullback') leagueSummary[rowTeam].pullback++;
-          
-          // Track the latest timestamp for this team
-          if (row[9] && (!leagueSummary[rowTeam].lastUpdated || row[9] > leagueSummary[rowTeam].lastUpdated)) {
-            leagueSummary[rowTeam].lastUpdated = row[9];
-          }
         }
 
-        // 2. Specific Team Selection Logic
+        // Team Selection Logic
         if (team && rowTeam === String(team).trim()) {
-          // Robust identity construction: ensuring indices 2 through 7 exist
-          const parts = [];
-          for (let i = 2; i <= 7; i++) {
-            parts.push(String(row[i] || '').trim());
-          }
-          const identity = parts.join('|').toLowerCase();
-          
-          // Map the status (column I / index 8)
+          const identity = `${row[2]}|${row[3]}|${row[4]}|${row[5]}|${row[6]}|${row[7]}`.toLowerCase();
           selections[identity] = String(row[8] || '').trim().toLowerCase();
-          
-          if (row[9]) lastTime = row[9];
         }
       }
     });
 
-    return NextResponse.json({ 
-      summary: leagueSummary, 
-      selections, 
-      lastUpdated: lastTime 
-    }, {
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-      }
+    console.log(`[DEBUG] Summary Count: ${Object.keys(leagueSummary).length} teams`);
+    console.log(`[DEBUG] Selections found for ${team}: ${Object.keys(selections).length}`);
+
+    return NextResponse.json({ summary: leagueSummary, selections, lastUpdated: lastTime }, {
+      headers: { 'Cache-Control': 'no-store' }
     });
 
   } catch (err: any) {
-    console.error('API GET ERROR:', err.message);
-    return NextResponse.json({ error: err.message, summary: {}, selections: {} }, { status: 500 });
+    console.error('[DEBUG] API ERROR:', err.message);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
 
 export async function POST(req: NextRequest) {
   try {
