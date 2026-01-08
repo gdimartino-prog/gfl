@@ -11,6 +11,7 @@ export default function Navbar() {
     { name: 'Rosters', href: '/rosters' },
     { name: 'Transactions', href: '/transactions' }, 
     { name: 'Draft Board', href: '/draft' }, // Added the new Draft Board link
+    { name: 'Cuts', href: '/cuts' },
   ];
 
   return (
