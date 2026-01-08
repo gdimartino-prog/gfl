@@ -35,21 +35,22 @@ export default function CutsPage() {
   const [saving, setSaving] = useState(false);
 
   // Helper for cache busting in production
-  const getTS = () => `?ts=${new Date().getTime()}`;
+  const getTS = () => `ts=${new Date().getTime()}`;
 
   // 1. Initial Load: Get Config and League Summary
   useEffect(() => {
     async function init() {
       try {
         setLoading(true);
-        // Add cache busting to config fetch
-        const configRes = await fetch(`/api/cuts/config${getTS()}`, { cache: 'no-store' });
+        // Fetch Config first
+        const configRes = await fetch(`/api/cuts/config?${getTS()}`, { cache: 'no-store' });
         const cfg = await configRes.json();
         setConfig(cfg);
 
+        // Fetch Teams and League-wide Cut Summary
         const [tRes, sRes] = await Promise.all([
-          fetch(`/api/teams${getTS()}`, { cache: 'no-store' }).then(r => r.json()),
-          fetch(`/api/cuts${getTS()}&year=${cfg.cuts_year}`, { cache: 'no-store' }).then(r => r.json())
+          fetch(`/api/teams?${getTS()}`, { cache: 'no-store' }).then(r => r.json()),
+          fetch(`/api/cuts?year=${cfg.cuts_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json())
         ]);
         
         setTeams(tRes);
@@ -70,10 +71,13 @@ export default function CutsPage() {
       setRosterLoading(true);
       try {
         const [pRes, cRes] = await Promise.all([
-          fetch(`/api/players${getTS()}&team=${selectedTeam}`, { cache: 'no-store' }).then(r => r.json()),
-          fetch(`/api/cuts${getTS()}&team=${selectedTeam}&year=${config.cuts_year}`, { cache: 'no-store' }).then(r => r.json())
+          fetch(`/api/players?team=${selectedTeam}&${getTS()}`, { cache: 'no-store' }).then(r => r.json()),
+          fetch(`/api/cuts?team=${selectedTeam}&year=${config.cuts_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json())
         ]);
+        
+        // Sort roster alphabetically by last name
         setRoster([...pRes].sort((a, b) => (a.last || '').localeCompare(b.last || '')));
+        // Selections from the API are already keyed by the lowercase identity string
         setSelections(cRes.selections || {});
       } catch (e) {
         console.error("Load team error:", e);
@@ -117,6 +121,7 @@ export default function CutsPage() {
       if (s === 'protected' && stats.protected.count >= config.protected) return alert(`Limit: ${config.protected} Protected.`);
       if (s === 'pullback' && stats.pullback.count >= config.pullback) return alert(`Limit: ${config.pullback} Pullbacks.`);
     }
+    // Toggle logic: if clicking active button, revert to 'cut'
     setSelections(prev => ({ ...prev, [id]: prev[id] === s ? 'cut' : s }));
   };
 
@@ -133,9 +138,10 @@ export default function CutsPage() {
         })
       });
       if (res.ok) {
-        const sRes = await fetch(`/api/cuts${getTS()}&year=${config.cuts_year}`, { cache: 'no-store' }).then(r => r.json());
+        // Refresh the summary data after saving
+        const sRes = await fetch(`/api/cuts?year=${config.cuts_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json());
         setSummary(sRes.summary || {});
-        alert("Roster saved to Google Sheets.");
+        alert("Roster saved successfully.");
       }
     } catch { 
       alert("Error connecting to server."); 
@@ -145,7 +151,7 @@ export default function CutsPage() {
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen bg-[#f8fafc] font-black text-slate-400 animate-pulse uppercase tracking-widest">
+    <div className="flex items-center justify-center min-h-screen bg-[#f8fafc] font-black text-slate-400 animate-pulse uppercase tracking-widest text-center px-4">
       Establishing Secure Link to {config.cuts_year || 'League'} Data...
     </div>
   );
@@ -153,12 +159,14 @@ export default function CutsPage() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-[#f8fafc] min-h-screen font-sans">
       
-      {/* 1. LEAGUE COMPLIANCE DASHBOARD (Full Team Names) */}
+      {/* 1. LEAGUE COMPLIANCE DASHBOARD */}
       <div className="bg-[#1e293b] rounded-[2rem] p-8 shadow-2xl border border-slate-700">
-        <h2 className="text-blue-400 text-[10px] font-black uppercase tracking-[0.4em] mb-8 flex items-center gap-2">
-           <span className="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
-           League Compliance Monitor — {config.cuts_year} Season
-        </h2>
+        <div className="flex justify-between items-center mb-8">
+            <h2 className="text-blue-400 text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2">
+                <span className="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
+                League Compliance Monitor — {config.cuts_year} Season
+            </h2>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
           {teams.map(t => {
             const s = summary[t.short] || { protected: 0, pullback: 0 };

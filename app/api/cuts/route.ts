@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     const selections: Record<string, string> = {};
     let lastTime = "";
 
-    // Skip header and process rows
+    // Process rows starting after the header
     rows.slice(1).forEach(row => {
       if (!row || row.length < 2) return;
       
@@ -38,6 +38,8 @@ export async function GET(req: NextRequest) {
           const status = String(row[8] || '').trim().toLowerCase();
           if (status === 'protected') leagueSummary[rowTeam].protected++;
           if (status === 'pullback') leagueSummary[rowTeam].pullback++;
+          
+          // Track the latest timestamp for this team
           if (row[9] && (!leagueSummary[rowTeam].lastUpdated || row[9] > leagueSummary[rowTeam].lastUpdated)) {
             leagueSummary[rowTeam].lastUpdated = row[9];
           }
@@ -45,9 +47,16 @@ export async function GET(req: NextRequest) {
 
         // 2. Specific Team Selection Logic
         if (team && rowTeam === String(team).trim()) {
-          // Construct identity from the middle columns to match frontend
-          const identity = `${row[2]}|${row[3]}|${row[4]}|${row[5]}|${row[6]}|${row[7]}`.toLowerCase();
-          selections[identity] = String(row[8] || '').toLowerCase();
+          // Robust identity construction: ensuring indices 2 through 7 exist
+          const parts = [];
+          for (let i = 2; i <= 7; i++) {
+            parts.push(String(row[i] || '').trim());
+          }
+          const identity = parts.join('|').toLowerCase();
+          
+          // Map the status (column I / index 8)
+          selections[identity] = String(row[8] || '').trim().toLowerCase();
+          
           if (row[9]) lastTime = row[9];
         }
       }
@@ -67,18 +76,21 @@ export async function GET(req: NextRequest) {
 
   } catch (err: any) {
     console.error('API GET ERROR:', err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err.message, summary: {}, selections: {} }, { status: 500 });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const { team, year, selections } = await req.json();
+    
+    // Create consistent timestamp
     const timestamp = new Date().toLocaleString('en-US', { 
       timeZone: 'America/New_York',
       hour12: false 
     }).replace(',', '');
 
+    // Fetch current data to preserve other teams
     const currentSheet = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'Cuts!A:J', 
@@ -87,24 +99,28 @@ export async function POST(req: NextRequest) {
     const allRows = currentSheet.data.values || [];
     const header = allRows[0] || ["Year", "Team", "First", "Last", "Pos", "Age", "Team2", "ID", "Status", "Timestamp"]; 
 
-    // Filter out previous entries for this team/year
-    const otherRows = allRows.filter((row, index) => {
-      if (index === 0) return false;
-      return !(String(row[0]).trim() === String(year).trim() && String(row[1]).trim() === String(team).trim());
+    // Filter out previous entries ONLY for the specific team and year being saved
+    const otherRows = allRows.slice(1).filter((row) => {
+      const isMatch = String(row[0]).trim() === String(year).trim() && 
+                      String(row[1]).trim() === String(team).trim();
+      return !isMatch;
     });
 
-    // Format new rows
+    // Format new selections into sheet rows
     const newTeamRows = selections.map((p: any) => {
       const parts = p.identity.split('|');
       const statusFormatted = p.status.charAt(0).toUpperCase() + p.status.slice(1);
       return [year, team, ...parts, statusFormatted, timestamp];
     });
 
+    // Overwrite the sheet with the merged data
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: 'Cuts!A1',
       valueInputOption: 'USER_ENTERED',
-      requestBody: { values: [header, ...otherRows, ...newTeamRows] },
+      requestBody: { 
+        values: [header, ...otherRows, ...newTeamRows] 
+      },
     });
 
     return NextResponse.json({ success: true });
