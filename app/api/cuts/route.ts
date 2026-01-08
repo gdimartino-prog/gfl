@@ -1,83 +1,106 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
 
 export async function GET(req: NextRequest) {
   const team = req.nextUrl.searchParams.get('team');
-  const year = req.nextUrl.searchParams.get('year');
+  const yearParam = req.nextUrl.searchParams.get('year');
 
   try {
     const result = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'Cuts!A:J', // Extended to Col J for timestamps
+      range: 'Cuts!A:J',
     });
 
     const rows = result.data.values || [];
     let lastTime = "";
+    const leagueSummary: Record<string, { protected: number, pullback: number, lastUpdated: string }> = {};
+
+    rows.slice(1).forEach(row => {
+      if (row && row.length >= 2) {
+        const rowYear = String(row[0] || '').trim();
+        // Only count if it matches the requested year
+        if (rowYear === yearParam) {
+          const teamCode = String(row[1] || '').trim();
+          const status = String(row[8] || '').trim().toLowerCase();
+          const rowTime = row[9] || '';
+
+          if (teamCode) {
+            if (!leagueSummary[teamCode]) {
+              leagueSummary[teamCode] = { protected: 0, pullback: 0, lastUpdated: "" };
+            }
+            if (status === 'protected') leagueSummary[teamCode].protected++;
+            if (status === 'pullback') leagueSummary[teamCode].pullback++;
+            
+            if (rowTime && (!leagueSummary[teamCode].lastUpdated || rowTime > leagueSummary[teamCode].lastUpdated)) {
+              leagueSummary[teamCode].lastUpdated = rowTime;
+            }
+          }
+        }
+      }
+    });
 
     const previousCuts = rows.reduce((acc: Record<string, string>, row) => {
-      if (row[0] === year && row[1] === team) {
-        const identity = `${row[2]}|${row[3]}|${row[4]}|${row[5]}|${row[6]}|${row[7]}`.toLowerCase();
-        acc[identity] = row[8]; 
-        if (row[9]) lastTime = row[9]; // Capture timestamp from Col J
+      if (row && row.length >= 2) {
+        if (String(row[0]).trim() === yearParam && String(row[1]).trim() === String(team).trim()) {
+          const identity = `${row[2]}|${row[3]}|${row[4]}|${row[5]}|${row[6]}|${row[7]}`.toLowerCase();
+          acc[identity] = String(row[8] || '').toLowerCase(); 
+          if (row[9]) lastTime = row[9];
+        }
       }
       return acc;
     }, {});
 
-    return NextResponse.json({ selections: previousCuts, lastUpdated: lastTime });
+    return NextResponse.json({ 
+      selections: previousCuts, 
+      lastUpdated: lastTime,
+      summary: leagueSummary 
+    });
   } catch (err) {
-    return NextResponse.json({ selections: {}, lastUpdated: "" });
+    console.error('Cuts GET Error:', err);
+    return NextResponse.json({ selections: {}, lastUpdated: "", summary: {} });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const { team, year, selections } = await req.json();
-    const timestamp = new Date().toLocaleString();
+    
+    const timestamp = new Date().toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: '2-digit', day: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+    }).replace(',', '');
 
-    // 1. Fetch current data from the Cuts sheet
     const currentSheet = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'Cuts!A:J', // Adjust range to match your column count
+      range: 'Cuts!A:J', 
     });
 
     const allRows = currentSheet.data.values || [];
-    const header = allRows[0]; // Preserve the header row
+    const header = allRows[0] || ["Year", "Team", "First", "Last", "Pos", "Age", "Team2", "ID", "Status", "Timestamp"]; 
 
-    // 2. Filter out any existing rows for this Team and Year
-    // Assumes Column A (index 0) is Year and Column B (index 1) is Team
     const cleanedRows = allRows.filter((row, index) => {
-      if (index === 0) return false; // Remove header from this array for now
-      const rowYear = row[0];
-      const rowTeam = row[1];
-      return !(rowYear == year && rowTeam == team);
+      if (index === 0) return false; 
+      return !(String(row[0]).trim() === String(year).trim() && String(row[1]).trim() === String(team).trim());
     });
 
-    // 3. Prepare the new rows for this team
     const newTeamRows = selections.map((p: any) => {
       const identityParts = p.identity.split('|'); 
-      return [
-        year,
-        team,
-        ...identityParts,
-        p.status,
-        timestamp
-      ];
+      const displayStatus = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+      return [year, team, ...identityParts, displayStatus, timestamp];
     });
 
-    // 4. Combine: Header + Remaining Old Data + New Submission
-    const finalData = [header, ...cleanedRows, ...newTeamRows];
-
-    // 5. Overwrite the sheet with the clean, updated data
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: 'Cuts!A1', 
       valueInputOption: 'USER_ENTERED',
-      requestBody: { values: finalData },
+      requestBody: { values: [header, ...cleanedRows, ...newTeamRows] },
     });
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error('Submit Error:', err);
     return NextResponse.json({ error: 'Failed to update Cuts sheet' }, { status: 500 });
   }
 }
