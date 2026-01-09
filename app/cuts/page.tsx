@@ -21,11 +21,19 @@ interface Config {
   pullback: number;
 }
 
+// Interface for players found in the Cuts sheet but no longer on the roster
+interface OrphanedPlayer {
+  id: string;
+  status: string;
+  name: string;
+}
+
 export default function CutsPage() {
   const [teams, setTeams] = useState<any[]>([]);
   const [selectedTeam, setSelectedTeam] = useState('');
   const [roster, setRoster] = useState<any[]>([]);
   const [selections, setSelections] = useState<Record<string, string>>({});
+  const [orphanedPlayers, setOrphanedPlayers] = useState<OrphanedPlayer[]>([]);
   const [summary, setSummary] = useState<Record<string, TeamSummary>>({});
   const [config, setConfig] = useState<Config>({ cuts_year: '', draft_year: '', protected: 30, pullback: 8 });
   
@@ -78,6 +86,21 @@ export default function CutsPage() {
             .join('|')
         }));
 
+        const currentRosterIdentities = new Set(processedRoster.map((p: any) => p.identity));
+        
+        // Identify Traded/Gone players who are still in the Cuts sheet
+        const orphaned = Object.entries(cRes.selections || {})
+          .filter(([id, status]) => status !== 'cut' && !currentRosterIdentities.has(id))
+          .map(([id, status]) => {
+            const parts = id.split('|');
+            return {
+              id,
+              status: String(status),
+              name: `${parts[0]} ${parts[1]}`.toUpperCase()
+            };
+          });
+
+        setOrphanedPlayers(orphaned);
         setRoster(processedRoster.sort((a: any, b: any) => (a.last || '').localeCompare(b.last || '')));
         setSelections(cRes.selections || {});
       } catch (e) {
@@ -91,17 +114,21 @@ export default function CutsPage() {
 
   const stats = useMemo(() => {
     const getStats = (type: string): GroupStats => {
-      const list = roster.filter(p => (selections[p.identity] || 'cut') === type);
-      const totalAge = list.reduce((sum, p) => sum + (parseInt(p.age) || 0), 0);
+      // Logic includes orphaned players in the count for compliance safety
+      const rosterList = roster.filter(p => (selections[p.identity] || 'cut') === type);
+      const orphanedList = orphanedPlayers.filter(p => p.status === type);
+      
+      const totalAge = rosterList.reduce((sum, p) => sum + (parseInt(p.age) || 0), 0);
       const posMap: Record<string, number> = {};
-      list.forEach(p => { 
-        // Use primary position available for stats mapping
+      
+      rosterList.forEach(p => { 
         const pos = p.offense || p.defense || p.special || 'UNK';
         posMap[pos] = (posMap[pos] || 0) + 1; 
       });
+
       return {
-        count: list.length,
-        avgAge: list.length ? (totalAge / list.length).toFixed(1) : 0,
+        count: rosterList.length + orphanedList.length,
+        avgAge: rosterList.length ? (totalAge / rosterList.length).toFixed(1) : 0,
         posMap
       };
     };
@@ -110,7 +137,7 @@ export default function CutsPage() {
       pullback: getStats('pullback'), 
       cut: getStats('cut') 
     };
-  }, [roster, selections]);
+  }, [roster, selections, orphanedPlayers]);
 
   const filteredRoster = roster.filter(p => 
     `${p.first} ${p.last}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -129,19 +156,35 @@ export default function CutsPage() {
         return alert(`Compliance Error: Limit ${config.pullback} Pullback slots.`);
       }
     }
-    setSelections(prev => ({ ...prev, [id]: prev[id] === s ? 'cut' : s }));
+
+    setSelections(prev => {
+      const newSelections = { ...prev, [id]: prev[id] === s ? 'cut' : s };
+      
+      // If we are releasing an orphaned player, remove them from the alert list
+      if (newSelections[id] === 'cut' && orphanedPlayers.some(p => p.id === id)) {
+        setOrphanedPlayers(prevOrphaned => prevOrphaned.filter(p => p.id !== id));
+      }
+      
+      return newSelections;
+    });
   };
 
   const save = async () => {
     setSaving(true);
     try {
+      // Save both active roster and any remaining orphaned selections to keep the sheet accurate
+      const combinedSelections = [
+        ...roster.map(p => ({ identity: p.identity, status: selections[p.identity] || 'cut' })),
+        ...orphanedPlayers.map(p => ({ identity: p.id, status: p.status }))
+      ];
+
       const res = await fetch('/api/cuts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           team: selectedTeam, 
           year: config.cuts_year, 
-          selections: roster.map(p => ({ identity: p.identity, status: selections[p.identity] || 'cut' })) 
+          selections: combinedSelections 
         })
       });
       if (res.ok) {
@@ -165,7 +208,6 @@ export default function CutsPage() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-[#f8fafc] min-h-screen font-sans">
       
-      {/* 1. LEAGUE COMPLIANCE DASHBOARD */}
       <div className="bg-[#1e293b] rounded-[2rem] p-8 shadow-2xl border border-slate-700">
         <div className="flex justify-between items-center mb-8">
             <h2 className="text-blue-400 text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2">
@@ -261,13 +303,51 @@ export default function CutsPage() {
              </button>
           </div>
 
+          {/* TRADED PLAYER ALERT BOX */}
+          {orphanedPlayers.length > 0 && (
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-[2rem] p-6 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-amber-500 text-white p-2 rounded-lg text-[10px] font-black">ROSTER MISMATCH</div>
+                <h3 className="text-amber-900 font-black uppercase text-sm tracking-tight">Traded Players Detected</h3>
+              </div>
+              <p className="text-amber-700 text-xs font-bold mb-4 italic">
+                These players were saved previously but are no longer on the roster. They are currently occupying compliance slots.
+              </p>
+              <div className="grid gap-3">
+                {orphanedPlayers.map((p) => (
+                  <div key={p.id} className="bg-white/50 p-4 rounded-xl flex justify-between items-center border border-amber-100">
+                    <div>
+                      <span className="text-slate-900 font-black text-sm uppercase">{p.name}</span>
+                      <span className="ml-3 text-[9px] font-black text-amber-600 bg-amber-100 px-2 py-0.5 rounded uppercase">
+                        Was {p.status}
+                      </span>
+                    </div>
+                    <button 
+                      onClick={() => handleToggle(p.id, p.status)}
+                      className="text-[10px] font-black uppercase bg-white border border-amber-300 text-amber-600 px-4 py-2 rounded-lg hover:bg-amber-600 hover:text-white transition-all"
+                    >
+                      Release Slot
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-4 pb-20">
             {filteredRoster.map((p) => {
               const s = selections[p.identity] || 'cut';
               return (
                 <div key={p.identity} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-center group hover:shadow-xl hover:border-blue-100 transition-all duration-300 gap-4">
                   <div className="text-center sm:text-left">
-                    <h3 className="font-black text-2xl text-slate-800 uppercase leading-none tracking-tight">{p.first} {p.last}</h3>
+                    <a 
+                      href={`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last + ' NFL')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-black text-2xl text-slate-800 uppercase leading-none tracking-tight hover:text-blue-600 transition-colors cursor-pointer inline-block"
+                    >
+                      {p.first} {p.last}
+                    </a>
                     <div className="flex items-center gap-3 mt-2 justify-center sm:justify-start">
                       <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase">
                         {p.offense || p.defense || p.special || 'UNK'}
