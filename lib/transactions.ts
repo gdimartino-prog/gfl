@@ -1,11 +1,14 @@
 import { sheets, SHEET_ID } from './googleSheets';
 
 type Transaction = {
-  type: 'ADD' | 'DROP' | 'IR' | 'TRADE';
+  type: string;
   identity: string;
   fromTeam?: string;
   toTeam?: string;
   coach: string;
+  details?: string;
+  status?: string;
+  weekBack?: string;
 };
 
 /**
@@ -19,22 +22,14 @@ async function updatePickOwner(details: string, newOwnerShort: string) {
     });
     const rows = response.data.values || [];
 
-    // Regex to find Year and Round from the message (e.g., "2026 Round 1")
     const match = details.match(/(\d{4})\s+Round\s+(\d+)/i);
     if (!match) return;
 
     const [_, year, round] = match;
-
-    // Find the row index where Year (Col A/0) and Round (Col B/1) match
-    const rowIndex = rows.findIndex(row => 
-      row[0] === year && row[1] === round
-    );
+    const rowIndex = rows.findIndex(row => row[0] === year && row[1] === round);
 
     if (rowIndex !== -1) {
-      // Column E is Index 4, so we update Column E at the found row index
-      // +1 because Sheets are 1-indexed
       const rangeToUpdate = `DraftPicks!E${rowIndex + 1}`; 
-      
       await sheets.spreadsheets.values.update({
         spreadsheetId: SHEET_ID,
         range: rangeToUpdate,
@@ -43,7 +38,6 @@ async function updatePickOwner(details: string, newOwnerShort: string) {
           values: [[newOwnerShort.toUpperCase()]],
         },
       });
-      console.log(`Successfully moved ${year} R${round} to ${newOwnerShort}`);
     }
   } catch (err) {
     console.error("DraftPicks update failed:", err);
@@ -56,7 +50,7 @@ function capitalize(word: string) {
 }
 
 function formatMessage(identity: string) {
-  if (!identity.includes('|')) return identity;
+  if (!identity || !identity.includes('|')) return identity;
   const [first, last, , off, def] = identity.split('|');
   const positionRaw = off || def || '';
   const position = positionRaw.toUpperCase();
@@ -78,7 +72,20 @@ function formatTimestamp(date: Date) {
 export async function logTransaction(tx: Transaction) {
   const timestamp = formatTimestamp(new Date());
 
-  // --- 1. TEAM NAME LOOKUP ---
+  // --- 1. MESSAGE LOGIC (THE FIX) ---
+  let finalMessage = "";
+
+  if (tx.type === 'TRADE') {
+    finalMessage = tx.identity;
+  } else if (tx.type === 'INJURY PICKUP' && tx.details) {
+    // Use the long custom string (e.g., "G - Logan Bruss for injury to...")
+    finalMessage = tx.details;
+  } else {
+    // For ADD, DROP, or IR: Convert "first|last|..." to "POS - First Last"
+    finalMessage = formatMessage(tx.identity);
+  }
+
+  // --- 2. TEAM NAME LOOKUP ---
   let fullFrom = tx.fromTeam || 'FA';
   let fullTo = tx.toTeam || 'FA';
   
@@ -96,30 +103,28 @@ export async function logTransaction(tx: Transaction) {
     console.error("Team name lookup failed:", err);
   }
 
-  const finalMessage = tx.type === 'TRADE' ? tx.identity : formatMessage(tx.identity);
-
-  // --- 2. UPDATE DRAFT PICKS SHEET IF NECESSARY ---
-  // If the trade identity contains "Round", we update the DraftPicks sheet
   if (tx.type === 'TRADE' && tx.identity.toLowerCase().includes('round')) {
     await updatePickOwner(tx.identity, tx.toTeam || '');
   }
 
   // --- 3. APPEND TO TRANSACTION LOG ---
+  // Maps to: A:Timestamp, B:Type, C:Desc, D:fromFull, E:toFull, F:fromShort, G:toShort, H:Owner, I:Status, J:WeekBack
   await sheets.spreadsheets.values.append({
     spreadsheetId: SHEET_ID,
-    range: 'Transactions!A:I',
+    range: 'Transactions!A:J', 
     valueInputOption: 'RAW',
     requestBody: {
       values: [[
         timestamp,
         tx.type,
-        finalMessage,
-        fullFrom,
-        fullTo,
-        tx.fromTeam || 'FA',
-        tx.toTeam || 'FA',
-        tx.coach,
-        tx.type === 'TRADE' ? 'PENDING' : 'INSTANT'
+        finalMessage,             // Column C: The Description
+        fullFrom,                 // Column D: Full Team From
+        fullTo,                   // Column E: Full Team To
+        tx.fromTeam || 'FA',      // Column F: Short Team From
+        tx.toTeam || 'FA',        // Column G: Short Team To
+        tx.coach,                 // Column H: Owner (Coach Name)
+        tx.status || 'INSTANT',   // Column I: Status
+        tx.weekBack || ''         // Column J: Week Back
       ]],
     },
   });

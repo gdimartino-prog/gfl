@@ -22,8 +22,6 @@ export default function TradePanel({ team, coach }: { team: string; coach: strin
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // --- REFRESH LOGIC ---
-  // Memoized so it can be called inside useEffect and after a successful trade
   const loadData = useCallback(async () => {
     try {
       const [tRes, pRes, dRes] = await Promise.all([
@@ -43,7 +41,6 @@ export default function TradePanel({ team, coach }: { team: string; coach: strin
     loadData();
   }, [loadData]);
 
-  // --- HELPER LOGIC ---
   const resolveCode = (teamString: string) => {
     if (!teamString) return "";
     const match = teamString.match(/\(([^)]+)\)/);
@@ -53,12 +50,32 @@ export default function TradePanel({ team, coach }: { team: string; coach: strin
   const activeCode = resolveCode(team);
   const partnerCode = resolveCode(toTeam);
 
-  const fromTeamPlayers = players.filter(p => resolveCode(p.team) === activeCode);
-  const toTeamPlayers = players.filter(p => resolveCode(p.team) === partnerCode);
-  const fromTeamDraftPicks = draftPicks.filter(p => resolveCode(p.currentOwner) === activeCode);
-  const toTeamDraftPicks = draftPicks.filter(p => resolveCode(p.currentOwner) === partnerCode);
+  // --- SORTED HELPER LOGIC ---
 
-  // --- ACTION LOGIC ---
+  // Sort Players by Last Name, then First Name
+  const sortPlayers = (playerList: Player[]) => {
+    return [...playerList].sort((a, b) => {
+      const lastA = (a.last || "").toLowerCase();
+      const lastB = (b.last || "").toLowerCase();
+      if (lastA !== lastB) return lastA.localeCompare(lastB);
+      return (a.first || "").toLowerCase().localeCompare((b.first || "").toLowerCase());
+    });
+  };
+
+  // Sort Draft Picks by Year (Asc), then Round (Asc)
+  const sortPicks = (pickList: DraftPick[]) => {
+    return [...pickList].sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.round - b.round;
+    });
+  };
+
+  const fromTeamPlayers = sortPlayers(players.filter(p => resolveCode(p.team) === activeCode));
+  const toTeamPlayers = sortPlayers(players.filter(p => resolveCode(p.team) === partnerCode));
+  
+  const fromTeamDraftPicks = sortPicks(draftPicks.filter(p => resolveCode(p.currentOwner) === activeCode));
+  const toTeamDraftPicks = sortPicks(draftPicks.filter(p => resolveCode(p.currentOwner) === partnerCode));
+
   const handleTrade = async () => {
     if (!toTeam || (fromPlayers.length === 0 && fromDraftPicks.length === 0 && toPlayers.length === 0 && toDraftPicks.length === 0)) {
       setStatus('⚠️ Please select at least one asset to trade.');
@@ -105,17 +122,13 @@ export default function TradePanel({ team, coach }: { team: string; coach: strin
 
       if (res.ok) {
         setStatus('✅ Success! Assets moved and transaction logged.');
-        
-        // Reset Form
         setFromPlayers([]); 
         setToPlayers([]); 
         setFromDraftPicks([]); 
         setToDraftPicks([]); 
         setToTeam('');
-
-        // TRIGGER DATA REFRESH
-        await loadData(); // Re-fetch data from API
-        router.refresh(); // Sync Next.js server components
+        await loadData();
+        router.refresh();
       } else {
         const errData = await res.json();
         setStatus(`❌ Trade failed: ${errData.error || 'Server Error'}`);
@@ -145,7 +158,7 @@ export default function TradePanel({ team, coach }: { team: string; coach: strin
           value={toTeam} 
           onChange={(e) => {
             setToTeam(e.target.value);
-            setStatus(''); // Clear status when partner changes
+            setStatus(''); 
           }} 
           className="border-2 border-gray-100 p-3 w-full rounded-lg text-sm outline-none focus:border-purple-300 transition-colors"
         >
@@ -167,7 +180,7 @@ export default function TradePanel({ team, coach }: { team: string; coach: strin
               value={fromPlayers} 
               onChange={e => setFromPlayers(Array.from(e.target.selectedOptions, o => o.value))}
             >
-              <optgroup label="Players">
+              <optgroup label="Players (Sorted A-Z)">
                 {fromTeamPlayers.map(p => (
                   <option key={p.identity} value={p.identity}>{p.last}, {p.first} ({p.position})</option>
                 ))}
@@ -179,7 +192,7 @@ export default function TradePanel({ team, coach }: { team: string; coach: strin
               value={fromDraftPicks} 
               onChange={e => setFromDraftPicks(Array.from(e.target.selectedOptions, o => o.value))}
             >
-              <optgroup label="Draft Picks">
+              <optgroup label="Draft Picks (By Year)">
                 {fromTeamDraftPicks.map(p => (
                   <option key={p.overall} value={p.overall}>{p.year} Rd {p.round} (#{p.overall})</option>
                 ))}
@@ -198,7 +211,7 @@ export default function TradePanel({ team, coach }: { team: string; coach: strin
               value={toPlayers} 
               onChange={e => setToPlayers(Array.from(e.target.selectedOptions, o => o.value))}
             >
-              <optgroup label="Players">
+              <optgroup label="Players (Sorted A-Z)">
                 {toTeamPlayers.map(p => (
                   <option key={p.identity} value={p.identity}>{p.last}, {p.first} ({p.position})</option>
                 ))}
@@ -210,7 +223,7 @@ export default function TradePanel({ team, coach }: { team: string; coach: strin
               value={toDraftPicks} 
               onChange={e => setToDraftPicks(Array.from(e.target.selectedOptions, o => o.value))}
             >
-              <optgroup label="Draft Picks">
+              <optgroup label="Draft Picks (By Year)">
                 {toTeamDraftPicks.map(p => (
                   <option key={p.overall} value={p.overall}>{p.year} Rd {p.round} (#{p.overall})</option>
                 ))}
@@ -225,15 +238,7 @@ export default function TradePanel({ team, coach }: { team: string; coach: strin
         disabled={loading || !toTeam} 
         className="w-full bg-purple-600 text-white p-4 rounded-xl font-black hover:bg-purple-700 disabled:bg-gray-200 transition-all uppercase tracking-widest shadow-lg flex justify-center items-center gap-2"
       >
-        {loading ? (
-          <>
-            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Processing...
-          </>
-        ) : 'Submit Official Trade'}
+        {loading ? 'Processing...' : 'Submit Official Trade'}
       </button>
 
       {status && (

@@ -1,3 +1,6 @@
+//need to save Constition from google doc as md file via file->download menu to update content
+
+
 import fs from 'fs';
 import path from 'path';
 import { remark } from 'remark';

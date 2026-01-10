@@ -1,74 +1,88 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
-export default function DropPlayer({ team, coach }: { team: string; coach: string }) {
-  const [players, setPlayers] = useState<any[]>([]);
-  const [identity, setIdentity] = useState('');
+export default function DropPlayer({ team, coach, onComplete }: { team: string; coach: string; onComplete?: () => void }) {
+  const [roster, setRoster] = useState<any[]>([]);
+  const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/players').then(res => res.json()).then(setPlayers);
-  }, []);
+    if (team) {
+      fetch('/api/players')
+        .then(res => res.json())
+        .then(data => {
+          const players = Array.isArray(data) ? data.filter((p: any) => p.teamShort === team || p.team === team) : [];
+          setRoster(players);
+        })
+        .catch(console.error);
+    }
+  }, [team]);
 
-  // Filter players to only show those currently on the selected active team
-  const teamPlayers = players.filter(p => p.team === team);
+  // Sort roster by Last Name
+  const sortedRoster = useMemo(() => {
+    return [...roster].sort((a, b) => {
+      const lastA = (a.last || a.name || "").toLowerCase();
+      const lastB = (b.last || b.name || "").toLowerCase();
+      return lastA.localeCompare(lastB);
+    });
+  }, [roster]);
 
-  async function submit() {
-    if (!identity) return;
+  async function handleDrop() {
+    if (!selectedIdentity || !team) return;
     setLoading(true);
 
     try {
-      const response = await fetch('/api/transactions', {
+      const res = await fetch('/api/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          timestamp: new Date().toLocaleString(),
           type: 'DROP',
-          identity: identity,
+          identity: selectedIdentity,
           fromTeam: team,
-          coach: coach
+          fromShort: team,
+          coach,
+          details: `Dropped/Waived: ${selectedIdentity}`,
+          status: 'PENDING'
         }),
       });
 
-      if (response.ok) {
-        alert('Player waived');
-        setPlayers(prev => prev.filter(p => p.identity !== identity));
-        setIdentity('');
+      if (res.ok) {
+        alert('Player dropped successfully');
+        setRoster(prev => prev.filter(p => p.identity !== selectedIdentity));
+        setSelectedIdentity('');
+        if (onComplete) onComplete();
       }
-    } catch (error) {
-      alert('Error processing waiver');
+    } catch (err) {
+      alert('Error dropping player');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <section className="border p-4 rounded bg-white shadow-sm border-red-200">
+    <div className="space-y-4 border p-4 rounded bg-white shadow-sm border-red-200 text-left">
       <h3 className="font-bold text-lg uppercase text-red-600">Waive Player</h3>
-      <p className="text-sm text-gray-500">Dropping from: <span className="font-semibold">{team}</span></p>
-      
-      <select 
-        className="border p-2 w-full rounded mt-4" 
-        value={identity} 
-        onChange={e => setIdentity(e.target.value)}
+      <select
+        value={selectedIdentity}
+        onChange={e => setSelectedIdentity(e.target.value)}
+        className="border p-2 w-full rounded outline-none focus:ring-2 focus:ring-red-500 text-black"
       >
         <option value="">-- Select Player to Drop --</option>
-        {teamPlayers.map((p, i) => (
-          <option key={`${p.identity}-${i}`} value={p.identity}>
-            {p.first} {p.last} ({p.position})
+        {sortedRoster.map((p, i) => (
+          <option key={i} value={p.identity}>
+            {p.last || p.name}, {p.first || ''} ({p.position || p.pos})
           </option>
         ))}
       </select>
-
-      <button 
-        onClick={submit} 
-        disabled={loading || !identity}
-        className={`w-full p-3 mt-4 rounded font-bold text-white transition-all ${
-          loading || !identity ? 'bg-gray-300' : 'bg-red-600 hover:bg-red-700'
-        }`}
+      <button
+        onClick={handleDrop}
+        disabled={loading || !selectedIdentity}
+        className={`w-full p-3 rounded font-bold text-white ${loading || !selectedIdentity ? 'bg-gray-300' : 'bg-red-600 hover:bg-red-700'}`}
       >
-        {loading ? 'Updating Sheets...' : 'Confirm Waiver'}
+        {loading ? 'Processing...' : 'Confirm Waive'}
       </button>
-    </section>
+    </div>
   );
 }

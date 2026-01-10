@@ -1,85 +1,86 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
-export default function IRPanel({ team, coach }: { team: string; coach: string }) {
-  const [players, setPlayers] = useState<any[]>([]);
-  const [identity, setIdentity] = useState('');
+export default function IRPanel({ team, coach, onComplete }: { team: string; coach: string; onComplete?: () => void }) {
+  const [roster, setRoster] = useState<any[]>([]);
+  const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetch('/api/players')
-      .then(res => res.json())
-      .then(data => {
-        // Ensure data is an array before setting state
-        setPlayers(Array.isArray(data) ? data : []);
-      })
-      .catch(err => console.error("Error fetching players:", err));
-  }, []);
+    if (team) {
+      fetch('/api/players')
+        .then(res => res.json())
+        .then(data => {
+          const players = Array.isArray(data) ? data.filter((p: any) => p.teamShort === team || p.team === team) : [];
+          setRoster(players);
+        })
+        .catch(console.error);
+    }
+  }, [team]);
 
-  // Filter with safety checks for undefined properties
-  const eligiblePlayers = players.filter(p => 
-    p.team === team && 
-    typeof p.team === 'string' && 
-    !p.team.endsWith('-IR')
-  );
+  const sortedRoster = useMemo(() => {
+    return [...roster].sort((a, b) => {
+      const lastA = (a.last || a.name || "").toLowerCase();
+      const lastB = (b.last || b.name || "").toLowerCase();
+      return lastA.localeCompare(lastB);
+    });
+  }, [roster]);
 
-  async function moveToIR() {
-    if (!identity) return;
+  async function handleIR() {
+    if (!selectedIdentity || !team) return;
     setLoading(true);
 
     try {
-      const response = await fetch('/api/transactions', {
+      const res = await fetch('/api/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: 'IR',
-          identity: identity,
-          fromTeam: team,
-          coach: coach
+          timestamp: new Date().toLocaleString(),
+          type: 'IR MOVE',
+          identity: selectedIdentity,
+          toTeam: 'IR',
+          fromShort: team,
+          coach,
+          details: `Placed on IR: ${selectedIdentity}`,
+          status: 'PENDING'
         }),
       });
 
-      if (response.ok) {
+      if (res.ok) {
         alert('Player moved to IR');
-        setPlayers(prev => prev.map(p => 
-          p.identity === identity ? { ...p, team: `${team}-IR` } : p
-        ));
-        setIdentity('');
+        setRoster(prev => prev.filter(p => p.identity !== selectedIdentity));
+        setSelectedIdentity('');
+        if (onComplete) onComplete();
       }
-    } catch (error) {
-      alert('Error moving player to IR');
+    } catch (err) {
+      alert('Error moving to IR');
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="space-y-4 border p-4 rounded bg-white shadow-sm border-orange-200">
-      <h3 className="font-bold text-lg uppercase text-orange-600">Injured Reserve</h3>
-      <p className="text-sm text-gray-500">Managing IR for: <span className="font-semibold">{team}</span></p>
-
-      <select 
-        className="border p-2 w-full rounded" 
-        value={identity} 
-        onChange={e => setIdentity(e.target.value)}
+    <div className="space-y-4 border p-4 rounded bg-white shadow-sm border-amber-200 text-left">
+      <h3 className="font-bold text-lg uppercase text-amber-600">Move to IR</h3>
+      <select
+        value={selectedIdentity}
+        onChange={e => setSelectedIdentity(e.target.value)}
+        className="border p-2 w-full rounded outline-none focus:ring-2 focus:ring-amber-500 text-black"
       >
         <option value="">-- Select Player for IR --</option>
-        {eligiblePlayers.map((p, i) => (
-          <option key={`${p.identity}-${i}`} value={p.identity}>
-            {p.first} {p.last} ({p.position})
+        {sortedRoster.map((p, i) => (
+          <option key={i} value={p.identity}>
+            {p.last || p.name}, {p.first || ''} ({p.position || p.pos})
           </option>
         ))}
       </select>
-
-      <button 
-        onClick={moveToIR} 
-        disabled={loading || !identity}
-        className={`w-full p-3 rounded font-bold text-white transition-all ${
-          loading || !identity ? 'bg-gray-300' : 'bg-orange-500 hover:bg-orange-600'
-        }`}
+      <button
+        onClick={handleIR}
+        disabled={loading || !selectedIdentity}
+        className={`w-full p-3 rounded font-bold text-white ${loading || !selectedIdentity ? 'bg-gray-300' : 'bg-amber-600 hover:bg-amber-700'}`}
       >
-        {loading ? 'Updating Roster...' : 'Place on IR'}
+        {loading ? 'Processing...' : 'Confirm IR Move'}
       </button>
     </div>
   );
