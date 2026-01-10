@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import PlayerCard from '@/components/PlayerCard'; 
 
 interface GroupStats {
   avgAge: string | number;
@@ -28,7 +29,6 @@ interface OrphanedPlayer {
   name: string;
 }
 
-// 1. COUNTDOWN COMPONENT
 function CountdownTimer({ dueDate }: { dueDate: string }) {
   const [timeLeft, setTimeLeft] = useState<string>('');
   const [isPast, setIsPast] = useState(false);
@@ -36,26 +36,21 @@ function CountdownTimer({ dueDate }: { dueDate: string }) {
   useEffect(() => {
     if (!dueDate) return;
     const target = new Date(dueDate).getTime();
-    
     const interval = setInterval(() => {
       const now = new Date().getTime();
       const distance = target - now;
-
       if (distance < 0) {
         setTimeLeft("SUBMISSIONS CLOSED");
         setIsPast(true);
         clearInterval(interval);
         return;
       }
-
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
       const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
       setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
     }, 1000);
-
     return () => clearInterval(interval);
   }, [dueDate]);
 
@@ -82,8 +77,8 @@ export default function CutsPage() {
   const [loading, setLoading] = useState(true);
   const [rosterLoading, setRosterLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [viewingPlayer, setViewingPlayer] = useState<any>(null);
 
-  // Computed value to lock down the UI
   const isExpired = useMemo(() => {
     if (!config.cuts_due_date) return false;
     return new Date().getTime() > new Date(config.cuts_due_date).getTime();
@@ -98,12 +93,10 @@ export default function CutsPage() {
         const configRes = await fetch(`/api/cuts/config?${getTS()}`, { cache: 'no-store' });
         const cfg = await configRes.json();
         setConfig(cfg);
-
         const [tRes, sRes] = await Promise.all([
           fetch(`/api/teams?${getTS()}`, { cache: 'no-store' }).then(r => r.json()),
           fetch(`/api/cuts?year=${cfg.cuts_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json())
         ]);
-        
         setTeams(tRes);
         setSummary(sRes.summary || {});
       } catch (e) {
@@ -124,16 +117,13 @@ export default function CutsPage() {
           fetch(`/api/players?team=${selectedTeam}&${getTS()}`, { cache: 'no-store' }).then(r => r.json()),
           fetch(`/api/cuts?team=${selectedTeam}&year=${config.cuts_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json())
         ]);
-        
         const processedRoster = pRes.map((p: any) => ({
           ...p,
           identity: [p.first, p.last, p.age, p.offense, p.defense, p.special]
             .map(val => String(val || '').trim().toLowerCase())
             .join('|')
         }));
-
         const currentRosterIdentities = new Set(processedRoster.map((p: any) => p.identity));
-        
         const orphaned = Object.entries(cRes.selections || {})
           .filter(([id, status]) => status !== 'cut' && !currentRosterIdentities.has(id))
           .map(([id, status]) => {
@@ -144,7 +134,6 @@ export default function CutsPage() {
               name: `${parts[0]} ${parts[1]}`.toUpperCase()
             };
           });
-
         setOrphanedPlayers(orphaned);
         setRoster(processedRoster.sort((a: any, b: any) => (a.last || '').localeCompare(b.last || '')));
         setSelections(cRes.selections || {});
@@ -194,6 +183,16 @@ export default function CutsPage() {
       }
       return newSelections;
     });
+  };
+
+  const fetchPlayerDetails = async (id: string) => {
+    try {
+      const r = await fetch(`/api/players/details/${id}`);
+      if (r.ok) setViewingPlayer(await r.json());
+      else alert("Could not load player stats.");
+    } catch {
+      alert("Error contacting scouting server.");
+    }
   };
 
   const save = async () => {
@@ -323,7 +322,7 @@ export default function CutsPage() {
 
           {orphanedPlayers.length > 0 && (
             <div className="bg-amber-50 border-2 border-amber-200 rounded-[2rem] p-6 mb-6">
-              <p className="text-amber-700 text-xs font-bold mb-4 italic italic uppercase tracking-wider">Traded players detected. Release these slots to regain compliance.</p>
+              <p className="text-amber-700 text-xs font-bold mb-4 italic uppercase tracking-wider">Traded players detected. Release these slots to regain compliance.</p>
               <div className="grid gap-3">
                 {orphanedPlayers.map((p) => (
                   <div key={p.id} className="bg-white/50 p-4 rounded-xl flex justify-between items-center border border-amber-100">
@@ -340,14 +339,26 @@ export default function CutsPage() {
               const s = selections[p.identity] || 'cut';
               return (
                 <div key={p.identity} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-center group hover:shadow-xl transition-all gap-4">
-                  <div className="text-center sm:text-left">
-                    <a 
-                      href={`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last + ' NFL')}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="font-black text-2xl text-slate-800 uppercase leading-none tracking-tight hover:text-blue-600"
-                    >
-                      {p.first} {p.last}
-                    </a>
+                  <div className="text-center sm:text-left flex-1">
+                    <div className="flex items-center gap-4">
+                        {/* --- ADDED GOOGLE SEARCH ON CLICK --- */}
+                        <h3 
+                          onClick={() => {
+                            const query = encodeURIComponent(`${p.first} ${p.last} `);
+                            window.open(`https://www.google.com/search?q=${query}`, '_blank');
+                          }}
+                          className="font-black text-2xl text-slate-800 uppercase leading-none tracking-tight cursor-pointer hover:text-blue-600 hover:underline transition-all"
+                          title="Search "
+                        >
+                          {p.first} {p.last}
+                        </h3>
+                        <button 
+                         onClick={() => fetchPlayerDetails(p.identity)}
+                         className="bg-slate-100 hover:bg-blue-500 hover:text-white text-slate-400 text-[9px] font-black px-3 py-1 rounded-full uppercase transition-all"
+                        >
+                          View Stats
+                        </button>
+                    </div>
                     <div className="flex items-center gap-3 mt-2 justify-center sm:justify-start">
                       <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase">{p.offense || p.defense || p.special || 'UNK'}</span>
                       <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Age {p.age}</span>
@@ -363,6 +374,13 @@ export default function CutsPage() {
             })}
           </div>
         </>
+      )}
+
+      {viewingPlayer && (
+        <PlayerCard 
+          data={viewingPlayer} 
+          onClose={() => setViewingPlayer(null)} 
+        />
       )}
     </div>
   );

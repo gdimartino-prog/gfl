@@ -30,8 +30,6 @@ export async function GET(req: Request, { params }: RouteContext) {
       .map(row => ({
         // Using row[2] and row[3] for First Last name
         name: `${row[2]} ${row[3]}`,
-        // ADD THIS LINE: row[5] is Column F (Age)
-        age: row[5] || '0',
         // Mapping positions from G, H, I columns
         pos: (row[6] || row[7] || row[8] || '??').toUpperCase(),
         group: row[6] ? 'OFF' : row[7] ? 'DEF' : 'SPEC'
