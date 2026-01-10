@@ -14,7 +14,7 @@ type Transaction = {
 /**
  * Updates the 'Current Owner' in the DraftPicks sheet when a pick is traded.
  */
-async function updatePickOwner(details: string, newOwnerShort: string) {
+async function updatePickOwner(details: string, newOwnerShort: string, fromTeamShort: string) {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
@@ -26,7 +26,14 @@ async function updatePickOwner(details: string, newOwnerShort: string) {
     if (!match) return;
 
     const [_, year, round] = match;
-    const rowIndex = rows.findIndex(row => row[0] === year && row[1] === round);
+
+    // FIX: Look for Year, Round, AND the current owner (Column E/Index 4)
+    // This prevents accidentally grabbing the #1 overall pick every time.
+    const rowIndex = rows.findIndex(row => 
+      row[0] === year && 
+      row[1] === round && 
+      row[4]?.toUpperCase() === fromTeamShort.toUpperCase()
+    );
 
     if (rowIndex !== -1) {
       const rangeToUpdate = `DraftPicks!E${rowIndex + 1}`; 
@@ -38,6 +45,8 @@ async function updatePickOwner(details: string, newOwnerShort: string) {
           values: [[newOwnerShort.toUpperCase()]],
         },
       });
+    } else {
+      console.warn(`Could not find a ${year} Round ${round} pick owned by ${fromTeamShort}`);
     }
   } catch (err) {
     console.error("DraftPicks update failed:", err);

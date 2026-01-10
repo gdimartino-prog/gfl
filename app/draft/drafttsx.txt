@@ -11,7 +11,7 @@ export default function DraftPage() {
   const [picks, setPicks] = useState<any[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false); // New state for refresh button
   
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
@@ -103,7 +103,7 @@ export default function DraftPage() {
     return picks.filter(p => {
       const searchStr = searchTerm.toLowerCase();
       const matchesSearch = p.currentOwner?.toLowerCase().includes(searchStr) || 
-                            p.draftedPlayer?.toLowerCase().includes(searchStr);
+                           p.draftedPlayer?.toLowerCase().includes(searchStr);
       const matchesYear = yearFilter === 'All' || p.year?.toString() === yearFilter;
       const matchesTeam = teamFilter === 'All Teams' || getFullTeamName(p.currentOwner) === teamFilter;
       const matchesRound = roundFilter === 'All Rounds' || p.round.toString() === roundFilter;
@@ -115,7 +115,7 @@ export default function DraftPage() {
   if (loading) return <div className="p-20 text-center font-black text-slate-400 uppercase tracking-widest">Loading Draft Board...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-gray-50 min-h-screen font-sans text-black">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-gray-50 min-h-screen font-sans">
       
       {/* CLOCK SECTION */}
       {onClockPick && (
@@ -125,17 +125,21 @@ export default function DraftPage() {
               <span className="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter animate-pulse">
                 Live: On the Clock
               </span>
-              <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
+              <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">
                 {getFullTeamName(onClockPick.currentOwner)}
-                
-                {/* --- VIA Logic in Header --- */}
-                {onClockPick.originalTeam && onClockPick.originalTeam !== onClockPick.currentOwner && (
-                  <span className="block text-sm text-blue-400 font-bold normal-case italic mt-1">
-                    via {getFullTeamName(onClockPick.originalTeam)}
-                  </span>
-                )}
               </h2>
               <p className="text-slate-400 font-bold text-sm">Overall Pick #{onClockPick.overall} • Round {onClockPick.round}</p>
+              
+              <div className="mt-4 pt-4 border-t border-slate-800 hidden md:block">
+                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">On Deck</p>
+                 <div className="flex gap-4">
+                    {onDeckPicks.map((p, idx) => (
+                      <div key={idx} className="text-xs font-bold text-slate-400">
+                        <span className="text-slate-600 mr-1">#{p.overall}</span> {getFullTeamName(p.currentOwner).split(' ').pop()}
+                      </div>
+                    ))}
+                 </div>
+              </div>
             </div>
 
             <div className="flex flex-col items-center md:items-end">
@@ -155,7 +159,7 @@ export default function DraftPage() {
         </div>
       )}
 
-      {/* FILTER BAR */}
+      {/* FILTER BAR + REFRESH */}
       <div className="flex flex-col xl:flex-row gap-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex-1">
           <div className="flex flex-col gap-1">
@@ -185,6 +189,7 @@ export default function DraftPage() {
           </div>
         </div>
         
+        {/* REFRESH BUTTON */}
         <button 
           onClick={() => loadData(true)}
           disabled={isRefreshing}
@@ -215,9 +220,6 @@ export default function DraftPage() {
                 const isSkipped = !!pick.draftedPlayer && pick.draftedPlayer.includes("SKIPPED");
                 const isOnClock = onClockPick && pick.overall === onClockPick.overall;
                 
-                // --- Logic: Use originalTeam from your API ---
-                const isTraded = pick.originalTeam && pick.originalTeam !== pick.currentOwner;
-                
                 return (
                   <tr key={pick.overall} className={`transition-colors ${isOnClock ? 'bg-blue-50/80 ring-2 ring-blue-500 ring-inset' : ''}`}>
                     <td className="px-6 py-6">
@@ -239,18 +241,7 @@ export default function DraftPage() {
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className={`font-black uppercase ${isOnClock ? 'text-blue-900' : 'text-slate-700'}`}>
-                          {getFullTeamName(pick.currentOwner)}
-                        </span>
-                        
-                        {/* --- VIA Logic in Table --- */}
-                        {isTraded && (
-                          <span className="text-[10px] text-blue-600 font-bold italic mt-0.5">
-                            via {getFullTeamName(pick.originalTeam)}
-                          </span>
-                        )}
-                      </div>
+                      <span className={`font-black uppercase ${isOnClock ? 'text-blue-900' : 'text-slate-700'}`}>{getFullTeamName(pick.currentOwner)}</span>
                     </td>
                     <td className="px-6 py-4 text-center">
                       {(isOnClock || isSkipped) && !isDrafted ? (
