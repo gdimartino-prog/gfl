@@ -25,8 +25,11 @@ export default function DraftPage() {
   const [faPlayers, setFaPlayers] = useState<any[]>([]);
   const [faLoading, setFaLoading] = useState(false);
   const [faSearch, setFaSearch] = useState('');
+  
+  // Selection & Scouting States
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null); 
   const [selectedPick, setSelectedPick] = useState<any>(null);
+  const [showSelectionModal, setShowSelectionModal] = useState(false);
 
   // Timer States
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
@@ -112,39 +115,33 @@ export default function DraftPage() {
     });
   }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, teams]);
 
-// Inside DraftPage.tsx
-
-const fetchFAWithDetails = async (p: any) => {
-  try {
-    // 1. Construct the Identity (Mirroring RosterPage logic)
-    const first = (p.first || '').toLowerCase();
-    const last = (p.last || '').toLowerCase();
-    const age = p.age ? String(p.age).toLowerCase() : '';
-    const off = (p.offense || '').toLowerCase();
-    const def = (p.defense || '').toLowerCase();
-    const spec = (p.special || '').toLowerCase();
-
-    const identity = [first, last, age, off, def, spec].join('|');
-    
-    console.log("🚀 API CALL SENT:", `/api/players/details/${encodeURIComponent(identity)}`);
-
-    // 2. Fetch the Deep Data
-    const r = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
-    
-    if (r.ok) {
-      const detailData = await r.json();
-      console.log("✅ API RETURN RECEIVED:", detailData); // This is the 'return' you wanted to see
-      setSelectedPlayer(detailData);
-    } else {
-      console.error("❌ API ERROR: Scouting data not found for identity:", identity);
-      alert(`Scouting data not found for: ${p.first} ${p.last}`);
+  const fetchFAWithDetails = async (p: any) => {
+    try {
+      const first = (p.first || '').toLowerCase();
+      const last = (p.last || '').toLowerCase();
+      const age = p.age ? String(p.age).toLowerCase() : '';
+      const off = (p.offense || '').toLowerCase();
+      const def = (p.defense || '').toLowerCase();
+      const spec = (p.special || '').toLowerCase();
+      const identity = [first, last, age, off, def, spec].join('|');
+      
+      const r = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
+      if (r.ok) {
+        const detailData = await r.json();
+        setSelectedPlayer(detailData);
+      } else {
+        alert(`Scouting data not found for: ${p.first} ${p.last}`);
+      }
+    } catch (e) {
+      console.error("SEARCH ERROR:", e);
     }
-  } catch (e) {
-    console.error("SEARCH ERROR:", e);
-  }
-};
+  };
 
-
+  // Helper to open the modal
+  const handleOpenSelection = (pick: any) => {
+    setSelectedPick(pick);
+    setShowSelectionModal(true);
+  };
 
   if (loading) return <div className="p-20 text-center font-black text-slate-400 uppercase tracking-widest">Loading Draft Board...</div>;
 
@@ -278,7 +275,7 @@ const fetchFAWithDetails = async (p: any) => {
                     </td>
                     <td className="px-6 py-4 text-center">
                       {(isOnClock || isSkipped) && !isDrafted ? (
-                        <button onClick={() => setSelectedPick(pick)} className={`${isOnClock ? "bg-blue-600 hover:bg-blue-700 animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.3)]" : "bg-[#f59e0b] hover:bg-[#d97706]"} text-white text-[10px] font-black py-2.5 px-5 rounded-lg shadow-lg uppercase transition-all`}>
+                        <button onClick={() => handleOpenSelection(pick)} className={`${isOnClock ? "bg-blue-600 hover:bg-blue-700 animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.3)]" : "bg-[#f59e0b] hover:bg-[#d97706]"} text-white text-[10px] font-black py-2.5 px-5 rounded-lg shadow-lg uppercase transition-all`}>
                           {isSkipped ? "Make Late Selection" : "Make Selection"}
                         </button>
                       ) : isDrafted ? (
@@ -316,7 +313,6 @@ const fetchFAWithDetails = async (p: any) => {
               ) : faPlayers.filter(p => `${p.first} ${p.last}`.toLowerCase().includes(faSearch.toLowerCase())).map((p, i) => (
                 <div key={i} className="p-4 border rounded-2xl hover:bg-slate-50 transition-colors flex justify-between items-center group text-black">
                   <div className="flex-1">
-                    {/* HYPERLINKED NAME */}
                     <a 
                       href={`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last )}`}
                       target="_blank"
@@ -330,7 +326,6 @@ const fetchFAWithDetails = async (p: any) => {
                     </a>
                     <p className="text-[10px] text-slate-500 font-bold uppercase">Age {p.age} — {p.position}</p>
                   </div>
-                  
                   <button 
                     onClick={() => fetchFAWithDetails(p)} 
                     className="text-[10px] font-black uppercase text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-xl shrink-0"
@@ -346,11 +341,12 @@ const fetchFAWithDetails = async (p: any) => {
 
       {selectedPlayer && <PlayerCard data={selectedPlayer} onClose={() => setSelectedPlayer(null)} />}
 
-      {selectedPick && (
+      {showSelectionModal && selectedPick && (
         <SelectionModal 
           pick={{...selectedPick, currentOwner: getFullTeamName(selectedPick.currentOwner), currentOwnerCode: resolveCode(selectedPick.currentOwner)}}
-          onClose={() => setSelectedPick(null)}
-          onComplete={() => { setSelectedPick(null); loadData(); }}
+          onClose={() => { setSelectedPick(null); setShowSelectionModal(false); }}
+          onComplete={() => { setSelectedPick(null); setShowSelectionModal(false); loadData(); }}
+          onScout={(p) => fetchFAWithDetails(p)} 
         />
       )}
     </div>
