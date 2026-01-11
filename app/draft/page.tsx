@@ -112,6 +112,40 @@ export default function DraftPage() {
     });
   }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, teams]);
 
+// Inside DraftPage.tsx
+
+const fetchFAWithDetails = async (p: any) => {
+  try {
+    // 1. Construct the Identity (Mirroring RosterPage logic)
+    const first = (p.first || '').toLowerCase();
+    const last = (p.last || '').toLowerCase();
+    const age = p.age ? String(p.age).toLowerCase() : '';
+    const off = (p.offense || '').toLowerCase();
+    const def = (p.defense || '').toLowerCase();
+    const spec = (p.special || '').toLowerCase();
+
+    const identity = [first, last, age, off, def, spec].join('|');
+    
+    console.log("🚀 API CALL SENT:", `/api/players/details/${encodeURIComponent(identity)}`);
+
+    // 2. Fetch the Deep Data
+    const r = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
+    
+    if (r.ok) {
+      const detailData = await r.json();
+      console.log("✅ API RETURN RECEIVED:", detailData); // This is the 'return' you wanted to see
+      setSelectedPlayer(detailData);
+    } else {
+      console.error("❌ API ERROR: Scouting data not found for identity:", identity);
+      alert(`Scouting data not found for: ${p.first} ${p.last}`);
+    }
+  } catch (e) {
+    console.error("SEARCH ERROR:", e);
+  }
+};
+
+
+
   if (loading) return <div className="p-20 text-center font-black text-slate-400 uppercase tracking-widest">Loading Draft Board...</div>;
 
   return (
@@ -298,7 +332,7 @@ export default function DraftPage() {
                   </div>
                   
                   <button 
-                    onClick={() => setSelectedPlayer({ ...p, core: p })} 
+                    onClick={() => fetchFAWithDetails(p)} 
                     className="text-[10px] font-black uppercase text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-xl shrink-0"
                   >
                     Details
