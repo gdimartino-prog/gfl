@@ -2,39 +2,38 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // Import useRouter for page refresh
+import { useRouter } from 'next/navigation';
 
-// Define the shape of a Player object from your API
 interface Player {
   identity: string;
   first: string;
   last: string;
   position: string;
-  team: string; // Should be 'FA' for free agents
+  team: string; 
+  age?: number; // Added age to support scouting identity
 }
 
-// Define the shape of a Draft Pick being passed to the modal
 interface DraftPick {
   overall: number;
   year: number;
   round: number;
-  currentOwner: string; // Full team name
-  currentOwnerCode: string; // Short code, e.g., "DAL"
+  currentOwner: string;
+  currentOwnerCode: string;
   originalTeam: string;
   status: string;
-  draftedPlayer: string; // Column G
-  timestamp: string; // Column H
+  draftedPlayer: string;
+  timestamp: string;
 }
 
 interface SelectionModalProps {
-  pick: DraftPick;
+  pick: any;
   onClose: () => void;
-  // onComplete will be called to signal the parent page to refresh its data
   onComplete: () => void;
+  onScout?: (player: any) => void; // <--- Add this line (the '?' makes it optional)
 }
 
-export default function SelectionModal({ pick, onClose, onComplete }: SelectionModalProps) {
-  const router = useRouter(); // Initialize router for refreshing page data
+export default function SelectionModal({ pick, onClose, onComplete, onScout }: SelectionModalProps) {
+  const router = useRouter();
   const [players, setPlayers] = useState<Player[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,7 +41,6 @@ export default function SelectionModal({ pick, onClose, onComplete }: SelectionM
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch only Free Agents when the modal opens
     fetch('/api/players')
       .then(res => res.json())
       .then(data => {
@@ -51,12 +49,11 @@ export default function SelectionModal({ pick, onClose, onComplete }: SelectionM
       })
       .catch(err => {
         console.error("Failed to load free agents:", err);
-        setError("Failed to load free agents. Please try again.");
+        setError("Failed to load free agents.");
         setLoadingPlayers(false);
       });
   }, []);
 
-  // Filter players based on search term
   const filteredPlayers = players.filter(p =>
     `${p.first} ${p.last}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.position.toLowerCase().includes(searchTerm.toLowerCase())
@@ -64,32 +61,24 @@ export default function SelectionModal({ pick, onClose, onComplete }: SelectionM
 
   const handleSelect = async (player: Player) => {
     setIsSubmitting(true);
-    setError(null); // Clear previous errors
-
+    setError(null);
     try {
       const res = await fetch('/api/draft-selection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          overallPick: pick.overall, // Unique identifier for the pick
-          playerIdentity: player.identity, // Unique identifier for the player
-          playerName: `${player.first} ${player.last}`, // "First Last"
+          overallPick: pick.overall,
+          playerIdentity: player.identity,
+          playerName: `${player.first} ${player.last}`,
           playerPosition: player.position,
-          newOwnerCode: pick.currentOwnerCode // The short code of the team making the pick
+          newOwnerCode: pick.currentOwnerCode
         }),
       });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Failed to draft player');
-      }
-
-      // If successful, signal parent to refresh and close modal
+      if (!res.ok) throw new Error('Failed to draft player');
       onComplete(); 
-      router.refresh(); // Force a re-fetch of server components on the DraftPage
+      router.refresh();
     } catch (err: any) {
-      console.error("Draft failed:", err.message);
-      setError(err.message || "An unexpected error occurred during draft.");
+      setError(err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -120,47 +109,45 @@ export default function SelectionModal({ pick, onClose, onComplete }: SelectionM
             disabled={isSubmitting || loadingPlayers}
           />
 
-          <div className="max-h-64 overflow-y-auto rounded-xl border border-slate-100 divide-y divide-slate-50">
+          <div className="max-h-80 overflow-y-auto rounded-xl border border-slate-100 divide-y divide-slate-50">
             {loadingPlayers ? (
-              <div className="p-10 text-center text-blue-600 animate-pulse">
-                <div className="w-8 h-8 border-4 border-current border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                Loading Free Agents...
-              </div>
-            ) : error ? (
-              <div className="p-10 text-center text-red-600 font-bold">{error}</div>
-            ) : filteredPlayers.length > 0 ? filteredPlayers.map(p => (
-              <button 
-                key={p.identity}
-                disabled={isSubmitting} // Disable during submission
-                onClick={() => handleSelect(p)}
-                className="w-full p-4 text-left hover:bg-blue-50 flex justify-between items-center group transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <div>
-                  <div className="font-black text-slate-800 uppercase tracking-tight group-hover:text-blue-600">
+               <div className="p-10 text-center text-blue-600 animate-pulse">Loading...</div>
+            ) : filteredPlayers.map(p => (
+              <div key={p.identity} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
+                <div className="flex flex-col">
+                  {/* --- HYPERLINK ON NAME --- */}
+                  <a 
+                    href={`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last + ' NFL Scouting')}`}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="font-black text-slate-800 uppercase tracking-tight hover:text-blue-600 hover:underline decoration-2 underline-offset-4"
+                  >
                     {p.first} {p.last}
-                  </div>
+                  </a>
                   <div className="text-[10px] font-bold text-slate-400 uppercase">{p.position}</div>
                 </div>
-                {isSubmitting ? (
-                  <span className="text-blue-600 text-[10px] font-black px-2 py-1 rounded">Drafting...</span>
-                ) : (
-                  <div className="bg-slate-100 text-[10px] font-black px-2 py-1 rounded group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                    SELECT
-                  </div>
-                )}
-              </button>
-            )) : (
-              <div className="p-10 text-center text-slate-400 font-bold italic">No matching Free Agents found.</div>
-            )}
+                
+                <div className="flex items-center gap-2">
+                  {/* --- SCOUT/DETAILS BUTTON --- */}
+                  <button 
+                    onClick={() => onScout(p)}
+                    className="text-[10px] font-black text-blue-600 uppercase bg-blue-50 px-3 py-2 rounded-lg hover:bg-blue-100 transition-all"
+                  >
+                    Scout
+                  </button>
+
+                  <button 
+                    disabled={isSubmitting}
+                    onClick={() => handleSelect(p)}
+                    className="bg-slate-800 text-white text-[10px] font-black px-3 py-2 rounded-lg hover:bg-blue-600 transition-all disabled:opacity-50"
+                  >
+                    {isSubmitting ? '...' : 'DRAFT'}
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
-          {error && <div className="text-red-500 text-sm text-center font-bold mt-4">{error}</div>}
-          <button 
-            onClick={onClose}
-            disabled={isSubmitting} // Prevent closing during submission
-            className="w-full py-3 text-slate-400 font-bold text-xs uppercase tracking-widest hover:text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Cancel Selection
-          </button>
+          <button onClick={onClose} className="w-full py-2 text-slate-400 font-bold text-xs uppercase tracking-widest">Cancel</button>
         </div>
       </div>
     </div>
