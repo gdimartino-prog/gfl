@@ -113,7 +113,7 @@ export async function logTransaction(tx: Transaction) {
   }
 
   if (tx.type === 'TRADE' && tx.identity.toLowerCase().includes('round')) {
-    await updatePickOwner(tx.identity, tx.toTeam || '', tx.year || '2025');
+    await updatePickOwner(tx.identity, tx.toTeam || '', tx.fromTeam || '');
   }
 
   // --- 3. APPEND TO TRANSACTION LOG ---
