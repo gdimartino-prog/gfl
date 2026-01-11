@@ -130,7 +130,7 @@ export default function SelectionModal({ pick, onClose, onComplete, onScout }: S
                 <div className="flex items-center gap-2">
                   {/* --- SCOUT/DETAILS BUTTON --- */}
                   <button 
-                    onClick={() => onScout(p)}
+                    onClick={() => onScout?.(p)}
                     className="text-[10px] font-black text-blue-600 uppercase bg-blue-50 px-3 py-2 rounded-lg hover:bg-blue-100 transition-all"
                   >
                     Scout
