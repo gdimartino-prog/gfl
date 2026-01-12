@@ -43,6 +43,22 @@ export default function HomePage() {
       color: 'border-emerald-500'
     },
     {
+      title: 'Classic GFL Site',
+      desc: 'Access legacy records, old standings, and historical league data.',
+      onClick: () => {
+        window.open("https://sites.google.com/view/gfl1/home", '_blank');
+      },
+      icon: '🏛️',
+      color: 'border-slate-500' // Using a "Classic" gray/slate color
+    },
+    {
+      title: 'League Resources',
+      desc: 'Download season files, player photos, and the GFL Encyclopedia.',
+      href: '/resources', // We will create this sub-page
+      icon: '📂',
+      color: 'border-indigo-500'
+    },
+    {
       title: 'League Settings',
       desc: 'Manage team names and league rules.',
       href: '#',
