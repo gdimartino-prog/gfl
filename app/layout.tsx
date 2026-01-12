@@ -41,6 +41,10 @@ export default function RootLayout({
   );
 }
 
+interface RootLayoutProps {
+  children: React.ReactNode;
+}
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
