@@ -7,16 +7,7 @@ interface Team { name: string; short: string; coach: string; }
 interface Player { first: string; last: string; team: string; position: string; identity: string; }
 interface DraftPick { year: number; round: number; currentOwner: string; overall: number; originalTeam: string; }
 
-// Added onComplete to the Destructured Props
-export default function TradePanel({ 
-  team, 
-  coach, 
-  onComplete 
-}: { 
-  team: string; 
-  coach: string; 
-  onComplete?: () => void 
-}) {
+export default function TradePanel({ team, coach }: { team: string; coach: string }) {
   const router = useRouter();
   const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -59,7 +50,9 @@ export default function TradePanel({
   const activeCode = resolveCode(team);
   const partnerCode = resolveCode(toTeam);
 
-  // Sorting Helpers
+  // --- SORTED HELPER LOGIC ---
+
+  // Sort Players by Last Name, then First Name
   const sortPlayers = (playerList: Player[]) => {
     return [...playerList].sort((a, b) => {
       const lastA = (a.last || "").toLowerCase();
@@ -69,6 +62,7 @@ export default function TradePanel({
     });
   };
 
+  // Sort Draft Picks by Year (Asc), then Round (Asc)
   const sortPicks = (pickList: DraftPick[]) => {
     return [...pickList].sort((a, b) => {
       if (a.year !== b.year) return a.year - b.year;
@@ -119,29 +113,22 @@ export default function TradePanel({
           playersFrom: fromPlayers,
           playersTo: toPlayers,
           draftPicksFrom: formattedPicksFrom, 
-          draftPicksTo: formattedPicksTo,          
-          rawIdentitiesFrom,         
-          rawIdentitiesTo,           
+          draftPicksTo: formattedPicksTo,     
+          rawIdentitiesFrom,        
+          rawIdentitiesTo,          
           submittedBy: coach
         }),
       });
 
       if (res.ok) {
         setStatus('✅ Success! Assets moved and transaction logged.');
-        
-        // Clear Selections
         setFromPlayers([]); 
         setToPlayers([]); 
         setFromDraftPicks([]); 
         setToDraftPicks([]); 
         setToTeam('');
-        
-        // IMPORTANT: Refresh local lists so traded assets disappear/move
         await loadData();
-        
-        // Trigger Parent Page Refresh (Log history and Server State)
-        if (onComplete) onComplete();
-        
+        router.refresh();
       } else {
         const errData = await res.json();
         setStatus(`❌ Trade failed: ${errData.error || 'Server Error'}`);
@@ -157,8 +144,7 @@ export default function TradePanel({
     <div className="space-y-4 border p-5 rounded-xl bg-white shadow-lg border-purple-100 text-left transition-all">
       <div className="flex justify-between items-center border-b pb-3">
         <div>
-          {/* RENAMED TO TRADE CENTER */}
-          <h3 className="font-black text-xl uppercase text-purple-700 tracking-tighter">Trade Center</h3>
+          <h3 className="font-black text-xl uppercase text-purple-700 tracking-tighter">Transaction Center</h3>
           <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Master Sheet Integration</p>
         </div>
         <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-bold">
@@ -174,7 +160,7 @@ export default function TradePanel({
             setToTeam(e.target.value);
             setStatus(''); 
           }} 
-          className="border-2 border-gray-100 p-3 w-full rounded-lg text-sm outline-none focus:border-purple-300 transition-colors text-black"
+          className="border-2 border-gray-100 p-3 w-full rounded-lg text-sm outline-none focus:border-purple-300 transition-colors"
         >
           <option value="">-- Choose Partner Team --</option>
           {teams.filter(t => resolveCode(t.short) !== activeCode).map(t => (
@@ -190,7 +176,7 @@ export default function TradePanel({
           <div className="space-y-3">
             <select 
               multiple 
-              className="border-2 border-white w-full h-32 text-xs rounded-lg p-2 bg-white focus:ring-2 focus:ring-blue-200 outline-none text-black" 
+              className="border-2 border-white w-full h-32 text-xs rounded-lg p-2 bg-white focus:ring-2 focus:ring-blue-200 outline-none" 
               value={fromPlayers} 
               onChange={e => setFromPlayers(Array.from(e.target.selectedOptions, o => o.value))}
             >
@@ -202,7 +188,7 @@ export default function TradePanel({
             </select>
             <select 
               multiple 
-              className="border-2 border-white w-full h-24 text-xs rounded-lg p-2 bg-white focus:ring-2 focus:ring-blue-200 outline-none text-black" 
+              className="border-2 border-white w-full h-24 text-xs rounded-lg p-2 bg-white focus:ring-2 focus:ring-blue-200 outline-none" 
               value={fromDraftPicks} 
               onChange={e => setFromDraftPicks(Array.from(e.target.selectedOptions, o => o.value))}
             >
@@ -221,7 +207,7 @@ export default function TradePanel({
           <div className="space-y-3">
             <select 
               multiple 
-              className="border-2 border-white w-full h-32 text-xs rounded-lg p-2 bg-white focus:ring-2 focus:ring-red-200 outline-none text-black" 
+              className="border-2 border-white w-full h-32 text-xs rounded-lg p-2 bg-white focus:ring-2 focus:ring-red-200 outline-none" 
               value={toPlayers} 
               onChange={e => setToPlayers(Array.from(e.target.selectedOptions, o => o.value))}
             >
@@ -233,7 +219,7 @@ export default function TradePanel({
             </select>
             <select 
               multiple 
-              className="border-2 border-white w-full h-24 text-xs rounded-lg p-2 bg-white focus:ring-2 focus:ring-red-200 outline-none text-black" 
+              className="border-2 border-white w-full h-24 text-xs rounded-lg p-2 bg-white focus:ring-2 focus:ring-red-200 outline-none" 
               value={toDraftPicks} 
               onChange={e => setToDraftPicks(Array.from(e.target.selectedOptions, o => o.value))}
             >
@@ -250,7 +236,7 @@ export default function TradePanel({
       <button 
         onClick={handleTrade} 
         disabled={loading || !toTeam} 
-        className="w-full bg-purple-600 text-white p-4 rounded-xl font-black hover:bg-purple-700 disabled:bg-gray-200 transition-all uppercase tracking-widest shadow-lg flex justify-center items-center gap-2 active:scale-95"
+        className="w-full bg-purple-600 text-white p-4 rounded-xl font-black hover:bg-purple-700 disabled:bg-gray-200 transition-all uppercase tracking-widest shadow-lg flex justify-center items-center gap-2"
       >
         {loading ? 'Processing...' : 'Submit Official Trade'}
       </button>
