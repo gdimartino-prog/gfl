@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar"; // Ensure this path matches your Navbar location
+import Navbar from "@/components/Navbar"; 
 import { Analytics } from '@vercel/analytics/react';
 
 const geistSans = Geist({
@@ -36,21 +36,9 @@ export default function RootLayout({
         <main className="min-h-screen">
           {children}
         </main>
-      </body>
-    </html>
-  );
-}
 
-interface RootLayoutProps {
-  children: React.ReactNode;
-}
-
-export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <body>
-        {children}
-        <Analytics /> {/* This tracks the visits */}
+        {/* Vercel Analytics tracking */}
+        <Analytics />
       </body>
     </html>
   );
