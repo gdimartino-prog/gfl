@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar"; // Ensure this path matches your Navbar location
+import { Analytics } from '@vercel/analytics/react';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,17 @@ export default function RootLayout({
         <main className="min-h-screen">
           {children}
         </main>
+      </body>
+    </html>
+  );
+}
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <Analytics /> {/* This tracks the visits */}
       </body>
     </html>
   );
