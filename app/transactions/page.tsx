@@ -62,7 +62,7 @@ export default function TransactionsPage() {
   return (
     <div className="max-w-7xl mx-auto p-8 space-y-12">
       <h1 className="text-3xl font-bold border-b pb-4 text-left text-gray-800 tracking-tight">
-        GFL <span className="text-blue-600">Trade Center</span>
+        GFL <span className="text-blue-600">Transaction Center</span>
       </h1>
 
       {/* GLOBAL SELECTOR */}
