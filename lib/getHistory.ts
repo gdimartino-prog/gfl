@@ -4,7 +4,7 @@ export async function getHistory() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'Standings!A2:P1000', // Increased range for all-time data
+      range: 'Standings!A2:Q1000', // Increased range for all-time data
     });
 
     const rows = response.data.values || [];
@@ -23,6 +23,8 @@ export async function getHistory() {
       isPlayoff: row[12] === '1',
       isSuperBowl: row[13] === '1',
       isChampion: row[14] === '1',
+      oldTeamName: row[15] || null, // For teams that changed names
+      gm: row[16] || "N/A",
     }));
   } catch (error) {
     console.error("❌ Error fetching league history:", error);
