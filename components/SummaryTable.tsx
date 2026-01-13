@@ -40,7 +40,7 @@ export default function SummaryTable({ initialData }: { initialData: any[] }) {
             <th className="p-4 text-center">PPG (O/D)</th>
             <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('divWins')}>Div</th>
             <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('postSeason')}>Post</th>
-            <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('superBowls')}>Bowl</th>
+            <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('superBowls')}>Super Bowl Appearances</th>
             <th className="p-4 text-right min-w-[200px] cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('championships')}>
               Titles {sortConfig.key === 'championships' && (sortConfig.direction === 'desc' ? '▼' : '▲')}
             </th>
