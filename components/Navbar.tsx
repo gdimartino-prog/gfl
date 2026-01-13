@@ -15,6 +15,7 @@ export default function Navbar() {
     { name: 'Transactions', href: '/transactions' }, 
     { name: 'Draft Board', href: '/draft' },
     { name: 'Cuts', href: '/cuts' },
+    { name: 'Standings', href: '/standings' },
     { name: 'Resources', href: '/resources' },
     { name: 'Constitution', href: '/rules' }, 
   ];

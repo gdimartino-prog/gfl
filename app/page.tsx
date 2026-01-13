@@ -59,6 +59,22 @@ export default function HomePage() {
       color: 'border-indigo-500'
     },
     {
+      title: 'Standings',
+      // You can even dynamically pull the top team name here later
+      desc: 'View Current Season standings and all-time league history.',
+      href: '/standings',
+      icon: '🏆',
+      color: 'border-blue-600',
+      // Optional: Add a small "Top 3" preview if you want to get fancy
+      preview: (
+        <div className="mt-2 text-xs font-bold text-slate-500 uppercase tracking-tight">
+          1. Vico (16-1) <br/>
+          2. LE (15-2) <br/>
+          3. Old Bridge (13-3)
+        </div>
+      )
+    },
+        {
       title: 'League Settings',
       desc: 'Manage team names and league rules.',
       href: '#',
