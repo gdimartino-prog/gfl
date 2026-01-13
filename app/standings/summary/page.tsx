@@ -7,10 +7,13 @@ export const revalidate = 3600;
 export default async function SummaryReportPage() {
   const allData = await getHistory();
 
-  // Aggregate the data (Logic remains the same)
+  // Aggregate raw rows into Franchise summaries
   const summaryMap: Record<string, any> = {};
+
   allData.forEach((row) => {
+    // Group by Master Franchise name (handles relocations)
     const teamKey = row.oldTeamName || row.team;
+
     if (!summaryMap[teamKey]) {
       summaryMap[teamKey] = {
         team: teamKey,
@@ -19,15 +22,31 @@ export default async function SummaryReportPage() {
         losses: 0,
         ties: 0,
         seasons: 0,
+        offPts: 0,
+        defPts: 0,
+        divWins: 0,
+        postSeason: 0,
+        superBowls: 0,
         championships: 0,
       };
     }
+
     const t = summaryMap[teamKey];
     t.seasons += 1;
     t.wins += Number(row.won || 0);
     t.losses += Number(row.lost || 0);
     t.ties += Number(row.tie || 0);
+    t.offPts += Number(row.offPts || 0);
+    t.defPts += Number(row.defPts || 0);
+    
+    // Increment counts for specific achievements
+    if (row.isDivWinner) t.divWins += 1;
+    if (row.isPlayoff) t.postSeason += 1;
+    if (row.isSuperBowl) t.superBowls += 1;
     if (row.isChampion) t.championships += 1;
+
+    // Ensure we have the most recent GM name
+    t.gm = row.gm !== 'N/A' ? row.gm : t.gm;
   });
 
   const summaryData = Object.values(summaryMap);
@@ -45,7 +64,7 @@ export default async function SummaryReportPage() {
         </div>
 
         <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-          <Link href="/standings" className="px-6 py-2 text-slate-500 hover:text-slate-900 text-sm font-black uppercase tracking-tight">
+          <Link href="/standings" className="px-6 py-2 text-slate-500 hover:text-slate-900 text-sm font-black uppercase tracking-tight transition-colors">
             Yearly View
           </Link>
           <Link href="/standings/summary" className="px-6 py-2 bg-white text-blue-600 shadow-sm rounded-lg text-sm font-black uppercase tracking-tight">
