@@ -4,7 +4,7 @@ export async function getHistory() {
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'Standings!A2:Q1000', // Increased range for all-time data
+      range: 'Standings!A2:R1000', // FIXED: Changed Q to R
     });
 
     const rows = response.data.values || [];
@@ -23,8 +23,9 @@ export async function getHistory() {
       isPlayoff: row[12] === '1',
       isSuperBowl: row[13] === '1',
       isChampion: row[14] === '1',
-      oldTeamName: row[15] || null, // For teams that changed names
+      oldTeamName: row[15] || null, 
       gm: row[16] || "N/A",
+      division: row[17] || "N/A" // Now index 17 (Column R) is available
     }));
   } catch (error) {
     console.error("❌ Error fetching league history:", error);
@@ -34,13 +35,13 @@ export async function getHistory() {
 
 export async function getTeamSummary() {
   const allData = await getHistory();
-  
   const summaryMap: Record<string, any> = {};
 
   allData.forEach((row) => {
-    if (!summaryMap[row.team]) {
-      summaryMap[row.team] = {
-        team: row[row.oldTeamName ? 'oldTeamName' : 'team'], // Accounts for name changes
+    const teamKey = row.team;
+    if (!summaryMap[teamKey]) {
+      summaryMap[teamKey] = {
+        team: teamKey,
         seasons: 0,
         wins: 0,
         losses: 0,
@@ -53,17 +54,17 @@ export async function getTeamSummary() {
       };
     }
 
-    const t = summaryMap[row.team];
+    const t = summaryMap[teamKey];
     t.seasons += 1;
-    t.wins += Number(row.won);
-    t.losses += Number(row.lost);
-    t.ties += Number(row.tie);
-    t.pointsFor += Number(row.offPts);
-    t.pointsAgainst += Number(row.defPts);
+    t.wins += Number(row.won || 0);
+    t.losses += Number(row.lost || 0);
+    t.ties += Number(row.tie || 0);
+    t.pointsFor += Number(row.offPts || 0);
+    t.pointsAgainst += Number(row.defPts || 0);
     if (row.isPlayoff) t.playoffs += 1;
     if (row.isSuperBowl) t.superBowls += 1;
     if (row.isChampion) t.championships += 1;
   });
 
-  return Object.values(summaryMap).sort((a, b) => b.wins - a.wins); // Sort by total wins
+  return Object.values(summaryMap).sort((a, b) => b.wins - a.wins);
 }
