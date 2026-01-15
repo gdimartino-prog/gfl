@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import PlayerCard from '@/components/PlayerCard';
+import TeamSelector from '@/components/TeamSelector'; // Added Import
+import { useTeam } from '@/context/TeamContext';    // Added Import
 
 export const dynamic = 'force-dynamic';
 
@@ -14,16 +16,16 @@ const positionWeights: Record<string, number> = {
 };
 
 export default function RosterPage() {
-  const [teams, setTeams] = useState<any[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState('');
+  // 1. Swapped Local State for Global Context
+  const { selectedTeam } = useTeam();
+  
   const [data, setData] = useState<{ roster: any[], picks: any[] } | null>(null);
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'pos'>('default');
   const [viewingPlayer, setViewingPlayer] = useState<any>(null);
 
-  useEffect(() => {
-    fetch('/api/teams').then(res => res.json()).then(setTeams);
-  }, []);
+  // Note: We no longer need the local fetch('/api/teams') here because 
+  // the shared TeamSelector handles its own data loading.
 
   useEffect(() => {
     if (!selectedTeam) { setData(null); return; }
@@ -79,8 +81,8 @@ export default function RosterPage() {
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-800">ROSTER EXPLORER</h1>
-          <p className="text-xs font-bold text-blue-500 uppercase tracking-widest">Team Management & Scouting</p>
+          <h1 className="text-2xl font-black tracking-tight text-slate-800 uppercase">Roster Explorer</h1>
+          <p className="text-xs font-bold text-blue-500 uppercase tracking-widest">Active Scouting & Depth Charts</p>
         </div>
         
         <div className="flex flex-wrap items-center gap-4">
@@ -93,14 +95,11 @@ export default function RosterPage() {
                </button>
              ))}
           </div>
-
-          <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)}
-            className="p-3 border rounded-lg bg-gray-50 font-bold text-gray-700 outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="">SELECT TEAM</option>
-            {teams.map((t: any) => <option key={t.short} value={t.short}>{t.name}</option>)}
-          </select>
         </div>
       </div>
+
+      {/* 2. SHARED TEAM SELECTOR COMPONENT */}
+      <TeamSelector />
 
       {loading ? (
         <div className="flex justify-center py-20 text-blue-600">
@@ -190,6 +189,19 @@ export default function RosterPage() {
                </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 3. EMPTY STATE: Shown when no team is selected yet */}
+      {!selectedTeam && !loading && (
+        <div className="flex flex-col items-center justify-center py-32 bg-white rounded-3xl border-2 border-dashed border-gray-200">
+           <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
+             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+             </svg>
+           </div>
+           <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Personnel File Locked</h3>
+           <p className="text-slate-500 font-bold text-sm max-w-xs text-center mt-1">Select a franchise from the control panel above to initialize roster transmission.</p>
         </div>
       )}
     </div>

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import PlayerCard from '@/components/PlayerCard'; 
+import TeamSelector from '@/components/TeamSelector'; // Added Import
+import { useTeam } from '@/context/TeamContext'; // Added Import
 
 interface GroupStats {
   avgAge: string | number;
@@ -66,7 +68,10 @@ function CountdownTimer({ dueDate }: { dueDate: string }) {
 
 export default function CutsPage() {
   const [teams, setTeams] = useState<any[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState('');
+  
+  // 1. Swapped Local State for Global Context
+  const { selectedTeam, setSelectedTeam } = useTeam();
+  
   const [roster, setRoster] = useState<any[]>([]);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [orphanedPlayers, setOrphanedPlayers] = useState<OrphanedPlayer[]>([]);
@@ -79,7 +84,6 @@ export default function CutsPage() {
   const [saving, setSaving] = useState(false);
   const [viewingPlayer, setViewingPlayer] = useState<any>(null);
 
-  // Reference for smooth scroll
   const rosterHeaderRef = useRef<HTMLDivElement>(null);
 
   const isExpired = useMemo(() => {
@@ -89,9 +93,9 @@ export default function CutsPage() {
 
   const getTS = () => `ts=${new Date().getTime()}`;
 
-  // Interactive Selection with Smooth Scroll
+  // Interactive Selection with Global Context Sync
   const handleTeamSelect = (teamShort: string) => {
-    setSelectedTeam(teamShort);
+    setSelectedTeam(teamShort); // Updates context and localStorage
     setTimeout(() => {
       rosterHeaderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
@@ -277,16 +281,10 @@ export default function CutsPage() {
           <h1 className="text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">Cuts Portal</h1>
           <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Authorized Access: {config.draft_year} Season</p>
         </div>
-        <div className="w-full md:w-96 group">
-          <label className="text-[10px] font-black text-slate-400 uppercase mb-2 block ml-1 tracking-widest">Select Franchise</label>
-          <select 
-            value={selectedTeam} 
-            onChange={(e) => setSelectedTeam(e.target.value)} 
-            className="p-5 border-2 border-slate-200 rounded-3xl font-black bg-white w-full shadow-xl outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer text-slate-800"
-          >
-            <option value="">Choose a team...</option>
-            {teams.map(t => <option key={t.short} value={t.short}>{t.name}</option>)}
-          </select>
+        
+        {/* 2. REPLACED LOCAL SELECTOR WITH SHARED COMPONENT */}
+        <div className="w-full md:w-96">
+            <TeamSelector />
         </div>
       </div>
 

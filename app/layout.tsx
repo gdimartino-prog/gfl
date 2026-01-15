@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar"; 
 import { Analytics } from '@vercel/analytics/react';
+import { TeamProvider } from "@/context/TeamContext"; // 1. Import the Provider
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,13 +30,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
       >
-        {/* The Navbar shows on every page */}
-        <Navbar />
-        
-        {/* Main content area */}
-        <main className="min-h-screen">
-          {children}
-        </main>
+        {/* 2. Wrap everything in TeamProvider */}
+        <TeamProvider>
+          {/* The Navbar now has access to the selected team */}
+          <Navbar />
+          
+          {/* Main content area - all pages inside here share the same team state */}
+          <main className="min-h-screen">
+            {children}
+          </main>
+        </TeamProvider>
 
         {/* Vercel Analytics tracking */}
         <Analytics />
