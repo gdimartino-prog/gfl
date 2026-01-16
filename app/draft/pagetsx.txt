@@ -22,11 +22,9 @@ export default function DraftPage() {
   
   // Free Agent States
   const [showFA, setShowFA] = useState(false);
-  const [faPlayers, setFaPlayers] = useState<any[]>([]); 
+  const [faPlayers, setFaPlayers] = useState<any[]>([]);
   const [faLoading, setFaLoading] = useState(false);
   const [faSearch, setFaSearch] = useState('');
-  const [faPosFilter, setFaPosFilter] = useState('All');
-  const [faSortKey, setFaSortKey] = useState('overall');
   
   // Selection & Scouting States
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null); 
@@ -37,7 +35,6 @@ export default function DraftPage() {
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
   const [progress, setProgress] = useState<number>(100);
 
-  // --- DATA LOADING ---
   const loadData = useCallback(async (showRefreshState = false) => {
     if (showRefreshState) setIsRefreshing(true);
     try {
@@ -60,7 +57,6 @@ export default function DraftPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // --- CLOCK & STATUS LOGIC ---
   const { onClockPick, previousPick } = useMemo(() => {
     const currentIndex = picks.findIndex(p => p.status === "Active");
     return {
@@ -94,7 +90,6 @@ export default function DraftPage() {
     return () => clearInterval(timerInterval);
   }, [onClockPick, previousPick]);
 
-  // --- TEAM NAME RESOLUTION ---
   const resolveCode = (str: string) => {
     if (!str) return "";
     const match = str.match(/\(([^)]+)\)/);
@@ -108,7 +103,6 @@ export default function DraftPage() {
     return team ? team.name : shortCode;
   };
 
-  // --- DRAFT BOARD FILTERING ---
   const filteredPicks = useMemo(() => {
     return picks.filter(p => {
       const searchStr = searchTerm.toLowerCase();
@@ -121,32 +115,17 @@ export default function DraftPage() {
     });
   }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, teams]);
 
-  // --- FREE AGENT PROCESSING (SORT & POS LOGIC) ---
-  const processedFAs = useMemo(() => {
-    if (!Array.isArray(faPlayers)) return [];
-    return [...faPlayers]
-      .filter(p => {
-        const matchesSearch = `${p.first} ${p.last}`.toLowerCase().includes(faSearch.toLowerCase());
-        //const matchesPos = faPosFilter === 'All' || p.position === faPosFilter;
-        const matchesPos = faPosFilter === 'All' || 
-          (faPosFilter === 'OL' 
-            ? ['OL', 'C', 'G', 'T', 'C-G', 'G-T'].includes(p.position) 
-          : p.position === faPosFilter);
-
-        return matchesSearch && matchesPos;
-      })
-      .sort((a, b) => {
-        const valA = Number(a.allStats?.[faSortKey] || a[faSortKey] || 0);
-        const valB = Number(b.allStats?.[faSortKey] || b[faSortKey] || 0);
-        if (faSortKey === 'age') return valA - valB;
-        return valB - valA;
-      });
-  }, [faPlayers, faSearch, faPosFilter, faSortKey]);
-
   const fetchFAWithDetails = async (p: any) => {
     try {
-      // Use the pre-calculated identity from the parser to avoid 404s
-      const r = await fetch(`/api/players/details/${encodeURIComponent(p.identity)}`);
+      const first = (p.first || '').toLowerCase();
+      const last = (p.last || '').toLowerCase();
+      const age = p.age ? String(p.age).toLowerCase() : '';
+      const off = (p.offense || '').toLowerCase();
+      const def = (p.defense || '').toLowerCase();
+      const spec = (p.special || '').toLowerCase();
+      const identity = [first, last, age, off, def, spec].join('|');
+      
+      const r = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
       if (r.ok) {
         const detailData = await r.json();
         setSelectedPlayer(detailData);
@@ -158,6 +137,7 @@ export default function DraftPage() {
     }
   };
 
+  // Helper to open the modal
   const handleOpenSelection = (pick: any) => {
     setSelectedPick(pick);
     setShowSelectionModal(true);
@@ -312,114 +292,48 @@ export default function DraftPage() {
         </div>
       </div>
 
-      {/* ENHANCED FREE AGENT DRAWER */}
+      {/* FREE AGENT DRAWER */}
       {showFA && (
         <div className="fixed inset-0 z-[80] flex justify-end">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowFA(false)} />
-          <div className="relative w-full max-w-lg bg-[#f8fafc] h-full shadow-2xl flex flex-col border-l border-slate-300">
-            
-            <div className="p-6 bg-slate-900 text-white flex justify-between items-center shrink-0">
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col border-l border-slate-200">
+            <div className="p-6 bg-slate-900 text-white flex justify-between items-center">
               <div>
-                <h3 className="text-xl font-black uppercase italic tracking-tighter">Scouting <span className="text-blue-500">FA</span></h3>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Live Terminal</p>
+                <h3 className="text-lg font-black uppercase tracking-tight">Free Agents</h3>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Waiver Wire</p>
               </div>
-              <button onClick={() => setShowFA(false)} className="text-slate-400 hover:text-white transition-colors">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
+              <button onClick={() => setShowFA(false)} className="text-3xl">&times;</button>
             </div>
-
-            <div className="p-4 bg-white border-b shadow-sm space-y-3 shrink-0">
-              <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  placeholder="Search..." 
-                  className="flex-[2] p-4 border-2 border-slate-100 rounded-2xl text-black font-bold text-sm" 
-                  value={faSearch} 
-                  onChange={(e) => setFaSearch(e.target.value)} 
-                />
-                <select 
-                  className="flex-1 p-2 border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase bg-slate-50"
-                  value={faSortKey}
-                  onChange={(e) => setFaSortKey(e.target.value)}
-                >
-                  <option value="overall">Sort: Overall</option>
-                  <option value="age">Sort: Age</option>
-                  <option value="run block">Sort: Run Blk</option>
-                  <option value="pass block">Sort: Pass Blk</option>
-                  <option value="sacks">Sort: Sacks</option>
-                  <option value="interceptions">Sort: Ints</option>
-                </select>
-              </div>
-              <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                {['All', 'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'].map(pos => (
-                  <button
-                    key={pos}
-                    onClick={() => setFaPosFilter(pos)}
-                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all shrink-0 ${
-                      faPosFilter === pos ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
-                    }`}
-                  >
-                    {pos}
-                  </button>
-                ))}
-              </div>
+            <div className="p-4 border-b">
+              <input type="text" placeholder="Search FA..." className="w-full p-3 border rounded-xl text-black text-sm" value={faSearch} onChange={(e) => setFaSearch(e.target.value)} />
             </div>
-
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {faLoading ? (
-                <div className="text-center py-20 text-slate-400 font-black uppercase">Loading...</div>
-              ) : processedFAs.map((p, i) => {
-                const pos = p.position.toUpperCase();
-                // Logic to identify player type
-                const isSkill = ['QB', 'RB', 'WR', 'TE'].some(s => pos.includes(s));
-                const isLine = ['OL', 'DL'].some(s => pos.includes(s));
-                const isDef = ['DL', 'LB', 'DB'].some(s => pos.includes(s));
-
-                return (
-                  <div key={i} className={`bg-white border transition-all rounded-2xl shadow-sm ${i === 0 && faSearch === '' ? 'border-amber-400 ring-2 ring-amber-100' : 'border-slate-200'}`}>
-                    <div className="p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h4 className="font-black text-slate-900 uppercase text-lg leading-none">{p.first} {p.last}</h4>
-                          <div className="flex gap-2 mt-2">
-                            <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">{p.position}</span>
-                            <span className="text-slate-400 text-[9px] font-bold uppercase tracking-widest">Age {p.age}</span>
-                          </div>
-                        </div>
-                        <button onClick={() => fetchFAWithDetails(p)} className="bg-slate-900 text-white text-[9px] font-black px-4 py-2 rounded-xl uppercase hover:bg-blue-600 transition-colors">Full Card</button>
-                      </div>
-
-                      <div className="grid grid-cols-5 gap-1 pt-3 border-t border-slate-50">
-                        {isSkill ? (
-                          <>
-                            <StatMini label="PASS" val={p.allStats?.['passing yards'] || '0'} />
-                            <StatMini label="RUSH" val={p.allStats?.['rush yards'] || '0'} />
-                            <StatMini label="REC" val={p.allStats?.['receiving yards'] || '0'} />
-                            <StatMini label="TD" val={p.allStats?.['total touchdowns'] || '0'} />
-                            <StatMini label="OVRL" val={p.overall} />
-                          </>
-                        ) : isLine || isDef ? (
-                          <>
-                            <StatMini label="R-BLK" val={p.allStats?.['run block'] || p.run} />
-                            <StatMini label="P-BLK" val={p.allStats?.['pass block'] || p.pass} />
-                            <StatMini label="R-DEF" val={p.allStats?.['run defense'] || '0'} />
-                            <StatMini label="SCK" val={p.allStats?.['sacks'] || '0'} />
-                            <StatMini label="OVRL" val={p.overall} />
-                          </>
-                        ) : (
-                          <>
-                            <StatMini label="R-BLK" val={p.run} />
-                            <StatMini label="P-BLK" val={p.pass} />
-                            <StatMini label="DUR" val={p.dur} />
-                            <StatMini label="OVRL" val={p.overall} />
-                            <StatMini label="AGE" val={p.age} />
-                          </>
-                        )}
-                      </div>
-                    </div>
+                <div className="text-center py-20 animate-pulse text-slate-400 font-black uppercase">Loading...</div>
+              ) : faPlayers.filter(p => `${p.first} ${p.last}`.toLowerCase().includes(faSearch.toLowerCase())).map((p, i) => (
+                <div key={i} className="p-4 border rounded-2xl hover:bg-slate-50 transition-colors flex justify-between items-center group text-black">
+                  <div className="flex-1">
+                    <a 
+                      href={`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-black text-slate-900 uppercase text-sm hover:text-blue-600 hover:underline inline-flex items-center gap-1 group/link"
+                    >
+                      {p.first} {p.last}
+                      <svg className="w-3 h-3 text-blue-400 opacity-0 group-hover/link:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase">Age {p.age} — {p.position}</p>
                   </div>
-                );
-              })}
+                  <button 
+                    onClick={() => fetchFAWithDetails(p)} 
+                    className="text-[10px] font-black uppercase text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-xl shrink-0"
+                  >
+                    Details
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -435,15 +349,6 @@ export default function DraftPage() {
           onScout={(p) => fetchFAWithDetails(p)} 
         />
       )}
-    </div>
-  );
-}
-
-function StatMini({ label, val }: { label: string, val: any }) {
-  return (
-    <div className="flex flex-col items-center justify-center bg-slate-50 rounded-lg py-2 border border-slate-100">
-      <span className="text-[7px] font-black text-slate-400 uppercase leading-none mb-1 tracking-tighter">{label}</span>
-      <span className="text-xs font-black text-slate-800 italic">{val || '0'}</span>
     </div>
   );
 }

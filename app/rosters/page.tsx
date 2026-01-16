@@ -7,6 +7,7 @@ import { useTeam } from '@/context/TeamContext';    // Added Import
 
 export const dynamic = 'force-dynamic';
 
+
 const positionWeights: Record<string, number> = {
   'QB': 1, 'RB': 2, 'HB': 2, 'FB': 3, 'WR': 4, 'TE': 5,
   'OT': 6, 'LT': 6, 'RT': 6, 'T': 6, 'OG': 7, 'LG': 7, 'RG': 7, 'G': 7, 'C': 8, 'OL': 9,
@@ -38,27 +39,55 @@ export default function RosterPage() {
       });
   }, [selectedTeam]);
 
+  //useEffect(() => {
+  //if (data?.roster) {
+  //  console.log("📊 FULL ROSTER DATA DEBUG:");
+  //  console.table(data.roster);
+  //}
+  //}, [data]);
+
   const getGoogleSearchUrl = (name: string) => `https://www.google.com/search?q=${encodeURIComponent(name + ' NFL')}`;
 
-  const fetchPlayerDetails = async (p: any) => {
-    try {
-      const nameParts = p.name ? p.name.trim().split(/\s+/) : ['', ''];
-      const first = (nameParts[0] || '').toLowerCase();
-      const last = (nameParts.length > 1 ? nameParts[nameParts.length - 1] : '').toLowerCase();
-      const age = p.age ? String(p.age).toLowerCase() : '';
-      const off = p.group === 'OFF' ? p.pos.toLowerCase() : '';
-      const def = p.group === 'DEF' ? p.pos.toLowerCase() : '';
-      const spec = p.group === 'SPEC' ? p.pos.toLowerCase() : '';
+const fetchPlayerDetails = async (p: any) => {
+  try {
+    // 1. CLEAN THE IDENTITY
+    const first = (p.name.split(' ')[0] || '').toLowerCase().trim();
+    const last = (p.name.split(' ').pop() || '').toLowerCase().trim();
+    const rosterAge = parseInt(p.age) || 0;
+    const pos = (p.pos || '').toLowerCase().trim();
+    const group = (p.group || '').toUpperCase().trim();
 
-      const identity = [first, last, age, off, def, spec].join('|');
-      const r = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
-      if (r.ok) {
-        setViewingPlayer(await r.json());
-      } else {
-        alert(`Scouting data not found for: ${p.name}`);
+    // 2. GENERATE SEARCH AGES
+    // Accounts for the "Age Trap" (e.g., sheet says 30, real life is 31)
+    const agesToTry = [String(rosterAge), String(rosterAge - 1), String(rosterAge + 1)];
+    
+    // 3. GENERATE POSITION ROTATIONS
+    // Covers all combinations of Column G (Off), H (Def), and I (Spec)
+    const rotations = [
+      { off: group === 'OFF' ? pos : '', def: group === 'DEF' ? pos : '', spec: '' },
+      { off: pos, def: '', spec: 'ret' }, // Specifically for Kalif Raymond
+      { off: pos, def: '', spec: 'kr' },  // Specifically for Sean Tucker
+      { off: pos, def: '', spec: 'pr' },
+      { off: '', def: '', spec: pos },    // Pure Specialist fallback
+    ];
+
+    // 4. THE NESTED SEARCH LOOP
+    for (const age of agesToTry) {
+      for (const rot of rotations) {
+        const identity = [first, last, age, rot.off, rot.def, rot.spec].join('|');
+        const res = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
+        
+        if (res.ok) {
+          console.log(`✅ Success! Found player as: ${identity}`);
+          setViewingPlayer(await res.json());
+          return; // Exit as soon as we find a match
+        }
       }
-    } catch (e) { console.error("Search Error:", e); }
-  };
+    }
+
+    alert(`Scouting failed for ${p.name}. Verify the spreadsheet ID manually.`);
+  } catch (e) { console.error("Search Error:", e); }
+};
 
   const sortedGroups = useMemo(() => {
     if (!data?.roster) return { OFF: [], DEF: [], SPEC: [] };

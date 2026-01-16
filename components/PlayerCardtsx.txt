@@ -1,0 +1,133 @@
+'use client';
+
+import React from 'react';
+
+interface PlayerCardProps {
+  data: any;
+  onClose: () => void;
+}
+
+const PlayerCard: React.FC<PlayerCardProps> = ({ data, onClose }) => {
+  if (!data) return null;
+
+  // 1. DYNAMIC CATEGORY DETECTION
+  const posOff = data.core?.pos?.off?.toUpperCase() || "";
+  const posDef = data.core?.pos?.def?.toUpperCase() || "";
+  const isQB = posOff === 'QB';
+  const isOL = ['C', 'G', 'T', 'OL'].includes(posOff);
+  const isSkill = ['WR', 'TE', 'RB', 'HB', 'FB'].includes(posOff);
+  const isDef = posDef !== "";
+
+  // 2. THE STAT MAPPING ENGINE
+  // This function uses the exact paths from your Brock Purdy trace
+  const getStatValue = (label: string): string => {
+    const key = label.toLowerCase().trim();
+    let val: any = null;
+
+    // --- SHARED STATS (Top Level / Contract / Ratings) ---
+    if (key === 'salary') val = data.contract?.salary;
+    else if (key === 'games') val = data.stats?.games;
+    else if (key === 'durability') val = data.ratings?.durability;
+    
+    // --- O-LINE & DEFENSE RATINGS (Inside ratings) ---
+    else if (key === 'run block') val = data.ratings?.run_block;
+    else if (key === 'pass block') val = data.ratings?.pass_block;
+    else if (key === 'total defense') val = data.ratings?.total_def;
+    else if (key === 'run defense') val = data.ratings?.run_def;
+    else if (key === 'pass defense') val = data.ratings?.pass_def;
+    else if (key === 'pass rush') val = data.ratings?.pass_rush;
+
+    // --- QB STATS (Inside stats.passing) ---
+    else if (isQB) {
+      const p = data.stats?.passing || {};
+      if (key === 'pass attempts') val = p.att;
+      else if (key === 'completions') val = p.comp;
+      else if (key === 'pass yards') val = p.yds;
+      else if (key === 'pass interceptions') val = p.int;
+      else if (key === 'pass td') val = p.td;
+      else if (key === 'pass times sacked') val = data.stats?.defense?.sacks;
+    }
+
+    // --- SKILL POSITION STATS (Inside stats.rushing) ---
+    else if (isSkill) {
+      const r = data.stats?.rushing || {};
+      // For Receiving stats, we check the allStats fallback from the sheet
+      const all = data.allStats || {};
+      if (key === 'rush attempts') val = r.att;
+      else if (key === 'rush yards') val = r.yds;
+      else if (key === 'rush long') val = r.long;
+      else if (key === 'rush td') val = r.td;
+      else if (key === 'receptions') val = all.receptions;
+      else if (key === 'receiving yards') val = all.receiving_yards;
+      else if (key === 'receiving long') val = all.receiving_long;
+      else if (key === 'receiving td') val = all.receiving_td;
+    }
+
+    // --- FALLBACK ---
+    if (val === null || val === undefined) val = '0';
+
+    // Formatting for Salary
+    if (key === 'salary') {
+      const valStr = String(val);
+      return valStr.startsWith('$') ? valStr : `$${valStr}`;
+    }
+    return String(val);
+  };
+
+  // 3. DEFINE DISPLAY ORDER
+  let displayKeys: string[] = [];
+  if (isOL) displayKeys = ['run block', 'pass block', 'games', 'durability', 'salary'];
+  else if (isDef) displayKeys = ['total defense', 'run defense', 'pass defense', 'pass rush', 'games', 'durability', 'salary'];
+  else if (isQB) displayKeys = ['pass attempts', 'completions', 'pass yards', 'pass interceptions', 'pass td', 'pass times sacked', 'games', 'durability', 'salary'];
+  else if (isSkill) displayKeys = ['rush attempts', 'rush yards', 'rush long', 'rush td', 'receptions', 'receiving yards', 'receiving long', 'receiving td', 'games', 'durability', 'salary'];
+  else displayKeys = ['games', 'durability', 'salary'];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-md">
+      <div className="bg-[#020617] w-full max-w-6xl rounded-[2.5rem] border-2 border-slate-700 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+        
+        {/* Header */}
+        <div className="p-8 bg-slate-900 border-b border-slate-700 flex justify-between items-center shrink-0">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <span className="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                {posOff || posDef || 'ATH'}
+              </span>
+              <span className="text-slate-400 font-black text-[10px] uppercase tracking-[0.2em]">
+                {data.core?.team || 'FA'} • AGE {data.core?.age || '??'}
+              </span>
+            </div>
+            <h2 className="text-5xl font-black italic uppercase text-white tracking-tighter leading-none">
+              {data.core?.first} <span className="text-blue-400">{data.core?.last}</span>
+            </h2>
+          </div>
+          <button onClick={onClose} className="p-4 bg-slate-800 hover:bg-red-500 rounded-full text-white transition-all border border-slate-600 text-2xl leading-none">
+            &times;
+          </button>
+        </div>
+
+        {/* Dynamic Stats Grid */}
+        <div className="flex-1 overflow-y-auto p-8 bg-slate-950 custom-scrollbar">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {displayKeys.map((key) => (
+              <div key={key} className="bg-slate-900 border border-slate-800 p-5 rounded-3xl flex flex-col border-b-4 border-b-emerald-500/20">
+                <span className="text-slate-500 text-[9px] font-black uppercase mb-2 tracking-wider">{key}</span>
+                <span className="text-emerald-400 text-3xl font-black italic tabular-nums leading-none">
+                  {getStatValue(key)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-8 bg-slate-900 border-t border-slate-700 shrink-0">
+           <button onClick={onClose} className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase text-xs tracking-[0.4em] rounded-2xl shadow-xl active:scale-95 transition-transform">
+             Close Scouting Profile
+           </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PlayerCard;

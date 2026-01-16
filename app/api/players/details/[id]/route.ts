@@ -94,6 +94,12 @@ export async function GET(
           att: getVal('rush attempts'), yds: getVal('rush yards'), 
           long: getVal('rush long'), td: getVal('rush TD')
         },
+        receiving: {
+          receptions: getVal('receptions'),
+          yds: getVal('receiving yards'), // Match your header (e.g., 'rec yards' or 'receiving yards')
+          td: getVal('receiving TD'),
+          long: getVal('receiving long')
+        },
         passing: { 
           att: getVal('pass attempts'), comp: getVal('completions'), 
           yds: getVal('pass yards'), int: getVal('pass interceptions'), td: getVal('pass TD') 

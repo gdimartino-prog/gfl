@@ -11,74 +11,116 @@ export type Player = {
   position: string;
   isIR: boolean;
   identity: string;
+  // Stats/Ratings
+  run: string;
+  pass: string;
+  rush: string;
+  int: string;
+  sack: string;
+  dur: string;
+  overall: string;
+  allStats: Record<string, string>;
 };
 
 /**
  * Builds a stable identity string for a player.
- * This MUST stay consistent across the app.
+ * Strictly treats empty values or '0' as blank to match the 'null' cells in your sheet.
  */
-export function buildPlayerIdentity(player: Player): string {
+export function buildPlayerIdentity(player: any): string {
+  const clean = (val: any) => {
+    if (val === null || val === undefined) return '';
+    const s = String(val).trim().toLowerCase();
+    // Action PC data often uses '0' or blank for empty positions
+    return (s === '0' || s === 'null' || s === '') ? '' : s;
+  };
+
   return [
-    player.first || '',
-    player.last || '',
-    player.age ?? '',
-    player.offense || '',
-    player.defense || '',
-    player.special || '',
+    clean(player.first),
+    clean(player.last),
+    clean(player.age),
+    clean(player.offense),
+    clean(player.defense),
+    clean(player.special),
   ]
     .join('|')
     .toLowerCase();
 }
 
 /**
- * Parse players from the Google Sheet "Players" tab
- *
- * Expected columns:
- * 0 team
- * 1 original team (unused here)
- * 2 first
- * 3 last
- * 4 nickname (unused)
- * 5 age
- * 6 offense
- * 7 defense
- * 8 special
+ * Parse players from the Google Sheet "Players" tab using header mapping.
  */
 export function parsePlayers(rows: string[][]): Player[] {
-  const [, ...data] = rows; // skip header row
+  if (!rows || rows.length < 2) return [];
 
-  return data.map((row, rowIndex) => {
+  // 1. Map headers to lowercase keys for easy searching
+  const headers = rows[0].map(h => h ? h.toLowerCase().trim() : '');
+  const colIndex = (name: string) => headers.indexOf(name.toLowerCase().trim());
+
+  const [, ...dataRows] = rows;
+
+  return dataRows.map((row, rowIndex) => {
     try {
-      const team = row[0] || '';
+      // Helper to fetch value by header name regardless of column position
+      const val = (name: string) => {
+        const idx = colIndex(name);
+        return (idx !== -1 && row[idx]) ? row[idx].trim() : '';
+      };
 
-      const offense = row[6] || '';
-      const defense = row[7] || '';
-      const special = row[8] || '';
+      const team = val('team');
+      const first = val('first');
+      const last = val('last');
 
-      const position = [offense, defense, special].filter(Boolean).join('/');
+      // Skip rows that don't have a team AND a name
+      if (!team && !first) return null;
+
+      const off = val('offense');
+      const def = val('defense');
+      const spec = val('special');
+
+      // Standardize data for identity building
+      const identityData = {
+        first,
+        last,
+        age: val('age'),
+        offense: off,
+        defense: def,
+        special: spec,
+      };
 
       const player: Player = {
         team,
-        first: row[2] || '',
-        last: row[3] || '',
-        age: Number(row[5]) || 0,
-        offense,
-        defense,
-        special,
-        position,
-        isIR: team.includes('-IR'),
-        identity: '', // will set next
+        first,
+        last,
+        age: Number(identityData.age) || 0,
+        offense: off,
+        defense: def,
+        special: spec,
+        // Position display skips '0' or empty values
+        position: [off, def, spec].filter(v => v && v !== '0').join('/'),
+        isIR: team.toUpperCase().includes('-IR'),
+        
+        // Mapped ratings/stats
+        run: val('run block'),
+        pass: val('pass block'),
+        rush: val('rush yards'),
+        int: val('interceptions'),
+        sack: val('sacks'),
+        dur: val('durability'),
+        overall: val('overall'),
+        
+        // Dictionary of every single column for deep scouting
+        allStats: Object.fromEntries(headers.map((h, i) => [h, row[i] || ''])),
+        
+        // Build the stabilized identity string
+        identity: buildPlayerIdentity(identityData)
       };
 
-      return {
-        ...player,
-        identity: buildPlayerIdentity(player),
-      };
+      return player;
     } catch (err) {
       console.error(`Error parsing row ${rowIndex + 2}:`, err);
       return null;
     }
-  }).filter(Boolean) as Player[];
+  }).filter((p): p is Player => p !== null);
 }
 
 /**
@@ -88,41 +130,38 @@ export async function removeBlankPlayerRows() {
   try {
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'Players',
+      range: 'Players!A:CV',
     });
 
     const rows = res.data.values || [];
+    if (rows.length === 0) return;
 
-    // Keep header row and rows where first or last name is present
+    const headers = rows[0].map(h => h ? h.toLowerCase().trim() : '');
+    const firstIdx = headers.indexOf('first');
+    const lastIdx = headers.indexOf('last');
+
     const filteredRows = rows.filter((row, index) => {
-      if (index === 0) return true; // header
-      const first = row[2]?.trim();
-      const last = row[3]?.trim();
-      return first || last;
+      if (index === 0) return true; // Keep header
+      const first = row[firstIdx]?.trim();
+      const last = row[lastIdx]?.trim();
+      return !!(first || last);
     });
 
-    if (filteredRows.length === rows.length) {
-      console.log('No blank player rows to remove.');
-      return;
-    }
+    if (filteredRows.length === rows.length) return;
 
-    // Clear the sheet
     await sheets.spreadsheets.values.clear({
       spreadsheetId: SHEET_ID,
-      range: 'Players',
+      range: 'Players!A:CV',
     });
 
-    // Write back filtered rows
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: 'Players',
+      range: 'Players!A:CV',
       valueInputOption: 'RAW',
-      requestBody: {
-        values: filteredRows,
-      },
+      requestBody: { values: filteredRows },
     });
 
-    console.log(`Removed ${rows.length - filteredRows.length} blank player rows.`);
+    console.log(`Cleaned up ${rows.length - filteredRows.length} blank rows.`);
   } catch (err) {
     console.error('Error removing blank player rows:', err);
   }
