@@ -103,9 +103,9 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ data, onClose }) => {
             </h2>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => setShowDebug(!showDebug)} className="px-4 py-2 text-[10px] font-bold text-slate-500 hover:text-white border border-slate-700 rounded-lg uppercase tracking-widest transition-colors">
+            {/* <button onClick={() => setShowDebug(!showDebug)} className="px-4 py-2 text-[10px] font-bold text-slate-500 hover:text-white border border-slate-700 rounded-lg uppercase tracking-widest transition-colors">
               {showDebug ? 'Hide Data' : 'Debug API'}
-            </button>
+            </button> */}
             <button onClick={onClose} className="p-4 bg-slate-800 hover:bg-red-500 rounded-full text-white transition-all border border-slate-600 text-2xl leading-none">
               &times;
             </button>
