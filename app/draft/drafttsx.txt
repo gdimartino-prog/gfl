@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
-import { getPositionStats } from '@/lib/playerStats'; // Import the new helper
 
 export const dynamic = 'force-dynamic';
 
@@ -122,17 +121,17 @@ export default function DraftPage() {
     });
   }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, teams]);
 
-  // --- FREE AGENT PROCESSING (FIXED OL FILTER) ---
+  // --- FREE AGENT PROCESSING (SORT & POS LOGIC) ---
   const processedFAs = useMemo(() => {
     if (!Array.isArray(faPlayers)) return [];
     return [...faPlayers]
       .filter(p => {
         const matchesSearch = `${p.first} ${p.last}`.toLowerCase().includes(faSearch.toLowerCase());
-        // Exact match for OL to prevent OLB mixing
+        //const matchesPos = faPosFilter === 'All' || p.position === faPosFilter;
         const matchesPos = faPosFilter === 'All' || 
           (faPosFilter === 'OL' 
-            ? ['OL', 'C', 'G', 'T', 'C-G', 'G-T'].includes(p.position?.toUpperCase()) 
-          : p.position?.toUpperCase() === faPosFilter.toUpperCase());
+            ? ['OL', 'C', 'G', 'T', 'C-G', 'G-T'].includes(p.position) 
+          : p.position === faPosFilter);
 
         return matchesSearch && matchesPos;
       })
@@ -146,6 +145,7 @@ export default function DraftPage() {
 
   const fetchFAWithDetails = async (p: any) => {
     try {
+      // Use the pre-calculated identity from the parser to avoid 404s
       const r = await fetch(`/api/players/details/${encodeURIComponent(p.identity)}`);
       if (r.ok) {
         const detailData = await r.json();
@@ -337,41 +337,18 @@ export default function DraftPage() {
                   value={faSearch} 
                   onChange={(e) => setFaSearch(e.target.value)} 
                 />
-<select 
-  className="flex-1 p-2 border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase bg-slate-50"
-  value={faSortKey}
-  onChange={(e) => setFaSortKey(e.target.value)}
->
-  {/* Always show these */}
-  <option value="overall">Sort: Overall</option>
-  <option value="age">Sort: Age</option>
-
-  {/* QB Specific Sorts */}
-  {faPosFilter === 'QB' && (
-    <>
-      <option value="pass yards">Sort: Pass Yds</option>
-      <option value="pass TD">Sort: Pass TD</option>
-    </>
-  )}
-
-  {/* Skill (RB/WR/TE) Specific Sorts */}
-  {['RB', 'HB', 'WR', 'TE'].includes(faPosFilter) && (
-    <>
-      <option value="rush yards">Sort: Rush Yds</option>
-      <option value="receiving yards">Sort: Rec Yds</option>
-      <option value="total touchdowns">Sort: Total TDs</option>
-    </>
-  )}
-
-  {/* Defense Specific Sorts */}
-  {['DL', 'LB', 'OLB', 'ILB', 'DB'].includes(faPosFilter) && (
-    <>
-      <option value="total defense">Sort: Total Def</option>
-      <option value="sacks">Sort: Sacks</option>
-      <option value="interceptions">Sort: Ints</option>
-    </>
-  )}
-</select>
+                <select 
+                  className="flex-1 p-2 border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase bg-slate-50"
+                  value={faSortKey}
+                  onChange={(e) => setFaSortKey(e.target.value)}
+                >
+                  <option value="overall">Sort: Overall</option>
+                  <option value="age">Sort: Age</option>
+                  <option value="run block">Sort: Run Blk</option>
+                  <option value="pass block">Sort: Pass Blk</option>
+                  <option value="sacks">Sort: Sacks</option>
+                  <option value="interceptions">Sort: Ints</option>
+                </select>
               </div>
               <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                 {['All', 'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'].map(pos => (
@@ -392,8 +369,11 @@ export default function DraftPage() {
               {faLoading ? (
                 <div className="text-center py-20 text-slate-400 font-black uppercase">Loading...</div>
               ) : processedFAs.map((p, i) => {
-                // Get dynamic 5-stat grid from the helper
-                const positionStats = getPositionStats(p);
+                const pos = p.position.toUpperCase();
+                // Logic to identify player type
+                const isSkill = ['QB', 'RB', 'WR', 'TE'].some(s => pos.includes(s));
+                const isLine = ['OL', 'DL'].some(s => pos.includes(s));
+                const isDef = ['DL', 'LB', 'DB'].some(s => pos.includes(s));
 
                 return (
                   <div key={i} className={`bg-white border transition-all rounded-2xl shadow-sm ${i === 0 && faSearch === '' ? 'border-amber-400 ring-2 ring-amber-100' : 'border-slate-200'}`}>
@@ -409,11 +389,32 @@ export default function DraftPage() {
                         <button onClick={() => fetchFAWithDetails(p)} className="bg-slate-900 text-white text-[9px] font-black px-4 py-2 rounded-xl uppercase hover:bg-blue-600 transition-colors">Full Card</button>
                       </div>
 
-                      {/* DYNAMIC POSITION-BASED STAT GRID */}
                       <div className="grid grid-cols-5 gap-1 pt-3 border-t border-slate-50">
-                        {positionStats.map((stat, idx) => (
-                          <StatMini key={idx} label={stat.label} val={stat.val} />
-                        ))}
+                        {isSkill ? (
+                          <>
+                            <StatMini label="PASS" val={p.allStats?.['passing yards'] || '0'} />
+                            <StatMini label="RUSH" val={p.allStats?.['rush yards'] || '0'} />
+                            <StatMini label="REC" val={p.allStats?.['receiving yards'] || '0'} />
+                            <StatMini label="TD" val={p.allStats?.['total touchdowns'] || '0'} />
+                            <StatMini label="OVRL" val={p.overall} />
+                          </>
+                        ) : isLine || isDef ? (
+                          <>
+                            <StatMini label="R-BLK" val={p.allStats?.['run block'] || p.run} />
+                            <StatMini label="P-BLK" val={p.allStats?.['pass block'] || p.pass} />
+                            <StatMini label="R-DEF" val={p.allStats?.['run defense'] || '0'} />
+                            <StatMini label="SCK" val={p.allStats?.['sacks'] || '0'} />
+                            <StatMini label="OVRL" val={p.overall} />
+                          </>
+                        ) : (
+                          <>
+                            <StatMini label="R-BLK" val={p.run} />
+                            <StatMini label="P-BLK" val={p.pass} />
+                            <StatMini label="DUR" val={p.dur} />
+                            <StatMini label="OVRL" val={p.overall} />
+                            <StatMini label="AGE" val={p.age} />
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
