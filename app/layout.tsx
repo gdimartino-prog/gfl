@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar"; 
+import Footer from '@/components/Footer';
 import { Analytics } from '@vercel/analytics/react';
 import { TeamProvider } from "@/context/TeamContext"; // 1. Import the Provider
 
@@ -30,18 +31,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
       >
-        {/* 2. Wrap everything in TeamProvider */}
         <TeamProvider>
-          {/* The Navbar now has access to the selected team */}
+          {/* Navbar sits at the top */}
           <Navbar />
           
-          {/* Main content area - all pages inside here share the same team state */}
+          {/* Main content area */}
           <main className="min-h-screen">
             {children}
           </main>
+          
+          {/* Footer sits at the bottom, outside the main min-h-screen area */}
+          <Footer />
         </TeamProvider>
 
-        {/* Vercel Analytics tracking */}
         <Analytics />
       </body>
     </html>
