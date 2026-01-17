@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 
+
+
 export default function StandingsClient({ allData, currentYear }: { allData: any[], currentYear: string }) {
   const [search, setSearch] = useState('');
 

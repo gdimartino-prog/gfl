@@ -2,15 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react'; // Added useEffect
+import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [draftYear, setDraftYear] = useState<string>('2026'); // Default fallback
+  const [draftYear, setDraftYear] = useState<string>('2026');
 
-  // Fetch the current draft year from your Rules API
   useEffect(() => {
     async function fetchRules() {
       try {
@@ -29,9 +28,11 @@ export default function Navbar() {
     fetchRules();
   }, []);
 
+  // Added 'Schedule' to the navItems array
   const navItems = [
     { name: 'Front Office', href: '/' },
     { name: 'Rosters', href: '/rosters' },
+    { name: 'Schedule', href: '/schedule' }, 
     { name: 'Transactions', href: '/transactions' }, 
     { name: 'Draft Board', href: '/draft' },
     { name: 'Cuts', href: '/cuts' },
@@ -48,8 +49,8 @@ export default function Navbar() {
             GFL<span className="text-blue-400">MANAGER</span>
           </Link>
           
-          {/* DESKTOP MENU */}
-          <div className="hidden lg:flex space-x-6">
+          {/* DESKTOP MENU - space-x-5 works better for 9 items */}
+          <div className="hidden lg:flex space-x-5">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const isRules = item.href === '/rules';
@@ -66,7 +67,6 @@ export default function Navbar() {
                         : 'text-slate-300'
                   }`}
                 >
-                  {/* Dynamically add year to Draft Board link name if desired */}
                   {item.name === 'Draft Board' ? `${draftYear} Draft` : item.name}
                 </Link>
               );
