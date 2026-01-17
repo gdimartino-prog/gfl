@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
-import { getPositionStats } from '@/lib/playerStats'; // Import the new helper
+import { getPositionStats } from '@/lib/playerStats'; // Import the helper
 
 export const dynamic = 'force-dynamic';
 
@@ -42,17 +42,28 @@ export default function DraftPage() {
   const loadData = useCallback(async (showRefreshState = false) => {
     if (showRefreshState) setIsRefreshing(true);
     try {
-      const [pRes, tRes] = await Promise.all([
+      const [pRes, tRes, rRes] = await Promise.all([
         fetch('/api/draft-picks', { cache: 'no-store' }).then(res => res.json()),
-        fetch('/api/teams').then(res => res.json())
+        fetch('/api/teams').then(res => res.json()),
+        fetch('/api/rules').then(res => res.json()) // Pulling from your new Rules API
       ]);
+
       const sortedPicks = Array.isArray(pRes) 
         ? pRes.sort((a, b) => Number(a.overall) - Number(b.overall))
         : [];
+      
       setPicks(sortedPicks);
       setTeams(tRes);
+
+      // Default the year filter based on the "Rules" sheet setting
+      if (Array.isArray(rRes)) {
+        const yearRule = rRes.find(r => r.setting === 'draft_year');
+        if (yearRule && yearRule.value) {
+          setYearFilter(yearRule.value.toString());
+        }
+      }
     } catch (err) { 
-      console.error("Error:", err); 
+      console.error("Error loading draft data:", err); 
     } finally { 
       setLoading(false); 
       setIsRefreshing(false);
@@ -128,7 +139,6 @@ export default function DraftPage() {
     return [...faPlayers]
       .filter(p => {
         const matchesSearch = `${p.first} ${p.last}`.toLowerCase().includes(faSearch.toLowerCase());
-        // Exact match for OL to prevent OLB mixing
         const matchesPos = faPosFilter === 'All' || 
           (faPosFilter === 'OL' 
             ? ['OL', 'C', 'G', 'T', 'C-G', 'G-T'].includes(p.position?.toUpperCase()) 
@@ -312,7 +322,7 @@ export default function DraftPage() {
         </div>
       </div>
 
-      {/* ENHANCED FREE AGENT DRAWER */}
+      {/* FREE AGENT DRAWER */}
       {showFA && (
         <div className="fixed inset-0 z-[80] flex justify-end">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowFA(false)} />
@@ -337,41 +347,17 @@ export default function DraftPage() {
                   value={faSearch} 
                   onChange={(e) => setFaSearch(e.target.value)} 
                 />
-<select 
-  className="flex-1 p-2 border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase bg-slate-50"
-  value={faSortKey}
-  onChange={(e) => setFaSortKey(e.target.value)}
->
-  {/* Always show these */}
-  <option value="overall">Sort: Overall</option>
-  <option value="age">Sort: Age</option>
-
-  {/* QB Specific Sorts */}
-  {faPosFilter === 'QB' && (
-    <>
-      <option value="pass yards">Sort: Pass Yds</option>
-      <option value="pass TD">Sort: Pass TD</option>
-    </>
-  )}
-
-  {/* Skill (RB/WR/TE) Specific Sorts */}
-  {['RB', 'HB', 'WR', 'TE'].includes(faPosFilter) && (
-    <>
-      <option value="rush yards">Sort: Rush Yds</option>
-      <option value="receiving yards">Sort: Rec Yds</option>
-      <option value="total touchdowns">Sort: Total TDs</option>
-    </>
-  )}
-
-  {/* Defense Specific Sorts */}
-  {['DL', 'LB', 'OLB', 'ILB', 'DB'].includes(faPosFilter) && (
-    <>
-      <option value="total defense">Sort: Total Def</option>
-      <option value="sacks">Sort: Sacks</option>
-      <option value="interceptions">Sort: Ints</option>
-    </>
-  )}
-</select>
+              <select 
+                className="flex-1 p-2 border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase bg-slate-50"
+                value={faSortKey}
+                onChange={(e) => setFaSortKey(e.target.value)}
+              >
+                <option value="overall">Sort: Overall</option>
+                <option value="age">Sort: Age</option>
+                {faPosFilter === 'QB' && (<><option value="pass yards">Sort: Pass Yds</option><option value="pass TD">Sort: Pass TD</option></>)}
+                {['RB', 'HB', 'WR', 'TE'].includes(faPosFilter) && (<><option value="rush yards">Sort: Rush Yds</option><option value="receiving yards">Sort: Rec Yds</option><option value="total touchdowns">Sort: Total TDs</option></>)}
+                {['DL', 'LB', 'OLB', 'ILB', 'DB'].includes(faPosFilter) && (<><option value="total defense">Sort: Total Def</option><option value="sacks">Sort: Sacks</option><option value="interceptions">Sort: Ints</option></>)}
+              </select>
               </div>
               <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                 {['All', 'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'].map(pos => (
@@ -392,9 +378,7 @@ export default function DraftPage() {
               {faLoading ? (
                 <div className="text-center py-20 text-slate-400 font-black uppercase">Loading...</div>
               ) : processedFAs.map((p, i) => {
-                // Get dynamic 5-stat grid from the helper
                 const positionStats = getPositionStats(p);
-
                 return (
                   <div key={i} className={`bg-white border transition-all rounded-2xl shadow-sm ${i === 0 && faSearch === '' ? 'border-amber-400 ring-2 ring-amber-100' : 'border-slate-200'}`}>
                     <div className="p-4">
@@ -408,8 +392,6 @@ export default function DraftPage() {
                         </div>
                         <button onClick={() => fetchFAWithDetails(p)} className="bg-slate-900 text-white text-[9px] font-black px-4 py-2 rounded-xl uppercase hover:bg-blue-600 transition-colors">Full Card</button>
                       </div>
-
-                      {/* DYNAMIC POSITION-BASED STAT GRID */}
                       <div className="grid grid-cols-5 gap-1 pt-3 border-t border-slate-50">
                         {positionStats.map((stat, idx) => (
                           <StatMini key={idx} label={stat.label} val={stat.val} />

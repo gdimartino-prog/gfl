@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import PlayerCard from '@/components/PlayerCard'; 
-import TeamSelector from '@/components/TeamSelector'; 
-import { useTeam } from '@/context/TeamContext'; 
+import TeamSelector from '@/components/TeamSelector'; // Added Import
+import { useTeam } from '@/context/TeamContext'; // Added Import
 
 interface GroupStats {
   avgAge: string | number;
@@ -68,6 +68,8 @@ function CountdownTimer({ dueDate }: { dueDate: string }) {
 
 export default function CutsPage() {
   const [teams, setTeams] = useState<any[]>([]);
+  
+  // 1. Swapped Local State for Global Context
   const { selectedTeam, setSelectedTeam } = useTeam();
   
   const [roster, setRoster] = useState<any[]>([]);
@@ -91,48 +93,24 @@ export default function CutsPage() {
 
   const getTS = () => `ts=${new Date().getTime()}`;
 
+  // Interactive Selection with Global Context Sync
   const handleTeamSelect = (teamShort: string) => {
-    setSelectedTeam(teamShort);
+    setSelectedTeam(teamShort); // Updates context and localStorage
     setTimeout(() => {
       rosterHeaderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   };
 
-useEffect(() => {
+  useEffect(() => {
     async function init() {
       try {
         setLoading(true);
-        const rulesRes = await fetch(`/api/rules?${getTS()}`, { cache: 'no-store' });
-        const rulesArr = await rulesRes.json();
-        
-        // Convert Rules Array to Config Object with safety fallbacks
-        const newCfg: any = { 
-          protected: 33, // Defaulting to 33 as your new standard
-          pullback: 8, 
-          cuts_year: '', 
-          draft_year: '', 
-          cuts_due_date: '' 
-        }; 
-
-        if (Array.isArray(rulesArr)) {
-          rulesArr.forEach(r => {
-            // Map 'limit_protected' or 'protected' from sheet to config.protected
-            if (r.setting === 'limit_protected' || r.setting === 'protected') {
-              newCfg.protected = parseInt(r.value);
-            } 
-            else if (r.setting === 'limit_pullback' || r.setting === 'pullback') {
-              newCfg.pullback = parseInt(r.value);
-            }
-            else {
-              newCfg[r.setting] = r.value;
-            }
-          });
-        }
-        setConfig(newCfg);
-
+        const configRes = await fetch(`/api/cuts/config?${getTS()}`, { cache: 'no-store' });
+        const cfg = await configRes.json();
+        setConfig(cfg);
         const [tRes, sRes] = await Promise.all([
           fetch(`/api/teams?${getTS()}`, { cache: 'no-store' }).then(r => r.json()),
-          fetch(`/api/cuts?year=${newCfg.cuts_year || newCfg.draft_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json())
+          fetch(`/api/cuts?year=${cfg.cuts_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json())
         ]);
         setTeams(tRes);
         setSummary(sRes.summary || {});
@@ -256,7 +234,7 @@ useEffect(() => {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-[#f8fafc] min-h-screen font-sans">
       
-      {/* 1. COMPLIANCE DASHBOARD */}
+      {/* 1. COMPLIANCE DASHBOARD (Interactive) */}
       <div className="bg-[#1e293b] rounded-[2rem] p-8 shadow-2xl border border-slate-700">
         <div className="flex justify-between items-start mb-8">
             <h2 className="text-blue-400 text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2">
@@ -303,6 +281,8 @@ useEffect(() => {
           <h1 className="text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">Cuts Portal</h1>
           <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Authorized Access: {config.draft_year} Season</p>
         </div>
+        
+        {/* 2. REPLACED LOCAL SELECTOR WITH SHARED COMPONENT */}
         <div className="w-full md:w-96">
             <TeamSelector />
         </div>
@@ -391,24 +371,9 @@ useEffect(() => {
       {viewingPlayer && (
         <PlayerCard data={viewingPlayer} onClose={() => setViewingPlayer(null)} />
       )}
-
-
-{/* --- DEBUG FOOTER --- */}
-      <div className="mt-20 p-6 bg-slate-900 rounded-t-3xl border-t border-slate-800 text-[10px] font-mono text-slate-500">
-          <div className="max-w-7xl mx-auto flex flex-wrap gap-8 justify-center">
-              <p>API LIMIT PROTECTED: <span className="text-amber-400">{config.protected}</span></p>
-              <p>API LIMIT PULLBACK: <span className="text-amber-400">{config.pullback}</span></p>
-              <p>DRAFT YEAR: <span className="text-blue-400">{config.draft_year}</span></p>
-              <p>CUTS YEAR: <span className="text-blue-400">{config.cuts_year}</span></p>
-              <p>DEADLINE: <span className="text-emerald-400">{config.cuts_due_date || 'NONE'}</span></p>
-          </div>
-      </div>
     </div>
   );
 }
-
-
-
 
 function StatCard({ title, stats, color, border }: any) {
   return (

@@ -2,12 +2,32 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react'; // Added for mobile toggle
-import { Menu, X } from 'lucide-react'; // Standard for mobile icons
+import { useState, useEffect } from 'react'; // Added useEffect
+import { Menu, X } from 'lucide-react';
 
 export default function Navbar() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false); // State to track mobile menu
+  const [isOpen, setIsOpen] = useState(false);
+  const [draftYear, setDraftYear] = useState<string>('2026'); // Default fallback
+
+  // Fetch the current draft year from your Rules API
+  useEffect(() => {
+    async function fetchRules() {
+      try {
+        const res = await fetch('/api/rules', { cache: 'no-store' });
+        const rules = await res.json();
+        if (Array.isArray(rules)) {
+          const yearRule = rules.find(r => r.setting === 'draft_year');
+          if (yearRule && yearRule.value) {
+            setDraftYear(yearRule.value);
+          }
+        }
+      } catch (err) {
+        console.error("Navbar rules fetch error:", err);
+      }
+    }
+    fetchRules();
+  }, []);
 
   const navItems = [
     { name: 'Front Office', href: '/' },
@@ -28,7 +48,7 @@ export default function Navbar() {
             GFL<span className="text-blue-400">MANAGER</span>
           </Link>
           
-          {/* DESKTOP MENU - Hidden on Mobile */}
+          {/* DESKTOP MENU */}
           <div className="hidden lg:flex space-x-6">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
@@ -46,22 +66,22 @@ export default function Navbar() {
                         : 'text-slate-300'
                   }`}
                 >
-                  {item.name}
+                  {/* Dynamically add year to Draft Board link name if desired */}
+                  {item.name === 'Draft Board' ? `${draftYear} Draft` : item.name}
                 </Link>
               );
             })}
           </div>
         </div>
 
-        {/* RIGHT SIDE: Season Badge & Mobile Toggle */}
+        {/* RIGHT SIDE: Dynamic Season Badge & Mobile Toggle */}
         <div className="flex items-center gap-4">
           <div className="hidden md:block">
             <span className="text-[10px] font-black bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-1 rounded tracking-widest uppercase">
-              Season 2026
+              Season {draftYear}
             </span>
           </div>
 
-          {/* MOBILE TOGGLE BUTTON */}
           <button 
             className="lg:hidden p-2 text-slate-300 hover:text-white"
             onClick={() => setIsOpen(!isOpen)}
@@ -71,7 +91,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE MENU - Only shows when toggled */}
+      {/* MOBILE MENU */}
       {isOpen && (
         <div className="lg:hidden bg-slate-900 border-t border-slate-800 animate-in slide-in-from-top duration-200">
           <div className="flex flex-col p-4 space-y-4">
@@ -79,18 +99,17 @@ export default function Navbar() {
               <Link
                 key={item.name}
                 href={item.href}
-                onClick={() => setIsOpen(false)} // Close menu on click
+                onClick={() => setIsOpen(false)}
                 className={`text-lg font-bold uppercase tracking-tight ${
                   pathname === item.href ? 'text-blue-400' : 'text-slate-300'
                 }`}
               >
-                {item.name}
+                {item.name === 'Draft Board' ? `${draftYear} Draft` : item.name}
               </Link>
             ))}
-            {/* Mobile Badge */}
             <div className="pt-4 border-t border-slate-800">
                 <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">
-                    Season 2026
+                    Season {draftYear}
                 </span>
             </div>
           </div>
