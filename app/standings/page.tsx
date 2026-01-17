@@ -2,7 +2,7 @@ import { getHistory } from '@/lib/getHistory';
 import StandingsClient from '@/components/StandingsClient';
 import Link from 'next/link';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
 export default async function StandingsPage() {
   const allData = await getHistory();
