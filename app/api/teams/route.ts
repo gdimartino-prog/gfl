@@ -1,36 +1,23 @@
 import { NextResponse } from 'next/server';
-import { sheets, SHEET_ID } from '@/lib/googleSheets';
+import { getCoaches } from '@/lib/config'; // Import the helper function
 
 export async function GET() {
   try {
-    const result = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'Config',
-    });
+    const allCoaches = await getCoaches();
 
-    const values = result.data.values;
+    // Now simply filter for active coaches
+    const activeTeams = allCoaches
+      .filter(c => c.status === 'active')
+      .map(c => ({
+        name: c.team,
+        short: c.teamshort,
+        coach: c.coach,
+        commissioner: c.isCommissioner
+      }));
 
-    if (!values || values.length === 0) {
-      return NextResponse.json([], { status: 200 });
-    }
-
-    const [header, ...rows] = values;
-
-    const index: Record<string, number> = Object.fromEntries(
-      header.map((h: string, i: number) => [h.toLowerCase(), i])
-    );
-
-    const teams = rows.map((row) => ({
-      name: row[index.team] ?? '',
-      short: row[index.teamshort] ?? '',
-      coach: row[index.coach] ?? '',
-      commissioner: row[index.commissioner] === 'TRUE',
-    }));
-
-    return NextResponse.json(teams);
+    return NextResponse.json(activeTeams);
   } catch (error) {
     console.error('API /teams failed:', error);
-
     return NextResponse.json(
       { error: 'Failed to load teams' },
       { status: 500 }
