@@ -13,7 +13,7 @@ export async function getStandings() {
     const headers = rows[0];
 
     return rows.slice(1).map((row) => {
-      const teamObj = {}; 
+      const teamObj: Record<string, any> = {};
       
       headers.forEach((header, i) => {
         if (header) {
