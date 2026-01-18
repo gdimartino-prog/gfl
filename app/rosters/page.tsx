@@ -2,11 +2,10 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import PlayerCard from '@/components/PlayerCard';
-import TeamSelector from '@/components/TeamSelector'; // Added Import
-import { useTeam } from '@/context/TeamContext';    // Added Import
+import TeamSelector from '@/components/TeamSelector';
+import { useTeam } from '@/context/TeamContext';
 
 export const dynamic = 'force-dynamic';
-
 
 const positionWeights: Record<string, number> = {
   'QB': 1, 'RB': 2, 'HB': 2, 'FB': 3, 'WR': 4, 'TE': 5,
@@ -17,77 +16,108 @@ const positionWeights: Record<string, number> = {
 };
 
 export default function RosterPage() {
-  // 1. Swapped Local State for Global Context
-  const { selectedTeam } = useTeam();
-  
-  const [data, setData] = useState<{ roster: any[], picks: any[] } | null>(null);
+  const { selectedTeam } = useTeam(); 
+  const [data, setData] = useState<{ roster: any[], picks: any[], schedule: any[], stats: any } | null>(null);
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'pos'>('default');
   const [viewingPlayer, setViewingPlayer] = useState<any>(null);
 
-  // Note: We no longer need the local fetch('/api/teams') here because 
-  // the shared TeamSelector handles its own data loading.
-
   useEffect(() => {
-    if (!selectedTeam) { setData(null); return; }
+    if (!selectedTeam) return;
     setLoading(true);
-    fetch(`/api/rosters/${selectedTeam}`)
-      .then(res => res.json())
-      .then(json => {
-        setData({ roster: json.roster || [], picks: json.picks || [] });
+
+    const loadFranchiseData = async () => {
+      try {
+        const standingsRes = await fetch(`/api/standings`);
+        const standingsData = await standingsRes.json();
+        
+        const teamEntry = standingsData.find((s: any) => 
+          s.team?.toString().trim().toUpperCase() === selectedTeam.trim().toUpperCase() ||
+          s.teamshort?.toString().trim().toUpperCase() === selectedTeam.trim().toUpperCase()
+        );
+
+        const [rosterRes, scheduleRes] = await Promise.all([
+          fetch(`/api/rosters/${selectedTeam}`),
+          fetch(`/api/schedule?team=${teamEntry?.teamshort || 'VV'}`)
+        ]);
+
+        const rosterData = await rosterRes.json();
+        const scheduleData = await scheduleRes.json();
+
+        const TARGET_YEAR = "2025";
+        let wins = 0; let losses = 0; let pf = 0; let pa = 0;
+
+        scheduleData
+          .filter((g: any) => g.year === TARGET_YEAR && g.status === "Final")
+          .forEach((game: any) => {
+            const hS = parseInt(game.hScore) || 0;
+            const vS = parseInt(game.vScore) || 0;
+            const isHome = game.home?.toUpperCase() === "VICO" || 
+                           game.home?.toUpperCase() === teamEntry?.team?.toUpperCase();
+            
+            if (isHome) {
+              pf += hS; pa += vS;
+              if (hS > vS) wins++; else if (vS > hS) losses++;
+            } else {
+              pf += vS; pa += hS;
+              if (vS > hS) wins++; else if (hS > vS) losses++;
+            }
+          });
+
+        setData({
+          roster: rosterData.roster || [],
+          picks: rosterData.picks || [],
+          schedule: scheduleData || [],
+          stats: { ...teamEntry, wins, losses, pf, diff: pf - pa, currentYear: TARGET_YEAR }
+        });
+      } catch (err) {
+        console.error("Load Error:", err);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    loadFranchiseData();
   }, [selectedTeam]);
 
-  //useEffect(() => {
-  //if (data?.roster) {
-  //  console.log("📊 FULL ROSTER DATA DEBUG:");
-  //  console.table(data.roster);
-  //}
-  //}, [data]);
+  // SYNCED SCOUTING LOGIC: Matches your Draft Page exactly
+  const fetchPlayerDetails = async (p: any) => {
+    try {
+      // Construction of identity key as expected by your /api/players/details endpoint
+      const identity = p.identity || [
+        p.name.split(' ')[0], 
+        p.name.split(' ').pop(), 
+        p.age, 
+        p.group === 'OFF' ? p.pos : '', 
+        p.group === 'DEF' ? p.pos : '', 
+        p.group === 'SPEC' ? p.pos : ''
+      ].join('|').toLowerCase();
 
-  const getGoogleSearchUrl = (name: string) => `https://www.google.com/search?q=${encodeURIComponent(name + ' NFL')}`;
-
-const fetchPlayerDetails = async (p: any) => {
-  try {
-    // 1. CLEAN THE IDENTITY
-    const first = (p.name.split(' ')[0] || '').toLowerCase().trim();
-    const last = (p.name.split(' ').pop() || '').toLowerCase().trim();
-    const rosterAge = parseInt(p.age) || 0;
-    const pos = (p.pos || '').toLowerCase().trim();
-    const group = (p.group || '').toUpperCase().trim();
-
-    // 2. GENERATE SEARCH AGES
-    // Accounts for the "Age Trap" (e.g., sheet says 30, real life is 31)
-    const agesToTry = [String(rosterAge), String(rosterAge - 1), String(rosterAge + 1)];
-    
-    // 3. GENERATE POSITION ROTATIONS
-    // Covers all combinations of Column G (Off), H (Def), and I (Spec)
-    const rotations = [
-      { off: group === 'OFF' ? pos : '', def: group === 'DEF' ? pos : '', spec: '' },
-      { off: pos, def: '', spec: 'ret' }, // Specifically for Kalif Raymond
-      { off: pos, def: '', spec: 'kr' },  // Specifically for Sean Tucker
-      { off: pos, def: '', spec: 'pr' },
-      { off: '', def: '', spec: pos },    // Pure Specialist fallback
-    ];
-
-    // 4. THE NESTED SEARCH LOOP
-    for (const age of agesToTry) {
-      for (const rot of rotations) {
-        const identity = [first, last, age, rot.off, rot.def, rot.spec].join('|');
-        const res = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
-        
-        if (res.ok) {
-          console.log(`✅ Success! Found player as: ${identity}`);
-          setViewingPlayer(await res.json());
-          return; // Exit as soon as we find a match
-        }
+      const r = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
+      if (r.ok) {
+        const detailData = await r.json();
+        setViewingPlayer(detailData); // Opens PlayerCard modal
+      } else {
+        alert(`Scouting data not found for: ${p.name}`);
       }
+    } catch (e) {
+      console.error("SEARCH ERROR:", e);
     }
+  };
 
-    alert(`Scouting failed for ${p.name}. Verify the spreadsheet ID manually.`);
-  } catch (e) { console.error("Search Error:", e); }
-};
+  const recentForm = useMemo(() => {
+    if (!data?.schedule || !data?.stats?.currentYear) return [];
+    return data.schedule
+      .filter(g => g.year === data.stats.currentYear && g.status === "Final")
+      .sort((a, b) => parseInt(a.week) - parseInt(b.week))
+      .slice(-5)
+      .map(game => {
+        const hS = parseInt(game.hScore) || 0;
+        const vS = parseInt(game.vScore) || 0;
+        const isHome = game.home?.toUpperCase() === "VICO";
+        return isHome ? (hS > vS) : (vS > hS);
+      });
+  }, [data?.schedule, data?.stats]);
 
   const sortedGroups = useMemo(() => {
     if (!data?.roster) return { OFF: [], DEF: [], SPEC: [] };
@@ -100,63 +130,98 @@ const fetchPlayerDetails = async (p: any) => {
     return {
       OFF: sortFn(data.roster.filter(p => p.group === 'OFF')),
       DEF: sortFn(data.roster.filter(p => p.group === 'DEF')),
-      SPEC: sortFn(data.roster.filter(p => p.group === 'SPEC')),
+      SPEC: sortFn(data.roster.filter(p => ['SPEC', 'ST', 'SPECIAL'].includes(p.group))),
     };
   }, [data, sortBy]);
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-gray-50 min-h-screen text-slate-900">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-gray-50 min-h-screen text-slate-900 text-left">
+      {/* PlayerCard triggered by viewingPlayer state */}
       {viewingPlayer && <PlayerCard data={viewingPlayer} onClose={() => setViewingPlayer(null)} />}
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-800 uppercase">Roster Explorer</h1>
-          <p className="text-xs font-bold text-blue-500 uppercase tracking-widest">Active Scouting & Depth Charts</p>
+        <div className="text-left">
+          <h1 className="text-2xl font-black tracking-tight text-slate-800 uppercase leading-none italic">Roster Explorer</h1>
+          <p className="text-[10px] font-bold text-blue-600 uppercase tracking-[0.2em] mt-2 italic">Active Scouting & Depth Charts</p>
         </div>
         
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center bg-gray-100 p-1 rounded-lg border">
-             <span className="text-[10px] font-black text-gray-400 uppercase px-2">Sort By</span>
-             {(['default', 'name', 'pos'] as const).map((mode) => (
-               <button key={mode} onClick={() => setSortBy(mode)}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${sortBy === mode ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
-                 {mode.toUpperCase()}
+        <div className="flex items-center gap-4">
+           <div className="flex bg-gray-100 p-1 rounded-lg">
+             {(['default', 'name', 'pos'] as const).map((s) => (
+               <button key={s} onClick={() => setSortBy(s)}
+                 className={`px-3 py-1 text-[10px] font-bold uppercase rounded ${sortBy === s ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400'}`}
+               >
+                 {s}
                </button>
              ))}
-          </div>
+           </div>
+           <TeamSelector />
         </div>
       </div>
 
-      {/* 2. SHARED TEAM SELECTOR COMPONENT */}
-      <TeamSelector />
+      {data?.stats && (
+        <div className="bg-slate-900 text-white rounded-2xl p-5 flex flex-wrap items-center justify-between shadow-xl border border-slate-800">
+          <div className="flex items-center gap-4">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="text-left">
+               <h2 className="text-xl font-black uppercase italic tracking-tighter leading-none text-left">
+                 {data.stats.team || selectedTeam} <span className="text-blue-500 not-italic ml-1">{data.stats.nickname || 'Franchise'}</span>
+               </h2>
+               <div className="flex items-center gap-3 mt-2 text-left">
+                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-none">
+                   COACH {data.stats.coach?.toUpperCase() || (selectedTeam.toUpperCase() === 'VICO' ? 'GEORGE DI MARTINO' : 'UNASSIGNED')}
+                 </p>
+                 <div className="h-3 w-[1px] bg-slate-700" />
+                 <div className="flex items-center gap-1.5">
+                   <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest leading-none">Form:</span>
+                   <div className="flex gap-1.5">
+                     {recentForm.map((isWin, i) => (
+                       <div key={i} className={`w-2.5 h-2.5 rounded-full ${isWin ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                     ))}
+                   </div>
+                 </div>
+               </div>
+            </div>
+          </div>
+          <div className="flex gap-8">
+            <div className="text-center">
+              <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-tighter tracking-widest">2025 Record</p>
+              <p className="text-lg font-black">{data.stats.wins}-{data.stats.losses}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-tighter tracking-widest">Diff</p>
+              <p className={`text-lg font-black ${data.stats.diff >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {data.stats.diff > 0 ? `+${data.stats.diff}` : data.stats.diff}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading ? (
-        <div className="flex justify-center py-20 text-blue-600">
-          <div className="w-10 h-10 border-4 border-current border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <div className="flex justify-center py-20 text-slate-900"><div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" /></div>
       ) : data && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {(['OFF', 'DEF'] as const).map((unit) => (
-            <div key={unit} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-fit">
+            <div key={unit} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden h-fit text-left text-slate-900">
               <div className={`px-4 py-3 font-black text-white flex justify-between items-center ${unit === 'OFF' ? 'bg-slate-800' : 'bg-red-900'}`}>
-                <span className="tracking-tighter">{unit === 'OFF' ? 'OFFENSE' : 'DEFENSE'}</span>
-                <span className="bg-white/10 px-2 py-0.5 rounded text-[10px]">{sortedGroups[unit].length} PLYRS</span>
+                <span className="tracking-tighter uppercase">{unit}ENSE</span>
+                <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] uppercase">{sortedGroups[unit].length} Plyrs</span>
               </div>
               <div className="divide-y divide-gray-100">
                 {sortedGroups[unit].map((p, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 hover:bg-blue-50/50 group transition-colors">
+                  <div key={i} className="group flex items-center justify-between p-3 hover:bg-blue-50/50 transition-colors">
                     <div className="flex items-center gap-3">
                       <span className="font-mono text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded w-10 text-center">{p.pos}</span>
-                      <div className="flex flex-col">
-                        <a href={getGoogleSearchUrl(p.name)} target="_blank" rel="noopener noreferrer" 
-                           className="text-sm font-bold text-slate-800 uppercase hover:text-blue-600 hover:underline decoration-2 underline-offset-4">
-                          {p.name}
-                        </a>
-                        <span className="text-[10px] font-bold text-gray-400">AGE: {p.age || '—'}</span>
+                      <div className="flex flex-col text-left">
+                        <span className="text-sm font-bold text-slate-800 uppercase leading-none">{p.name}</span>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-1 italic">AGE: {p.age || '—'}</span>
                       </div>
                     </div>
+                    {/* TRIGGER: Uses synchronized Draft Page scouting logic */}
                     <button onClick={() => fetchPlayerDetails(p)}
-                      className="opacity-0 group-hover:opacity-100 bg-white text-blue-700 text-[10px] font-black px-3 py-1.5 rounded-lg border shadow-sm hover:bg-blue-600 hover:text-white transition-all">
+                      className="opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm italic tracking-tighter hover:bg-blue-700"
+                    >
                       Details
                     </button>
                   </div>
@@ -165,72 +230,77 @@ const fetchPlayerDetails = async (p: any) => {
             </div>
           ))}
 
-          <div className="space-y-6">
-            {/* Special Teams Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-4 py-3 font-black text-white bg-indigo-900 flex justify-between items-center">
-                <span className="tracking-tighter uppercase">Special Teams</span>
-                <span className="bg-white/10 px-2 py-0.5 rounded text-[10px]">{sortedGroups.SPEC.length}</span>
+          <div className="space-y-6 text-left">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden text-left text-slate-900">
+              <div className="px-4 py-3 font-black text-white bg-blue-600 flex justify-between items-center tracking-tighter uppercase">
+                <span className="text-white">Recent Results</span>
+                <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] text-white italic">2025 SEASON</span>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {data.schedule?.filter(g => g.year === "2025").slice(-5).map((game: any, i: number) => {
+                  const isHome = game.home?.toUpperCase() === "VICO";
+                  const opponent = isHome ? game.visitor : game.home;
+                  const isPlayed = game.status === "Final" && game.vScore !== null;
+                  const isWin = isPlayed && (parseInt(isHome ? game.hScore : game.vScore) > parseInt(isHome ? game.vScore : game.hScore));
+                  return (
+                    <div key={i} className="flex items-center justify-between p-3">
+                      <div className="flex flex-col text-left">
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Week {game.week}</span>
+                        <span className="text-xs font-bold text-slate-800 uppercase tracking-tighter mt-1 leading-none">{isHome ? 'vs' : '@'} {opponent}</span>
+                      </div>
+                      <div className={`font-mono text-sm font-black ${isPlayed ? (isWin ? 'text-emerald-600' : 'text-red-500') : 'text-slate-200 italic'}`}>
+                        {isPlayed ? (isHome ? `${game.hScore}-${game.vScore}` : `${game.vScore}-${game.hScore}`) : 'Upcoming'}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden text-left text-slate-900">
+              <div className="px-4 py-3 font-black text-white bg-indigo-900 flex justify-between items-center tracking-tighter uppercase">
+                <span className="text-white">Special Teams</span>
+                <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] uppercase text-white tracking-widest">{sortedGroups.SPEC.length}</span>
               </div>
               <div className="divide-y divide-gray-100">
                 {sortedGroups.SPEC.map((p, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 hover:bg-indigo-50/50 group transition-colors">
+                  <div key={i} className="group flex items-center justify-between p-3 text-left">
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded w-10 text-center">{p.pos}</span>
-                      <a href={getGoogleSearchUrl(p.name)} target="_blank" rel="noopener noreferrer" 
-                         className="text-sm font-bold text-slate-800 uppercase hover:text-indigo-600 hover:underline">{p.name}</a>
+                      <span className="font-mono text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded w-10 text-center uppercase leading-none">{p.pos}</span>
+                      <span className="text-sm font-bold text-slate-800 uppercase leading-none">{p.name}</span>
                     </div>
+                    {/* SYNCED SCOUTING FOR SPECIALISTS */}
                     <button onClick={() => fetchPlayerDetails(p)}
-                      className="opacity-0 group-hover:opacity-100 bg-white text-indigo-700 text-[10px] font-black px-3 py-1.5 rounded-lg border shadow-sm hover:bg-indigo-600 hover:text-white transition-all">
-                      SCOUT
+                      className="opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm hover:bg-indigo-700"
+                    >
+                      Details
                     </button>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Redesigned Draft Capital Card */}
-            <div className="bg-slate-900 rounded-2xl shadow-xl p-5 border border-slate-800">
+            <div className="bg-slate-900 rounded-2xl shadow-xl p-5 border border-slate-800 text-left">
                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-black text-white text-xs tracking-[0.2em] uppercase">Draft Capital</h3>
-                  <span className="text-slate-500 font-mono text-xs">{data.picks?.length || 0} ASSETS</span>
+                  <h3 className="font-black text-white text-xs tracking-[0.2em] uppercase tracking-widest">Draft Capital</h3>
+                  <span className="text-slate-500 font-mono text-xs uppercase italic tracking-widest">{data.picks?.length || 0} Assets</span>
                </div>
-               <div className="space-y-3">
+               <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar text-left">
                  {data.picks?.map((pick: any, i: number) => (
-                   <div key={i} className="relative bg-slate-800/50 border border-slate-700 p-3 rounded-xl flex items-center gap-4 overflow-hidden group">
-                     <div className="absolute top-0 right-0 p-2 opacity-10 font-black text-4xl italic text-white pointer-events-none">
-                       {pick.round}
-                     </div>
-                     <div className="bg-blue-600 text-white w-12 h-12 rounded-lg flex flex-col items-center justify-center flex-shrink-0 shadow-lg">
+                   <div key={i} className="relative bg-slate-800/50 border border-slate-700 p-3 rounded-xl flex items-center gap-4 group transition-all text-left">
+                     <div className="bg-blue-600 text-white w-12 h-12 rounded-lg flex flex-col items-center justify-center flex-shrink-0 shadow-lg text-left">
                         <span className="text-[10px] font-black leading-none">{pick.year}</span>
-                        <span className="text-lg font-black italic">R{pick.round}</span>
+                        <span className="text-lg font-black italic uppercase tracking-widest leading-none">R{pick.round}</span>
                      </div>
-                     <div className="flex-grow">
-                       <p className="text-white font-black text-sm tracking-tight">
-                         {pick.overall && pick.overall !== 'N/A' ? `PICK #${pick.overall}` : 'ROUND ' + pick.round}
-                       </p>
-                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                         From: <span className="text-blue-400">{pick.originalTeam}</span>
-                       </p>
+                     <div className="flex-grow text-left">
+                       <p className="text-white font-black text-sm uppercase tracking-tight tracking-widest">{pick.overall && pick.overall !== 'N/A' ? `Pick #${pick.overall}` : 'Round ' + pick.round}</p>
+                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mt-1 italic tracking-widest text-left leading-none">From: <span className="text-blue-400">{pick.originalTeam || 'VV'}</span></p>
                      </div>
                    </div>
                  ))}
                </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* 3. EMPTY STATE: Shown when no team is selected yet */}
-      {!selectedTeam && !loading && (
-        <div className="flex flex-col items-center justify-center py-32 bg-white rounded-3xl border-2 border-dashed border-gray-200">
-           <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
-             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-             </svg>
-           </div>
-           <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Personnel File Locked</h3>
-           <p className="text-slate-500 font-bold text-sm max-w-xs text-center mt-1">Select a franchise from the control panel above to initialize roster transmission.</p>
         </div>
       )}
     </div>
