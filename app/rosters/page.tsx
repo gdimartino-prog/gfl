@@ -105,25 +105,32 @@ export default function RosterPage() {
   }, [data, selectedTeam, loading]);
 
   const fetchPlayerDetails = async (p: any) => {
-    try {
-      const identity = p.identity || [
-        p.name.split(' ')[0], 
-        p.name.split(' ').pop(), 
-        p.age, 
-        p.group === 'OFF' ? p.pos : '', 
-        p.group === 'DEF' ? p.pos : '', 
-        p.group === 'SPEC' ? p.pos : ''
-      ].join('|').toLowerCase();
+    const firstName = p.name.split(' ')[0].toLowerCase();
+    const lastName = p.name.split(' ').pop().toLowerCase();
+    const age = p.age || '';
 
+    // Clean the positions to remove slashes or extra spaces
+    const clean = (val: string) => val ? val.split(/[\/,]/)[0].trim().toLowerCase() : '';
+
+    // SLOTS: 1:First | 2:Last | 3:Age | 4:Offense | 5:Defense | 6:Special
+    const off = clean(p.offensePos);
+    const def = clean(p.defensePos);
+    const spec = clean(p.specialPos);
+
+    const identity = `${firstName}|${lastName}|${age}|${off}|${def}|${spec}`;
+
+    console.log("🚀 COMPOSITE IDENTITY:", identity); 
+    // For Kalif, this should now be: kalif|raymond|30|wr||ret
+
+    try {
       const r = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
       if (r.ok) {
-        const detailData = await r.json();
-        setViewingPlayer(detailData); 
+        setViewingPlayer(await r.json()); 
       } else {
-        alert(`Scouting data not found for: ${p.name}`);
+        alert(`Scouting 404: No match for [${identity}]. Check if ${p.name}'s age or position matches the scout database.`);
       }
     } catch (e) {
-      console.error("SEARCH ERROR:", e);
+      console.error("API ERROR:", e);
     }
   };
 

@@ -24,19 +24,35 @@ export async function GET(req: Request, { params }: RouteContext) {
     const allPlayers = playersRes.data.values || [];
     const allPicks = picksRes.data.values || [];
 
-    // 1. Process Players
-    const roster = allPlayers
-      .filter(row => row[0]?.toUpperCase() === teamShort)
-      .map(row => ({
+  // 1. Process Players
+  const roster = allPlayers
+    .filter(row => row[0]?.toUpperCase() === teamShort)
+    .map(row => {
+      // Column indices (0-based):
+      // G = 6 (Offense), H = 7 (Defense), I = 8 (Special)
+      const offPos = (row[6] || "").trim();
+      const defPos = (row[7] || "").trim();
+      const specPos = (row[8] || "").trim();
+
+      return {
         // Using row[2] and row[3] for First Last name
         name: `${row[2]} ${row[3]}`,
-        // ADD THIS LINE: row[5] is Column F (Age)
+        // row[5] is Column F (Age)
         age: row[5] || '0',
-        // Mapping positions from G, H, I columns
-        pos: (row[6] || row[7] || row[8] || '??').toUpperCase(),
-        group: row[6] ? 'OFF' : row[7] ? 'DEF' : 'SPEC'
-      }));
+        
+        // Keep these new explicit fields so the frontend can see ALL positions
+        offensePos: offPos,
+        defensePos: defPos,
+        specialPos: specPos,
 
+        // This is the current logic for which unit they belong to in the UI
+        group: row[6] ? 'OFF' : row[7] ? 'DEF' : 'SPEC',
+        
+        // Sets the display position based on the primary group
+        pos: (row[6] || row[7] || row[8] || '??').toUpperCase()
+      };
+    });
+    
     // 2. Process Draft Picks
     // Column Index Mapping: 0:Year, 1:Round, 3:Overall, 4:Original Team, 5:Current Owner
     const picks = allPicks
