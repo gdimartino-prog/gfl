@@ -80,10 +80,8 @@ export default function RosterPage() {
     loadFranchiseData();
   }, [selectedTeam]);
 
-  // SYNCED SCOUTING LOGIC: Matches your Draft Page exactly
   const fetchPlayerDetails = async (p: any) => {
     try {
-      // Construction of identity key as expected by your /api/players/details endpoint
       const identity = p.identity || [
         p.name.split(' ')[0], 
         p.name.split(' ').pop(), 
@@ -96,7 +94,7 @@ export default function RosterPage() {
       const r = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
       if (r.ok) {
         const detailData = await r.json();
-        setViewingPlayer(detailData); // Opens PlayerCard modal
+        setViewingPlayer(detailData); 
       } else {
         alert(`Scouting data not found for: ${p.name}`);
       }
@@ -136,7 +134,6 @@ export default function RosterPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-gray-50 min-h-screen text-slate-900 text-left">
-      {/* PlayerCard triggered by viewingPlayer state */}
       {viewingPlayer && <PlayerCard data={viewingPlayer} onClose={() => setViewingPlayer(null)} />}
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -214,11 +211,18 @@ export default function RosterPage() {
                     <div className="flex items-center gap-3">
                       <span className="font-mono text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded w-10 text-center">{p.pos}</span>
                       <div className="flex flex-col text-left">
-                        <span className="text-sm font-bold text-slate-800 uppercase leading-none">{p.name}</span>
+                        {/* SEARCH LINK WRAPPING PLAYER NAME */}
+                        <a 
+                          href={`https://www.google.com/search?q=${encodeURIComponent(p.name )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-bold text-slate-800 uppercase leading-none hover:text-blue-600 hover:underline transition-all"
+                        >
+                          {p.name}
+                        </a>
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-1 italic">AGE: {p.age || '—'}</span>
                       </div>
                     </div>
-                    {/* TRIGGER: Uses synchronized Draft Page scouting logic */}
                     <button onClick={() => fetchPlayerDetails(p)}
                       className="opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm italic tracking-tighter hover:bg-blue-700"
                     >
@@ -231,6 +235,7 @@ export default function RosterPage() {
           ))}
 
           <div className="space-y-6 text-left">
+            {/* FULL RECENT RESULTS SECTION */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden text-left text-slate-900">
               <div className="px-4 py-3 font-black text-white bg-blue-600 flex justify-between items-center tracking-tighter uppercase">
                 <span className="text-white">Recent Results</span>
@@ -257,6 +262,7 @@ export default function RosterPage() {
               </div>
             </div>
 
+            {/* FULL SPECIAL TEAMS SECTION */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden text-left text-slate-900">
               <div className="px-4 py-3 font-black text-white bg-indigo-900 flex justify-between items-center tracking-tighter uppercase">
                 <span className="text-white">Special Teams</span>
@@ -267,9 +273,16 @@ export default function RosterPage() {
                   <div key={i} className="group flex items-center justify-between p-3 text-left">
                     <div className="flex items-center gap-3">
                       <span className="font-mono text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded w-10 text-center uppercase leading-none">{p.pos}</span>
-                      <span className="text-sm font-bold text-slate-800 uppercase leading-none">{p.name}</span>
+                      {/* SEARCH LINK WRAPPING PLAYER NAME */}
+                      <a 
+                        href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' stats draft profile')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-bold text-slate-800 uppercase leading-none hover:text-indigo-600 hover:underline transition-all"
+                      >
+                        {p.name}
+                      </a>
                     </div>
-                    {/* SYNCED SCOUTING FOR SPECIALISTS */}
                     <button onClick={() => fetchPlayerDetails(p)}
                       className="opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm hover:bg-indigo-700"
                     >
@@ -280,6 +293,7 @@ export default function RosterPage() {
               </div>
             </div>
 
+            {/* FULL DRAFT CAPITAL SECTION */}
             <div className="bg-slate-900 rounded-2xl shadow-xl p-5 border border-slate-800 text-left">
                <div className="flex justify-between items-center mb-4">
                   <h3 className="font-black text-white text-xs tracking-[0.2em] uppercase tracking-widest">Draft Capital</h3>

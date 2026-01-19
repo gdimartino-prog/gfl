@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
-import { getPositionStats } from '@/lib/playerStats'; // Import the helper
+import { getPositionStats } from '@/lib/playerStats'; 
 
 export const dynamic = 'force-dynamic';
 
@@ -45,7 +45,7 @@ export default function DraftPage() {
       const [pRes, tRes, rRes] = await Promise.all([
         fetch('/api/draft-picks', { cache: 'no-store' }).then(res => res.json()),
         fetch('/api/teams').then(res => res.json()),
-        fetch('/api/rules').then(res => res.json()) // Pulling from your new Rules API
+        fetch('/api/rules').then(res => res.json()) 
       ]);
 
       const sortedPicks = Array.isArray(pRes) 
@@ -55,7 +55,6 @@ export default function DraftPage() {
       setPicks(sortedPicks);
       setTeams(tRes);
 
-      // Default the year filter based on the "Rules" sheet setting
       if (Array.isArray(rRes)) {
         const yearRule = rRes.find(r => r.setting === 'draft_year');
         if (yearRule && yearRule.value) {
@@ -106,7 +105,6 @@ export default function DraftPage() {
     return () => clearInterval(timerInterval);
   }, [onClockPick, previousPick]);
 
-  // --- TEAM NAME RESOLUTION ---
   const resolveCode = (str: string) => {
     if (!str) return "";
     const match = str.match(/\(([^)]+)\)/);
@@ -120,7 +118,6 @@ export default function DraftPage() {
     return team ? team.name : shortCode;
   };
 
-  // --- DRAFT BOARD FILTERING ---
   const filteredPicks = useMemo(() => {
     return picks.filter(p => {
       const searchStr = searchTerm.toLowerCase();
@@ -133,7 +130,6 @@ export default function DraftPage() {
     });
   }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, teams]);
 
-  // --- FREE AGENT PROCESSING (FIXED OL FILTER) ---
   const processedFAs = useMemo(() => {
     if (!Array.isArray(faPlayers)) return [];
     return [...faPlayers]
@@ -276,11 +272,12 @@ export default function DraftPage() {
                     <td className="px-6 py-4 text-black">
                       {isDrafted ? (
                         <div className="flex flex-col">
+                          {/* PLAYER SEARCH LINK INTEGRATED HERE */}
                           <a 
                             href={`https://www.google.com/search?q=${encodeURIComponent(pick.draftedPlayer )}`} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="font-black text-slate-900 uppercase text-sm hover:text-blue-600 hover:underline transition-colors"
+                            className="font-black text-slate-900 uppercase text-sm hover:text-blue-600 hover:underline transition-colors decoration-blue-200 underline-offset-4"
                           >
                             {pick.draftedPlayer}
                           </a>
@@ -384,7 +381,15 @@ export default function DraftPage() {
                     <div className="p-4">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h4 className="font-black text-slate-900 uppercase text-lg leading-none">{p.first} {p.last}</h4>
+                          {/* FA SEARCH LINK INTEGRATED HERE */}
+                          <a 
+                            href={`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-black text-slate-900 uppercase text-lg leading-none hover:text-blue-600 hover:underline transition-all block"
+                          >
+                            {p.first} {p.last}
+                          </a>
                           <div className="flex gap-2 mt-2">
                             <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">{p.position}</span>
                             <span className="text-slate-400 text-[9px] font-bold uppercase tracking-widest">Age {p.age}</span>
