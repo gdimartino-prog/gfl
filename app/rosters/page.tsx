@@ -224,7 +224,7 @@ export default function RosterPage() {
                       </div>
                     </div>
                     <button onClick={() => fetchPlayerDetails(p)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm italic tracking-tighter hover:bg-blue-700"
+                      className="opacity-100 group-hover:opacity-100 transition-opacity bg-blue-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm italic tracking-tighter hover:bg-blue-700"
                     >
                       Details
                     </button>
@@ -284,7 +284,7 @@ export default function RosterPage() {
                       </a>
                     </div>
                     <button onClick={() => fetchPlayerDetails(p)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm hover:bg-indigo-700"
+                      className="opacity-100 group-hover:opacity-100 transition-opacity bg-indigo-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm hover:bg-indigo-700"
                     >
                       Details
                     </button>
