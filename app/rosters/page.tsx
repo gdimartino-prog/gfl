@@ -37,7 +37,7 @@ export default function RosterPage() {
 
         const standingsData = await standingsRes.json();
         const rulesData = await rulesRes.json();
-
+        
         // 1. Process Rules: Map min_POS to requirements object
         const requirements: Record<string, number> = {};
         rulesData.forEach((r: any) => {
@@ -60,13 +60,18 @@ export default function RosterPage() {
         const rosterData = await rosterRes.json();
         const scheduleData = await scheduleRes.json();
 
-        const TARGET_YEAR = "2025";
+        //const TARGET_YEAR = "2025";
+
+        // Find the year setting (assuming it's named 'current_year' in your sheet)
+        const yearRule = rulesData.find((r: any) => r.setting === 'cut_year');
+        const DYNAMIC_YEAR = yearRule ? yearRule.value.toString() : "2025"; // Fallback to 2025
+
         let wins = 0; let losses = 0; let pf = 0; let pa = 0;
         const teamName = (teamEntry?.team || "").trim().toUpperCase();
         const teamShort = (teamEntry?.teamshort || selectedTeam).trim().toUpperCase();
 
         scheduleData
-          .filter((g: any) => g.year === TARGET_YEAR && g.status === "Final")
+          .filter((g: any) => g.year === DYNAMIC_YEAR && g.status === "Final")
           .forEach((game: any) => {
             const hS = parseInt(game.hScore) || 0;
             const vS = parseInt(game.vScore) || 0;
@@ -86,7 +91,7 @@ export default function RosterPage() {
           roster: rosterData.roster || [],
           picks: rosterData.picks || [],
           schedule: scheduleData || [],
-          stats: { ...teamEntry, wins, losses, pf, diff: pf - pa, currentYear: TARGET_YEAR }
+          stats: { ...teamEntry, wins, losses, pf, diff: pf - pa, currentYear: DYNAMIC_YEAR }
         });
       } catch (err) {
         console.error("Load Error:", err);
@@ -238,7 +243,7 @@ export default function RosterPage() {
           </div>
           <div className="flex gap-8">
             <div className="text-center">
-              <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest">2025 Record</p>
+              <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest">{data.stats.currentYear} Record</p>
               <p className="text-lg font-black">{data.stats.wins}-{data.stats.losses}</p>
             </div>
             <div className="text-center">
@@ -254,7 +259,7 @@ export default function RosterPage() {
       {/* POSITIONAL STRENGTH DASHBOARD */}
       {!loading && teamNeeds.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-           <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Positional Strength vs Requirements</h3>
+           <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Positional Count vs Minimum Requirements</h3>
            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-3">
               {teamNeeds.map((need) => (
                 <div key={need.pos} className={`p-3 rounded-lg border text-center flex flex-col justify-center ${
@@ -308,10 +313,10 @@ export default function RosterPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
               <div className="px-4 py-3 font-black text-white bg-blue-600 flex justify-between items-center uppercase tracking-tighter">
                 <span>Schedule & Results</span>
-                <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] italic">2025 SEASON</span>
+                <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] italic">{data.stats.currentYear} SEASON</span>
               </div>
               <div className="divide-y divide-gray-100 overflow-y-auto max-h-[300px] custom-scrollbar">
-                {data.schedule?.filter(g => g.year === "2025").map((game: any, i: number, arr: any[]) => {
+                {data.schedule?.filter(g => g.year === data.stats.currentYear).map((game: any, i: number, arr: any[]) => {
                   const targetIdx = arr.map(g => g.status).lastIndexOf("Final");
                   const teamKey = selectedTeam.toUpperCase();
                   const isHome = game.home?.toUpperCase() === teamKey;

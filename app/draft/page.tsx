@@ -395,7 +395,7 @@ export default function DraftPage() {
                             <span className="text-slate-400 text-[9px] font-bold uppercase tracking-widest">Age {p.age}</span>
                           </div>
                         </div>
-                        <button onClick={() => fetchFAWithDetails(p)} className="bg-slate-900 text-white text-[9px] font-black px-4 py-2 rounded-xl uppercase hover:bg-blue-600 transition-colors">Full Card</button>
+                        <button onClick={() => fetchFAWithDetails(p)} className="bg-slate-900 text-white text-[9px] font-black px-4 py-2 rounded-xl uppercase hover:bg-blue-600 transition-colors">Player Details</button>
                       </div>
                       <div className="grid grid-cols-5 gap-1 pt-3 border-t border-slate-50">
                         {positionStats.map((stat, idx) => (
