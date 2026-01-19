@@ -67,14 +67,26 @@ export default async function HomePage() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8">
-      <header className="mb-12">
-        <h1 className="text-5xl font-black text-gray-900 tracking-tighter text-left uppercase italic leading-none">
-          Front <span className="text-blue-600">Office</span>
-        </h1>
-        <p className="text-gray-500 text-left font-bold uppercase text-[10px] tracking-[0.3em] mt-3">
-            GFL Manager Dashboard
-        </p>
-      </header>
+        <header className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6">
+          {/* GFL Logo Container */}
+          <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-100">
+            <img 
+              src="/icon.png" 
+              alt="GFL Logo" 
+              className="h-20 w-auto object-contain"
+            />
+          </div>
+
+          {/* Title Text */}
+          <div>
+            <h1 className="text-5xl font-black text-gray-900 tracking-tighter text-left uppercase italic leading-none">
+              Front <span className="text-blue-600">Office</span>
+            </h1>
+            <p className="text-gray-500 text-left font-bold uppercase text-[10px] tracking-[0.3em] mt-3">
+                GFL Manager Dashboard
+            </p>
+          </div>
+        </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
