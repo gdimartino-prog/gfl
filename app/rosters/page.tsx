@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import PlayerCard from '@/components/PlayerCard';
 import TeamSelector from '@/components/TeamSelector';
 import { useTeam } from '@/context/TeamContext';
@@ -21,6 +21,9 @@ export default function RosterPage() {
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'pos'>('default');
   const [viewingPlayer, setViewingPlayer] = useState<any>(null);
+  
+  // Ref for auto-scrolling
+  const lastPlayedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!selectedTeam) return;
@@ -38,7 +41,7 @@ export default function RosterPage() {
 
         const [rosterRes, scheduleRes] = await Promise.all([
           fetch(`/api/rosters/${selectedTeam}`),
-          fetch(`/api/schedule?team=${teamEntry?.teamshort || 'VV'}`)
+          fetch(`/api/schedule?team=${teamEntry?.teamshort || selectedTeam}`)
         ]);
 
         const rosterData = await rosterRes.json();
@@ -47,18 +50,24 @@ export default function RosterPage() {
         const TARGET_YEAR = "2025";
         let wins = 0; let losses = 0; let pf = 0; let pa = 0;
 
+        const teamName = (teamEntry?.team || "").trim().toUpperCase();
+        const teamShort = (teamEntry?.teamshort || selectedTeam).trim().toUpperCase();
+
         scheduleData
           .filter((g: any) => g.year === TARGET_YEAR && g.status === "Final")
           .forEach((game: any) => {
             const hS = parseInt(game.hScore) || 0;
             const vS = parseInt(game.vScore) || 0;
-            const isHome = game.home?.toUpperCase() === "VICO" || 
-                           game.home?.toUpperCase() === teamEntry?.team?.toUpperCase();
-            
+            const hName = game.home.toUpperCase();
+            const vName = game.visitor.toUpperCase();
+
+            const isHome = hName === teamName || hName === teamShort;
+            const isAway = vName === teamName || vName === teamShort;
+
             if (isHome) {
               pf += hS; pa += vS;
               if (hS > vS) wins++; else if (vS > hS) losses++;
-            } else {
+            } else if (isAway) {
               pf += vS; pa += hS;
               if (vS > hS) wins++; else if (hS > vS) losses++;
             }
@@ -79,6 +88,21 @@ export default function RosterPage() {
 
     loadFranchiseData();
   }, [selectedTeam]);
+
+  // BULLETPROOF SCROLL EFFECT
+  useEffect(() => {
+    if (data?.schedule && !loading) {
+      // requestAnimationFrame ensures the DOM has rendered before scrolling
+      requestAnimationFrame(() => {
+        if (lastPlayedRef.current) {
+          lastPlayedRef.current.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
+          });
+        }
+      });
+    }
+  }, [data, selectedTeam, loading]);
 
   const fetchPlayerDetails = async (p: any) => {
     try {
@@ -104,18 +128,30 @@ export default function RosterPage() {
   };
 
   const recentForm = useMemo(() => {
-    if (!data?.schedule || !data?.stats?.currentYear) return [];
-    return data.schedule
-      .filter(g => g.year === data.stats.currentYear && g.status === "Final")
+    if (!data?.schedule || !data?.stats?.currentYear || !selectedTeam) return [];
+    const teamName = (data.stats.team || "").trim().toUpperCase();
+    const teamShort = (data.stats.teamshort || selectedTeam || "").trim().toUpperCase();
+
+    const filteredGames = data.schedule
+      .filter(g => {
+        const isCorrectYear = g.year === data.stats.currentYear;
+        const isFinal = g.status === "Final";
+        const hN = (g.home || "").trim().toUpperCase();
+        const vN = (g.visitor || "").trim().toUpperCase();
+        const isParticipant = hN === teamName || hN === teamShort || vN === teamName || vN === teamShort;
+        return isCorrectYear && isFinal && isParticipant;
+      })
       .sort((a, b) => parseInt(a.week) - parseInt(b.week))
-      .slice(-5)
-      .map(game => {
-        const hS = parseInt(game.hScore) || 0;
-        const vS = parseInt(game.vScore) || 0;
-        const isHome = game.home?.toUpperCase() === "VICO";
-        return isHome ? (hS > vS) : (vS > hS);
-      });
-  }, [data?.schedule, data?.stats]);
+      .slice(-5);
+
+    return filteredGames.map(game => {
+      const hS = parseInt(game.hScore) || 0;
+      const vS = parseInt(game.vScore) || 0;
+      const hN = (game.home || "").trim().toUpperCase();
+      const isHome = hN === teamName || hN === teamShort;
+      return isHome ? (hS > vS) : (vS > hS);
+    });
+  }, [data?.schedule, data?.stats, selectedTeam]);
 
   const sortedGroups = useMemo(() => {
     if (!data?.roster) return { OFF: [], DEF: [], SPEC: [] };
@@ -211,9 +247,8 @@ export default function RosterPage() {
                     <div className="flex items-center gap-3">
                       <span className="font-mono text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-1 rounded w-10 text-center">{p.pos}</span>
                       <div className="flex flex-col text-left">
-                        {/* SEARCH LINK WRAPPING PLAYER NAME */}
                         <a 
-                          href={`https://www.google.com/search?q=${encodeURIComponent(p.name )}`}
+                          href={`https://www.google.com/search?q=${encodeURIComponent(p.name)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-sm font-bold text-slate-800 uppercase leading-none hover:text-blue-600 hover:underline transition-all"
@@ -224,7 +259,7 @@ export default function RosterPage() {
                       </div>
                     </div>
                     <button onClick={() => fetchPlayerDetails(p)}
-                      className="opacity-100 group-hover:opacity-100 transition-opacity bg-blue-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm italic tracking-tighter hover:bg-blue-700"
+                      className="opacity-100 transition-opacity bg-blue-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm italic tracking-tighter hover:bg-blue-700"
                     >
                       Details
                     </button>
@@ -235,65 +270,56 @@ export default function RosterPage() {
           ))}
 
           <div className="space-y-6 text-left">
-            {/* FULL RECENT RESULTS SECTION */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden text-left text-slate-900">
-              <div className="px-4 py-3 font-black text-white bg-blue-600 flex justify-between items-center tracking-tighter uppercase">
-                <span className="text-white">Recent Results</span>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden text-left text-slate-900 flex flex-col">
+              <div className="px-4 py-3 font-black text-white bg-blue-600 flex justify-between items-center tracking-tighter uppercase shrink-0">
+                <span className="text-white">Schedule & Results</span>
                 <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] text-white italic">2025 SEASON</span>
               </div>
-              <div className="divide-y divide-gray-100">
-                {data.schedule?.filter(g => g.year === "2025").slice(-5).map((game: any, i: number) => {
-                  const isHome = game.home?.toUpperCase() === "VICO";
-                  const opponent = isHome ? game.visitor : game.home;
-                  const isPlayed = game.status === "Final" && game.vScore !== null;
-                  const isWin = isPlayed && (parseInt(isHome ? game.hScore : game.vScore) > parseInt(isHome ? game.vScore : game.hScore));
-                  return (
-                    <div key={i} className="flex items-center justify-between p-3">
-                      <div className="flex flex-col text-left">
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Week {game.week}</span>
-                        <span className="text-xs font-bold text-slate-800 uppercase tracking-tighter mt-1 leading-none">{isHome ? 'vs' : '@'} {opponent}</span>
-                      </div>
-                      <div className={`font-mono text-sm font-black ${isPlayed ? (isWin ? 'text-emerald-600' : 'text-red-500') : 'text-slate-200 italic'}`}>
-                        {isPlayed ? (isHome ? `${game.hScore}-${game.vScore}` : `${game.vScore}-${game.hScore}`) : 'Upcoming'}
-                      </div>
-                    </div>
-                  );
-                })}
+              
+              <div className="divide-y divide-gray-100 overflow-y-auto max-h-[300px] custom-scrollbar">
+                {(() => {
+                    const games = data.schedule?.filter(g => g.year === "2025") || [];
+                    
+                    // Identify the target index (the most recent Final game)
+                    let targetIdx = -1;
+                    for (let i = games.length - 1; i >= 0; i--) {
+                      if (games[i].status === "Final") {
+                        targetIdx = i;
+                        break;
+                      }
+                    }
+
+                    return games.map((game: any, i: number) => {
+                        const teamKey = selectedTeam.toUpperCase();
+                        const isHome = game.home?.toUpperCase() === teamKey;
+                        const opponent = isHome ? game.visitor : game.home;
+                        const isPlayed = game.status === "Final" && game.vScore !== null;
+                        const isWin = isPlayed && (parseInt(isHome ? game.hScore : game.vScore) > parseInt(isHome ? game.vScore : game.hScore));
+                        
+                        return (
+                          <div 
+                            key={`${game.week}-${i}`} 
+                            ref={i === targetIdx ? lastPlayedRef : null}
+                            className={`flex items-center justify-between p-3 transition-colors ${i === targetIdx ? 'bg-amber-50 ring-1 ring-inset ring-amber-200' : 'hover:bg-slate-50'}`}
+                          >
+                            <div className="flex flex-col text-left">
+                              <span className={`text-[9px] font-black uppercase tracking-widest leading-none ${i === targetIdx ? 'text-amber-600' : 'text-slate-400'}`}>
+                                Week {game.week} {i === targetIdx && "• LATEST"}
+                              </span>
+                              <span className="text-xs font-bold text-slate-800 uppercase tracking-tighter mt-1 leading-none">
+                                {isHome ? 'vs' : '@'} {opponent}
+                              </span>
+                            </div>
+                            <div className={`font-mono text-sm font-black ${isPlayed ? (isWin ? 'text-emerald-600' : 'text-red-500') : 'text-slate-200 italic'}`}>
+                              {isPlayed ? (isHome ? `${game.hScore}-${game.vScore}` : `${game.vScore}-${game.hScore}`) : 'Upcoming'}
+                            </div>
+                          </div>
+                        );
+                    });
+                })()}
               </div>
             </div>
 
-            {/* FULL SPECIAL TEAMS SECTION */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden text-left text-slate-900">
-              <div className="px-4 py-3 font-black text-white bg-indigo-900 flex justify-between items-center tracking-tighter uppercase">
-                <span className="text-white">Special Teams</span>
-                <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] uppercase text-white tracking-widest">{sortedGroups.SPEC.length}</span>
-              </div>
-              <div className="divide-y divide-gray-100">
-                {sortedGroups.SPEC.map((p, i) => (
-                  <div key={i} className="group flex items-center justify-between p-3 text-left">
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded w-10 text-center uppercase leading-none">{p.pos}</span>
-                      {/* SEARCH LINK WRAPPING PLAYER NAME */}
-                      <a 
-                        href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' stats draft profile')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-bold text-slate-800 uppercase leading-none hover:text-indigo-600 hover:underline transition-all"
-                      >
-                        {p.name}
-                      </a>
-                    </div>
-                    <button onClick={() => fetchPlayerDetails(p)}
-                      className="opacity-100 group-hover:opacity-100 transition-opacity bg-indigo-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm hover:bg-indigo-700"
-                    >
-                      Details
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* FULL DRAFT CAPITAL SECTION */}
             <div className="bg-slate-900 rounded-2xl shadow-xl p-5 border border-slate-800 text-left">
                <div className="flex justify-between items-center mb-4">
                   <h3 className="font-black text-white text-xs tracking-[0.2em] uppercase tracking-widest">Draft Capital</h3>
@@ -314,6 +340,36 @@ export default function RosterPage() {
                  ))}
                </div>
             </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden text-left text-slate-900">
+              <div className="px-4 py-3 font-black text-white bg-indigo-900 flex justify-between items-center tracking-tighter uppercase">
+                <span className="text-white">Special Teams</span>
+                <span className="bg-white/10 px-2 py-0.5 rounded text-[10px] uppercase text-white tracking-widest">{sortedGroups.SPEC.length}</span>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {sortedGroups.SPEC.map((p, i) => (
+                  <div key={i} className="group flex items-center justify-between p-3 text-left">
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-1 rounded w-10 text-center uppercase leading-none">{p.pos}</span>
+                      <a 
+                        href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' stats draft profile')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-bold text-slate-800 uppercase leading-none hover:text-indigo-600 hover:underline transition-all"
+                      >
+                        {p.name}
+                      </a>
+                    </div>
+                    <button onClick={() => fetchPlayerDetails(p)}
+                      className="opacity-100 transition-opacity bg-indigo-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded shadow-sm hover:bg-indigo-700"
+                    >
+                      Details
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
           </div>
         </div>
       )}
