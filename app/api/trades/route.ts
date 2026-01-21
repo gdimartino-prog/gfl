@@ -43,14 +43,14 @@ export async function POST(req: Request) {
     await Promise.all(updatePromises);
 
     // --- LOG TRANSACTIONS ---
-    // Combine the pre-formatted strings from the frontend
     const proposerAssets = [...(playersFrom || []), ...(draftPicksFrom || [])].join(', ');
     const partnerAssets = [...(playersTo || []), ...(draftPicksTo || [])].join(', ');
 
     if (proposerAssets) {
       await logTransaction({
         type: 'TRADE',
-        details: proposerAssets, // e.g., "TE - Tyler Conklin, 2026 Draft Pick R 2"
+        identity: proposerAssets, // ADD THIS LINE (Fixes the build error)
+        details: proposerAssets,  
         fromTeam: fromFull,
         toTeam: toFull,
         coach: submittedBy,
@@ -61,6 +61,7 @@ export async function POST(req: Request) {
     if (partnerAssets) {
       await logTransaction({
         type: 'TRADE',
+        identity: partnerAssets, // ADD THIS LINE (Fixes the build error)
         details: partnerAssets,
         fromTeam: toFull,
         toTeam: fromFull,
@@ -68,8 +69,8 @@ export async function POST(req: Request) {
         status: status || 'PENDING'
       });
     }
-
-    return Response.json({ success: true });
+    
+  return Response.json({ success: true });
   } catch (error: any) {
     console.error("Trade API Error:", error);
     return Response.json({ success: false, error: error.message }, { status: 500 });
