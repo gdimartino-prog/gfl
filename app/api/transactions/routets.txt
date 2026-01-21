@@ -22,9 +22,11 @@ export async function GET() {
       details: row[2] || '',      // Column C: "Desc" (The Description)
       fromFull: row[3] || '',     // Column D
       toFull: row[4] || '',       // Column E
-      coach: row[5] || '',        // Column G: "Owner" (Coach Name)
-      status: row[6] || '',       // Column G
-      weekBack: row[7] || ''      // Column H
+      fromShort: row[5] || '',    // Column F
+      toShort: row[6] || '',      // Column G
+      coach: row[7] || '',        // Column H: "Owner" (Coach Name)
+      status: row[8] || '',       // Column I
+      weekBack: row[9] || ''      // Column J
     })).reverse();
 
     return Response.json(data);
@@ -50,15 +52,10 @@ export async function POST(req: Request) {
     const rowIndex = findPlayerRowIndex(rows, player);
     let newTeamValue = player.team;
 
-    if (type === 'ADD' || type === 'INJURY PICKUP') {
-      newTeamValue = toTeam;
-    } else if (type === 'DROP' || type === 'WAIVE') {
-      newTeamValue = 'FA'; 
-    } else if (type === 'IR' || type === 'IR MOVE') {
-      newTeamValue = `${player.team}-IR`;
-    }
+    if (type === 'ADD' || type === 'INJURY PICKUP') newTeamValue = toTeam;
+    else if (type === 'DROP') newTeamValue = 'FA';
+    else if (type === 'IR') newTeamValue = `${player.team}-IR`;
 
-    // Update the Players tab (Internal Logic)
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: `Players!A${rowIndex}`,
@@ -66,18 +63,14 @@ export async function POST(req: Request) {
       requestBody: { values: [[newTeamValue]] },
     });
 
-    // Logging to Transactions tab
     await logTransaction({
       ...body,
-      // Pass the shortcode so lib/transactions can resolve it to "Vico"
-      fromTeam: fromTeam || player.team, 
-      details: details,
-      status: status || 'PENDING' // Ensure default pending is sent
+      fromTeam: fromTeam || player.team,
+      details: details 
     });
 
     return Response.json({ success: true });
   } catch (err: any) {
-    console.error("POST Error:", err.message);
     return Response.json({ error: err.message }, { status: 500 });
   }
 }

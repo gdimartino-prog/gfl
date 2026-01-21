@@ -12,39 +12,31 @@ export default function DropPlayer({
   onComplete?: () => void 
 }) {
   const [roster, setRoster] = useState<any[]>([]);
-  const [teamMetadata, setTeamMetadata] = useState<any[]>([]); 
   const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // 1. Consolidated Data Fetching
-  const fetchData = useCallback(async () => {
+  // Wrapped in useCallback so it's stable across renders
+  const fetchRoster = useCallback(async () => {
     if (!team) return;
     try {
-      const [playerRes, teamRes] = await Promise.all([
-        fetch('/api/players'),
-        fetch('/api/teams')
-      ]);
-      
-      const playerData = await playerRes.json();
-      const teamData = await teamRes.json();
+      const res = await fetch('/api/players');
+      const data = await res.json();
       
       // Filter players belonging to the active team
-      const players = Array.isArray(playerData) 
-        ? playerData.filter((p: any) => p.teamShort === team || p.team === team) 
+      const players = Array.isArray(data) 
+        ? data.filter((p: any) => p.teamShort === team || p.team === team) 
         : [];
-        
       setRoster(players);
-      setTeamMetadata(teamData);
     } catch (err) {
-      console.error("Failed to load roster data:", err);
+      console.error("Failed to load roster:", err);
     }
   }, [team]);
 
+  // Initial fetch on mount or when team changes
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchRoster();
+  }, [fetchRoster]);
 
-  // 2. Sorting Logic for Dropdown
   const sortedRoster = useMemo(() => {
     return [...roster].sort((a, b) => {
       const lastA = (a.last || a.name || "").toLowerCase();
@@ -53,65 +45,49 @@ export default function DropPlayer({
     });
   }, [roster]);
 
-  // 3. Main Transaction Handler
   async function handleDrop() {
     if (!selectedIdentity || !team) return;
     
-    // Find player object to build a professional description
-    const p = roster.find(player => player.identity === selectedIdentity);
-    const pos = (p?.position || p?.pos || "").toUpperCase();
-    const cleanName = p ? `${p.first || ''} ${p.last || p.name || ''}`.trim() : selectedIdentity;
-    const fullDescription = `${pos ? `${pos} - ` : ""}${cleanName}`;
-
-    // Resolve team metadata for accurate logging
-    const entry = teamMetadata.find(t => 
-      t.short?.toString().trim().toUpperCase() === team.trim().toUpperCase()
-    );
-
-    const fullTeamName = entry ? entry.name : team;   
-    const officialShort = entry ? entry.short : team; 
-
-    const confirmMove = confirm(`Are you sure you want to WAIVE ${fullDescription}? This action moves them to Free Agency.`);
+    const confirmMove = confirm(`Are you sure you want to waive ${selectedIdentity}?`);
     if (!confirmMove) return;
 
     setLoading(true);
 
     try {
-      const payload = {
-        timestamp: new Date().toLocaleString(),
-        type: 'WAIVE', // or 'IR MOVE'
-        identity: selectedIdentity,
-        fromTeam: fullTeamName,     
-        toTeam: 'FA',        // Sends "FA"
-        coach,               // Becomes Column F
-        details: fullDescription, // Becomes Column C
-        status: 'PENDING' 
-      };
-            const res = await fetch('/api/transactions', {
+      const res = await fetch('/api/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          timestamp: new Date().toLocaleString(),
+          type: 'DROP',
+          identity: selectedIdentity,
+          fromTeam: team,
+          fromShort: team,
+          coach,
+          details: `Dropped/Waived: ${selectedIdentity}`,
+          status: 'SUCCESS' 
+        }),
       });
 
       if (res.ok) {
+        // 1. Clear local selection
         setSelectedIdentity('');
         
-        // Refresh local data and notify parent tab to update
-        await fetchData(); 
-        if (onComplete) onComplete(); 
+        // 2. Refresh local roster data
+        await fetchRoster(); 
         
-        alert(`${fullDescription} waived successfully.`);
-      } else {
-        throw new Error("Server failed to process waive.");
+        // 3. Trigger the parent refresh (increments refreshKey in page.tsx)
+        if (onComplete) onComplete();
+        
+        alert('Player dropped successfully');
       }
     } catch (err) {
-      alert('Error waiving player. Check console for details.');
+      alert('Error dropping player');
     } finally {
       setLoading(false);
     }
   }
 
-  // 4. Render with original expanded styling
   return (
     <div className="space-y-4 border p-5 rounded-xl bg-white shadow-lg border-red-100 text-left">
       <div className="flex justify-between items-center border-b pb-3">

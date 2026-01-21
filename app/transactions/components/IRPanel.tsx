@@ -12,27 +12,94 @@ export default function IRPanel({
   onComplete?: () => void 
 }) {
   const [roster, setRoster] = useState<any[]>([]);
+  const [teamMetadata, setTeamMetadata] = useState<any[]>([]); 
   const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Extracted to useCallback to allow refreshing after the move
-  const fetchRoster = useCallback(async () => {
-    if (!team) return;
-    try {
-      const res = await fetch('/api/players');
-      const data = await res.json();
-      const players = Array.isArray(data) 
-        ? data.filter((p: any) => p.teamShort === team || p.team === team) 
-        : [];
-      setRoster(players);
-    } catch (err) {
-      console.error("Failed to load roster for IR move:", err);
-    }
-  }, [team]);
+  // 1. Helper to parse team codes from "Team Name (CODE)" format
+  const resolveCode = (teamString: string) => {
+    if (!teamString) return "";
+    const match = teamString.match(/\(([^)]+)\)/);
+    return (match ? match[1] : teamString).trim().toUpperCase();
+  };
 
-  useEffect(() => {
-    fetchRoster();
-  }, [fetchRoster]);
+  // 2. Compute the clean active team code (e.g., "VV")
+  const activeCode = useMemo(() => resolveCode(team), [team]);
+
+  const loadData = useCallback(async () => {
+    if (!activeCode) return;
+    try {
+      const [playerRes, teamRes] = await Promise.all([
+        fetch('/api/players'),
+        fetch('/api/teams')
+      ]);
+      
+      const playerData = await playerRes.json();
+      const teamData = await teamRes.json();
+      
+      // Filter for players belonging to this specific team
+      const players = Array.isArray(playerData) 
+        ? playerData.filter((p: any) => resolveCode(p.team) === activeCode) 
+        : [];
+        
+      setRoster(players);
+      setTeamMetadata(teamData); 
+    } catch (err) {
+      console.error("Failed to load IR data:", err);
+    }
+  }, [activeCode]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  async function handleIR() {
+    if (!selectedIdentity || !team) return;
+
+    // 1. Resolve Player Details for readable Description
+    const p = roster.find(player => player.identity === selectedIdentity);
+    const pos = (p?.position || p?.pos || "").toUpperCase();
+    const cleanName = p ? `${p.first || ''} ${p.last || p.name || ''}`.trim() : selectedIdentity;
+    const fullDescription = `${pos ? `${pos} - ` : ""}${cleanName}`;
+
+    // 2. Resolve the FULL TEAM NAME (e.g., "Vico") from the shortcode "VV"
+    const entry = teamMetadata.find(t => 
+      t.short?.toString().trim().toUpperCase() === activeCode
+    );
+    const fullTeamName = entry ? entry.name : team; 
+
+    const confirmMove = confirm(`Move ${fullDescription} to IR?`);
+    if (!confirmMove) return;
+
+    setLoading(true);
+
+    try {
+      const payload = {
+        type: 'IR MOVE',
+        identity: selectedIdentity,
+        fromTeam: fullTeamName,      // FIX: Sends "Vico" instead of "VV"
+        toTeam: 'IR',                // Destination
+        coach,                       
+        details: `Placed on IR: ${fullDescription}`,
+        status: 'PENDING' 
+      };
+
+      const res = await fetch('/api/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setSelectedIdentity('');
+        await loadData();
+        if (onComplete) onComplete();
+        alert(`Successfully moved ${fullDescription} to IR`);
+      }
+    } catch (err) {
+      alert('Error saving transaction');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const sortedRoster = useMemo(() => {
     return [...roster].sort((a, b) => {
@@ -42,63 +109,22 @@ export default function IRPanel({
     });
   }, [roster]);
 
-  async function handleIR() {
-    if (!selectedIdentity || !team) return;
-    
-    const confirmMove = confirm(`Move ${selectedIdentity} to Injured Reserve? This will open a roster spot.`);
-    if (!confirmMove) return;
-
-    setLoading(true);
-
-    try {
-      const res = await fetch('/api/transactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          timestamp: new Date().toLocaleString(),
-          type: 'IR MOVE',
-          identity: selectedIdentity,
-          toTeam: 'IR',
-          fromShort: team,
-          coach,
-          details: `Placed on IR: ${selectedIdentity}`,
-          status: 'SUCCESS' // Marking as success for the log
-        }),
-      });
-
-      if (res.ok) {
-        // 1. Clear selection
-        setSelectedIdentity('');
-        
-        // 2. Refresh local roster and trigger parent refresh (Logs/Router)
-        await fetchRoster();
-        if (onComplete) onComplete();
-        
-        alert('Player moved to IR successfully');
-      }
-    } catch (err) {
-      alert('Error moving player to IR');
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
-    <div className="space-y-4 border p-4 rounded-xl bg-white shadow-sm border-amber-200 text-left">
+    <div className="space-y-4 border p-4 rounded-xl bg-white shadow-sm border-amber-200 text-left text-black">
       <div className="flex justify-between items-center">
-        <h3 className="font-bold text-lg uppercase text-amber-600 tracking-tight">Move to IR</h3>
-        <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded font-bold uppercase">Reserve List</span>
+        <h3 className="font-bold text-lg uppercase text-amber-600 italic tracking-tight italic">IR Player</h3>
+        <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded font-bold uppercase tracking-widest italic">Injured Reserve Move</span>
       </div>
 
       <select
         value={selectedIdentity}
         onChange={e => setSelectedIdentity(e.target.value)}
-        className="border p-2 w-full rounded outline-none focus:ring-2 focus:ring-amber-500 text-black bg-gray-50"
+        className="border-2 border-amber-50 p-3 w-full rounded-lg text-sm outline-none focus:border-amber-400 transition-colors text-black font-medium bg-gray-50"
       >
         <option value="">-- Select Player for IR --</option>
         {sortedRoster.map((p, i) => (
           <option key={i} value={p.identity}>
-            {p.last || p.name}, {p.first || ''} ({p.position || p.pos})
+            {p.last || p.name}, {p.first || ''} ({(p.position || p.pos || "??").toUpperCase()})
           </option>
         ))}
       </select>
@@ -106,17 +132,13 @@ export default function IRPanel({
       <button
         onClick={handleIR}
         disabled={loading || !selectedIdentity}
-        className={`w-full p-3 rounded font-black uppercase tracking-widest text-white transition-all ${
-          loading || !selectedIdentity 
-            ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-            : 'bg-amber-500 hover:bg-amber-600 shadow-md active:transform active:scale-[0.98]'
-        }`}
+        className="w-full p-4 rounded-xl font-black uppercase tracking-widest text-white bg-amber-500 hover:bg-amber-600 disabled:bg-gray-200 transition-all active:scale-95 shadow-md"
       >
-        {loading ? 'Processing...' : 'Confirm IR Move'}
+        {loading ? 'Processing IR Move...' : 'Confirm IR Move'}
       </button>
 
-      <p className="text-[10px] text-gray-400 italic">
-        * Moving a player to IR exempts them from the active roster count.
+      <p className="text-[10px] text-gray-400 italic leading-none mt-2">
+        * Moves player from active roster to the Injured Reserve status.
       </p>
     </div>
   );

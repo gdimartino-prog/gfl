@@ -6,25 +6,24 @@ import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
 import IRPanel from './components/IRPanel';
 import TradePanel from './components/TradePanel';
-import TeamSelector from '@/components/TeamSelector'; // Added Import
-import { useTeam } from '@/context/TeamContext';    // Added Import
+import TeamSelector from '@/components/TeamSelector';
+import { useTeam } from '@/context/TeamContext';
 
 export default function TransactionsPage() {
   const router = useRouter();
-  
-  // 1. Swapped Local State for Global Context
   const { selectedTeam } = useTeam();
   
   const [teams, setTeams] = useState<any[]>([]);
   const [coach, setCoach] = useState('');
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<any[]>([]); // Initialized as array
   const [loadingLogs, setLoadingLogs] = useState(true);
   const [filterTeam, setFilterTeam] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // Fetch teams to get the Coach mapping
   useEffect(() => {
-    fetch('/api/teams').then(res => res.json()).then(setTeams);
+    fetch('/api/teams').then(res => res.json()).then(data => {
+      setTeams(Array.isArray(data) ? data : []);
+    });
   }, []);
 
   const fetchLogs = useCallback(async () => {
@@ -32,9 +31,17 @@ export default function TransactionsPage() {
     try {
       const res = await fetch('/api/transactions');
       const data = await res.json();
-      setLogs(data);
+      
+      // DEFENSIVE FIX: Ensure logs is always an array
+      if (Array.isArray(data)) {
+        setLogs(data);
+      } else {
+        console.error("API Error: Expected array but got", data);
+        setLogs([]); 
+      }
     } catch (err) {
       console.error("Failed to fetch logs:", err);
+      setLogs([]); 
     } finally {
       setLoadingLogs(false);
     }
@@ -50,16 +57,20 @@ export default function TransactionsPage() {
     router.refresh();  
   };
 
-  // 2. Automatically update Coach when the Global Selected Team changes
   useEffect(() => {
     const teamObj = teams.find(t => t.short === selectedTeam);
     setCoach(teamObj ? teamObj.coach : '');
   }, [selectedTeam, teams]);
 
+  // DEFENSIVE FILTER: Prevents .filter or .map crashes if logs becomes non-array
   const filteredLogs = useMemo(() => {
-    if (!filterTeam) return logs;
-    return logs.filter(log => 
-      log.fromShort === filterTeam || log.toShort === filterTeam
+    const safeLogs = Array.isArray(logs) ? logs : [];
+    if (!filterTeam) return safeLogs;
+    
+    // Updated to match the 8-column baseline mapping (fromFull/toFull)
+    return safeLogs.filter(log => 
+      String(log.fromFull || '').toLowerCase().includes(filterTeam.toLowerCase()) || 
+      String(log.toFull || '').toLowerCase().includes(filterTeam.toLowerCase())
     );
   }, [logs, filterTeam]);
 
@@ -73,14 +84,12 @@ export default function TransactionsPage() {
           <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Authorized Roster Movements</p>
         </div>
         
-        {/* Coach Read-only Display */}
         <div className="bg-slate-50 border px-6 py-3 rounded-2xl flex flex-col justify-center min-w-[200px]">
           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Coach</span>
           <span className="text-sm font-bold text-slate-700">{coach || 'NO TEAM SELECTED'}</span>
         </div>
       </div>
 
-      {/* 3. SHARED GLOBAL SELECTOR */}
       <TeamSelector />
 
       {!selectedTeam ? (
@@ -133,7 +142,7 @@ export default function TransactionsPage() {
               onChange={(e) => setFilterTeam(e.target.value)}
             >
               <option value="">Show All Teams</option>
-              {teams.map(t => <option key={t.short} value={t.short}>{t.name}</option>)}
+              {teams.map(t => <option key={t.short} value={t.name}>{t.name}</option>)}
             </select>
             <button onClick={fetchLogs} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 transition-colors">
               Refresh
@@ -149,22 +158,23 @@ export default function TransactionsPage() {
                   <th className="p-5 font-black text-slate-400 uppercase text-[10px] tracking-widest">Timestamp</th>
                   <th className="p-5 font-black text-slate-400 uppercase text-[10px] tracking-widest">Action</th>
                   <th className="p-5 font-black text-slate-400 uppercase text-[10px] tracking-widest">Details</th>
+                  <th className="p-5 font-black text-slate-400 uppercase text-[10px] tracking-widest">Status</th>
                   <th className="p-5 font-black text-slate-400 uppercase text-[10px] tracking-widest text-center">Week</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {loadingLogs ? (
-                   <tr><td colSpan={4} className="p-20 text-center text-slate-400 font-bold uppercase animate-pulse">Synchronizing Data...</td></tr>
+                   <tr><td colSpan={5} className="p-20 text-center text-slate-400 font-bold uppercase animate-pulse">Synchronizing Data...</td></tr>
                 ) : filteredLogs.length === 0 ? (
-                   <tr><td colSpan={4} className="p-20 text-center text-slate-300 italic">No records found.</td></tr>
+                   <tr><td colSpan={5} className="p-20 text-center text-slate-300 italic">No records found.</td></tr>
                 ) : filteredLogs.map((log, i) => (
-                  <tr key={i} className={`hover:bg-slate-50/80 transition-colors ${log.fromShort === selectedTeam || log.toShort === selectedTeam ? 'bg-blue-50/30' : ''}`}>
+                  <tr key={i} className={`hover:bg-slate-50/80 transition-colors ${log.coach === coach ? 'bg-blue-50/30' : ''}`}>
                     <td className="p-5 font-mono text-[10px] text-slate-400">{log.timestamp}</td>
                     <td className="p-5">
                       <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter ${
                         log.type === 'INJURY PICKUP' ? 'bg-amber-100 text-amber-700' : 
                         log.type === 'TRADE' ? 'bg-purple-100 text-purple-700' : 
-                        log.type === 'DROP' ? 'bg-red-100 text-red-700' :
+                        log.type === 'DROP' || log.type === 'WAIVE' ? 'bg-red-100 text-red-700' :
                         'bg-blue-100 text-blue-700'
                       }`}>
                         {log.type}
@@ -172,9 +182,16 @@ export default function TransactionsPage() {
                     </td>
                     <td className="p-5">
                         <p className="font-bold text-slate-800 text-sm leading-snug">{log.details}</p>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">
-                          Coach {log.coach} • {log.toFull || log.fromFull || '-'}
+                        <p className="text-[10px] font-bold text-slate-400 uppercase mt-1 italic">
+                          {log.fromFull} ➔ {log.toFull} • Submitted by {log.coach}
                         </p>
+                    </td>
+                    <td className="p-5">
+                      <span className={`px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest ${
+                        log.status === 'PENDING' ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-green-50 text-green-700 border border-green-100'
+                      }`}>
+                        {log.status || 'SUCCESS'}
+                      </span>
                     </td>
                     <td className="p-5 text-center">
                       <span className="font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-lg text-xs">
