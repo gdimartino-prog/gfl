@@ -67,6 +67,20 @@ export default function FreeAgentPanel({
 
   async function handleAdd() {
     if (!selectedIdentity) return;
+
+    // --- DATA VALIDATION BLOCK ---
+    let weekBackVal = '';
+    if (isInjuryMode) {
+      const wk = parseInt(weekOccurred);
+      const dur = parseInt(duration);
+
+      // Validation: Ensure we have actual numbers and an injured player selected
+      if (!injuredIdentity || isNaN(wk) || isNaN(dur)) {
+        alert("⚠️ Please provide a valid Week, Duration, and Injured Player.");
+        return;
+      }
+    }
+
     setLoading(true);
 
     // FIX: Resolve the full team name (e.g., "Vico") from shortcode "VV"
