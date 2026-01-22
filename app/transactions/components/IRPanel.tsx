@@ -16,54 +16,47 @@ export default function IRPanel({
   const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // 1. Helper to parse team codes from "Team Name (CODE)" format
-  const resolveCode = (teamString: string) => {
-    if (!teamString) return "";
-    const match = teamString.match(/\(([^)]+)\)/);
-    return (match ? match[1] : teamString).trim().toUpperCase();
-  };
-
-  // 2. Compute the clean active team code (e.g., "VV")
-  const activeCode = useMemo(() => resolveCode(team), [team]);
-
   const loadData = useCallback(async () => {
-    if (!activeCode) return;
+    if (!team) return;
     try {
+      const timestamp = Date.now();
+      // 1. Force both fetches to bypass cache using no-store and a timestamp
       const [playerRes, teamRes] = await Promise.all([
-        fetch('/api/players'),
-        fetch('/api/teams')
+        fetch(`/api/players?t=${timestamp}`, { cache: 'no-store' }),
+        fetch(`/api/teams?t=${timestamp}`, { cache: 'no-store' })
       ]);
       
+      // 2. Safety check: prevent crashes if server returns HTML error pages
+      if (!playerRes.ok || !teamRes.ok) {
+        throw new Error("Failed to load fresh IR roster data.");
+      }
+
       const playerData = await playerRes.json();
       const teamData = await teamRes.json();
       
-      // Filter for players belonging to this specific team
+      // 3. Filter for active roster only (not already on IR)
       const players = Array.isArray(playerData) 
-        ? playerData.filter((p: any) => resolveCode(p.team) === activeCode) 
+        ? playerData.filter((p: any) => p.team === team) 
         : [];
-        
+          
       setRoster(players);
       setTeamMetadata(teamData); 
     } catch (err) {
       console.error("Failed to load IR data:", err);
     }
-  }, [activeCode]);
+  }, [team]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
   async function handleIR() {
     if (!selectedIdentity || !team) return;
 
-    // 1. Resolve Player Details for readable Description
     const p = roster.find(player => player.identity === selectedIdentity);
     const pos = (p?.position || p?.pos || "").toUpperCase();
     const cleanName = p ? `${p.first || ''} ${p.last || p.name || ''}`.trim() : selectedIdentity;
     const fullDescription = `${pos ? `${pos} - ` : ""}${cleanName}`;
 
-    // 2. Resolve the FULL TEAM NAME (e.g., "Vico") from the shortcode "VV"
-    const entry = teamMetadata.find(t => 
-      t.short?.toString().trim().toUpperCase() === activeCode
-    );
+    const entry = teamMetadata.find(t => t.short === team);
     const fullTeamName = entry ? entry.name : team; 
 
     const confirmMove = confirm(`Move ${fullDescription} to IR?`);
@@ -75,8 +68,8 @@ export default function IRPanel({
       const payload = {
         type: 'IR MOVE',
         identity: selectedIdentity,
-        fromTeam: fullTeamName,      // FIX: Sends "Vico" instead of "VV"
-        toTeam: 'IR',                // Destination
+        fromTeam: fullTeamName,
+        toTeam: 'IR',                
         coach,                       
         details: `Placed on IR: ${fullDescription}`,
         status: 'PENDING' 
@@ -89,13 +82,15 @@ export default function IRPanel({
       });
 
       if (res.ok) {
+        // RESET selection and REFETCH data
         setSelectedIdentity('');
         await loadData();
+        
         if (onComplete) onComplete();
         alert(`Successfully moved ${fullDescription} to IR`);
       }
     } catch (err) {
-      alert('Error saving transaction');
+      alert('Error saving IR transaction');
     } finally {
       setLoading(false);
     }
@@ -112,7 +107,7 @@ export default function IRPanel({
   return (
     <div className="space-y-4 border p-4 rounded-xl bg-white shadow-sm border-amber-200 text-left text-black">
       <div className="flex justify-between items-center">
-        <h3 className="font-bold text-lg uppercase text-amber-600 italic tracking-tight italic">IR Player</h3>
+        <h3 className="font-bold text-lg uppercase text-amber-600 italic tracking-tight">IR Player</h3>
         <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded font-bold uppercase tracking-widest italic">Injured Reserve Move</span>
       </div>
 
@@ -136,10 +131,6 @@ export default function IRPanel({
       >
         {loading ? 'Processing IR Move...' : 'Confirm IR Move'}
       </button>
-
-      <p className="text-[10px] text-gray-400 italic leading-none mt-2">
-        * Moves player from active roster to the Injured Reserve status.
-      </p>
     </div>
   );
 }

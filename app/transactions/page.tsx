@@ -15,24 +15,25 @@ export default function TransactionsPage() {
   
   const [teams, setTeams] = useState<any[]>([]);
   const [coach, setCoach] = useState('');
-  const [logs, setLogs] = useState<any[]>([]); // Initialized as array
+  const [logs, setLogs] = useState<any[]>([]); 
   const [loadingLogs, setLoadingLogs] = useState(true);
   const [filterTeam, setFilterTeam] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
+  // 1. Load initial team data for name/coach resolution
   useEffect(() => {
     fetch('/api/teams').then(res => res.json()).then(data => {
       setTeams(Array.isArray(data) ? data : []);
     });
   }, []);
 
+  // 2. Fetch the transaction history logs from Google Sheets
   const fetchLogs = useCallback(async () => {
     setLoadingLogs(true);
     try {
       const res = await fetch('/api/transactions');
       const data = await res.json();
       
-      // DEFENSIVE FIX: Ensure logs is always an array
       if (Array.isArray(data)) {
         setLogs(data);
       } else {
@@ -51,8 +52,10 @@ export default function TransactionsPage() {
     fetchLogs();
   }, [fetchLogs]);
 
+  // 3. Central Refresh Logic: Called by child components after a successful POST
   const handleTransactionComplete = async () => {
     await fetchLogs(); 
+    // Incrementing this key forces all panels to re-run their internal fetch logic
     setRefreshKey(prev => prev + 1); 
     router.refresh();  
   };
@@ -62,12 +65,11 @@ export default function TransactionsPage() {
     setCoach(teamObj ? teamObj.coach : '');
   }, [selectedTeam, teams]);
 
-  // DEFENSIVE FILTER: Prevents .filter or .map crashes if logs becomes non-array
+  // 4. History Log Filtering
   const filteredLogs = useMemo(() => {
     const safeLogs = Array.isArray(logs) ? logs : [];
     if (!filterTeam) return safeLogs;
     
-    // Updated to match the 8-column baseline mapping (fromFull/toFull)
     return safeLogs.filter(log => 
       String(log.fromFull || '').toLowerCase().includes(filterTeam.toLowerCase()) || 
       String(log.toFull || '').toLowerCase().includes(filterTeam.toLowerCase())

@@ -1,84 +1,77 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
+import { parsePlayers } from '@/lib/players';
+import { findPlayerRowIndex } from '@/lib/playerLookup';
 
 export async function POST(req: NextRequest) {
   try {
     const { overallPick, playerIdentity, playerName, playerPosition, newOwnerCode } = await req.json();
 
-    // Generate Timestamp
+    // 1. Generate Timestamp
     const timestamp = new Date().toLocaleString('en-US', {
-      timeZone: 'America/New_York', month: '2-digit', day: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      timeZone: 'America/New_York', 
+      month: '2-digit', 
+      day: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit', 
+      hour12: false
     }).replace(',', '');
 
-    // 1. Find Row in DraftPicks (Search Column C)
+    // 2. Find and Update DraftPicks Status
     const picksRes = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'DraftPicks!C:C',
     });
-    const rows = picksRes.data.values || [];
-    const rowIndex = rows.findIndex(row => row[0] === String(overallPick)) + 1;
+    const draftRows = picksRes.data.values || [];
+    const draftRowIndex = draftRows.findIndex(row => row[0] === String(overallPick)) + 1;
 
-    if (rowIndex === 0) throw new Error('Pick not found');
+    if (draftRowIndex === 0) throw new Error('Pick not found');
 
     const draftString = `${playerPosition} - ${playerName}`;
 
-    // 2. Update Status (F), Draft Pick (G), and Datetime (H)
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `DraftPicks!F${rowIndex}:H${rowIndex}`,
+      range: `DraftPicks!F${draftRowIndex}:H${draftRowIndex}`,
       valueInputOption: 'USER_ENTERED',
       requestBody: { values: [['Completed', draftString, timestamp]] },
     });
 
     // 3. Update Players Sheet (Assign team)
-    // Inside your POST function in /api/draft-selection/route.ts
+    const playersRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Players!A:CV', 
+    });
+    const allPlayerRows = playersRes.data.values || [];
 
-// 1. Fetch the Players sheet
-const playersRes = await sheets.spreadsheets.values.get({
-  spreadsheetId: SHEET_ID,
-  range: 'Players!A:I', // Ensure we get enough columns
-});
-const playerRows = playersRes.data.values || [];
+    // Parse players using your library to handle header mapping and identities
+    const parsedPlayers = parsePlayers(allPlayerRows);
 
-// 2. Parse the identity string (e.g., "John|Doe|24|QB||")
-const p = playerIdentity.toLowerCase().split('|');
+    // Match by stable identity string
+    const playerToUpdate = parsedPlayers.find(
+      (p) => p.identity.toLowerCase().trim() === playerIdentity.toLowerCase().trim()
+    );
 
-const playerRowIndex = playerRows.findIndex((r, index) => {
-  if (index === 0) return false; // Skip header row
-
-  const match = (sheetVal: any, identityVal: any) => {
-    // If identity part is empty, we consider it a match for that specific attribute
-    if (!identityVal || identityVal.trim() === '') return true;
-    return String(sheetVal || '').toLowerCase().trim() === String(identityVal).toLowerCase().trim();
-  };
-
-  return (
-    match(r[2], p[0]) && // First Name (Col C)
-    match(r[3], p[1]) && // Last Name (Col D)
-    match(r[5], p[2]) && // Age (Col F)
-    match(r[6], p[3]) && // Pos 1 (Col G)
-    match(r[7], p[4]) && // Pos 2 (Col H)
-    match(r[8], p[5])    // Pos 3 (Col I)
-  );
-}) + 1; // +1 because findIndex is 0-based and Sheets is 1-based
-
-if (playerRowIndex > 0) {
-  console.log(`Match found at row ${playerRowIndex}. Updating team to ${newOwnerCode}`);
-  
-  // 3. Update Column A (Team Owner)
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: SHEET_ID,
-    range: `Players!A${playerRowIndex}`, 
-    valueInputOption: 'USER_ENTERED',
-    requestBody: { values: [[newOwnerCode]] },
-  });
-} else {
-  console.error("No player match found for identity:", playerIdentity);
-}
+    if (playerToUpdate) {
+      const playerRowIndex = findPlayerRowIndex(allPlayerRows, playerToUpdate);
+      
+      console.log(`Match found at row ${playerRowIndex}. Updating team to ${newOwnerCode}`);
+      
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SHEET_ID,
+        range: `Players!A${playerRowIndex}`, 
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [[newOwnerCode]] },
+      });
+    } else {
+      // This is where the error was happening; the brace before this else was incorrect
+      console.error("No player match found for identity:", playerIdentity);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
+    console.error("Draft API Error:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
-import { parsePlayers } from '@/lib/players';
 
 export async function GET(
   req: NextRequest, 
@@ -10,48 +9,66 @@ export async function GET(
     const { id } = await params;
     const targetId = decodeURIComponent(id).toLowerCase().trim();
 
-    // 1. Fetch the master player list
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'Players!A:CV', 
+      range: 'Players', 
     });
 
     const rows: string[][] = response.data.values || [];
-    
-    // 2. Use the standard parser to generate identical identities
-    const parsedPlayers = parsePlayers(rows);
+    const [headerRow, ...dataRows] = rows;
 
-    // 3. Find the player using the standardized identity string
-    const matchedPlayer = parsedPlayers.find(
-      (p) => p.identity.toLowerCase().trim() === targetId
-    );
+    // 1. Safe Header Mapping
+    const headerMap = headerRow.reduce<Record<string, number>>((acc, col, idx) => {
+      if (col) {
+        // Convert to string first to prevent non-string header crashes
+        acc[col.toString().toLowerCase().trim()] = idx;
+      }
+      return acc;
+    }, {});
 
-    if (!matchedPlayer) {
+    // 2. Find the player
+    const playerRow = dataRows.find((row) => {
+      const first = (row[headerMap['first']] || '').trim();
+      const last = (row[headerMap['last']] || '').trim();
+      const age = (row[headerMap['age']] || '').trim();
+      const offense = (row[headerMap['offense']] || '').trim();
+      const defense = (row[headerMap['defense']] || '').trim();
+      const special = (row[headerMap['special']] || '').trim();
+
+      const identity = `${first}|${last}|${age}|${offense}|${defense}|${special}`.toLowerCase();
+      return identity === targetId;
+    });
+
+    if (!playerRow) {
       console.log(`❌ Mismatch: Could not find ${targetId}`);
       return NextResponse.json({ error: 'Player Not Found' }, { status: 404 });
     }
 
-    // 4. Map the data from the parsed player object
-    const s = matchedPlayer.allStats;
-
-    // Helper for safe numeric values
-    const getVal = (key: string, fallback: string = '0') => {
-      const val = s[key.toLowerCase().trim()];
-      return (val !== undefined && val !== '') ? val : fallback;
+    // 3. Safe Value Helper (Now handles strings only)
+    const getVal = (colName: string, fallback: string = '0') => {
+      const normalizedKey = colName.toString().toLowerCase().trim();
+      const idx = headerMap[normalizedKey];
+      
+      if (idx !== undefined && playerRow[idx] !== undefined && playerRow[idx] !== '') {
+        return playerRow[idx];
+      }
+      return fallback;
     };
 
+    // 4. Build JSON using HEADER NAMES, not numbers
+// 6. Build the JSON response with corrected Header Names
     return NextResponse.json({
       core: {
-        team: matchedPlayer.team,
-        first: matchedPlayer.first,
-        last: matchedPlayer.last,
-        age: matchedPlayer.age,
+        team: getVal('team', 'FA'),
+        first: getVal('first', 'Unknown'),
+        last: getVal('last', 'Player'),
+        age: getVal('age', '??'),
         pos: { 
-          off: matchedPlayer.offense, 
-          def: matchedPlayer.defense, 
-          spec: matchedPlayer.special 
+          off: getVal('offense', ''), 
+          def: getVal('defense', ''), 
+          spec: getVal('special', '') 
         },
-        uniform: getVal('uniform', '00'),
+        uniform: getVal('uniform', '00'), // Or 'number'
       },
       ratings: {
         run_block: getVal('run block'), 
@@ -59,7 +76,7 @@ export async function GET(
         run_def: getVal('run defense'), 
         pass_def: getVal('pass defense'),
         pass_rush: getVal('pass rush'), 
-        total_def: getVal('total defense'),
+        total_def: getVal('total defense'), // Matched your header!
         breakaway: getVal('breakaway'), 
         short_yard: getVal('short yardage'),
         audible: getVal('audible'), 
@@ -79,7 +96,7 @@ export async function GET(
         },
         receiving: {
           receptions: getVal('receptions'),
-          yds: getVal('receiving yards'),
+          yds: getVal('receiving yards'), // Match your header (e.g., 'rec yards' or 'receiving yards')
           td: getVal('receiving TD'),
           long: getVal('receiving long')
         },
@@ -95,7 +112,7 @@ export async function GET(
     });
 
   } catch (error: any) {
-    console.error("Scouting API Error:", error);
+    console.error("API ERROR:", error);
     return NextResponse.json({ 
       error: 'Server Error', 
       details: error.message 

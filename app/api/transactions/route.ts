@@ -38,27 +38,34 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { type, identity, toTeam, coach, details, status, weekBack, fromTeam } = body;
 
-    const res = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID, range: 'Players',
-    });
+    const [res, configRes] = await Promise.all([
+      sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'Players' }),
+      sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'Coaches!A:B' }) // Fetch for shortcode lookup
+    ]);
 
     const rows = res.data.values || [];
-    const player = parsePlayers(rows).find(p => p.identity.trim().toLowerCase() === identity.trim().toLowerCase());
+    const coachRows = configRes.data.values || [];
+    
+    // Create a map of Full Name -> Shortcode
+    const teamMap = new Map(coachRows.map(r => [String(r[0]).trim().toLowerCase(), String(r[1]).trim()]));
 
+    const player = parsePlayers(rows).find(p => p.identity.trim().toLowerCase() === identity.trim().toLowerCase());
     if (!player) return Response.json({ error: 'Player not found' }, { status: 404 });
 
     const rowIndex = findPlayerRowIndex(rows, player);
     let newTeamValue = player.team;
 
     if (type === 'ADD' || type === 'INJURY PICKUP') {
-      newTeamValue = toTeam;
+      // Resolve "Vico" to "VV" using the map
+      const lookup = toTeam.trim().toLowerCase();
+      newTeamValue = teamMap.get(lookup) || toTeam; 
     } else if (type === 'DROP' || type === 'WAIVE') {
       newTeamValue = 'FA'; 
     } else if (type === 'IR' || type === 'IR MOVE') {
+      // Keep existing shortcode but append -IR
       newTeamValue = `${player.team}-IR`;
     }
 
-    // Update the Players tab (Internal Logic)
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: `Players!A${rowIndex}`,
@@ -66,18 +73,10 @@ export async function POST(req: Request) {
       requestBody: { values: [[newTeamValue]] },
     });
 
-    // Logging to Transactions tab
-    await logTransaction({
-      ...body,
-      // Pass the shortcode so lib/transactions can resolve it to "Vico"
-      fromTeam: fromTeam || player.team, 
-      details: details,
-      status: status || 'PENDING' // Ensure default pending is sent
-    });
+    await logTransaction({ ...body, fromTeam: fromTeam || player.team, details });
 
     return Response.json({ success: true });
   } catch (err: any) {
-    console.error("POST Error:", err.message);
     return Response.json({ error: err.message }, { status: 500 });
   }
 }

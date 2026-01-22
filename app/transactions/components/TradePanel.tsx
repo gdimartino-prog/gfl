@@ -30,21 +30,37 @@ export default function TradePanel({
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // 1. Hardened Data Loading with Quota Protection
   const loadData = useCallback(async () => {
     try {
+      const timestamp = Date.now();
       const [tRes, pRes, dRes] = await Promise.all([
-        fetch('/api/teams').then(res => res.ok ? res.json() : []),
-        fetch('/api/players').then(res => res.ok ? res.json() : []),
-        fetch('/api/draft-picks').then(res => res.ok ? res.json() : [])
+        fetch(`/api/teams?t=${timestamp}`, { cache: 'no-store' }),
+        fetch(`/api/players?t=${timestamp}`, { cache: 'no-store' }),
+        fetch(`/api/draft-picks?t=${timestamp}`, { cache: 'no-store' })
       ]);
-      setTeams(Array.isArray(tRes) ? tRes : []);
-      setPlayers(Array.isArray(pRes) ? pRes : []);
-      setDraftPicks(Array.isArray(dRes) ? dRes : []);
+
+      // Safety check to prevent crashing on HTML error pages
+      if (!tRes.ok || !pRes.ok || !dRes.ok) {
+        throw new Error("One or more trade data sources failed to load.");
+      }
+
+      const [tData, pData, dData] = await Promise.all([
+        tRes.json(),
+        pRes.json(),
+        dRes.json()
+      ]);
+
+      setTeams(Array.isArray(tData) ? tData : []);
+      setPlayers(Array.isArray(pData) ? pData : []);
+      setDraftPicks(Array.isArray(dData) ? dData : []);
     } catch (err) {
       console.error("Failed to load trade data:", err);
+      setStatus('❌ Error: Could not synchronize trade assets.');
     }
   }, []);
 
+  // 2. CRITICAL: Added the missing useEffect to trigger the load
   useEffect(() => {
     loadData();
   }, [loadData]);
@@ -55,9 +71,10 @@ export default function TradePanel({
     return (match ? match[1] : teamString).trim().toUpperCase();
   };
 
-  const activeCode = resolveCode(team);
-  const partnerCode = resolveCode(toTeam);
+  const activeCode = useMemo(() => resolveCode(team), [team]);
+  const partnerCode = useMemo(() => resolveCode(toTeam), [toTeam]);
 
+  // Asset Sorting Logic
   const sortPlayers = (playerList: Player[]) => {
     return [...playerList].sort((a, b) => {
       const lastA = (a.last || "").toLowerCase();
@@ -74,27 +91,26 @@ export default function TradePanel({
     });
   };
 
+  // Memoized Asset Lists
   const fromTeamPlayers = useMemo(() => {
-    const list = Array.isArray(players) ? players.filter(p => resolveCode(p.team) === activeCode) : [];
+    const list = players.filter(p => resolveCode(p.team) === activeCode);
     return sortPlayers(list);
   }, [players, activeCode]);
 
   const toTeamPlayers = useMemo(() => {
-    const list = Array.isArray(players) ? players.filter(p => resolveCode(p.team) === partnerCode) : [];
+    const list = players.filter(p => resolveCode(p.team) === partnerCode);
     return sortPlayers(list);
   }, [players, partnerCode]);
   
   const fromTeamDraftPicks = useMemo(() => {
-    const list = Array.isArray(draftPicks) ? draftPicks.filter(p => resolveCode(p.currentOwner) === activeCode) : [];
+    const list = draftPicks.filter(p => resolveCode(p.currentOwner) === activeCode);
     return sortPicks(list);
   }, [draftPicks, activeCode]);
 
   const toTeamDraftPicks = useMemo(() => {
-    const list = Array.isArray(draftPicks) ? draftPicks.filter(p => resolveCode(p.currentOwner) === partnerCode) : [];
+    const list = draftPicks.filter(p => resolveCode(p.currentOwner) === partnerCode);
     return sortPicks(list);
   }, [draftPicks, partnerCode]);
-
-// Inside TradePanel.tsx -> handleTrade function
 
   const handleTrade = async () => {
     if (!toTeam || (fromPlayers.length === 0 && fromDraftPicks.length === 0 && toPlayers.length === 0 && toDraftPicks.length === 0)) {
@@ -114,7 +130,6 @@ export default function TradePanel({
     const fullTo = getFullName(partnerCode);
 
     try {
-      // FORMAT PLAYER LABELS
       const formattedPlayersFrom = players
         .filter(p => fromPlayers.includes(p.identity))
         .map(p => `${(p.position || "").toUpperCase()} - ${p.first} ${p.last}`);
@@ -123,7 +138,6 @@ export default function TradePanel({
         .filter(p => toPlayers.includes(p.identity))
         .map(p => `${(p.position || "").toUpperCase()} - ${p.first} ${p.last}`);
 
-      // NEW: FORMAT DRAFT PICK LABELS WITH YEAR AND ROUND
       const formattedPicksFrom = fromDraftPicks.map(id => {
         const p = draftPicks.find(pick => String(pick.overall) === String(id));
         return p ? `${p.year} Draft Pick R ${p.round}` : `Pick #${id}`;
@@ -142,13 +156,13 @@ export default function TradePanel({
           toTeam: partnerCode,
           fromFull: fullFrom,
           toFull: fullTo,
-          playersFrom: formattedPlayersFrom, // e.g., "TE - Tyler Conklin"
+          playersFrom: formattedPlayersFrom,
           playersTo: formattedPlayersTo,
-          draftPicksFrom: formattedPicksFrom, // e.g., "2026 Draft Pick R 2"
+          draftPicksFrom: formattedPicksFrom,
           draftPicksTo: formattedPicksTo,
           rawIdentitiesFrom: fromPlayers, 
           rawIdentitiesTo: toPlayers,
-          rawPicksFrom: fromDraftPicks,      // Keep raw overalls for sheet updates
+          rawPicksFrom: fromDraftPicks,
           rawPicksTo: toDraftPicks,
           submittedBy: coach,
           status: 'PENDING' 
@@ -158,8 +172,8 @@ export default function TradePanel({
       if (res.ok) {
         setStatus('✅ Trade Logged and Assets Moved.');
         setFromPlayers([]); setToPlayers([]); setFromDraftPicks([]); setToDraftPicks([]); setToTeam('');
-        await loadData();
-        if (onComplete) onComplete();
+        await loadData(); // Instant refresh of asset lists
+        if (onComplete) onComplete(); // Refresh parent logs and other panels
       } else {
         const errData = await res.json();
         setStatus(`❌ Trade failed: ${errData.error || 'Server Error'}`);
@@ -174,9 +188,7 @@ export default function TradePanel({
   return (
     <div className="space-y-4 border p-5 rounded-xl bg-white shadow-lg border-purple-100 text-left text-black">
       <div className="flex justify-between items-center border-b pb-3">
-        <div>
-          <h3 className="font-black text-xl uppercase text-purple-700 tracking-tighter italic">Trade Center</h3>
-        </div>
+        <h3 className="font-black text-xl uppercase text-purple-700 tracking-tighter italic">Trade Center</h3>
         <span className="text-[10px] bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full font-bold uppercase italic tracking-tighter">
           {activeCode} Proposing
         </span>
@@ -191,7 +203,7 @@ export default function TradePanel({
         >
           <option value="">-- Choose Partner Team --</option>
           {teams.filter(t => resolveCode(t.short) !== activeCode).map(t => (
-            <option key={t.short} value={t.short}>{t.name}</option>
+            <option key={t.short} value={t.short}>{t.name} ({t.short})</option>
           ))}
         </select>
       </div>

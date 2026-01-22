@@ -16,21 +16,26 @@ export default function DropPlayer({
   const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // 1. Consolidated Data Fetching
+  // Consolidated Data Fetching
   const fetchData = useCallback(async () => {
     if (!team) return;
     try {
+      const timestamp = Date.now();
       const [playerRes, teamRes] = await Promise.all([
-        fetch('/api/players'),
-        fetch('/api/teams')
+        fetch(`/api/players?t=${timestamp}`, { cache: 'no-store' }),
+        fetch(`/api/teams?t=${timestamp}`, { cache: 'no-store' })
       ]);
       
+      // Safety check for HTML error pages
+      if (!playerRes.ok || !teamRes.ok) {
+        throw new Error("Failed to load fresh roster data.");
+      }
+
       const playerData = await playerRes.json();
       const teamData = await teamRes.json();
       
-      // Filter players belonging to the active team
       const players = Array.isArray(playerData) 
-        ? playerData.filter((p: any) => p.teamShort === team || p.team === team) 
+        ? playerData.filter((p: any) => p.team === team) 
         : [];
         
       setRoster(players);
@@ -40,11 +45,10 @@ export default function DropPlayer({
     }
   }, [team]);
 
-  useEffect(() => {
+useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // 2. Sorting Logic for Dropdown
   const sortedRoster = useMemo(() => {
     return [...roster].sort((a, b) => {
       const lastA = (a.last || a.name || "").toLowerCase();
@@ -53,65 +57,55 @@ export default function DropPlayer({
     });
   }, [roster]);
 
-  // 3. Main Transaction Handler
   async function handleDrop() {
     if (!selectedIdentity || !team) return;
     
-    // Find player object to build a professional description
     const p = roster.find(player => player.identity === selectedIdentity);
     const pos = (p?.position || p?.pos || "").toUpperCase();
     const cleanName = p ? `${p.first || ''} ${p.last || p.name || ''}`.trim() : selectedIdentity;
     const fullDescription = `${pos ? `${pos} - ` : ""}${cleanName}`;
 
-    // Resolve team metadata for accurate logging
-    const entry = teamMetadata.find(t => 
-      t.short?.toString().trim().toUpperCase() === team.trim().toUpperCase()
-    );
-
+    // Resolve full name for the transaction log (e.g., "Vico")
+    const entry = teamMetadata.find(t => t.short === team);
     const fullTeamName = entry ? entry.name : team;   
-    const officialShort = entry ? entry.short : team; 
 
-    const confirmMove = confirm(`Are you sure you want to WAIVE ${fullDescription}? This action moves them to Free Agency.`);
+    const confirmMove = confirm(`Are you sure you want to WAIVE ${fullDescription}?`);
     if (!confirmMove) return;
 
     setLoading(true);
 
     try {
       const payload = {
-        timestamp: new Date().toLocaleString(),
-        type: 'WAIVE', // or 'IR MOVE'
+        type: 'WAIVE',
         identity: selectedIdentity,
         fromTeam: fullTeamName,     
-        toTeam: 'FA',        // Sends "FA"
-        coach,               // Becomes Column F
-        details: fullDescription, // Becomes Column C
+        toTeam: 'FA',        
+        coach,               
+        details: fullDescription,
         status: 'PENDING' 
       };
-            const res = await fetch('/api/transactions', {
+
+      const res = await fetch('/api/transactions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       if (res.ok) {
+        // RESET selection and REFETCH data to remove the player from the list
         setSelectedIdentity('');
-        
-        // Refresh local data and notify parent tab to update
         await fetchData(); 
-        if (onComplete) onComplete(); 
         
+        if (onComplete) onComplete(); 
         alert(`${fullDescription} waived successfully.`);
-      } else {
-        throw new Error("Server failed to process waive.");
       }
     } catch (err) {
-      alert('Error waiving player. Check console for details.');
+      alert('Error waiving player.');
     } finally {
       setLoading(false);
     }
   }
 
-  // 4. Render with original expanded styling
   return (
     <div className="space-y-4 border p-5 rounded-xl bg-white shadow-lg border-red-100 text-left">
       <div className="flex justify-between items-center border-b pb-3">
@@ -140,20 +134,10 @@ export default function DropPlayer({
       <button
         onClick={handleDrop}
         disabled={loading || !selectedIdentity}
-        className={`w-full p-4 rounded-xl font-black uppercase tracking-widest text-white transition-all shadow-md ${
-          loading || !selectedIdentity 
-            ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none' 
-            : 'bg-red-600 hover:bg-red-700 active:scale-95'
-        }`}
+        className="w-full p-4 rounded-xl font-black uppercase tracking-widest text-white bg-red-600 hover:bg-red-700 disabled:bg-gray-200 shadow-md transition-all active:scale-95"
       >
         {loading ? 'Processing...' : 'Confirm Waive'}
       </button>
-      
-      <div className="p-3 bg-red-50/50 rounded-lg border border-red-100">
-        <p className="text-[10px] text-red-700 leading-tight">
-          <span className="font-bold uppercase">Note:</span> Waived players are moved to the Free Agent pool immediately. This action cannot be undone.
-        </p>
-      </div>
     </div>
   );
 }

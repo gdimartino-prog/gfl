@@ -107,7 +107,7 @@ useEffect(() => {
         
         // Convert Rules Array to Config Object with safety fallbacks
         const newCfg: any = { 
-          protected: 33, // Defaulting to 33 as your new standard
+          protected: 30, // Defaulting to 30 as your new standard
           pullback: 8, 
           cuts_year: '', 
           draft_year: '', 

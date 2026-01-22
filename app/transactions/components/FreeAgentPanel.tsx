@@ -13,7 +13,7 @@ export default function FreeAgentPanel({
 }) {
   const [freeAgents, setFreeAgents] = useState<any[]>([]);
   const [myRoster, setMyRoster] = useState<any[]>([]);
-  const [teamMetadata, setTeamMetadata] = useState<any[]>([]); // Added for name resolution
+  const [teamMetadata, setTeamMetadata] = useState<any[]>([]); 
   const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
   const [isInjuryMode, setIsInjuryMode] = useState(false);
@@ -21,6 +21,7 @@ export default function FreeAgentPanel({
   const [weekOccurred, setWeekOccurred] = useState('');
   const [duration, setDuration] = useState('');
 
+  // Helper to extract VV from "Vico (VV)" if needed
   const resolveCode = (teamString: string) => {
     if (!teamString) return "";
     const match = teamString.match(/\(([^)]+)\)/);
@@ -31,24 +32,43 @@ export default function FreeAgentPanel({
 
   const loadData = useCallback(async () => {
     try {
+      // Use no-store and a timestamp to ensure the browser doesn't serve stale data
+      const timestamp = Date.now();
       const [faRes, playersRes, teamsRes] = await Promise.all([
-        fetch('/api/free-agents').then(res => res.json()),
-        fetch('/api/players').then(res => res.json()),
-        fetch('/api/teams').then(res => res.json()) // Fetch teams metadata
+        fetch(`/api/free-agents?t=${timestamp}`, { cache: 'no-store' }),
+        fetch(`/api/players?t=${timestamp}`, { cache: 'no-store' }),
+        fetch(`/api/teams?t=${timestamp}`, { cache: 'no-store' })
       ]);
-      setFreeAgents(Array.isArray(faRes) ? faRes : []);
-      setTeamMetadata(Array.isArray(teamsRes) ? teamsRes : []);
+
+      // Validate that the server returned JSON and not an HTML error page
+      if (!faRes.ok || !playersRes.ok || !teamsRes.ok) {
+        throw new Error("Failed to fetch fresh data from one or more APIs.");
+      }
+
+      const [faData, playersData, teamsData] = await Promise.all([
+        faRes.json(),
+        playersRes.json(),
+        teamsRes.json()
+      ]);
+
+      setFreeAgents(Array.isArray(faData) ? faData : []);
+      setTeamMetadata(Array.isArray(teamsData) ? teamsData : []);
       
       if (activeCode) {
-        const filtered = Array.isArray(playersRes) 
-          ? playersRes.filter((p: any) => resolveCode(p.team) === activeCode) 
+        // Filter roster based on the shortcode (e.g., 'VV')
+        const filtered = Array.isArray(playersData) 
+          ? playersData.filter((p: any) => resolveCode(p.team) === activeCode) 
           : [];
         setMyRoster(filtered);
       }
-    } catch (err) { console.error("Failed to load FA data:", err); }
+    } catch (err) { 
+      console.error("Failed to load FA data:", err); 
+    }
   }, [activeCode]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  useEffect(() => { 
+    loadData(); 
+  }, [loadData]);
 
   const logPreview = useMemo(() => {
     if (!selectedIdentity) return "";
@@ -68,13 +88,9 @@ export default function FreeAgentPanel({
   async function handleAdd() {
     if (!selectedIdentity) return;
 
-    // --- DATA VALIDATION BLOCK ---
-    let weekBackVal = '';
     if (isInjuryMode) {
       const wk = parseInt(weekOccurred);
       const dur = parseInt(duration);
-
-      // Validation: Ensure we have actual numbers and an injured player selected
       if (!injuredIdentity || isNaN(wk) || isNaN(dur)) {
         alert("⚠️ Please provide a valid Week, Duration, and Injured Player.");
         return;
@@ -83,19 +99,18 @@ export default function FreeAgentPanel({
 
     setLoading(true);
 
-    // FIX: Resolve the full team name (e.g., "Vico") from shortcode "VV"
+    // Find full team name (e.g., "Vico") for the transaction log
     const entry = teamMetadata.find(t => 
       t.short?.toString().trim().toUpperCase() === activeCode
     );
     const fullTeamName = entry ? entry.name : team;
-
     const weekBack = (Number(weekOccurred) || 0) + (Number(duration) || 0);
 
     const payload = {
       type: isInjuryMode ? 'INJURY PICKUP' : 'ADD',
       identity: selectedIdentity,
       fromTeam: 'FA',
-      toTeam: fullTeamName, // Sends "Vico" instead of "VV"
+      toTeam: fullTeamName, 
       coach,
       details: logPreview,
       weekBack: isInjuryMode ? String(weekBack) : '',
@@ -110,12 +125,26 @@ export default function FreeAgentPanel({
       });
 
       if (res.ok) {
-        setSelectedIdentity(''); setInjuredIdentity(''); setIsInjuryMode(false);
+        // Clear local state immediately
+        setSelectedIdentity(''); 
+        setInjuredIdentity(''); 
+        setIsInjuryMode(false);
+        
+        // Await the local data refresh so the player is removed from the dropdown
         await loadData();
+        
+        // Notify parent to refresh other components (Drop, IR, Trade)
         if (onComplete) onComplete();
+        
         alert('Transaction Successful');
+      } else {
+        throw new Error("Transaction failed on server");
       }
-    } catch (err) { alert('Error processing pickup'); } finally { setLoading(false); }
+    } catch (err) { 
+      alert('Error processing pickup'); 
+    } finally { 
+      setLoading(false); 
+    }
   }
 
   return (
@@ -123,30 +152,60 @@ export default function FreeAgentPanel({
       <div className="flex justify-between items-center border-b pb-3">
         <h3 className="font-black text-xl uppercase text-blue-700 italic">FA Pickup</h3>
         <label className="flex items-center gap-2 text-[10px] font-black text-amber-600 cursor-pointer uppercase">
-          <input type="checkbox" checked={isInjuryMode} onChange={(e) => setIsInjuryMode(e.target.checked)} />
+          <input 
+            type="checkbox" 
+            checked={isInjuryMode} 
+            onChange={(e) => setIsInjuryMode(e.target.checked)} 
+          />
           Injury Replacement?
         </label>
       </div>
 
       <div className="space-y-1">
         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Available Players</label>
-        <select value={selectedIdentity} onChange={e => setSelectedIdentity(e.target.value)} className="border p-3 w-full rounded text-black font-medium">
+        <select 
+          value={selectedIdentity} 
+          onChange={e => setSelectedIdentity(e.target.value)} 
+          className="border-2 border-gray-50 p-3 w-full rounded-lg text-black font-medium focus:border-blue-400 outline-none transition-colors"
+        >
           <option value="">-- Choose Player --</option>
-          {freeAgents.sort((a,b)=> a.last.localeCompare(b.last)).map((p, i) => (
-            <option key={i} value={p.identity}>{p.last}, {p.first} ({p.position})</option>
+          {freeAgents.sort((a,b)=> (a.last || "").localeCompare(b.last || "")).map((p, i) => (
+            <option key={i} value={p.identity}>
+              {p.last}, {p.first} ({(p.position || p.pos || "??").toUpperCase()})
+            </option>
           ))}
         </select>
       </div>
 
       {isInjuryMode && (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3">
-          <select value={injuredIdentity} onChange={e => setInjuredIdentity(e.target.value)} className="w-full p-2 border rounded text-black font-medium">
+        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3 animate-in fade-in zoom-in duration-200">
+          <select 
+            value={injuredIdentity} 
+            onChange={e => setInjuredIdentity(e.target.value)} 
+            className="w-full p-2 border rounded text-black font-medium"
+          >
             <option value="">-- Select Injured Player --</option>
-            {myRoster.map((p, i) => <option key={i} value={p.identity}>{p.last}, {p.first} ({p.position})</option>)}
+            {myRoster.map((p, i) => (
+              <option key={i} value={p.identity}>
+                {p.last}, {p.first} ({(p.position || p.pos || "??").toUpperCase()})
+              </option>
+            ))}
           </select>
           <div className="flex gap-2">
-            <input type="number" placeholder="Wk" value={weekOccurred} onChange={e => setWeekOccurred(e.target.value)} className="w-1/2 p-2 border rounded text-black" />
-            <input type="number" placeholder="Duration" value={duration} onChange={e => setDuration(e.target.value)} className="w-1/2 p-2 border rounded text-black" />
+            <input 
+              type="number" 
+              placeholder="Wk" 
+              value={weekOccurred} 
+              onChange={e => setWeekOccurred(e.target.value)} 
+              className="w-1/2 p-2 border rounded text-black outline-none focus:border-amber-400" 
+            />
+            <input 
+              type="number" 
+              placeholder="Duration" 
+              value={duration} 
+              onChange={e => setDuration(e.target.value)} 
+              className="w-1/2 p-2 border rounded text-black outline-none focus:border-amber-400" 
+            />
           </div>
         </div>
       )}
@@ -157,7 +216,11 @@ export default function FreeAgentPanel({
         </div>
       )}
 
-      <button onClick={handleAdd} disabled={loading || !selectedIdentity} className="w-full p-4 bg-blue-600 text-white rounded-xl font-black uppercase tracking-widest disabled:bg-gray-200">
+      <button 
+        onClick={handleAdd} 
+        disabled={loading || !selectedIdentity} 
+        className="w-full p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black uppercase tracking-widest disabled:bg-gray-200 transition-all active:scale-95 shadow-md"
+      >
         {loading ? 'Processing...' : 'Submit Pickup'}
       </button>
     </div>

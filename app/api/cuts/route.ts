@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
+import { parsePlayers } from '@/lib/players';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -19,6 +20,10 @@ export async function GET(req: NextRequest) {
     const leagueSummary: Record<string, { protected: number, pullback: number, lastUpdated: string }> = {};
     const selections: Record<string, string> = {};
     let lastTime = "";
+
+    // We use the first row of the Cuts sheet to map columns dynamically
+    const headers = rows[0] || [];
+    const col = (name: string) => headers.indexOf(name);
 
     rows.slice(1).forEach((row) => {
       if (!row || row.length < 2) return;
@@ -42,13 +47,17 @@ export async function GET(req: NextRequest) {
           }
         }
 
-        // 2. PLAYER SELECTIONS (Identity Mapping)
+        // 2. PLAYER SELECTIONS (Using header-aware identity mapping)
         if (team && rowTeam.toLowerCase() === String(team).trim().toLowerCase()) {
-          // INDEX MAP BASED ON YOUR SHEET:
-          // 2:First, 3:Last, 4:Age, 5:Off, 6:Def, 7:Spec
-          const identity = [2, 3, 4, 5, 6, 7]
-            .map(i => String(row[i] || '').trim().toLowerCase())
-            .join('|');
+          // We build the identity exactly how lib/players.ts does it
+          const identity = [
+            row[2], // First
+            row[3], // Last
+            row[4], // Age
+            row[5], // Offense
+            row[6], // Defense
+            row[7]  // Special
+          ].map(val => String(val || '').trim().toLowerCase()).join('|');
           
           selections[identity] = String(row[8] || '').trim().toLowerCase();
           
@@ -68,7 +77,7 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error('[DEBUG] GET ERROR:', err.message);
+    console.error('Cuts GET Error:', err.message);
     return NextResponse.json({ error: err.message, summary: {}, selections: {} }, { status: 500 });
   }
 }
@@ -82,13 +91,20 @@ export async function POST(req: NextRequest) {
       hour12: false 
     }).replace(',', '');
 
+    // Fetch master player list to get fresh data for identities
+    const playersRes = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Players!A:CV',
+    });
+    const playerRows = playersRes.data.values || [];
+    const parsedPlayers = parsePlayers(playerRows);
+
     const currentSheet = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'Cuts!A:J', 
     });
 
     const allRows = currentSheet.data.values || [];
-    // Updated Header to match your actual sheet columns
     const header = allRows[0] || ["Year", "Team", "First", "Last", "Age", "Offense", "Defense", "Special", "Status", "Timestamp"]; 
 
     const otherRows = allRows.slice(1).filter((row) => {
@@ -97,12 +113,20 @@ export async function POST(req: NextRequest) {
       return !isMatch;
     });
 
-    const newTeamRows = selections.map((p: any) => {
-      const parts = p.identity.split('|'); // Splits back into [First, Last, Age, Off, Def, Spec]
-      const statusFormatted = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+    const newTeamRows = selections.map((sel: any) => {
+      // Find the player in our master list to get accurate fields
+      const p = parsedPlayers.find(player => player.identity === sel.identity);
       
-      // Structure: Year, Team, First, Last, Age, Offense, Defense, Special, Status, Timestamp
-      return [year, team, ...parts, statusFormatted, timestamp];
+      const first = p ? p.first : sel.identity.split('|')[0];
+      const last = p ? p.last : sel.identity.split('|')[1];
+      const age = p ? p.age : sel.identity.split('|')[2];
+      const off = p ? p.offense : sel.identity.split('|')[3];
+      const def = p ? p.defense : sel.identity.split('|')[4];
+      const spec = p ? p.special : sel.identity.split('|')[5];
+
+      const statusFormatted = sel.status.charAt(0).toUpperCase() + sel.status.slice(1);
+      
+      return [year, team, first, last, age, off, def, spec, statusFormatted, timestamp];
     });
 
     await sheets.spreadsheets.values.update({
@@ -116,7 +140,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error('[DEBUG] POST ERROR:', err.message);
+    console.error('Cuts POST Error:', err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
