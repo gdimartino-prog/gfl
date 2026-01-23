@@ -29,22 +29,23 @@ export type Player = {
 export function buildPlayerIdentity(player: any): string {
   const clean = (val: any) => {
     if (val === null || val === undefined) return '';
-    const s = String(val).trim().toLowerCase();
-    // Action PC data often uses '0' or blank for empty positions
+    // Preserve internal spaces to keep "austin iii" as one segment
+    const s = String(val).trim().toLowerCase().replace(/\s+/g, ' ');
     return (s === '0' || s === 'null' || s === '') ? '' : s;
   };
 
-  return [
-    clean(player.first),
-    clean(player.last),
-    clean(player.age),
-    clean(player.offense),
-    clean(player.defense),
-    clean(player.special),
-  ]
-    .join('|')
-    .toLowerCase();
+  const fields = [
+    clean(player.first),    // 1. calvin
+    clean(player.last),     // 2. austin iii
+    clean(player.age),      // 3. 25
+    clean(player.offense),  // 4. wr
+    clean(player.defense),  // 5. (empty)
+    clean(player.special),  // 6. pr
+  ];
+
+  return fields.join('|');
 }
+
 
 /**
  * Parse players from the Google Sheet "Players" tab using header mapping.
@@ -63,19 +64,20 @@ export function parsePlayers(rows: string[][]): Player[] {
       // Helper to fetch value by header name regardless of column position
       const val = (name: string) => {
         const idx = colIndex(name);
+        // We use .trim() but DO NOT split the string to preserve "Austin III"
         return (idx !== -1 && row[idx]) ? row[idx].trim() : '';
       };
 
       const team = val('team');
       const first = val('first');
-      const last = val('last');
+      const last = val('last'); // Correctly grabs "Austin III"
 
       // Skip rows that don't have a team AND a name
       if (!team && !first) return null;
 
       const off = val('offense');
       const def = val('defense');
-      const spec = val('special');
+      const spec = val('special'); // Correctly grabs "pr" for Calvin Austin III
 
       // Standardize data for identity building
       const identityData = {
@@ -95,7 +97,7 @@ export function parsePlayers(rows: string[][]): Player[] {
         offense: off,
         defense: def,
         special: spec,
-        // Position display skips '0' or empty values
+        // Position display logic
         position: [off, def, spec].filter(v => v && v !== '0').join('/'),
         isIR: team.toUpperCase().includes('-IR'),
         
@@ -108,12 +110,18 @@ export function parsePlayers(rows: string[][]): Player[] {
         dur: val('durability'),
         overall: val('overall'),
         
-        // Dictionary of every single column for deep scouting
+        // Dictionary for deep scouting
         allStats: Object.fromEntries(headers.map((h, i) => [h, row[i] || ''])),
         
-        // Build the stabilized identity string
+        // Build the stabilized 6-field identity string
         identity: buildPlayerIdentity(identityData)
       };
+
+//if (last.toLowerCase().includes('iii') || last.toLowerCase().includes('jr')) {
+//      console.log("DEBUG RAW DATA:", { first, last, row_raw: row });
+//      console.log("DEBUG PLAYER:", { first, last, identity: player.identity });
+//    }
+    
 
       return player;
     } catch (err) {

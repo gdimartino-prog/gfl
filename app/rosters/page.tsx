@@ -141,23 +141,29 @@ export default function RosterPage() {
   }, [data?.roster, rules]);
 
   const fetchPlayerDetails = async (p: any) => {
-    const firstName = p.name.split(' ')[0].toLowerCase();
-    const lastName = p.name.split(' ').pop().toLowerCase();
-    const clean = (val: string) => val ? val.split(/[\/,]/)[0].trim().toLowerCase() : '';
-
-    const identity = `${firstName}|${lastName}|${p.age || ''}|${clean(p.offensePos)}|${clean(p.defensePos)}|${clean(p.specialPos)}`;
-    
-    try {
-      const r = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
-      if (r.ok) {
-        setViewingPlayer(await r.json()); 
-      } else {
-        alert(`Scouting 404: No match for [${identity}]`);
+      // 1. Use the identity provided by the API
+      const identity = p.identity; 
+      
+      // 2. Fallback check if the API still isn't sending the identity
+      if (!identity) {
+        alert(`⚠️ Error: Missing identity for ${p.name}. Check API output.`);
+        return;
       }
-    } catch (e) {
-      console.error("API ERROR:", e);
-    }
-  };
+
+      try {
+        const r = await fetch(`/api/players/details/${encodeURIComponent(identity)}`);
+        if (r.ok) {
+          setViewingPlayer(await r.json()); 
+        } else {
+          // Updated alert to show the identity value as requested
+          alert(`Scouting 404: No match for identity: [${identity}]`);
+        }
+      } catch (e) {
+        console.error("API ERROR:", e);
+        alert(`Network Error fetching details for: ${identity}`);
+      }
+    };
+
 
   const recentForm = useMemo(() => {
     if (!data?.schedule || !data?.stats?.currentYear || !selectedTeam) return [];
