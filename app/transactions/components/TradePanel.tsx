@@ -140,12 +140,12 @@ export default function TradePanel({
 
       const formattedPicksFrom = fromDraftPicks.map(id => {
         const p = draftPicks.find(pick => String(pick.overall) === String(id));
-        return p ? `${p.year} Draft Pick R ${p.round}` : `Pick #${id}`;
+        return p ? `${p.year} Draft Pick Rd ${p.round} (#${p.overall})` : `Pick #${id}`;
       });
 
       const formattedPicksTo = toDraftPicks.map(id => {
         const p = draftPicks.find(pick => String(pick.overall) === String(id));
-        return p ? `${p.year} Draft Pick R ${p.round}` : `Pick #${id}`;
+        return p ? `${p.year} Draft Pick Rd ${p.round} (#${p.overall})` : `Pick #${id}`;
       });
 
       const res = await fetch('/api/trades', {
