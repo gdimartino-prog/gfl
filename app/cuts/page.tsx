@@ -5,6 +5,17 @@ import PlayerCard from '@/components/PlayerCard';
 import TeamSelector from '@/components/TeamSelector'; 
 import { useTeam } from '@/context/TeamContext'; 
 import { useSession } from "next-auth/react";
+import { 
+  ShieldAlert, 
+  Clock, 
+  Save, 
+  Search, 
+  UserCheck, 
+  Zap, 
+  Scissors, 
+  RotateCw, 
+  ChevronRight 
+} from 'lucide-react';
 
 interface GroupStats {
   avgAge: string | number;
@@ -43,7 +54,7 @@ function CountdownTimer({ dueDate }: { dueDate: string }) {
       const now = new Date().getTime();
       const distance = target - now;
       if (distance < 0) {
-        setTimeLeft("SUBMISSIONS CLOSED");
+        setTimeLeft("EXPIRED");
         setIsPast(true);
         clearInterval(interval);
         return;
@@ -51,17 +62,18 @@ function CountdownTimer({ dueDate }: { dueDate: string }) {
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
       const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60));
       const minutes = Math.floor((distance % (1000 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-      setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      setTimeLeft(`${days}D ${hours}H ${minutes}M`);
     }, 1000);
     return () => clearInterval(interval);
   }, [dueDate]);
 
   return (
     <div className="flex flex-col items-end">
-      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Deadline Countdown</span>
-      <span className={`text-xl font-black tabular-nums tracking-tighter ${isPast ? 'text-red-500' : 'text-amber-500'}`}>
-        {timeLeft || "INITIALIZING..."}
+      <div className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">
+        <Clock size={12} /> Deadline
+      </div>
+      <span className={`text-2xl font-black tabular-nums tracking-tighter italic ${isPast ? 'text-red-500' : 'text-amber-500'}`}>
+        {timeLeft || "SYNCING..."}
       </span>
     </div>
   );
@@ -87,44 +99,28 @@ export default function CutsPage() {
   const hasSynced = useRef(false);
   const rosterHeaderRef = useRef<HTMLDivElement>(null);
 
-  // AUTH LOGIC
   const isCommissioner = (session?.user as any)?.role === "admin";
   const userTeamId = (session?.user as any)?.id; 
   const canEdit = isCommissioner || (selectedTeam === userTeamId);
 
   const isExpired = useMemo(() => {
-    if (!config.cuts_due_date) return false;
+    if (!config?.cuts_due_date) return false;
     return new Date().getTime() > new Date(config.cuts_due_date).getTime();
-  }, [config.cuts_due_date]);
+  }, [config?.cuts_due_date]);
 
-  const getTS = () => `ts=${new Date().getTime()}`;
-
-  // SESSION SYNC: Forces coach's team on login
   useEffect(() => {
     if (status === "authenticated" && userTeamId && !hasSynced.current) {
       setSelectedTeam(userTeamId);
       hasSynced.current = true;
     }
-    if (status === "unauthenticated") {
-      hasSynced.current = false;
-    }
   }, [status, userTeamId, setSelectedTeam]);
 
-  const handleTeamSelect = (teamShort: string) => {
-    setSelectedTeam(teamShort);
-    setTimeout(() => {
-      rosterHeaderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-  };
-
-  // INITIAL LOAD
   useEffect(() => {
     async function init() {
       try {
         setLoading(true);
-        const rulesRes = await fetch(`/api/rules?${getTS()}`, { cache: 'no-store' });
+        const rulesRes = await fetch(`/api/rules?ts=${Date.now()}`, { cache: 'no-store' });
         const rulesArr = await rulesRes.json();
-        
         const newCfg: any = { protected: 30, pullback: 8, cuts_year: '', draft_year: '', cuts_due_date: '' }; 
 
         if (Array.isArray(rulesArr)) {
@@ -137,36 +133,29 @@ export default function CutsPage() {
         setConfig(newCfg);
 
         const [tRes, sRes] = await Promise.all([
-          fetch(`/api/teams?${getTS()}`, { cache: 'no-store' }).then(r => r.json()),
-          fetch(`/api/cuts?year=${newCfg.cuts_year || newCfg.draft_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json())
+          fetch(`/api/teams?ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
+          fetch(`/api/cuts?year=${newCfg.cuts_year || newCfg.draft_year}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json())
         ]);
         setTeams(tRes);
         setSummary(sRes.summary || {});
-      } catch (e) {
-        console.error("Initialization error:", e);
-      } finally {
-        setLoading(false);
-      }
+      } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     init();
   }, []);
 
-  // TEAM SPECIFIC DATA LOAD
   useEffect(() => {
-    if (!selectedTeam || !config.cuts_year) return;
+    if (!selectedTeam || !config?.cuts_year) return;
     async function loadTeam() {
       setRosterLoading(true);
       try {
         const [pRes, cRes] = await Promise.all([
-          fetch(`/api/players?team=${selectedTeam}&${getTS()}`, { cache: 'no-store' }).then(r => r.json()),
-          fetch(`/api/cuts?team=${selectedTeam}&year=${config.cuts_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json())
+          fetch(`/api/players?team=${selectedTeam}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
+          fetch(`/api/cuts?team=${selectedTeam}&year=${config.cuts_year}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json())
         ]);
 
         const processedRoster = pRes.map((p: any) => ({
           ...p,
-          identity: [p.first, p.last, p.age, p.offense, p.defense, p.special]
-            .map(val => String(val || '').trim().toLowerCase())
-            .join('|')
+          identity: [p.first, p.last, p.age, p.offense, p.defense, p.special].map(v => String(v || '').trim().toLowerCase()).join('|')
         }));
 
         const currentRosterIdentities = new Set(processedRoster.map((p: any) => p.identity));
@@ -174,26 +163,17 @@ export default function CutsPage() {
           .filter(([id, status]) => status !== 'cut' && !currentRosterIdentities.has(id))
           .map(([id, status]) => {
             const parts = id.split('|');
-            return {
-              id,
-              status: String(status),
-              name: `${parts[0]} ${parts[1]}`.toUpperCase()
-            };
+            return { id, status: String(status), name: `${parts[0]} ${parts[1]}`.toUpperCase() };
           });
 
         setOrphanedPlayers(orphaned);
         setRoster(processedRoster.sort((a: any, b: any) => (a.last || '').localeCompare(b.last || '')));
         setSelections(cRes.selections || {});
-      } catch (e) {
-        console.error("Load team error:", e);
-      } finally {
-        setRosterLoading(false);
-      }
+      } catch (e) { console.error(e); } finally { setRosterLoading(false); }
     }
     loadTeam();
-  }, [selectedTeam, config.cuts_year]);
+  }, [selectedTeam, config?.cuts_year]);
 
-  // STATS CALCULATION
   const stats = useMemo(() => {
     const getStats = (type: string): GroupStats => {
       const rosterList = roster.filter(p => (selections[p.identity] || 'cut') === type);
@@ -217,14 +197,8 @@ export default function CutsPage() {
     };
   }, [roster, selections, orphanedPlayers]);
 
-  const filteredRoster = roster.filter(p => 
-    `${p.first} ${p.last}`.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const handleToggle = (id: string, s: string) => {
-    if (isExpired) return alert("Deadline passed.");
-    if (!canEdit) return alert("Unauthorized.");
-    
+    if (isExpired || !canEdit) return;
     const currentStatus = selections[id] || 'cut';
     if (s !== currentStatus) {
       if (s === 'protected' && stats.protected.count >= config.protected) return alert(`Limit ${config.protected} Protected.`);
@@ -233,18 +207,8 @@ export default function CutsPage() {
     setSelections(prev => ({ ...prev, [id]: prev[id] === s ? 'cut' : s }));
   };
 
-  const fetchPlayerDetails = async (id: string) => {
-    try {
-      const r = await fetch(`/api/players/details/${id}`);
-      if (r.ok) setViewingPlayer(await r.json());
-      else alert("Could not load stats.");
-    } catch {
-      alert("Network error.");
-    }
-  };
-
   const save = async () => {
-    if (isExpired || !canEdit) return alert("Save locked.");
+    if (isExpired || !canEdit) return;
     setSaving(true);
     try {
       const combined = [
@@ -257,56 +221,62 @@ export default function CutsPage() {
         body: JSON.stringify({ team: selectedTeam, year: config.cuts_year, selections: combined })
       });
       if (res.ok) {
-        const sRes = await fetch(`/api/cuts?year=${config.cuts_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json());
+        const sRes = await fetch(`/api/cuts?year=${config.cuts_year}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json());
         setSummary(sRes.summary || {});
-        alert("Roster saved.");
+        alert("Roster changes saved to secure database.");
       }
-    } catch { alert("Save error."); } finally { setSaving(false); }
+    } catch { alert("Error saving cuts."); } finally { setSaving(false); }
+  };
+
+  const fetchPlayerDetails = async (id: string) => {
+    try {
+      const r = await fetch(`/api/players/details/${encodeURIComponent(id)}`);
+      if (r.ok) setViewingPlayer(await r.json());
+      else alert("Could not load stats.");
+    } catch { alert("Network error."); }
   };
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen bg-[#f8fafc] font-black text-slate-400 animate-pulse uppercase tracking-widest text-center px-4 text-sm">
-      Establishing Secure Link...
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 font-black text-slate-300 animate-pulse uppercase tracking-[0.3em] text-sm italic">
+      Synchronizing Compliance Database...
     </div>
   );
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10 bg-[#f8fafc] min-h-screen font-sans text-slate-900">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10 bg-gray-50 min-h-screen text-slate-900">
       
-      {/* 1. COMPLIANCE DASHBOARD */}
-      <div className="bg-[#1e293b] rounded-[2rem] p-8 shadow-2xl border border-slate-700">
-        <div className="flex justify-between items-start mb-8 text-left">
-            <h2 className="text-blue-400 text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2">
-              <span className="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
-              League Compliance Monitor — {config.cuts_year} Season
-            </h2>
-            {config.cuts_due_date && <CountdownTimer dueDate={config.cuts_due_date} />}
+      {/* COMPLIANCE MONITOR */}
+      <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-slate-800">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6 text-left">
+            <div>
+              <h2 className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-3">
+                <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]"></span>
+                League Compliance Monitor — {config?.cuts_year}
+              </h2>
+              <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2">Active Roster Verification</p>
+            </div>
+            {config?.cuts_due_date && <CountdownTimer dueDate={config.cuts_due_date} />}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {teams.map(t => {
             const s = summary[t.short] || { protected: 0, pullback: 0 };
             const isComplete = s.protected === config.protected && s.pullback === config.pullback;
             const isSelected = selectedTeam === t.short;
-            const isMyTeam = userTeamId === t.short;
-
             return (
               <div 
                 key={t.short} 
-                onClick={() => handleTeamSelect(t.short)}
-                className={`p-5 rounded-2xl border-2 transition-all duration-300 cursor-pointer active:scale-95 group text-left ${
-                  isSelected ? 'bg-blue-600/20 border-blue-500 shadow-lg' : 
-                  isComplete ? 'bg-emerald-500/10 border-emerald-500/40 hover:border-emerald-500' : 'bg-slate-800/40 border-slate-700 hover:border-slate-50'
+                onClick={() => { setSelectedTeam(t.short); rosterHeaderRef.current?.scrollIntoView({ behavior: 'smooth' }); }}
+                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer group text-left ${
+                  isSelected ? 'bg-blue-600/20 border-blue-500' : 
+                  isComplete ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-800/40 border-slate-800 hover:border-slate-700'
                 }`}
               >
-                <div className="flex justify-between items-start mb-3">
-                   <p className={`text-[12px] font-black uppercase truncate ${isSelected ? 'text-blue-400' : isComplete ? 'text-emerald-400' : 'text-slate-200 group-hover:text-white'}`}>
-                    {t.name}
-                  </p>
-                  {isMyTeam && <span className="text-[8px] font-black text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded">HOME</span>}
-                </div>
-                <div className="space-y-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                  <div className="flex justify-between"><span>Protected</span><span className={isComplete ? 'text-emerald-300' : 'text-white'}>{s.protected}/{config.protected}</span></div>
-                  <div className="flex justify-between"><span>Pullback</span><span className={isComplete ? 'text-emerald-300' : 'text-white'}>{s.pullback}/{config.pullback}</span></div>
+                <p className={`text-[10px] font-black uppercase truncate mb-3 ${isSelected ? 'text-blue-400' : isComplete ? 'text-emerald-400' : 'text-slate-500'}`}>
+                  {t.name}
+                </p>
+                <div className="space-y-1 text-[9px] font-black text-slate-600 uppercase">
+                  <div className="flex justify-between"><span>PROT</span><span className={isComplete ? 'text-emerald-400' : 'text-slate-300'}>{s.protected}</span></div>
+                  <div className="flex justify-between"><span>PULL</span><span className={isComplete ? 'text-emerald-400' : 'text-slate-300'}>{s.pullback}</span></div>
                 </div>
               </div>
             );
@@ -314,17 +284,16 @@ export default function CutsPage() {
         </div>
       </div>
 
-      {/* STANDARDIZED HEADER SECTION */}
-      <div ref={rosterHeaderRef} className="flex flex-col md:flex-row justify-between items-center gap-6 pt-4 scroll-mt-10 border-b border-slate-200 pb-8 text-left">
+      {/* HEADER SECTION */}
+      <div ref={rosterHeaderRef} className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-200 pb-8 text-left">
         <div className="space-y-1">
-          <h1 className="text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
-            Cuts <span className="text-blue-600">Portal</span>
+          <h1 className="text-6xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
+            Roster <span className="text-blue-600">Cuts</span>
           </h1>
-          <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">
-            Submission Status • Season {config.cuts_year}
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-2 flex items-center gap-2">
+            <Scissors size={14} className="text-red-500" /> Authorized Personnel Only • Submission Portal
           </p>
         </div>
-        
         <div className="w-full md:w-96">
             <TeamSelector />
         </div>
@@ -333,56 +302,61 @@ export default function CutsPage() {
       {selectedTeam && (
         <div className="space-y-10 pb-20">
           {/* STAT CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
-            <StatCard title="Protected" stats={stats.protected} color="text-emerald-500" border="border-emerald-500" />
-            <StatCard title="Pullback" stats={stats.pullback} color="text-blue-500" border="border-blue-500" />
-            <StatCard title="Released" stats={stats.cut} color="text-red-500" border="border-red-500" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <StatCard title="Protected" stats={stats.protected} color="text-emerald-500" border="border-emerald-500" icon={<UserCheck size={20}/>}/>
+            <StatCard title="Pullback" stats={stats.pullback} color="text-blue-500" border="border-blue-500" icon={<RotateCw size={20}/>}/>
+            <StatCard title="Released" stats={stats.cut} color="text-red-500" border="border-red-500" icon={<Scissors size={20}/>}/>
           </div>
 
-          {/* STICKY ACTION BAR */}
-          <div className="sticky top-6 z-50 bg-[#0f172a] shadow-2xl p-5 rounded-[2.5rem] flex flex-col md:flex-row justify-between items-center px-10 border border-slate-700 gap-6">
-              <div className="flex gap-12 text-white font-black text-left">
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mb-1 leading-none">Protected Status</span>
-                  <span className={`text-3xl tracking-tighter ${stats.protected.count === config.protected ? 'text-emerald-400' : 'text-white'}`}>
-                    {stats.protected.count}<span className="text-slate-600 text-lg ml-1">/ {config.protected}</span>
-                  </span>
+          {/* STICKY CONTROL PANEL */}
+          <div className="sticky top-6 z-50 bg-slate-900 shadow-2xl p-6 rounded-[2.5rem] flex flex-col md:flex-row justify-between items-center px-10 border border-slate-800 gap-8">
+              <div className="flex gap-12">
+                <div className="text-left">
+                  <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1">Protected Capacity</p>
+                  <p className={`text-4xl font-black italic tracking-tighter ${stats?.protected?.count === config?.protected ? 'text-emerald-400' : 'text-white'}`}>
+                    {stats?.protected?.count || 0}<span className="text-slate-600 text-lg italic ml-2">/ {config?.protected || 30}</span>
+                  </p>
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mb-1 leading-none">Pullback Status</span>
-                  <span className={`text-3xl tracking-tighter ${stats.pullback.count === config.pullback ? 'text-blue-400' : 'text-white'}`}>
-                    {stats.pullback.count}<span className="text-slate-600 text-lg ml-1">/ {config.pullback}</span>
-                  </span>
+                <div className="text-left">
+                  <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1">Pullback Capacity</p>
+                  <p className={`text-4xl font-black italic tracking-tighter ${stats?.pullback?.count === config?.pullback ? 'text-blue-400' : 'text-white'}`}>
+                    {stats?.pullback?.count || 0}<span className="text-slate-600 text-lg italic ml-2">/ {config?.pullback || 8}</span>
+                  </p>
                 </div>
               </div>
-              <div className="flex-1 max-w-xl w-full">
-                <input type="text" placeholder="Search roster..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-800/50 border border-slate-600 rounded-2xl px-6 py-4 text-white font-bold text-sm outline-none focus:border-blue-400 transition-all shadow-inner" />
+              <div className="relative flex-1 max-w-lg w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                <input type="text" placeholder="Filter roster..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-800 border-none rounded-2xl px-12 py-4 text-white font-bold text-sm focus:ring-2 focus:ring-blue-500" />
               </div>
-              <button onClick={save} disabled={saving || rosterLoading || isExpired || !canEdit} className={`px-12 py-5 rounded-2xl font-black uppercase text-xs transition-all shadow-xl active:scale-95 min-w-[200px] justify-center ${ (isExpired || !canEdit) ? 'bg-red-900/50 text-red-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}>
-                {!canEdit ? 'SCOUTING VIEW' : isExpired ? 'PORTAL CLOSED' : saving ? 'SYNCING...' : 'Submit Final Cuts'}
+              <button 
+                onClick={save} 
+                disabled={saving || isExpired || !canEdit} 
+                className={`px-12 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-xl active:scale-95 ${ (isExpired || !canEdit) ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}
+              >
+                {!canEdit ? 'Scouting Access Only' : isExpired ? 'Deadline Passed' : saving ? 'Syncing...' : 'Submit Roster Cut List'}
               </button>
           </div>
 
           {/* ROSTER LIST */}
           <div className="grid grid-cols-1 gap-4">
-            {filteredRoster.map((p) => {
+            {roster.filter(p => `${p.first} ${p.last}`.toLowerCase().includes(searchTerm.toLowerCase())).map((p) => {
               const s = selections[p.identity] || 'cut';
               return (
-                <div key={p.identity} className={`bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-center group hover:shadow-xl transition-all gap-4 ${!canEdit ? 'opacity-90' : ''}`}>
+                <div key={p.identity} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-center group hover:shadow-xl transition-all gap-6">
                   <div className="text-left flex-1">
                     <div className="flex items-center gap-4">
-                        <h3 onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last)}`, '_blank')} className="font-black text-2xl text-slate-800 uppercase leading-none tracking-tight cursor-pointer hover:text-blue-600 transition-all">{p.first} {p.last}</h3>
-                        <button onClick={() => fetchPlayerDetails(p.identity)} className="bg-slate-100 hover:bg-blue-500 hover:text-white text-slate-400 text-[9px] font-black px-3 py-1 rounded-full uppercase transition-all italic">Stats</button>
+                        <h3 onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last)}`, '_blank')} className="font-black text-2xl text-slate-800 uppercase italic tracking-tighter leading-none cursor-pointer hover:text-blue-600 transition-all">{p.first} {p.last}</h3>
+                        <button onClick={() => fetchPlayerDetails(p.identity)} className="bg-slate-50 text-slate-400 text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all italic">Stats Terminal</button>
                     </div>
                     <div className="flex items-center gap-3 mt-3">
-                      <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md uppercase">{p.offense || p.defense || p.special || 'UNK'}</span>
-                      <span className="text-[11px] font-bold text-slate-300 uppercase tracking-widest italic leading-none">Age {p.age}</span>
+                      <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-lg uppercase tracking-widest">{p.offense || p.defense || p.special || 'UNK'}</span>
+                      <span className="text-[10px] font-black text-slate-300 uppercase italic">Age {p.age}</span>
                     </div>
                   </div>
-                  <div className={`flex gap-3 w-full sm:w-auto ${!canEdit ? 'pointer-events-none grayscale opacity-50' : ''}`}>
+                  <div className={`flex gap-3 w-full sm:w-auto ${!canEdit ? 'pointer-events-none grayscale opacity-30' : ''}`}>
                     <StatusBtn label="Protect" active={s === 'protected'} color="bg-emerald-500" onClick={() => handleToggle(p.identity, 'protected')} />
                     <StatusBtn label="Pullback" active={s === 'pullback'} color="bg-blue-500" onClick={() => handleToggle(p.identity, 'pullback')} />
-                    <StatusBtn label="Cut" active={s === 'cut'} color="bg-red-500" onClick={() => handleToggle(p.identity, 'cut')} isCutType />
+                    <StatusBtn label="Release" active={s === 'cut'} color="bg-red-500" onClick={() => handleToggle(p.identity, 'cut')} isCutType />
                   </div>
                 </div>
               );
@@ -395,19 +369,26 @@ export default function CutsPage() {
   );
 }
 
-function StatCard({ title, stats, color, border }: any) {
+function StatCard({ title, stats, color, border, icon }: any) {
+  const count = stats?.count ?? 0;
+  const avgAge = stats?.avgAge ?? '0';
+  const posMap = stats?.posMap ?? {};
+
   return (
-    <div className={`bg-white p-8 rounded-[2.5rem] border-t-[14px] ${border} shadow-lg space-y-6 text-left`}>
+    <div className={`bg-white p-8 rounded-[2.5rem] border-t-[12px] ${border} shadow-lg space-y-6 text-left`}>
       <div className="flex justify-between items-start">
-        <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.2em]">{title}</p>
+        <div className="space-y-1">
+          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{title}</p>
+          <div className={`${color} opacity-20`}>{icon}</div>
+        </div>
         <div className="text-right">
-          <p className={`text-5xl font-black italic tracking-tighter leading-none ${color}`}>{stats.count}</p>
-          <p className="text-[10px] font-black text-slate-400 uppercase mt-2 tracking-widest italic leading-none">Avg Age {stats.avgAge}</p>
+          <p className={`text-6xl font-black italic tracking-tighter leading-none ${color}`}>{count}</p>
+          <p className="text-[9px] font-black text-slate-400 uppercase mt-2 tracking-widest italic">Avg Age: {avgAge}</p>
         </div>
       </div>
       <div className="pt-4 border-t border-slate-50 flex flex-wrap gap-2">
-        {Object.entries(stats.posMap).map(([pos, count]: any) => (
-          <span key={pos} className="bg-slate-50 text-slate-500 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase border border-slate-100">{pos} {count}</span>
+        {Object.entries(posMap).map(([pos, val]: any) => (
+          <span key={pos} className="bg-slate-50 text-slate-500 px-3 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-tighter border border-slate-100">{pos} {val}</span>
         ))}
       </div>
     </div>
@@ -415,7 +396,7 @@ function StatCard({ title, stats, color, border }: any) {
 }
 
 function StatusBtn({ label, active, color, onClick, isCutType }: any) {
-  const base = "flex-1 sm:flex-none px-8 py-4 rounded-[1.2rem] text-[10px] font-black uppercase border-2 transition-all min-w-[115px] italic shadow-sm";
-  if (active) return <button onClick={onClick} className={`${base} ${color} text-white border-transparent scale-105 z-10 shadow-lg`}>{label}</button>;
-  return <button onClick={onClick} className={`${base} bg-white ${isCutType ? 'text-red-500 border-red-50 hover:bg-red-50' : 'text-slate-300 border-slate-50 hover:bg-slate-50'}`}>{label}</button>;
+  const base = "flex-1 sm:flex-none px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all min-w-[125px] italic shadow-sm active:scale-95";
+  if (active) return <button onClick={onClick} className={`${base} ${color} text-white border-transparent shadow-lg scale-105 z-10`}>{label}</button>;
+  return <button onClick={onClick} className={`${base} bg-white ${isCutType ? 'text-red-500 border-red-50 hover:bg-red-50' : 'text-slate-300 border-slate-100 hover:bg-slate-50'}`}>{label}</button>;
 }
