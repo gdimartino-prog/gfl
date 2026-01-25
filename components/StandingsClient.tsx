@@ -96,31 +96,46 @@ export default function StandingsClient({ allData, currentYear }: { allData: any
 function StandingsTable({ data, isCurrent }: { data: any[], isCurrent: boolean }) {
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden overflow-x-auto">
-      <table className="w-full text-left border-collapse min-w-[700px]">
+      <table className="w-full text-left border-collapse min-w-[800px]">
         <thead className={isCurrent ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500"}>
           <tr className="text-[10px] uppercase tracking-[0.2em] font-black">
             <th className="p-4 pl-6">Year</th>
             <th className="p-4">Team / Manager</th>
             <th className="p-4 text-center">W-L-T</th>
-            <th className="p-4 text-center">Points (PF/PA)</th>
-            <th className="p-4 text-center">Diff</th>
-            <th className="p-4 pr-6 text-right">Status</th>
+            <th className="p-4 text-center">PF</th>
+            <th className="p-4 text-center">PA</th>
+            <th className="p-4 pr-6 text-center">Diff</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
           {data.map((row: any, i: number) => {
-            // Robust check for truthy values (handles "1", 1, true, or "TRUE")
             const isChamp = String(row.isChampion) === "1" || String(row.isChampion).toLowerCase() === "true";
             const isPlayoff = String(row.isPlayoff) === "1" || String(row.isPlayoff).toLowerCase() === "true";
+
+            // MATH FIX: Calculate DIFF live to ensure accuracy
+            const pf = parseFloat(row.offPts) || 0;
+            const pa = parseFloat(row.defPts) || 0;
+            const calculatedDiff = (pf - pa).toFixed(1);
+            const diffNum = parseFloat(calculatedDiff);
 
             return (
               <tr key={i} className="hover:bg-slate-50/80 transition-colors group">
                 <td className="p-4 pl-6 font-bold text-slate-400 text-sm">{row.year}</td>
                 <td className="p-4">
                   <div className="flex flex-col">
-                    <span className="font-black text-slate-900 uppercase italic tracking-tighter text-lg leading-tight">
-                      {row.team}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-black text-slate-900 uppercase italic tracking-tighter text-lg leading-tight">
+                        {row.team}
+                      </span>
+                      {isChamp && (
+                        <span className="bg-amber-400 text-amber-950 text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm italic uppercase tracking-tighter" title="Champion">
+                          🏆
+                        </span>
+                      )}
+                      {isPlayoff && !isChamp && (
+                        <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" title="Playoffs" />
+                      )}
+                    </div>
                     <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest opacity-70">
                       {row.gm || 'Unknown Manager'}
                     </span>
@@ -130,39 +145,20 @@ function StandingsTable({ data, isCurrent }: { data: any[], isCurrent: boolean }
                   {row.won}-{row.lost}-{row.tie}
                 </td>
                 
+                {/* Separated Points Columns */}
                 <td className="p-4 text-center">
-                  <div className="flex flex-col text-[11px] font-bold leading-tight items-center">
-                    <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full mb-1 w-16 text-center">
-                      {row.offPts} <span className="text-[8px] opacity-60">PF</span>
-                    </span>
-                    <span className="text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full w-16 text-center">
-                      {row.defPts} <span className="text-[8px] opacity-60">PA</span>
-                    </span>
-                  </div>
+                  <span className="text-emerald-600 font-black text-sm italic">
+                    {pf.toFixed(1)}
+                  </span>
+                </td>
+                <td className="p-4 text-center">
+                  <span className="text-rose-600 font-black text-sm italic">
+                    {pa.toFixed(1)}
+                  </span>
                 </td>
 
-                <td className={`p-4 text-center font-mono font-black text-lg ${Number(row.diff) >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                  {Number(row.diff) > 0 ? `+${row.diff}` : row.diff}
-                </td>
-
-                <td className="p-4 pr-6 text-right">
-                  <div className="flex justify-end gap-2">
-                    {isChamp && (
-                      <span className="bg-amber-400 text-amber-950 text-[10px] font-black px-2 py-1 rounded shadow-sm italic uppercase tracking-tighter flex items-center gap-1">
-                        🏆 Champ
-                      </span>
-                    )}
-                    {isPlayoff && !isChamp && (
-                      <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded tracking-tighter uppercase italic">
-                        Playoffs
-                      </span>
-                    )}
-                    {!isPlayoff && !isChamp && isCurrent && (
-                      <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-                        Active
-                      </span>
-                    )}
-                  </div>
+                <td className={`p-4 pr-6 text-center font-mono font-black text-lg ${diffNum >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  {diffNum > 0 ? `+${calculatedDiff}` : calculatedDiff}
                 </td>
               </tr>
             );
