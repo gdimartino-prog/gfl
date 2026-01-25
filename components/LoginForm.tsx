@@ -2,10 +2,12 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { User, Lock, HelpCircle, X, AlertCircle } from "lucide-react";
 
 export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -15,13 +17,11 @@ export default function LoginForm() {
     const formData = new FormData(event.currentTarget);
     const data = Object.fromEntries(formData);
 
-    // Note: Since we set the 30-day maxAge in auth.ts, 
-    // the session will persist automatically. 
     const result = await signIn("credentials", {
       username: data.username,
       password: data.password,
       redirect: true,
-      callbackUrl: "/", 
+      callbackUrl: "/",
     });
 
     if (result?.error) {
@@ -31,76 +31,129 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <p className="text-[10px] font-black text-red-500 uppercase tracking-widest bg-red-50 p-3 rounded-lg border border-red-100">
-          ⚠️ {error}
-        </p>
+    <>
+      {/* 1. CREDENTIAL RECOVERY MODAL */}
+      {showForgotModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2.5rem] p-8 md:p-10 max-w-sm w-full shadow-2xl relative border border-slate-100 text-left">
+            <button 
+              onClick={() => setShowForgotModal(false)}
+              className="absolute top-6 right-6 text-slate-300 hover:text-slate-600 transition-colors"
+            >
+              <X size={20} />
+            </button>
+            
+            <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
+              <HelpCircle size={28} />
+            </div>
+            
+            <h3 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900 mb-3">
+              Credential <span className="text-blue-600">Recovery</span>
+            </h3>
+            
+            <p className="text-[11px] font-bold text-slate-500 leading-relaxed uppercase tracking-tight">
+              GFL passwords are managed by the League Office. If you are locked out, please contact <span className="text-blue-600">George Di Martino</span> to reset your temporary credentials to your Team ID.
+            </p>
+            
+            <div className="mt-8 space-y-3">
+               <a 
+                href="mailto:gdimartino@gmail.com?subject=GFL Password Reset Request&body=Coach Name:%0D%0ATeam Name:"
+                className="block w-full bg-blue-600 text-white text-center font-black uppercase tracking-widest py-4 rounded-xl text-[10px] shadow-lg shadow-blue-500/20 hover:bg-blue-700 transition-all"
+               >
+                 Send Reset Email
+               </a>
+               <button 
+                onClick={() => setShowForgotModal(false)}
+                className="w-full bg-slate-50 text-slate-400 font-black uppercase tracking-widest py-4 rounded-xl text-[10px] hover:bg-slate-100 transition-all"
+               >
+                 Back to Login
+               </button>
+            </div>
+          </div>
+        </div>
       )}
-      
-      <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-          League Team Name
-        </label>
-        <input
-          name="username"
-          type="text"
-          required
-          className="w-full rounded-xl border border-slate-200 p-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-          placeholder="e.g. Vico or Amalfi"
-        />
-      </div>
 
-      <div>
-        <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">
-          Team Password
-        </label>
-        <input
-          name="password"
-          type="password"
-          required
-          className="w-full rounded-xl border border-slate-200 p-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-          placeholder="••••••••"
-        />
-      </div>
-
-      {/* Remember Me Checkbox */}
-      <div className="flex items-center gap-2 px-1">
-        <input
-          id="remember"
-          name="remember"
-          type="checkbox"
-          className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer transition-all"
-          defaultChecked
-        />
-        <label 
-          htmlFor="remember" 
-          className="text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer select-none hover:text-slate-700 transition-colors"
-        >
-          Keep me logged in
-        </label>
-      </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-xl bg-slate-900 p-4 text-[11px] font-black uppercase tracking-widest text-white hover:bg-slate-800 transition-all shadow-lg active:scale-[0.98] disabled:bg-slate-400"
-      >
-        {loading ? "Verifying..." : "Access Front Office"}
-      </button>
-
-      <div className="flex flex-col gap-3 pt-2">
-        <p className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-tighter italic">
-          Authorized GFL Personnel Only
-        </p>
+      {/* 2. LOGIN FORM */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 animate-in slide-in-from-top-2">
+            <AlertCircle size={18} />
+            <p className="text-[10px] font-black uppercase tracking-widest">
+               {error}
+            </p>
+          </div>
+        )}
         
-        <a 
-          href="mailto:gdimartino@gmail.com?subject=GFL Password Reset Request&body=Coach Name:%0D%0ATeam Name:" 
-          className="text-center text-[10px] font-black text-blue-500 uppercase tracking-widest hover:text-blue-700 transition-colors"
+        <div className="space-y-2 text-left">
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">
+            League Team Name
+          </label>
+          <div className="relative">
+            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+            <input
+              name="username"
+              type="text"
+              required
+              className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 text-sm font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-300"
+              placeholder="e.g. Vico or Amalfi"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2 text-left">
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">
+            Team Password
+          </label>
+          <div className="relative">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+            <input
+              name="password"
+              type="password"
+              required
+              className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 text-sm font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-300"
+              placeholder="••••••••"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 px-1">
+          <input
+            id="remember"
+            name="remember"
+            type="checkbox"
+            className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer transition-all"
+            defaultChecked
+          />
+          <label 
+            htmlFor="remember" 
+            className="text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer select-none hover:text-slate-700 transition-colors"
+          >
+            Keep me logged in
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-black uppercase italic tracking-widest py-5 rounded-2xl shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"
         >
-          Forgot Password? Contact Commissioner
-        </a>
-      </div>
-    </form>
+          {loading ? "Verifying Credentials..." : "Enter Front Office"}
+        </button>
+
+        <div className="flex flex-col gap-4 pt-2">
+          <p className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-tighter italic">
+            Authorized GFL Personnel Only
+          </p>
+          
+          <button 
+            type="button"
+            onClick={() => setShowForgotModal(true)}
+            className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-500 transition-colors"
+          >
+            Forgot Password?
+          </button>
+        </div>
+      </form>
+    </>
   );
 }

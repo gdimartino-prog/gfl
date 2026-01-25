@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import WeeklyScheduleWidget from '@/components/WeeklyScheduleWidget';
 import { auth } from "@/auth"; // Server-side auth
+import LogoutButton from '@/components/LogoutButton'; // Ensure you have a client-side logout component
 
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +47,7 @@ export default async function HomePage() {
       href: '/standings',
       icon: '🏆',
       color: 'border-blue-600',
+      protected: false
     },
     {
       title: 'Training',
@@ -53,7 +55,8 @@ export default async function HomePage() {
       href: 'https://www.google.com/search?q=asian+massage+spa+near+me',
       icon: '💆‍♂️',
       color: 'border-emerald-500',
-      isExternal: true
+      isExternal: true,
+      protected: false
     },
     {
       title: 'Classic GFL Site',
@@ -61,45 +64,57 @@ export default async function HomePage() {
       href: 'https://sites.google.com/view/gfl1/home',
       icon: '🏛️',
       color: 'border-slate-500',
-      isExternal: true
+      isExternal: true,
+      protected: false
     },
     {
       title: 'League Resources',
       desc: 'Download season files, player photos, and the Encyclopedia.',
       href: '/resources',
       icon: '📂',
-      color: 'border-indigo-500'
+      color: 'border-indigo-500',
+      protected: false
     }
   ];
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8">
-      <header className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6">
-        <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-100">
-          <img 
-            src="/icon.png" 
-            alt="GFL Logo" 
-            className="h-20 w-auto object-contain"
-          />
+      <header className="mb-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-100">
+            <img 
+              src="/icon.png" 
+              alt="GFL Logo" 
+              className="h-20 w-auto object-contain"
+            />
+          </div>
+
+          <div className="text-left">
+            <h1 className="text-5xl font-black text-gray-900 tracking-tighter uppercase italic leading-none">
+              Front <span className="text-blue-600">Office</span>
+            </h1>
+            <p className="text-gray-500 font-bold uppercase text-[10px] tracking-[0.3em] mt-3">
+                GFL Manager Dashboard
+            </p>
+          </div>
         </div>
 
-        <div>
-          <h1 className="text-5xl font-black text-gray-900 tracking-tighter text-left uppercase italic leading-none">
-            Front <span className="text-blue-600">Office</span>
-          </h1>
-          <p className="text-gray-500 text-left font-bold uppercase text-[10px] tracking-[0.3em] mt-3">
-              GFL Manager Dashboard
-          </p>
-        </div>
+        {session && (
+          <div className="bg-blue-50 px-4 py-2 rounded-full border border-blue-100 flex items-center gap-3">
+             <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+             <span className="text-[10px] font-black text-blue-700 uppercase tracking-widest">
+               Authenticated: {session.user?.name}
+             </span>
+          </div>
+        )}
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* LEFT COLUMN: Tool Cards (8 Cols) */}
+        {/* LEFT COLUMN: Tool Cards */}
         <div className="lg:col-span-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {cards.map((card) => {
-              // Server-side logic for locking
               const isLocked = card.protected && !session;
               const cardClasses = `block p-6 bg-white border-t-4 ${card.color} rounded-2xl shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 group text-left h-full ${isLocked ? 'opacity-75 grayscale-[0.5]' : ''}`;
               
@@ -139,14 +154,26 @@ export default async function HomePage() {
             })}
           </div>
 
-          <div className="mt-8 pt-8 border-t border-slate-100">
-             <Link href="#" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors">
-                <span className="text-lg">⚙️</span> League Settings
-             </Link>
-          </div>
+          {/* AUTHORIZED FOOTER ACTIONS */}
+          {session && (
+            <div className="mt-8 pt-8 border-t border-slate-100 flex items-center justify-between">
+               <Link 
+                 href="/settings" 
+                 className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors group"
+               >
+                 <span className="text-lg group-hover:rotate-90 transition-transform duration-500">⚙️</span> 
+                 League Settings
+               </Link>
+
+               <div className="flex items-center gap-6">
+                 <div className="h-4 w-[1px] bg-slate-200" />
+                 <LogoutButton />
+               </div>
+            </div>
+          )}
         </div>
 
-        {/* RIGHT COLUMN: Live Sidebar (4 Cols) */}
+        {/* RIGHT COLUMN: Live Sidebar */}
         <div className="lg:col-span-4">
             <WeeklyScheduleWidget />
         </div>

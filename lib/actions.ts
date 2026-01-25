@@ -6,32 +6,48 @@ import { revalidatePath } from "next/cache";
 
 export async function updatePassword(newPassword: string) {
   const session = await auth();
-  if (!session || !session.user) throw new Error("Unauthorized");
-
-  // 1. Fetch the Coaches sheet to find the right row
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: "Coaches!A:H",
-  });
-
-  const rows = response.data.values;
-  if (!rows) return { error: "Could not access sheet" };
-
-  // 2. Find row index (Match by Coach Name or Team Name)
-  const rowIndex = rows.findIndex(row => row[2] === session.user?.name);
-  if (rowIndex === -1) return { error: "User not found in sheet" };
-
-  // 3. Write new password to Column H (Index 7)
-  // Sheets is 1-indexed for ranges, so rowIndex + 1
-  const range = `Coaches!H${rowIndex + 1}`;
   
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: SHEET_ID,
-    range,
-    valueInputOption: "RAW",
-    requestBody: { values: [[newPassword]] },
-  });
+  if (!session || !session.user) {
+    return { success: false, error: "Unauthorized: Please log in again." };
+  }
 
-  revalidatePath("/");
-  return { success: true };
+  // The session provides 'VV' as the ID for George
+  const userTeamId = (session.user as any).id; 
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: "Coaches!A:H", // Ensure we fetch through Column H
+    });
+
+    const rows = response.data.values;
+    if (!rows || rows.length === 0) return { success: false, error: "Could not access database." };
+
+    // FIX: Look in Column B (index 1) for the teamshort code 'VV'
+    const rowIndex = rows.findIndex(row => 
+      row[1]?.toString().trim().toUpperCase() === userTeamId?.trim().toUpperCase()
+    );
+
+    if (rowIndex === -1) {
+      return { success: false, error: `Team ID [${userTeamId}] not found in database.` };
+    }
+
+    // Google Sheets is 1-indexed
+    const sheetRowNumber = rowIndex + 1;
+    const range = `Coaches!H${sheetRowNumber}`; // Update Column H
+    
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range,
+      valueInputOption: "RAW",
+      requestBody: { values: [[newPassword]] },
+    });
+
+    revalidatePath("/settings");
+    return { success: true };
+
+  } catch (err) {
+    console.error("Update Error:", err);
+    return { success: false, error: "Internal server error." };
+  }
 }
