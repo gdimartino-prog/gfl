@@ -3,16 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, LogOut, User } from 'lucide-react';
+import { Menu, X, LogOut, User, ShieldCheck } from 'lucide-react';
 import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [draftYear, setDraftYear] = useState<string>('2026');
 
-  // Logic to fetch draft year from your Rules tab
   useEffect(() => {
     async function fetchRules() {
       try {
@@ -20,9 +19,7 @@ export default function Navbar() {
         const rules = await res.json();
         if (Array.isArray(rules)) {
           const yearRule = rules.find(r => r.setting === 'draft_year');
-          if (yearRule && yearRule.value) {
-            setDraftYear(yearRule.value);
-          }
+          if (yearRule?.value) setDraftYear(yearRule.value);
         }
       } catch (err) {
         console.error("Navbar rules fetch error:", err);
@@ -31,11 +28,6 @@ export default function Navbar() {
     fetchRules();
   }, []);
 
-  /**
-   * THE FIX: Enhanced Logout
-   * This function clears the browser's memory of the selected team
-   * before terminating the session.
-   */
   const handleSignOut = async () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('gfl-selected-team');
@@ -56,11 +48,16 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="w-full bg-slate-900 text-white shadow-md sticky top-0 z-[100] border-b border-slate-800">
+    <nav className="w-full bg-slate-900 text-white shadow-2xl sticky top-0 z-[100] border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-xl font-bold tracking-tighter hover:opacity-90 transition-opacity">
-            GFL<span className="text-blue-400">MANAGER</span>
+          <Link href="/" className="flex items-center gap-2 group mr-2">
+            <div className="bg-blue-600 p-1 rounded-lg group-hover:rotate-12 transition-transform">
+              <ShieldCheck size={16} className="text-white" />
+            </div>
+            <span className="text-lg font-black italic tracking-tighter uppercase">
+              GFL<span className="text-blue-400">MANAGER</span>
+            </span>
           </Link>
           
           <div className="hidden lg:flex space-x-4">
@@ -72,12 +69,12 @@ export default function Navbar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`text-[11px] uppercase font-black tracking-wider transition-all hover:text-blue-400 ${
+                  className={`text-[10px] uppercase font-black tracking-widest transition-all hover:text-blue-400 ${
                     isActive 
                       ? 'text-blue-400' 
                       : isRules 
-                        ? 'text-slate-400 italic' 
-                        : 'text-slate-300'
+                        ? 'text-slate-500 italic' 
+                        : 'text-slate-400'
                   }`}
                 >
                   {item.name === 'Draft Board' ? `${draftYear} Draft` : item.name}
@@ -89,33 +86,34 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-4">
-            {session ? (
+            {status === "authenticated" && session ? (
               <div className="flex items-center gap-3 pr-4 border-r border-slate-800">
                 <div className="text-right">
-                  <p className="text-[9px] font-black uppercase text-slate-500 leading-none mb-0.5">Coach</p>
-                  <p className="text-[11px] font-bold text-white leading-none">{session.user?.name}</p>
+                  <p className="text-[8px] font-black uppercase text-slate-500 tracking-widest leading-none mb-1">Authenticated</p>
+                  <p className="text-[11px] font-black text-white uppercase italic">{session.user?.name}</p>
                 </div>
-                {/* Use the new handleSignOut function here */}
                 <button 
                   onClick={handleSignOut}
-                  className="p-2 text-slate-400 hover:text-red-400 transition-colors"
-                  title="Log Out"
+                  className="p-2 bg-slate-800/50 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-all"
+                  title="Logout"
                 >
-                  <LogOut size={16} />
+                  <LogOut size={14} />
                 </button>
               </div>
-            ) : (
+            ) : status === "unauthenticated" ? (
               <Link 
                 href="/login"
                 className="text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-colors"
               >
                 Login
               </Link>
-            )}
+            ) : null}
 
-            <span className="text-[10px] font-black bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2 py-1 rounded tracking-widest uppercase">
-              Season {draftYear}
-            </span>
+            <div className="bg-slate-800 px-2 py-1 rounded border border-slate-700">
+               <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">
+                 Season {draftYear}
+               </span>
+            </div>
           </div>
 
           <button 
@@ -130,15 +128,15 @@ export default function Navbar() {
       {/* MOBILE MENU */}
       {isOpen && (
         <div className="lg:hidden bg-slate-900 border-t border-slate-800 animate-in slide-in-from-top duration-200">
-          <div className="flex flex-col p-4 space-y-4">
+          <div className="flex flex-col p-6 space-y-4">
             {session && (
-              <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl mb-2">
-                <div className="bg-blue-500/20 p-2 rounded-lg">
-                  <User size={20} className="text-blue-400" />
+              <div className="flex items-center gap-4 p-3 bg-slate-800/50 rounded-xl mb-2">
+                <div className="bg-blue-600 p-2 rounded-lg">
+                  <User size={18} className="text-white" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Logged in as</p>
-                  <p className="text-lg font-black text-white">{session.user?.name}</p>
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Coach</p>
+                  <p className="text-lg font-black text-white italic uppercase">{session.user?.name}</p>
                 </div>
               </div>
             )}
@@ -148,7 +146,7 @@ export default function Navbar() {
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`text-lg font-bold uppercase tracking-tight ${
+                className={`text-lg font-black uppercase italic tracking-tighter ${
                   pathname === item.href ? 'text-blue-400' : 'text-slate-300'
                 }`}
               >
@@ -157,16 +155,12 @@ export default function Navbar() {
             ))}
 
             <div className="pt-4 mt-2 border-t border-slate-800 flex justify-between items-center">
-                <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">
-                  Season {draftYear}
-                </span>
-                
                 {session ? (
                   <button 
                     onClick={handleSignOut}
                     className="flex items-center gap-2 text-[10px] font-black text-red-400 uppercase tracking-widest"
                   >
-                    <LogOut size={14} /> Log Out
+                    <LogOut size={14} /> Logout
                   </button>
                 ) : (
                   <Link 
