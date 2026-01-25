@@ -9,7 +9,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError(null);
@@ -17,19 +17,28 @@ export default function LoginForm() {
     const formData = new FormData(event.currentTarget);
     const data = Object.fromEntries(formData);
 
-    const result = await signIn("credentials", {
-      username: data.username,
-      password: data.password,
-      redirect: true,
-      callbackUrl: "/",
-    });
+    try {
+      // By using 'as any', we tell TypeScript to allow the .error check
+      // This is the standard quick-fix for the NextAuth result type error
+      const result = await signIn("credentials", {
+        username: data.username as string,
+        password: data.password as string,
+        redirect: false, // Set to false so we can handle the error ourselves
+      }) as any;
 
-    if (result?.error) {
-      setError("Invalid team name or password.");
+      if (result?.error) {
+        setError("Invalid team name or password.");
+        setLoading(false);
+      } else {
+        // If no error, manually redirect to the home page
+        window.location.href = "/";
+      }
+    } catch (err) {
+      setError("A connection error occurred.");
       setLoading(false);
     }
   }
-
+  
   return (
     <>
       {/* 1. CREDENTIAL RECOVERY MODAL */}
