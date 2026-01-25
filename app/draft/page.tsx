@@ -4,12 +4,15 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
 import { getPositionStats } from '@/lib/playerStats'; 
+import { useSession } from "next-auth/react";
+import { Clock, Users, Search, RotateCw, X, Zap, ShieldCheck, Filter, ChevronRight } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
 interface Team { name: string; short: string; }
 
 export default function DraftPage() {
+  const { data: session } = useSession();
   const [picks, setPicks] = useState<any[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -156,12 +159,8 @@ export default function DraftPage() {
       if (r.ok) {
         const detailData = await r.json();
         setSelectedPlayer(detailData);
-      } else {
-        alert(`Scouting data not found for: ${p.first} ${p.last}`);
       }
-    } catch (e) {
-      console.error("SEARCH ERROR:", e);
-    }
+    } catch (e) { console.error(e); }
   };
 
   const handleOpenSelection = (pick: any) => {
@@ -169,94 +168,103 @@ export default function DraftPage() {
     setShowSelectionModal(true);
   };
 
-  if (loading) return <div className="p-20 text-center font-black text-slate-400 uppercase tracking-widest">Loading Draft Board...</div>;
+  if (loading) return <div className="p-20 text-center font-black text-slate-400 uppercase tracking-widest italic animate-pulse">Syncing Draft Frequency...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-gray-50 min-h-screen font-sans text-black">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10 bg-gray-50 min-h-screen text-slate-900">
       
+      {/* HEADER SECTION */}
+      <header className="border-b border-slate-200 pb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div>
+          <h1 className="text-6xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
+            Draft <span className="text-blue-600">Board</span>
+          </h1>
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-3 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Season {yearFilter} Live Entry Console
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => { 
+              setFaLoading(true); 
+              setShowFA(true); 
+              fetch('/api/free-agents').then(r => r.json()).then(res => { setFaPlayers(res); setFaLoading(false); }); 
+            }} 
+            className="bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-3"
+          >
+            <Search size={14} /> Scout Free Agents
+          </button>
+          <button onClick={() => loadData(true)} className="bg-white border-2 border-slate-100 p-4 rounded-2xl hover:bg-slate-50 transition-all active:scale-95">
+            <RotateCw size={20} className={`${isRefreshing ? 'animate-spin' : ''} text-slate-400`} />
+          </button>
+        </div>
+      </header>
+
       {/* CLOCK SECTION */}
       {onClockPick && (
-        <div className="bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-800">
-          <div className="p-6 md:p-10 flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="space-y-2 text-center md:text-left">
-              <span className="bg-blue-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-tighter animate-pulse">Live: On the Clock</span>
-              <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-tight">
+        <div className="bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-slate-800 ring-8 ring-blue-500/5">
+          <div className="p-8 md:p-14 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div className="space-y-4 text-center md:text-left">
+              <div className="flex items-center gap-2 justify-center md:justify-start">
+                <Zap size={14} className="text-blue-500 fill-blue-500" />
+                <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">GFL Direct: On the Clock</span>
+              </div>
+              <h2 className="text-5xl md:text-7xl font-black text-white uppercase italic tracking-tighter leading-none">
                 {getFullTeamName(onClockPick.currentOwner)}
-                {(onClockPick.originalTeam || onClockPick.original_team) && (onClockPick.originalTeam || onClockPick.original_team) !== onClockPick.currentOwner && (
-                  <span className="block text-sm text-blue-400 font-bold normal-case italic mt-1">
-                    via {getFullTeamName(onClockPick.originalTeam || onClockPick.original_team)}
-                  </span>
-                )}
               </h2>
-              <p className="text-slate-400 font-bold text-sm">Overall Pick #{onClockPick.overall} • Round {onClockPick.round}</p>
+              <div className="flex items-center gap-4 text-slate-400 font-black uppercase text-xs tracking-[0.2em] justify-center md:justify-start">
+                <span>Pick #{onClockPick.overall}</span>
+                <span className="w-1.5 h-1.5 bg-slate-700 rounded-full"></span>
+                <span>Round {onClockPick.round}</span>
+              </div>
             </div>
-            <div className="flex flex-col items-center md:items-end">
-              <p className="text-5xl md:text-7xl font-mono font-black text-amber-400 tracking-tighter tabular-nums">{timeLeft}</p>
-              <p className="text-[10px] font-black text-slate-500 uppercase mt-2 tracking-widest">Remaining for this pick</p>
+            <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 flex flex-col items-center justify-center shadow-inner">
+              <p className="text-7xl md:text-8xl font-mono font-black text-amber-400 tracking-tighter tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+                {timeLeft}
+              </p>
+              <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-widest">Remaining Selection Time</p>
             </div>
           </div>
-          <div className="h-2 bg-slate-800 w-full">
-            <div className={`h-full transition-all duration-1000 ease-linear ${progress < 20 ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${progress}%` }} />
+          <div className="h-4 bg-slate-800 w-full p-1">
+            <div className={`h-full rounded-full transition-all duration-1000 ease-linear ${progress < 20 ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : 'bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.3)]'}`} style={{ width: `${progress}%` }} />
           </div>
         </div>
       )}
 
       {/* FILTER BAR */}
-      <div className="flex flex-col xl:flex-row gap-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex-1">
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Year</label>
-            <select className="p-3 border rounded-lg bg-gray-50 text-xs font-bold uppercase text-black" value={yearFilter} onChange={(e) => setYearFilter(e.target.value)}>
-              <option value="All">All Years</option>
-              {Array.from(new Set(picks.map(p => p.year))).sort().map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
+        <FilterSelect label="Season" value={yearFilter} onChange={setYearFilter} options={Array.from(new Set(picks.map(p => p.year))).sort()} />
+        <FilterSelect label="Franchise" value={teamFilter} onChange={setTeamFilter} options={Array.from(new Set(picks.map(p => getFullTeamName(p.currentOwner)))).sort()} />
+        <FilterSelect label="Round" value={roundFilter} onChange={setRoundFilter} options={Array.from(new Set(picks.map(p => p.round))).sort((a,b)=>a-b)} />
+        <div className="space-y-1">
+          <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Find Player</label>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
+            <input 
+              type="text" 
+              placeholder="Search..." 
+              className="w-full p-3.5 pl-10 bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 transition-all" 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+            />
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Team Owner</label>
-            <select className="p-3 border rounded-lg bg-gray-50 text-xs font-bold uppercase text-black" value={teamFilter} onChange={(e) => setTeamFilter(e.target.value)}>
-              <option value="All Teams">All Teams</option>
-              {Array.from(new Set(picks.map(p => getFullTeamName(p.currentOwner)))).sort().map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Round</label>
-            <select className="p-3 border rounded-lg bg-gray-50 text-xs font-bold uppercase text-black" value={roundFilter} onChange={(e) => setRoundFilter(e.target.value)}>
-              <option value="All Rounds">All Rounds</option>
-              {Array.from(new Set(picks.map(p => p.round))).sort((a,b)=>a-b).map(r => <option key={r} value={r.toString()}>Round {r}</option>)}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Search</label>
-            <input type="text" placeholder="Search player..." className="p-3 border rounded-lg text-sm text-black" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-          </div>
-        </div>
-        
-        <div className="flex gap-2">
-            <button onClick={() => { setFaLoading(true); setShowFA(true); fetch('/api/free-agents').then(r => r.json()).then(res => { setFaPlayers(res); setFaLoading(false); }); }} className="flex-1 xl:flex-none bg-slate-900 text-white px-6 py-4 rounded-xl shadow-sm font-black uppercase text-xs tracking-widest hover:bg-slate-800 active:scale-95">
-                Free Agents
-            </button>
-            <button onClick={() => loadData(true)} disabled={isRefreshing} className="flex-1 xl:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-slate-600 px-6 py-4 rounded-xl shadow-sm flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-50">
-                <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                <span className="text-xs font-black uppercase tracking-widest text-black">Refresh Board</span>
-            </button>
         </div>
       </div>
 
       {/* DRAFT TABLE */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-900 text-white uppercase text-[10px] tracking-widest">
-                <th className="px-6 py-4">Pick</th>
-                <th className="px-6 py-4">Drafted Player</th>
-                <th className="px-6 py-4">Team Owner</th>
-                <th className="px-6 py-4 text-center">Status</th>
+              <tr className="bg-slate-900 text-white uppercase text-[9px] font-black tracking-[0.25em]">
+                <th className="px-10 py-6">Pick</th>
+                <th className="px-10 py-6">Drafted Player</th>
+                <th className="px-10 py-6">Current Owner</th>
+                <th className="px-10 py-6 text-right pr-16">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-50">
               {filteredPicks.map((pick) => {
                 const isDrafted = !!pick.draftedPlayer && !pick.draftedPlayer.includes("SKIPPED");
                 const isSkipped = !!pick.draftedPlayer && pick.draftedPlayer.includes("SKIPPED");
@@ -265,50 +273,46 @@ export default function DraftPage() {
                 const isTraded = originalTeam && originalTeam !== pick.currentOwner;
                 
                 return (
-                  <tr key={pick.overall} className={`transition-colors ${isOnClock ? 'bg-blue-50/80 ring-2 ring-blue-500 ring-inset' : ''}`}>
-                    <td className="px-6 py-6">
-                      <span className={`text-2xl font-black ${isOnClock ? 'text-blue-600' : 'text-slate-200'}`}>#{pick.overall}</span>
+                  <tr key={pick.overall} className={`transition-all ${isOnClock ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
+                    <td className="px-10 py-8">
+                      <span className={`text-4xl font-black italic tracking-tighter ${isOnClock ? 'text-blue-600' : isDrafted ? 'text-slate-100' : 'text-slate-200'}`}>
+                        {pick.overall}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 text-black">
+                    <td className="px-10 py-4">
                       {isDrafted ? (
                         <div className="flex flex-col">
-                          {/* PLAYER SEARCH LINK INTEGRATED HERE */}
-                          <a 
-                            href={`https://www.google.com/search?q=${encodeURIComponent(pick.draftedPlayer )}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="font-black text-slate-900 uppercase text-sm hover:text-blue-600 hover:underline transition-colors decoration-blue-200 underline-offset-4"
-                          >
+                          <a href={`https://www.google.com/search?q=${encodeURIComponent(pick.draftedPlayer)}`} target="_blank" className="text-base font-black uppercase text-slate-900 hover:text-blue-600 transition-all">
                             {pick.draftedPlayer}
                           </a>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase">{pick.timestamp}</span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase italic mt-1">{pick.timestamp}</span>
                         </div>
                       ) : isSkipped ? (
                         <div className="flex flex-col text-orange-500 uppercase">
-                          <span className="font-black text-[10px]">Time Expired (Skipped)</span>
-                          <span className="text-[9px] font-bold text-slate-400 uppercase italic">Can still make late selection</span>
+                          <span className="font-black text-[11px]">Expired (Skipped)</span>
+                          <span className="text-[9px] font-bold text-slate-400 italic">Late Selection Eligible</span>
                         </div>
                       ) : (
-                        <span className="text-slate-300 italic text-xs uppercase font-bold tracking-widest">{isOnClock ? 'On the Clock' : 'Pending'}</span>
+                        <span className={`text-[11px] font-black uppercase tracking-widest ${isOnClock ? 'text-blue-500 animate-pulse' : 'text-slate-200'}`}>
+                          {isOnClock ? 'On the Clock' : 'Awaiting Turn'}
+                        </span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-10 py-4">
                       <div className="flex flex-col">
-                        <span className={`font-black uppercase ${isOnClock ? 'text-blue-900' : 'text-slate-700'}`}>{getFullTeamName(pick.currentOwner)}</span>
-                        {isTraded && (
-                          <span className="text-[10px] text-blue-600 font-bold italic mt-0.5">via {getFullTeamName(originalTeam)}</span>
-                        )}
+                        <span className={`text-sm font-black uppercase tracking-tight ${isOnClock ? 'text-blue-900' : 'text-slate-700'}`}>{getFullTeamName(pick.currentOwner)}</span>
+                        {isTraded && <span className="text-[9px] text-blue-500 font-black italic uppercase mt-0.5 tracking-tighter">via {getFullTeamName(originalTeam)}</span>}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-center">
-                      {(isOnClock || isSkipped) && !isDrafted ? (
-                        <button onClick={() => handleOpenSelection(pick)} className={`${isOnClock ? "bg-blue-600 hover:bg-blue-700 animate-pulse shadow-[0_0_15px_rgba(37,99,235,0.3)]" : "bg-[#f59e0b] hover:bg-[#d97706]"} text-white text-[10px] font-black py-2.5 px-5 rounded-lg shadow-lg uppercase transition-all`}>
-                          {isSkipped ? "Make Late Selection" : "Make Selection"}
+                    <td className="px-10 py-4 text-right pr-16">
+                      {(isOnClock || isSkipped) && !isDrafted && session ? (
+                        <button onClick={() => handleOpenSelection(pick)} className={`text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl transition-all active:scale-95 ${isOnClock ? "bg-blue-600 text-white shadow-blue-500/30 hover:bg-blue-700" : "bg-amber-500 text-white shadow-amber-500/30 hover:bg-amber-600"}`}>
+                          {isSkipped ? "Late Selection" : "Enter Selection"}
                         </button>
                       ) : isDrafted ? (
-                        <span className="text-green-500 font-black text-[10px] border border-green-200 bg-green-50 px-3 py-1 rounded-full uppercase">Completed</span>
+                        <span className="text-emerald-500 font-black text-[10px] uppercase border border-emerald-100 bg-emerald-50 px-4 py-2 rounded-full tracking-widest">Finalized</span>
                       ) : (
-                        <span className="text-slate-300 font-black text-[10px] uppercase">Locked</span>
+                        <span className="text-slate-200 font-black text-[10px] uppercase tracking-widest">Locked</span>
                       )}
                     </td>
                   </tr>
@@ -321,48 +325,44 @@ export default function DraftPage() {
 
       {/* FREE AGENT DRAWER */}
       {showFA && (
-        <div className="fixed inset-0 z-[80] flex justify-end">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowFA(false)} />
-          <div className="relative w-full max-w-lg bg-[#f8fafc] h-full shadow-2xl flex flex-col border-l border-slate-300">
-            
-            <div className="p-6 bg-slate-900 text-white flex justify-between items-center shrink-0">
+        <div className="fixed inset-0 z-[100] flex justify-end">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowFA(false)} />
+          <div className="relative w-full max-w-xl bg-slate-50 h-full shadow-2xl flex flex-col border-l border-slate-200">
+            <div className="p-10 bg-slate-900 text-white flex justify-between items-center shadow-xl">
               <div>
-                <h3 className="text-xl font-black uppercase italic tracking-tighter">Scouting <span className="text-blue-500">FA</span></h3>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">Live Terminal</p>
+                <h3 className="text-3xl font-black uppercase italic tracking-tighter leading-none">Scouting <span className="text-blue-600">Terminal</span></h3>
+                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-2">Live Personnel Database Access</p>
               </div>
-              <button onClick={() => setShowFA(false)} className="text-slate-400 hover:text-white transition-colors">
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
+              <button onClick={() => setShowFA(false)} className="bg-slate-800 p-3 rounded-2xl text-slate-400 hover:text-white transition-all"><X size={24} /></button>
             </div>
 
-            <div className="p-4 bg-white border-b shadow-sm space-y-3 shrink-0">
-              <div className="flex gap-2">
+            <div className="p-6 bg-white border-b shadow-sm space-y-4">
+              <div className="flex gap-3">
                 <input 
                   type="text" 
-                  placeholder="Search..." 
-                  className="flex-[2] p-4 border-2 border-slate-100 rounded-2xl text-black font-bold text-sm" 
+                  placeholder="Filter by name..." 
+                  className="flex-[2] p-4 bg-slate-50 border-none rounded-2xl text-slate-900 font-bold text-sm" 
                   value={faSearch} 
                   onChange={(e) => setFaSearch(e.target.value)} 
                 />
-              <select 
-                className="flex-1 p-2 border-2 border-slate-100 rounded-2xl text-[10px] font-black uppercase bg-slate-50"
-                value={faSortKey}
-                onChange={(e) => setFaSortKey(e.target.value)}
-              >
-                <option value="overall">Sort: Overall</option>
-                <option value="age">Sort: Age</option>
-                {faPosFilter === 'QB' && (<><option value="pass yards">Sort: Pass Yds</option><option value="pass TD">Sort: Pass TD</option></>)}
-                {['RB', 'HB', 'WR', 'TE'].includes(faPosFilter) && (<><option value="rush yards">Sort: Rush Yds</option><option value="receiving yards">Sort: Rec Yds</option><option value="total touchdowns">Sort: Total TDs</option></>)}
-                {['DL', 'LB', 'OLB', 'ILB', 'DB'].includes(faPosFilter) && (<><option value="total defense">Sort: Total Def</option><option value="sacks">Sort: Sacks</option><option value="interceptions">Sort: Ints</option></>)}
-              </select>
+                <select 
+                  className="flex-1 p-2 bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase text-slate-900"
+                  value={faSortKey}
+                  onChange={(e) => setFaSortKey(e.target.value)}
+                >
+                  <option value="overall">Sort: OVR</option>
+                  <option value="age">Sort: AGE</option>
+                  {faPosFilter === 'QB' && (<><option value="pass yards">Sort: Pass Yds</option><option value="pass TD">Sort: Pass TD</option></>)}
+                  {['RB', 'HB', 'WR', 'TE'].includes(faPosFilter) && (<><option value="rush yards">Sort: Rush</option><option value="receiving yards">Sort: Rec</option><option value="total touchdowns">Sort: TD</option></>)}
+                </select>
               </div>
               <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                 {['All', 'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'].map(pos => (
                   <button
                     key={pos}
                     onClick={() => setFaPosFilter(pos)}
-                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all shrink-0 ${
-                      faPosFilter === pos ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
+                    className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all shrink-0 ${
+                      faPosFilter === pos ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
                     }`}
                   >
                     {pos}
@@ -371,37 +371,35 @@ export default function DraftPage() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {faLoading ? (
-                <div className="text-center py-20 text-slate-400 font-black uppercase">Loading...</div>
+                <div className="text-center py-20 text-slate-300 font-black uppercase italic animate-pulse">Querying Database...</div>
               ) : processedFAs.map((p, i) => {
                 const positionStats = getPositionStats(p);
                 return (
-                  <div key={i} className={`bg-white border transition-all rounded-2xl shadow-sm ${i === 0 && faSearch === '' ? 'border-amber-400 ring-2 ring-amber-100' : 'border-slate-200'}`}>
-                    <div className="p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          {/* FA SEARCH LINK INTEGRATED HERE */}
-                          <a 
-                            href={`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last )}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-black text-slate-900 uppercase text-lg leading-none hover:text-blue-600 hover:underline transition-all block"
-                          >
-                            {p.first} {p.last}
-                          </a>
-                          <div className="flex gap-2 mt-2">
-                            <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">{p.position}</span>
-                            <span className="text-slate-400 text-[9px] font-bold uppercase tracking-widest">Age {p.age}</span>
-                          </div>
+                  <div key={i} className={`bg-white border transition-all rounded-[2rem] shadow-sm p-6 ${i === 0 && faSearch === '' ? 'border-blue-400 ring-4 ring-blue-50' : 'border-slate-100'}`}>
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="space-y-1">
+                        <a 
+                          href={`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last )}`}
+                          target="_blank"
+                          className="font-black text-slate-900 uppercase text-xl italic leading-none hover:text-blue-600 transition-all block"
+                        >
+                          {p.first} {p.last}
+                        </a>
+                        <div className="flex gap-2 items-center">
+                          <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">{p.position}</span>
+                          <span className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Age {p.age}</span>
                         </div>
-                        <button onClick={() => fetchFAWithDetails(p)} className="bg-slate-900 text-white text-[9px] font-black px-4 py-2 rounded-xl uppercase hover:bg-blue-600 transition-colors">Player Details</button>
                       </div>
-                      <div className="grid grid-cols-5 gap-1 pt-3 border-t border-slate-50">
-                        {positionStats.map((stat, idx) => (
-                          <StatMini key={idx} label={stat.label} val={stat.val} />
-                        ))}
-                      </div>
+                      <button onClick={() => fetchFAWithDetails(p)} className="bg-slate-900 text-white text-[9px] font-black px-5 py-3 rounded-xl uppercase hover:bg-blue-600 transition-all flex items-center gap-2">
+                        Details <ChevronRight size={12} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-5 gap-2">
+                      {positionStats.map((stat, idx) => (
+                        <StatMini key={idx} label={stat.label} val={stat.val} />
+                      ))}
                     </div>
                   </div>
                 );
@@ -425,11 +423,27 @@ export default function DraftPage() {
   );
 }
 
+function FilterSelect({ label, value, onChange, options }: { label: string, value: string, onChange: (v: string) => void, options: any[] }) {
+  return (
+    <div className="space-y-1">
+      <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">{label}</label>
+      <select 
+        className="w-full p-3.5 bg-slate-50 border-none rounded-xl text-[10px] font-black uppercase text-slate-900 focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer" 
+        value={value} 
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value={label === "Franchise" ? "All Teams" : label === "Round" ? "All Rounds" : "All"}>All {label}s</option>
+        {options.map(o => <option key={o} value={o}>{label === "Round" ? `Round ${o}` : o}</option>)}
+      </select>
+    </div>
+  );
+}
+
 function StatMini({ label, val }: { label: string, val: any }) {
   return (
-    <div className="flex flex-col items-center justify-center bg-slate-50 rounded-lg py-2 border border-slate-100">
+    <div className="flex flex-col items-center justify-center bg-slate-50 rounded-2xl py-3 border border-slate-100">
       <span className="text-[7px] font-black text-slate-400 uppercase leading-none mb-1 tracking-tighter">{label}</span>
-      <span className="text-xs font-black text-slate-800 italic">{val || '0'}</span>
+      <span className="text-[11px] font-black text-slate-900 italic">{val || '0'}</span>
     </div>
   );
 }
