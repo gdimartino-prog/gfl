@@ -4,7 +4,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar"; 
 import Footer from '@/components/Footer';
 import { Analytics } from '@vercel/analytics/react';
-import { TeamProvider } from "@/context/TeamContext"; // 1. Import the Provider
+import { TeamProvider } from "@/context/TeamContext";
+import { SessionProvider } from "next-auth/react"; // Import for Auth
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,18 +32,21 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
       >
-        <TeamProvider>
-          {/* Navbar sits at the top */}
-          <Navbar />
-          
-          {/* Main content area */}
-          <main className="min-h-screen">
-            {children}
-          </main>
-          
-          {/* Footer sits at the bottom, outside the main min-h-screen area */}
-          <Footer />
-        </TeamProvider>
+        {/* SessionProvider must wrap the content to enable auth hooks */}
+        <SessionProvider>
+          <TeamProvider>
+            {/* Navbar sits at the top */}
+            <Navbar />
+            
+            {/* Main content area */}
+            <main className="min-h-screen">
+              {children}
+            </main>
+            
+            {/* Footer sits at the bottom */}
+            <Footer />
+          </TeamProvider>
+        </SessionProvider>
 
         <Analytics />
       </body>

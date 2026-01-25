@@ -1,37 +1,44 @@
 import Link from 'next/link';
 import WeeklyScheduleWidget from '@/components/WeeklyScheduleWidget';
+import { auth } from "@/auth"; // Server-side auth
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
+  const session = await auth(); // Fetch session directly on the server
+
   const cards = [
     {
       title: 'Team Rosters',
       desc: 'View depth charts, roster sizes, and draft picks.',
       href: '/rosters',
       icon: '📋',
-      color: 'border-blue-500'
+      color: 'border-blue-500',
+      protected: false
     },
     {
       title: 'Transactions',
       desc: 'Execute player adds, drops, and team trades.',
       href: '/transactions',
       icon: '🤝',
-      color: 'border-green-500'
+      color: 'border-green-500',
+      protected: true 
     },
     {
       title: 'Roster Cuts',
       desc: 'Select protected and pullback players for the new season.',
       href: '/cuts',
       icon: '✂️',
-      color: 'border-amber-500'
+      color: 'border-amber-500',
+      protected: true
     },
     {
       title: 'Draft Board',
       desc: 'Track live selections, available players, and draft order.',
       href: '/draft',
       icon: '🏈',
-      color: 'border-purple-500'
+      color: 'border-purple-500',
+      protected: true
     },
     {
       title: 'Standings',
@@ -67,26 +74,24 @@ export default async function HomePage() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8">
-        <header className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6">
-          {/* GFL Logo Container */}
-          <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-100">
-            <img 
-              src="/icon.png" 
-              alt="GFL Logo" 
-              className="h-20 w-auto object-contain"
-            />
-          </div>
+      <header className="mb-12 flex flex-col md:flex-row items-start md:items-center gap-6">
+        <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-100">
+          <img 
+            src="/icon.png" 
+            alt="GFL Logo" 
+            className="h-20 w-auto object-contain"
+          />
+        </div>
 
-          {/* Title Text */}
-          <div>
-            <h1 className="text-5xl font-black text-gray-900 tracking-tighter text-left uppercase italic leading-none">
-              Front <span className="text-blue-600">Office</span>
-            </h1>
-            <p className="text-gray-500 text-left font-bold uppercase text-[10px] tracking-[0.3em] mt-3">
-                GFL Manager Dashboard
-            </p>
-          </div>
-        </header>
+        <div>
+          <h1 className="text-5xl font-black text-gray-900 tracking-tighter text-left uppercase italic leading-none">
+            Front <span className="text-blue-600">Office</span>
+          </h1>
+          <p className="text-gray-500 text-left font-bold uppercase text-[10px] tracking-[0.3em] mt-3">
+              GFL Manager Dashboard
+          </p>
+        </div>
+      </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
@@ -94,12 +99,21 @@ export default async function HomePage() {
         <div className="lg:col-span-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {cards.map((card) => {
-              const cardClasses = `block p-6 bg-white border-t-4 ${card.color} rounded-2xl shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 group text-left h-full`;
+              // Server-side logic for locking
+              const isLocked = card.protected && !session;
+              const cardClasses = `block p-6 bg-white border-t-4 ${card.color} rounded-2xl shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 group text-left h-full ${isLocked ? 'opacity-75 grayscale-[0.5]' : ''}`;
               
               const innerContent = (
                 <>
-                  <div className="text-4xl mb-4 group-hover:rotate-12 transition-transform inline-block">
-                    {card.icon}
+                  <div className="flex justify-between items-start">
+                    <div className="text-4xl mb-4 group-hover:rotate-12 transition-transform inline-block">
+                      {isLocked ? '🔒' : card.icon}
+                    </div>
+                    {isLocked && (
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded">
+                        Login Required
+                      </span>
+                    )}
                   </div>
                   <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight leading-tight">
                     {card.title}
@@ -108,7 +122,7 @@ export default async function HomePage() {
                     {card.desc}
                   </p>
                   <div className={`mt-4 text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest ${card.color.replace('border-', 'text-')}`}>
-                    {card.isExternal ? 'External Link ↗' : 'Launch Tool →'}
+                    {isLocked ? 'Unlock via Login →' : (card.isExternal ? 'External Link ↗' : 'Launch Tool →')}
                   </div>
                 </>
               );
@@ -118,14 +132,13 @@ export default async function HomePage() {
                   {innerContent}
                 </a>
               ) : (
-                <Link key={card.title} href={card.href} className={cardClasses}>
+                <Link key={card.title} href={isLocked ? '/login' : card.href} className={cardClasses}>
                   {innerContent}
                 </Link>
               );
             })}
           </div>
 
-          {/* Settings remains as a smaller utility link below */}
           <div className="mt-8 pt-8 border-t border-slate-100">
              <Link href="#" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors">
                 <span className="text-lg">⚙️</span> League Settings

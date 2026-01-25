@@ -150,7 +150,7 @@ export default function FreeAgentPanel({
   return (
     <div className="space-y-4 border p-5 rounded-xl bg-white shadow-lg border-blue-100 text-left text-black">
       <div className="flex justify-between items-center border-b pb-3">
-        <h3 className="font-black text-xl uppercase text-blue-700 italic">FA Pickup</h3>
+        <h3 className="font-black text-xl uppercase text-blue-700 italic">Free Agent Pickup</h3>
         <label className="flex items-center gap-2 text-[10px] font-black text-amber-600 cursor-pointer uppercase">
           <input 
             type="checkbox" 

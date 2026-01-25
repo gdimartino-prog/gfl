@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import PlayerCard from '@/components/PlayerCard'; 
 import TeamSelector from '@/components/TeamSelector'; 
 import { useTeam } from '@/context/TeamContext'; 
+import { useSession } from "next-auth/react";
 
 interface GroupStats {
   avgAge: string | number;
@@ -48,8 +49,8 @@ function CountdownTimer({ dueDate }: { dueDate: string }) {
         return;
       }
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60));
+      const minutes = Math.floor((distance % (1000 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
       setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
     }, 1000);
@@ -67,6 +68,7 @@ function CountdownTimer({ dueDate }: { dueDate: string }) {
 }
 
 export default function CutsPage() {
+  const { data: session, status } = useSession();
   const [teams, setTeams] = useState<any[]>([]);
   const { selectedTeam, setSelectedTeam } = useTeam();
   
@@ -82,7 +84,13 @@ export default function CutsPage() {
   const [saving, setSaving] = useState(false);
   const [viewingPlayer, setViewingPlayer] = useState<any>(null);
 
+  const hasSynced = useRef(false);
   const rosterHeaderRef = useRef<HTMLDivElement>(null);
+
+  // AUTH LOGIC
+  const isCommissioner = (session?.user as any)?.role === "admin";
+  const userTeamId = (session?.user as any)?.id; 
+  const canEdit = isCommissioner || (selectedTeam === userTeamId);
 
   const isExpired = useMemo(() => {
     if (!config.cuts_due_date) return false;
@@ -91,6 +99,17 @@ export default function CutsPage() {
 
   const getTS = () => `ts=${new Date().getTime()}`;
 
+  // SESSION SYNC: Forces coach's team on login
+  useEffect(() => {
+    if (status === "authenticated" && userTeamId && !hasSynced.current) {
+      setSelectedTeam(userTeamId);
+      hasSynced.current = true;
+    }
+    if (status === "unauthenticated") {
+      hasSynced.current = false;
+    }
+  }, [status, userTeamId, setSelectedTeam]);
+
   const handleTeamSelect = (teamShort: string) => {
     setSelectedTeam(teamShort);
     setTimeout(() => {
@@ -98,34 +117,21 @@ export default function CutsPage() {
     }, 100);
   };
 
-useEffect(() => {
+  // INITIAL LOAD
+  useEffect(() => {
     async function init() {
       try {
         setLoading(true);
         const rulesRes = await fetch(`/api/rules?${getTS()}`, { cache: 'no-store' });
         const rulesArr = await rulesRes.json();
         
-        // Convert Rules Array to Config Object with safety fallbacks
-        const newCfg: any = { 
-          protected: 30, // Defaulting to 30 as your new standard
-          pullback: 8, 
-          cuts_year: '', 
-          draft_year: '', 
-          cuts_due_date: '' 
-        }; 
+        const newCfg: any = { protected: 30, pullback: 8, cuts_year: '', draft_year: '', cuts_due_date: '' }; 
 
         if (Array.isArray(rulesArr)) {
           rulesArr.forEach(r => {
-            // Map 'limit_protected' or 'protected' from sheet to config.protected
-            if (r.setting === 'limit_protected' || r.setting === 'protected') {
-              newCfg.protected = parseInt(r.value);
-            } 
-            else if (r.setting === 'limit_pullback' || r.setting === 'pullback') {
-              newCfg.pullback = parseInt(r.value);
-            }
-            else {
-              newCfg[r.setting] = r.value;
-            }
+            if (r.setting === 'limit_protected' || r.setting === 'protected') newCfg.protected = parseInt(r.value);
+            else if (r.setting === 'limit_pullback' || r.setting === 'pullback') newCfg.pullback = parseInt(r.value);
+            else newCfg[r.setting] = r.value;
           });
         }
         setConfig(newCfg);
@@ -145,6 +151,7 @@ useEffect(() => {
     init();
   }, []);
 
+  // TEAM SPECIFIC DATA LOAD
   useEffect(() => {
     if (!selectedTeam || !config.cuts_year) return;
     async function loadTeam() {
@@ -154,12 +161,14 @@ useEffect(() => {
           fetch(`/api/players?team=${selectedTeam}&${getTS()}`, { cache: 'no-store' }).then(r => r.json()),
           fetch(`/api/cuts?team=${selectedTeam}&year=${config.cuts_year}&${getTS()}`, { cache: 'no-store' }).then(r => r.json())
         ]);
+
         const processedRoster = pRes.map((p: any) => ({
           ...p,
           identity: [p.first, p.last, p.age, p.offense, p.defense, p.special]
             .map(val => String(val || '').trim().toLowerCase())
             .join('|')
         }));
+
         const currentRosterIdentities = new Set(processedRoster.map((p: any) => p.identity));
         const orphaned = Object.entries(cRes.selections || {})
           .filter(([id, status]) => status !== 'cut' && !currentRosterIdentities.has(id))
@@ -171,6 +180,7 @@ useEffect(() => {
               name: `${parts[0]} ${parts[1]}`.toUpperCase()
             };
           });
+
         setOrphanedPlayers(orphaned);
         setRoster(processedRoster.sort((a: any, b: any) => (a.last || '').localeCompare(b.last || '')));
         setSelections(cRes.selections || {});
@@ -183,6 +193,7 @@ useEffect(() => {
     loadTeam();
   }, [selectedTeam, config.cuts_year]);
 
+  // STATS CALCULATION
   const stats = useMemo(() => {
     const getStats = (type: string): GroupStats => {
       const rosterList = roster.filter(p => (selections[p.identity] || 'cut') === type);
@@ -199,7 +210,11 @@ useEffect(() => {
         posMap
       };
     };
-    return { protected: getStats('protected'), pullback: getStats('pullback'), cut: getStats('cut') };
+    return { 
+      protected: getStats('protected'), 
+      pullback: getStats('pullback'), 
+      cut: getStats('cut') 
+    };
   }, [roster, selections, orphanedPlayers]);
 
   const filteredRoster = roster.filter(p => 
@@ -207,7 +222,9 @@ useEffect(() => {
   );
 
   const handleToggle = (id: string, s: string) => {
-    if (isExpired) return alert("Deadline passed. Submissions are locked.");
+    if (isExpired) return alert("Deadline passed.");
+    if (!canEdit) return alert("Unauthorized.");
+    
     const currentStatus = selections[id] || 'cut';
     if (s !== currentStatus) {
       if (s === 'protected' && stats.protected.count >= config.protected) return alert(`Limit ${config.protected} Protected.`);
@@ -220,14 +237,14 @@ useEffect(() => {
     try {
       const r = await fetch(`/api/players/details/${id}`);
       if (r.ok) setViewingPlayer(await r.json());
-      else alert("Could not load player stats.");
+      else alert("Could not load stats.");
     } catch {
-      alert("Error contacting scouting server.");
+      alert("Network error.");
     }
   };
 
   const save = async () => {
-    if (isExpired) return alert("Submissions are closed.");
+    if (isExpired || !canEdit) return alert("Save locked.");
     setSaving(true);
     try {
       const combined = [
@@ -244,7 +261,7 @@ useEffect(() => {
         setSummary(sRes.summary || {});
         alert("Roster saved.");
       }
-    } catch { alert("Error connecting to server."); } finally { setSaving(false); }
+    } catch { alert("Save error."); } finally { setSaving(false); }
   };
 
   if (loading) return (
@@ -254,11 +271,11 @@ useEffect(() => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-6 bg-[#f8fafc] min-h-screen font-sans">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10 bg-[#f8fafc] min-h-screen font-sans text-slate-900">
       
       {/* 1. COMPLIANCE DASHBOARD */}
       <div className="bg-[#1e293b] rounded-[2rem] p-8 shadow-2xl border border-slate-700">
-        <div className="flex justify-between items-start mb-8">
+        <div className="flex justify-between items-start mb-8 text-left">
             <h2 className="text-blue-400 text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2">
               <span className="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
               League Compliance Monitor — {config.cuts_year} Season
@@ -270,27 +287,26 @@ useEffect(() => {
             const s = summary[t.short] || { protected: 0, pullback: 0 };
             const isComplete = s.protected === config.protected && s.pullback === config.pullback;
             const isSelected = selectedTeam === t.short;
+            const isMyTeam = userTeamId === t.short;
+
             return (
               <div 
                 key={t.short} 
                 onClick={() => handleTeamSelect(t.short)}
-                className={`p-5 rounded-2xl border-2 transition-all duration-300 cursor-pointer active:scale-95 group ${
+                className={`p-5 rounded-2xl border-2 transition-all duration-300 cursor-pointer active:scale-95 group text-left ${
                   isSelected ? 'bg-blue-600/20 border-blue-500 shadow-lg' : 
-                  isComplete ? 'bg-emerald-500/10 border-emerald-500/40 hover:border-emerald-500' : 'bg-slate-800/40 border-slate-700 hover:border-slate-500'
+                  isComplete ? 'bg-emerald-500/10 border-emerald-500/40 hover:border-emerald-500' : 'bg-slate-800/40 border-slate-700 hover:border-slate-50'
                 }`}
               >
-                <p className={`text-[12px] font-black uppercase mb-3 truncate ${isSelected ? 'text-blue-400' : isComplete ? 'text-emerald-400' : 'text-slate-200 group-hover:text-white'}`}>
-                  {t.name}
-                </p>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-[10px] font-bold">
-                    <span className="text-slate-500 uppercase tracking-wider">Protected</span>
-                    <span className={`px-2 py-0.5 rounded ${isComplete ? 'text-emerald-300 bg-emerald-500/20' : 'text-white'}`}>{s.protected} / {config.protected}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-[10px] font-bold">
-                    <span className="text-slate-500 uppercase tracking-wider">Pullback</span>
-                    <span className={`px-2 py-0.5 rounded ${isComplete ? 'text-emerald-300 bg-emerald-500/20' : 'text-white'}`}>{s.pullback} / {config.pullback}</span>
-                  </div>
+                <div className="flex justify-between items-start mb-3">
+                   <p className={`text-[12px] font-black uppercase truncate ${isSelected ? 'text-blue-400' : isComplete ? 'text-emerald-400' : 'text-slate-200 group-hover:text-white'}`}>
+                    {t.name}
+                  </p>
+                  {isMyTeam && <span className="text-[8px] font-black text-blue-500 bg-blue-500/10 px-1.5 py-0.5 rounded">HOME</span>}
+                </div>
+                <div className="space-y-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                  <div className="flex justify-between"><span>Protected</span><span className={isComplete ? 'text-emerald-300' : 'text-white'}>{s.protected}/{config.protected}</span></div>
+                  <div className="flex justify-between"><span>Pullback</span><span className={isComplete ? 'text-emerald-300' : 'text-white'}>{s.pullback}/{config.pullback}</span></div>
                 </div>
               </div>
             );
@@ -298,85 +314,72 @@ useEffect(() => {
         </div>
       </div>
 
-      <div ref={rosterHeaderRef} className="flex flex-col md:flex-row justify-between items-end gap-6 pt-4 scroll-mt-10">
+      {/* STANDARDIZED HEADER SECTION */}
+      <div ref={rosterHeaderRef} className="flex flex-col md:flex-row justify-between items-center gap-6 pt-4 scroll-mt-10 border-b border-slate-200 pb-8 text-left">
         <div className="space-y-1">
-          <h1 className="text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">Cuts Portal</h1>
-          <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic">Authorized Access: {config.draft_year} Season</p>
+          <h1 className="text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
+            Cuts <span className="text-blue-600">Portal</span>
+          </h1>
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-1">
+            Submission Status • Season {config.cuts_year}
+          </p>
         </div>
+        
         <div className="w-full md:w-96">
             <TeamSelector />
         </div>
       </div>
 
       {selectedTeam && (
-        <>
+        <div className="space-y-10 pb-20">
+          {/* STAT CARDS */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4">
             <StatCard title="Protected" stats={stats.protected} color="text-emerald-500" border="border-emerald-500" />
             <StatCard title="Pullback" stats={stats.pullback} color="text-blue-500" border="border-blue-500" />
             <StatCard title="Released" stats={stats.cut} color="text-red-500" border="border-red-500" />
           </div>
 
+          {/* STICKY ACTION BAR */}
           <div className="sticky top-6 z-50 bg-[#0f172a] shadow-2xl p-5 rounded-[2.5rem] flex flex-col md:flex-row justify-between items-center px-10 border border-slate-700 gap-6">
-              <div className="flex gap-12 text-white font-black">
+              <div className="flex gap-12 text-white font-black text-left">
                 <div className="flex flex-col">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mb-1">Protected</span>
+                  <span className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mb-1 leading-none">Protected Status</span>
                   <span className={`text-3xl tracking-tighter ${stats.protected.count === config.protected ? 'text-emerald-400' : 'text-white'}`}>
                     {stats.protected.count}<span className="text-slate-600 text-lg ml-1">/ {config.protected}</span>
                   </span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mb-1">Pullback</span>
+                  <span className="text-[10px] text-slate-500 uppercase tracking-[0.2em] mb-1 leading-none">Pullback Status</span>
                   <span className={`text-3xl tracking-tighter ${stats.pullback.count === config.pullback ? 'text-blue-400' : 'text-white'}`}>
                     {stats.pullback.count}<span className="text-slate-600 text-lg ml-1">/ {config.pullback}</span>
                   </span>
                 </div>
               </div>
-
               <div className="flex-1 max-w-xl w-full">
-                <input 
-                  type="text" 
-                  placeholder="Search roster..." 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-slate-800/50 border border-slate-600 rounded-2xl px-6 py-4 text-white font-bold text-sm outline-none focus:border-blue-400 focus:bg-slate-800 transition-all"
-                />
+                <input type="text" placeholder="Search roster..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-slate-800/50 border border-slate-600 rounded-2xl px-6 py-4 text-white font-bold text-sm outline-none focus:border-blue-400 transition-all shadow-inner" />
               </div>
-
-              <button 
-                onClick={save} 
-                disabled={saving || rosterLoading || isExpired} 
-                className={`px-12 py-5 rounded-2xl font-black uppercase text-xs transition-all shadow-xl active:scale-95 flex items-center gap-3 min-w-[200px] justify-center ${isExpired ? 'bg-red-900 text-red-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}
-              >
-                {isExpired ? 'CLOSED' : saving ? 'Syncing...' : 'Submit Final Cuts'}
+              <button onClick={save} disabled={saving || rosterLoading || isExpired || !canEdit} className={`px-12 py-5 rounded-2xl font-black uppercase text-xs transition-all shadow-xl active:scale-95 min-w-[200px] justify-center ${ (isExpired || !canEdit) ? 'bg-red-900/50 text-red-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}>
+                {!canEdit ? 'SCOUTING VIEW' : isExpired ? 'PORTAL CLOSED' : saving ? 'SYNCING...' : 'Submit Final Cuts'}
               </button>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 pb-20">
+          {/* ROSTER LIST */}
+          <div className="grid grid-cols-1 gap-4">
             {filteredRoster.map((p) => {
               const s = selections[p.identity] || 'cut';
               return (
-                <div key={p.identity} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-center group hover:shadow-xl transition-all gap-4">
-                  <div className="text-center sm:text-left flex-1">
+                <div key={p.identity} className={`bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-center group hover:shadow-xl transition-all gap-4 ${!canEdit ? 'opacity-90' : ''}`}>
+                  <div className="text-left flex-1">
                     <div className="flex items-center gap-4">
-                        <h3 
-                          onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last)}`, '_blank')}
-                          className="font-black text-2xl text-slate-800 uppercase leading-none tracking-tight cursor-pointer hover:text-blue-600 hover:underline transition-all"
-                        >
-                          {p.first} {p.last}
-                        </h3>
-                        <button 
-                         onClick={() => fetchPlayerDetails(p.identity)}
-                         className="bg-slate-100 hover:bg-blue-500 hover:text-white text-slate-400 text-[9px] font-black px-3 py-1 rounded-full uppercase transition-all"
-                        >
-                          View Stats
-                        </button>
+                        <h3 onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last)}`, '_blank')} className="font-black text-2xl text-slate-800 uppercase leading-none tracking-tight cursor-pointer hover:text-blue-600 transition-all">{p.first} {p.last}</h3>
+                        <button onClick={() => fetchPlayerDetails(p.identity)} className="bg-slate-100 hover:bg-blue-500 hover:text-white text-slate-400 text-[9px] font-black px-3 py-1 rounded-full uppercase transition-all italic">Stats</button>
                     </div>
-                    <div className="flex items-center gap-3 mt-2 justify-center sm:justify-start">
-                      <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md uppercase">{p.offense || p.defense || p.special || 'UNK'}</span>
-                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Age {p.age}</span>
+                    <div className="flex items-center gap-3 mt-3">
+                      <span className="text-[11px] font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md uppercase">{p.offense || p.defense || p.special || 'UNK'}</span>
+                      <span className="text-[11px] font-bold text-slate-300 uppercase tracking-widest italic leading-none">Age {p.age}</span>
                     </div>
                   </div>
-                  <div className="flex gap-3 w-full sm:w-auto">
+                  <div className={`flex gap-3 w-full sm:w-auto ${!canEdit ? 'pointer-events-none grayscale opacity-50' : ''}`}>
                     <StatusBtn label="Protect" active={s === 'protected'} color="bg-emerald-500" onClick={() => handleToggle(p.identity, 'protected')} />
                     <StatusBtn label="Pullback" active={s === 'pullback'} color="bg-blue-500" onClick={() => handleToggle(p.identity, 'pullback')} />
                     <StatusBtn label="Cut" active={s === 'cut'} color="bg-red-500" onClick={() => handleToggle(p.identity, 'cut')} isCutType />
@@ -385,44 +388,26 @@ useEffect(() => {
               );
             })}
           </div>
-        </>
+        </div>
       )}
-
-      {viewingPlayer && (
-        <PlayerCard data={viewingPlayer} onClose={() => setViewingPlayer(null)} />
-      )}
-
-
-{/* --- DEBUG FOOTER --- */}
-      <div className="mt-20 p-6 bg-slate-900 rounded-t-3xl border-t border-slate-800 text-[10px] font-mono text-slate-500">
-          <div className="max-w-7xl mx-auto flex flex-wrap gap-8 justify-center">
-              <p>API LIMIT PROTECTED: <span className="text-amber-400">{config.protected}</span></p>
-              <p>API LIMIT PULLBACK: <span className="text-amber-400">{config.pullback}</span></p>
-              <p>DRAFT YEAR: <span className="text-blue-400">{config.draft_year}</span></p>
-              <p>CUTS YEAR: <span className="text-blue-400">{config.cuts_year}</span></p>
-              <p>DEADLINE: <span className="text-emerald-400">{config.cuts_due_date || 'NONE'}</span></p>
-          </div>
-      </div>
+      {viewingPlayer && <PlayerCard data={viewingPlayer} onClose={() => setViewingPlayer(null)} />}
     </div>
   );
 }
 
-
-
-
 function StatCard({ title, stats, color, border }: any) {
   return (
-    <div className={`bg-white p-8 rounded-[2.5rem] border-t-[14px] ${border} shadow-lg space-y-6`}>
+    <div className={`bg-white p-8 rounded-[2.5rem] border-t-[14px] ${border} shadow-lg space-y-6 text-left`}>
       <div className="flex justify-between items-start">
         <p className="text-[12px] font-black text-slate-400 uppercase tracking-[0.2em]">{title}</p>
         <div className="text-right">
           <p className={`text-5xl font-black italic tracking-tighter leading-none ${color}`}>{stats.count}</p>
-          <p className="text-[10px] font-black text-slate-400 uppercase mt-2 tracking-widest">Avg Age {stats.avgAge}</p>
+          <p className="text-[10px] font-black text-slate-400 uppercase mt-2 tracking-widest italic leading-none">Avg Age {stats.avgAge}</p>
         </div>
       </div>
       <div className="pt-4 border-t border-slate-50 flex flex-wrap gap-2">
         {Object.entries(stats.posMap).map(([pos, count]: any) => (
-          <span key={pos} className="bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase border border-slate-100">{pos} {count}</span>
+          <span key={pos} className="bg-slate-50 text-slate-500 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase border border-slate-100">{pos} {count}</span>
         ))}
       </div>
     </div>
@@ -430,7 +415,7 @@ function StatCard({ title, stats, color, border }: any) {
 }
 
 function StatusBtn({ label, active, color, onClick, isCutType }: any) {
-  const base = "flex-1 sm:flex-none px-8 py-4 rounded-2xl text-[11px] font-black uppercase border-2 transition-all min-w-[110px]";
-  if (active) return <button onClick={onClick} className={`${base} ${color} text-white border-transparent shadow-xl scale-105 z-10`}>{label}</button>;
-  return <button onClick={onClick} className={`${base} bg-white ${isCutType ? 'text-red-500 border-red-50' : 'text-slate-300 border-slate-100'}`}>{label}</button>;
+  const base = "flex-1 sm:flex-none px-8 py-4 rounded-[1.2rem] text-[10px] font-black uppercase border-2 transition-all min-w-[115px] italic shadow-sm";
+  if (active) return <button onClick={onClick} className={`${base} ${color} text-white border-transparent scale-105 z-10 shadow-lg`}>{label}</button>;
+  return <button onClick={onClick} className={`${base} bg-white ${isCutType ? 'text-red-500 border-red-50 hover:bg-red-50' : 'text-slate-300 border-slate-50 hover:bg-slate-50'}`}>{label}</button>;
 }

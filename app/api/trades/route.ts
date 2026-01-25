@@ -1,7 +1,13 @@
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
 import { logTransaction } from '@/lib/transactions';
+import { auth } from "@/auth";
+
 
 export async function POST(req: Request) {
+  if (!req.auth || (req.auth.user as any).role !== "admin") {
+    return Response.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const { 
