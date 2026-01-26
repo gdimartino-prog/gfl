@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, LogOut, User, ShieldCheck } from 'lucide-react';
+import { Menu, X, LogOut, User, ShieldCheck, Zap } from 'lucide-react'; // Added Zap for a "Hub" feel
 import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
@@ -35,6 +35,7 @@ export default function Navbar() {
     await signOut({ callbackUrl: '/login' });
   };
 
+  // UPDATED NAV ITEMS
   const navItems = [
     { name: 'Front Office', href: '/' },
     { name: 'Rosters', href: '/rosters' },
@@ -43,6 +44,7 @@ export default function Navbar() {
     { name: 'Draft Board', href: '/draft' },
     { name: 'Cuts', href: '/cuts' },
     { name: 'Standings', href: '/standings' },
+    { name: 'Coaching Hub', href: '/coaching' }, // NEW ITEM
     { name: 'Resources', href: '/resources' },
     { name: 'Constitution', href: '/rules' }, 
   ];
@@ -64,19 +66,23 @@ export default function Navbar() {
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const isRules = item.href === '/rules';
+              const isNew = item.name === 'Coaching Hub'; // For special styling
 
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`text-[10px] uppercase font-black tracking-widest transition-all hover:text-blue-400 ${
+                  className={`text-[10px] uppercase font-black tracking-widest transition-all hover:text-blue-400 flex items-center gap-1 ${
                     isActive 
-                      ? 'text-blue-400' 
+                      ? 'text-blue-400 underline underline-offset-8 decoration-2' 
                       : isRules 
                         ? 'text-slate-500 italic' 
-                        : 'text-slate-400'
+                        : isNew
+                          ? 'text-emerald-400' // Highlight the new feature
+                          : 'text-slate-400'
                   }`}
                 >
+                  {isNew && <Zap size={10} className="animate-pulse" />}
                   {item.name === 'Draft Board' ? `${draftYear} Draft` : item.name}
                 </Link>
               );
@@ -84,6 +90,7 @@ export default function Navbar() {
           </div>
         </div>
 
+        {/* Auth section stays the same as your original provided code */}
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-4">
             {status === "authenticated" && session ? (
@@ -125,7 +132,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE MENU */}
+      {/* MOBILE MENU UPDATED */}
       {isOpen && (
         <div className="lg:hidden bg-slate-900 border-t border-slate-800 animate-in slide-in-from-top duration-200">
           <div className="flex flex-col p-6 space-y-4">
@@ -146,14 +153,16 @@ export default function Navbar() {
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`text-lg font-black uppercase italic tracking-tighter ${
+                className={`text-lg font-black uppercase italic tracking-tighter flex items-center gap-2 ${
                   pathname === item.href ? 'text-blue-400' : 'text-slate-300'
                 }`}
               >
+                {item.name === 'Coaching Hub' && <Zap size={16} className="text-emerald-400" />}
                 {item.name === 'Draft Board' ? `${draftYear} Draft` : item.name}
               </Link>
             ))}
 
+            {/* Logout/Login logic remains the same */}
             <div className="pt-4 mt-2 border-t border-slate-800 flex justify-between items-center">
                 {session ? (
                   <button 
