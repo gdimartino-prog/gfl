@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import WeeklyScheduleWidget from '@/components/WeeklyScheduleWidget';
-import { auth } from "@/auth"; // Server-side auth
-import LogoutButton from '@/components/LogoutButton'; // Ensure you have a client-side logout component
+import { auth } from "@/auth"; 
+import LogoutButton from '@/components/LogoutButton'; 
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const session = await auth(); // Fetch session directly on the server
+  const session = await auth(); 
 
   const cards = [
     {
@@ -16,6 +16,22 @@ export default async function HomePage() {
       icon: '📋',
       color: 'border-blue-500',
       protected: false
+    },
+    {
+      title: 'League Resources',
+      desc: 'Download season files, player photos, and the Encyclopedia.',
+      href: '/resources',
+      icon: '📂',
+      color: 'border-indigo-500',
+      protected: false
+    },
+    {
+      title: 'Coach (COA) Hub', // NEW CARD
+      desc: 'Upload and Download team .COA files.' ,
+      href: '/coaching',
+      icon: '📡',
+      color: 'border-blue-600',
+      protected: true 
     },
     {
       title: 'Transactions',
@@ -65,14 +81,6 @@ export default async function HomePage() {
       icon: '🏛️',
       color: 'border-slate-500',
       isExternal: true,
-      protected: false
-    },
-    {
-      title: 'League Resources',
-      desc: 'Download season files, player photos, and the Encyclopedia.',
-      href: '/resources',
-      icon: '📂',
-      color: 'border-indigo-500',
       protected: false
     }
   ];
