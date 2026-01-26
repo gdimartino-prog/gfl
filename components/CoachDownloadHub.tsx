@@ -1,5 +1,15 @@
 // components/CoachDownloadHub.tsx
-import { Download, Clock } from 'lucide-react';
+import { 
+  UploadCloud, 
+  FileCheck, // <-- Add this one
+  ShieldAlert, 
+  Download, 
+  Clock, 
+  Loader2, 
+  RefreshCw, 
+  File 
+} from 'lucide-react';
+
 
 const mockFiles = [
   { team: 'Giants', fileUrl: '#', updated: '2 hours ago' },
