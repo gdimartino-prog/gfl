@@ -45,6 +45,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { fromTeam, toTeam, year, round, overall, coachName } = body;
 
+    // Validation check
     if (!fromTeam || !toTeam || !year || !round) {
       return NextResponse.json(
         { error: 'Missing required fields' },
@@ -52,16 +53,16 @@ export async function POST(req: Request) {
       );
     }
 
-    // Note: If transferDraftPick handles trades, ensure it's updated 
-    // to record who authorized the trade in Column J if desired.
-    //@ts-ignore
+    // Call the helper from @/lib/draftPicks
+    // IMPORTANT: Ensure transferDraftPick in lib/draftPicks.ts 
+    // is updated to accept 'coachName' as the 6th argument.
     await transferDraftPick(
       fromTeam,
       toTeam,
       Number(year),
       Number(round),
       overall ? Number(overall) : undefined,
-      coachName // Optional: passing coachName to helper
+      coachName // Passing the coach name to be saved in Column J
     );
 
     return NextResponse.json({ success: true });

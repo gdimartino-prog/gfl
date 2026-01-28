@@ -5,52 +5,47 @@ import { findPlayerRowIndex } from '@/lib/playerLookup';
 
 export async function POST(req: NextRequest) {
   try {
-    // 1. ADD coachName to the destructured body
-    const { overallPick, playerIdentity, playerName, playerPosition, newOwnerCode, coachName } = await req.json();
+    const body = await req.json();
+    // 🔍 This will show up in your TERMINAL
+    console.log("DEBUG: Received Body:", body);
 
-    // 2. Generate Timestamp
+    const { overallPick, playerIdentity, playerName, playerPosition, newOwnerCode, coachName } = body;
+
     const timestamp = new Date().toLocaleString('en-US', {
       timeZone: 'America/New_York', 
-      month: '2-digit', 
-      day: '2-digit', 
-      year: 'numeric',
-      hour: '2-digit', 
-      minute: '2-digit', 
-      second: '2-digit', 
       hour12: false
     }).replace(',', '');
 
-    // 3. Find and Update DraftPicks Status
+    // 1. Find Draft Row
     const picksRes = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'DraftPicks!C:C',
     });
     const draftRows = picksRes.data.values || [];
     
-    const draftRowIndex = draftRows.findIndex(row => row[0] === String(overallPick)) + 1;
+    // Use .trim() to avoid hidden space mismatches
+    const foundIndex = draftRows.findIndex(row => String(row[0]).trim() === String(overallPick).trim());
+    
+    if (foundIndex === -1) {
+      console.error("❌ ERROR: Pick Number not found in Column C:", overallPick);
+      return NextResponse.json({ error: `Pick #${overallPick} not found.` }, { status: 400 });
+    }
 
-    if (draftRowIndex === 0) throw new Error('Pick not found');
-
+    const draftRowIndex = foundIndex + 1;
     const draftString = `${playerPosition} - ${playerName}`;
 
-    // 4. EXTEND RANGE TO J AND ADD COACH NAME
-    // Column F: Status | G: Player | H: Timestamp | I: (Empty) | J: Coach
+    // 2. Update DraftPicks
+    console.log(`DEBUG: Updating DraftPicks Row ${draftRowIndex}`);
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
       range: `DraftPicks!F${draftRowIndex}:J${draftRowIndex}`,
       valueInputOption: 'USER_ENTERED',
       requestBody: { 
-        values: [[
-          'Completed', 
-          draftString, 
-          timestamp, 
-          '', 
-          coachName || 'Admin'
-        ]] 
+        values: [['Completed', draftString, timestamp, '', coachName || 'Admin']] 
       },
     });
 
-    // 5. Update Players Sheet (Assign team)
+    // 3. Update Players Sheet
     const playersRes = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'Players!A:CV', 
@@ -59,25 +54,28 @@ export async function POST(req: NextRequest) {
     const parsedPlayers = parsePlayers(allPlayerRows);
 
     const playerToUpdate = parsedPlayers.find(
-      (p) => p.identity.toLowerCase().trim() === playerIdentity.toLowerCase().trim()
+      (p) => p.identity?.toLowerCase().trim() === playerIdentity?.toLowerCase().trim()
     );
 
     if (playerToUpdate) {
       const playerRowIndex = findPlayerRowIndex(allPlayerRows, playerToUpdate);
       
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: SHEET_ID,
-        range: `Players!A${playerRowIndex}`, 
-        valueInputOption: 'USER_ENTERED',
-        requestBody: { values: [[newOwnerCode]] },
-      });
-    } else {
-      console.error("No player match found for identity:", playerIdentity);
+      // 🚀 CRITICAL CHECK: Ensure the index is valid for Sheets
+      if (playerRowIndex > 0) {
+        console.log(`DEBUG: Updating Player Row ${playerRowIndex}`);
+        await sheets.spreadsheets.values.update({
+          spreadsheetId: SHEET_ID,
+          range: `Players!A${playerRowIndex}`, 
+          valueInputOption: 'USER_ENTERED',
+          requestBody: { values: [[newOwnerCode]] },
+        });
+      }
     }
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("Draft API Error:", error.message);
+    // 🔍 CHECK YOUR TERMINAL FOR THIS MESSAGE
+    console.error("❌ SERVER CRASH:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

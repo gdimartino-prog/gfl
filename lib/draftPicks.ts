@@ -69,45 +69,99 @@ export async function transferDraftPick(
   toTeam: string,
   year: number,
   round: number,
-  overall?: number
+  overall?: number,
+  coachName?: string // 🚀 This 6th argument MUST be here
 ) {
   try {
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET}!A2:G`,
+      range: `DraftPicks!A2:J`, // Extended to J to match your sheet
     });
 
     const rows = res.data.values || [];
-
-    // Find the row. We prioritize 'overall' if it's available.
     const rowIndex = rows.findIndex(r => {
       const matchesYear = Number(r[0]) === year;
       const matchesRound = Number(r[1]) === round;
-      const matchesOwner = r[4]?.toLowerCase() === fromTeam.toLowerCase();
-      
-      if (overall) {
-        return matchesYear && matchesRound && Number(r[2]) === overall;
-      }
-      return matchesYear && matchesRound && matchesOwner;
+      if (overall) return Number(r[2]) === overall;
+      return matchesYear && matchesRound && r[4]?.toLowerCase() === fromTeam.toLowerCase();
     });
 
-    if (rowIndex === -1) {
-      throw new Error(`Pick ${year} R${round} (Pick #${overall}) not found for ${fromTeam}`);
-    }
+    if (rowIndex === -1) throw new Error("Pick not found");
 
     const sheetRow = rowIndex + 2;
 
-    // Update Column E (Index 4) which is the Current Owner
+    // Update Owner in Column E
     await sheets.spreadsheets.values.update({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET}!E${sheetRow}`, 
+      range: `DraftPicks!E${sheetRow}`, 
       valueInputOption: 'RAW',
-      requestBody: {
-        values: [[toTeam]],
-      },
+      requestBody: { values: [[toTeam]] },
     });
+
+    // Update Coach in Column J
+    if (coachName) {
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SHEET_ID,
+        range: `DraftPicks!J${sheetRow}`, 
+        valueInputOption: 'RAW',
+        requestBody: { values: [[coachName]] },
+      });
+    }
   } catch (error) {
     console.error('transferDraftPick failed:', error);
+    throw error;
+  }
+}
+
+/**
+ * Saves a player selection to the spreadsheet
+ * Updates Column G (Index 6) with Player Name and Column J (Index 9) with Coach
+ */
+export async function updateDraftPick(
+  currentOwner: string,
+  playerName: string,
+  round: number,
+  overall?: number,
+  status?: string,
+  coachName?: string // 🚀 Add this 6th argument
+) {
+  try {
+    const res = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `DraftPicks!A2:J`,
+    });
+
+    const rows = res.data.values || [];
+    const rowIndex = rows.findIndex(r => {
+      const matchesYear = Number(r[0]) === 2025; // Update to 2026 if needed
+      const matchesRound = Number(r[1]) === round;
+      if (overall) return Number(r[2]) === overall;
+      return matchesYear && matchesRound && r[4]?.toLowerCase() === currentOwner.toLowerCase();
+    });
+
+    if (rowIndex === -1) throw new Error("Pick not found");
+
+    const sheetRow = rowIndex + 2;
+
+    // 1. Update Player Name in Column G
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `DraftPicks!G${sheetRow}`, 
+      valueInputOption: 'RAW',
+      requestBody: { values: [[playerName]] },
+    });
+
+    // 2. Update Coach Name in Column J
+    if (coachName) {
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SHEET_ID,
+        range: `DraftPicks!J${sheetRow}`, 
+        valueInputOption: 'RAW',
+        requestBody: { values: [[coachName]] },
+      });
+    }
+  } catch (error) {
+    console.error('updateDraftPick failed:', error);
     throw error;
   }
 }

@@ -42,17 +42,31 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          overall: pick.overall,
+          // 🚀 CHANGED: 'overall' to 'overallPick' to match your API route
+          overallPick: pick.overall, 
           playerIdentity: player.identity,
-          playerName: `${player.pos || player.position} - ${player.name || `${player.first} ${player.last}`}`,
-          coach: coach
+          playerName: player.name || `${player.first} ${player.last}`,
+          // 🚀 ADDED: These are required by your draft-selection logic
+          playerPosition: player.pos || player.position || 'N/A',
+          newOwnerCode: pick.currentOwner,
+          coachName: coach
         })
       });
-      if (res.ok) onComplete();
-      else alert("Failed to save selection.");
-    } catch (err) { console.error(err); } 
-    finally { setIsSubmitting(false); }
+      
+      if (res.ok) {
+        onComplete();
+      } else {
+        const errorData = await res.json();
+        alert(`Failed to save selection: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (err) { 
+      console.error(err); 
+      alert("Network error: Failed to reach the server.");
+    } finally { 
+      setIsSubmitting(false); 
+    }
   };
+
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6">
