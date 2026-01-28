@@ -3,7 +3,23 @@
 import React, { useMemo } from 'react';
 import { Zap } from 'lucide-react';
 
-// ... (Interfaces remain the same)
+interface Pick {
+  overall: string | number;
+  draftedPlayer: string;
+  currentOwner: string;
+  status: string;
+}
+
+interface Team {
+  name: string;
+  short: string;
+}
+
+interface TickerProps {
+  picks: Pick[];
+  teams: Team[];
+}
+
 
 export default function RecentPicksTicker({ picks, teams }: TickerProps) {
   const getFullTeamName = (shortCode: string) => {
