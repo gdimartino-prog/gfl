@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sheets, SHEET_ID } from '@/lib/googleSheets'; // Import direct sheets access
+import { sheets, SHEET_ID } from '@/lib/googleSheets'; 
 import { transferDraftPick } from '@/lib/draftPicks';
 
 export const dynamic = 'force-dynamic';
@@ -7,16 +7,16 @@ export const revalidate = 0;
 
 export async function GET() {
   try {
-    // We bypass the lib function here to ensure we get EXACTLY columns A through H
+    // UPDATED: Extended range to A:J to capture Columns I and J
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'DraftPicks!A:H', 
+      range: 'DraftPicks!A:J', 
     });
 
     const rows = response.data.values;
     if (!rows || rows.length === 0) return NextResponse.json([]);
 
-    // Map the rows to objects including the new G and H columns
+    // Map the rows to objects including the new G, H, and J columns
     const formattedPicks = rows.slice(1).map((p: any) => ({
       year: p[0] || '',
       round: p[1] || '',
@@ -25,7 +25,9 @@ export async function GET() {
       currentOwner: p[4] || '',
       status: p[5] || '',
       draftedPlayer: p[6] || '', // Column G
-      timestamp: p[7] || ''      // Column H
+      timestamp: p[7] || '',     // Column H
+      // p[8] is Column I (Notes/Skipped Logic)
+      processedBy: p[9] || ''    // Column J: The Coach's Name
     }));
 
     return NextResponse.json(formattedPicks);
@@ -38,11 +40,10 @@ export async function GET() {
   }
 }
 
-// KEEPING YOUR TRADE LOGIC BELOW
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { fromTeam, toTeam, year, round, overall } = body;
+    const { fromTeam, toTeam, year, round, overall, coachName } = body;
 
     if (!fromTeam || !toTeam || !year || !round) {
       return NextResponse.json(
@@ -51,14 +52,17 @@ export async function POST(req: Request) {
       );
     }
 
+    // Note: If transferDraftPick handles trades, ensure it's updated 
+    // to record who authorized the trade in Column J if desired.
     //@ts-ignore
     await transferDraftPick(
       fromTeam,
       toTeam,
       Number(year),
       Number(round),
-      overall ? Number(overall) : undefined
-  );
+      overall ? Number(overall) : undefined,
+      coachName // Optional: passing coachName to helper
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

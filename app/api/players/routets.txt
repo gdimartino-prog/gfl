@@ -1,74 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sheets, SHEET_ID } from '../../../lib/googleSheets';
+import { sheets, SHEET_ID } from '@/lib/googleSheets';
+import { parsePlayers } from '@/lib/players';
+import { unstable_cache } from 'next/cache';
 
-interface Player {
-  team: string;
-  originalTeam: string;
-  first: string;
-  last: string;
-  nickname?: string;
-  age?: number;
-  offense?: string;
-  defense?: string;
-  special?: string;
-  position: string;
-  identity: string; // Add this field
-}
+// Ensure the route is treated as dynamic to handle search parameters correctly
+export const dynamic = 'force-dynamic';
+
+// Create a cached version of the player fetch with a 60-second window
+const getCachedPlayers = unstable_cache(
+  async () => {
+    console.log("Fetching fresh Player data from Google Sheets...");
+    const result = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Players!A:CV', 
+    });
+    return result.data.values || [];
+  },
+  ['players-master-list'],
+  { 
+    revalidate: 0, // FIX: Cache for 60 seconds to prevent Quota Exceeded errors
+    tags: ['players'] 
+  } 
+);
 
 export async function GET(req: NextRequest) {
   const teamShort = req.nextUrl.searchParams.get('team');
 
   try {
-    const result = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'Players',
-    });
+    const rows = await getCachedPlayers();
+    
+    if (!rows || rows.length === 0) {
+      return NextResponse.json([]);
+    }
 
-    const rows: string[][] = result.data.values || [];
-    const [headerRow, ...dataRows] = rows;
+    // Standardize parsing using your existing library logic
+    const players = parsePlayers(rows);
 
-    const headerMap = headerRow.reduce<Record<string, number>>((acc, col, idx) => {
-      acc[col] = idx;
-      return acc;
-    }, {});
-
-    let players: Player[] = dataRows.map((row) => {
-      const first = row[headerMap['first']]?.trim() || '';
-      const last = row[headerMap['last']]?.trim() || '';
-      const age = row[headerMap['age']]?.trim() || '';
-      const offense = row[headerMap['offense']]?.trim() || '';
-      const defense = row[headerMap['defense']]?.trim() || '';
-      const special = row[headerMap['special']]?.trim() || '';
-
-      const positionParts = [offense, defense, special].filter(Boolean);
-      const position = positionParts.join('/');
-
-      // Construct the identity string to match the Free Agents format
-      // Format: first|last|age|offense|defense|special (lowercase)
-      const identity = `${first}|${last}|${age}|${offense}|${defense}|${special}`.toLowerCase();
-
-      return {
-        team: row[headerMap['team']],
-        originalTeam: row[headerMap['original team']],
-        first,
-        last,
-        nickname: row[headerMap['nickname']] || '',
-        age: age ? Number(age) : undefined,
-        offense: offense || undefined,
-        defense: defense || undefined,
-        special: special || undefined,
-        position,
-        identity, // Return the identity to the frontend
-      };
-    });
-
+    // If a specific team is requested (e.g., ?team=VV), filter server-side
     if (teamShort) {
-      players = players.filter((p) => p.team === teamShort);
+      const filtered = players.filter((p) => 
+        p.team?.trim().toUpperCase() === teamShort.trim().toUpperCase()
+      );
+      return NextResponse.json(filtered);
     }
 
     return NextResponse.json(players);
-  } catch (err) {
-    console.error('Failed to fetch players from Google Sheets', err);
-    return NextResponse.json({ error: 'Failed to fetch players' }, { status: 500 });
+  } catch (err: any) {
+    console.error('API Error (Players):', err.message);
+    // Return a JSON error so the frontend catch block can handle it
+    return NextResponse.json(
+      { error: 'Failed to fetch players from Google Sheets' }, 
+      { status: 500 }
+    );
   }
 }

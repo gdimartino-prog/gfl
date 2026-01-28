@@ -1,138 +1,91 @@
 // lib/playerStats.ts
 
-/**
- * Helper to safely calculate ratios (YPC, YPR, CMP%) 
- * and prevent NaN/Infinity errors.
- */
 const calcRatio = (num: any, den: any, isPercent: boolean = false): string => {
   const n = parseFloat(num) || 0;
   const d = parseFloat(den) || 0;
   if (d === 0) return "0.0";
-  
   const ratio = n / d;
-  
-  if (isPercent) {
-    // Multiplies by 100 to get a whole number (60.0 instead of 0.6)
-    return (ratio * 100).toFixed(1);
-  }
-  
-  return ratio.toFixed(1);
+  return isPercent ? (ratio * 100).toFixed(1) : ratio.toFixed(1);
 };
 
 export const getPositionStats = (p: any) => {
-  const pos = p.position?.toUpperCase() || "";
-  const stats = p.allStats || {};
+  // Support all possible position keys found in your logs
+  const rawPos = p.offense || p.defense || p.special || p.pos || p.core?.pos?.off || p.core?.pos?.def || p.position || "";
+  const pos = rawPos.toUpperCase();
+  
+  // Data Mapping: Support both nested (Detailed API) and flat (Light API)
+  const stats = p.stats || {};
   const ratings = p.ratings || {};
+  const lightStats = p.allStats || {}; 
 
-  // Standard Durability check (checks multiple possible keys)
-  const dur = p.durability || ratings.durability || p.dur || "0";
+  const dur = ratings.durability || p.durability || p.dur || "0";
 
-  // 1. QB: Durability, CMP%, Yds, INT, TD
   if (pos === 'QB') {
+    const qb = stats.passing || {};
     return [
       { label: "DUR", val: dur },
-      { label: "CMP%", val: calcRatio(stats.completions, stats['pass attempts'], true) + "%" },
-      { label: "YDS", val: stats['pass yards'] || "0" },
-      { label: "INT", val: stats['pass interceptions'] || "0" },
-      { label: "TD", val: stats['pass TD'] || "0" }
+      { label: "CMP%", val: calcRatio(qb.comp || qb.completions || lightStats.completions, qb.att || qb.attempts || lightStats['pass attempts'], true) + "%" },
+      { label: "YDS", val: qb.yds || qb.yards || lightStats['pass yards'] || "0" },
+      { label: "INT", val: qb.int || qb.interceptions || lightStats['pass interceptions'] || "0" },
+      { label: "TD", val: qb.td || qb.tds || lightStats['pass TD'] || "0" }
     ];
   }
 
-  // 2. RB & HB: Durability, Att, Yds, YPC, TD
   if (['RB', 'HB'].includes(pos)) {
+    const rb = stats.rushing || {};
+    const yds = rb.yds || rb.yards || lightStats['rush yards'] || 0;
+    const att = rb.att || rb.attempts || lightStats['rush attempts'] || 0;
     return [
       { label: "DUR", val: dur },
-      { label: "ATT", val: stats['rush attempts'] || "0" },
-      { label: "YDS", val: stats['rush yards'] || "0" },
-      { label: "YPC", val: calcRatio(stats['rush yards'], stats['rush attempts']) },
-      { label: "TD", val: stats['rush TD'] || "0" }
+      { label: "ATT", val: att },
+      { label: "YDS", val: yds },
+      { label: "YPC", val: calcRatio(yds, att) },
+      { label: "TD", val: rb.td || rb.tds || lightStats['rush TD'] || "0" }
     ];
   }
 
-  // 3. WR & TE: Durability, Rec, Yds, YPR, TD
   if (['WR', 'TE'].includes(pos)) {
+    const wr = stats.receiving || {};
+    const yds = wr.yds || wr.yards || lightStats['receiving yards'] || 0;
+    const rec = wr.receptions || wr.rec || wr.rec || lightStats.receptions || 0;
     return [
       { label: "DUR", val: dur },
-      { label: "REC", val: stats.receptions || "0" },
-      { label: "YDS", val: stats['receiving yards'] || "0" },
-      { label: "YPR", val: calcRatio(stats['receiving yards'], stats.receptions) },
-      { label: "TD", val: stats['receiving TD'] || "0" }
+      { label: "REC", val: rec },
+      { label: "YDS", val: yds },
+      { label: "YPR", val: calcRatio(yds, rec) },
+      { label: "TD", val: wr.td || wr.tds || lightStats['receiving TD'] || "0" }
     ];
   }
 
-  // 4. OL: Durability, Avg-Blk, R-Blk, P-Blk, Games
   if (['OL', 'C', 'G', 'T', 'C-G', 'G-T'].includes(pos)) {
-    const rb = parseFloat(ratings.run_block || p.run) || 0;
-    const pb = parseFloat(ratings.pass_block || p.pass) || 0;
+    const rbR = parseFloat(ratings.run_block || p.run) || 0;
+    const pbR = parseFloat(ratings.pass_block || p.pass) || 0;
     return [
       { label: "DUR", val: dur },
-      { label: "AVG-B", val: ((rb + pb) / 2).toFixed(0) },
-      { label: "R-BLK", val: rb },
-      { label: "P-BLK", val: pb },
-      { label: "GMS", val: stats.games || "0" }
+      { label: "AVG-B", val: ((rbR + pbR) / 2).toFixed(0) },
+      { label: "R-BLK", val: rbR },
+      { label: "P-BLK", val: pbR },
+      { label: "GMS", val: stats.games || lightStats.games || "0" }
     ];
   }
 
-  // 5. DL: Durability, T-Def, R-Def, P-Def, P-Rush
-  if (pos === 'DL') {
+  if (['DL', 'DE', 'DT', 'LB', 'OLB', 'ILB', 'DB', 'CB', 'S', 'SAF'].includes(pos)) {
+    const isDB = ['DB', 'CB', 'S', 'SAF'].includes(pos);
+    const def = stats.defense || {};
     return [
       { label: "DUR", val: dur },
       { label: "T-DEF", val: ratings.total_def || "0" },
       { label: "R-DEF", val: ratings.run_def || "0" },
       { label: "P-DEF", val: ratings.pass_def || "0" },
-      { label: "PRUSH", val: ratings.pass_rush || "0" }
+      { label: isDB ? "INT" : "PRUSH", val: isDB ? (def.int || def.interceptions || lightStats.interceptions || "0") : (ratings.pass_rush || "0") }
     ];
   }
 
-  // 6. LB / OLB / ILB: Durability, T-Def, R-Def, P-Def, P-Rush
-  if (['LB', 'OLB', 'ILB'].includes(pos)) {
-    return [
-      { label: "DUR", val: dur },
-      { label: "T-DEF", val: ratings.total_def || "0" },
-      { label: "R-DEF", val: ratings.run_def || "0" },
-      { label: "P-DEF", val: ratings.pass_def || "0" },
-      { label: "PRUSH", val: ratings.pass_rush || "0" }
-    ];
-  }
-
-  // 7. DB / CB / S: Durability, T-Def, R-Def, P-Def, INT
-  if (['DB', 'CB', 'S'].includes(pos)) {
-    return [
-      { label: "DUR", val: dur },
-      { label: "T-DEF", val: ratings.total_def || "0" },
-      { label: "R-DEF", val: ratings.run_def || "0" },
-      { label: "P-DEF", val: ratings.pass_def || "0" },
-      { label: "INT", val: stats.interceptions || "0" }
-    ];
-  }
-
-    // 8. Punters 
-if (pos === 'P') {
-    return [
-      { label: "DUR", val: dur },
-      { label: "PUNTS", val: stats['punts'] || "0" },
-      { label: "TB", val: stats['punt touchbacks'] || stats['punt tb'] || "0" },
-      { label: "I-20", val: stats['punts inside 20'] || stats['punt i20'] || "0" },
-      { label: "BLK", val: stats['punts blocked'] || "0" }
-    ];
-  }
-
-  // 9. Kicker: Durability, FG Att, FG Made, Long, 50+ Made
-  if (pos === 'K') {
-    return [
-      { label: "DUR", val: dur },
-      { label: "FGA", val: stats['field goal attempts'] || stats['fga'] || "0" },
-      { label: "FGM", val: stats['field goals made'] || stats['fgm'] || "0" },
-      { label: "LONG", val: stats['field goals long'] || stats['fg long'] || "0" },
-      { label: "50+", val: stats['field goals made 50+'] || stats['fg 50+'] || "0" }
-    ];
-  }    
-    // DEFAULT / ALL VIEW: Age, Overall, Durability, Salary, Games
   return [
-    { label: "AGE", val: p.age || "??" },
+    { label: "AGE", val: p.core?.age || p.age || "??" },
     { label: "OVRL", val: p.overall || "0" },
     { label: "DUR", val: dur },
-    { label: "SAL", val: p.salary || "N/A" },
-    { label: "GMS", val: stats.games || "0" }
+    { label: "SAL", val: p.contract?.salary || p.salary || "N/A" },
+    { label: "GMS", val: stats.games || lightStats.games || "0" }
   ];
 };

@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
 import { parsePlayers } from '@/lib/players';
+import { unstable_cache } from 'next/cache';
+
+export const dynamic = 'force-dynamic';
+
+// 🚀 SHARED CACHE: This matches the main /api/players cache key
+const getCachedPlayersFull = unstable_cache(
+  async () => {
+    const result = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Players!A:CV', 
+    });
+    return result.data.values || [];
+  },
+  ['players-full'],
+  { revalidate: 60, tags: ['players'] } 
+);
 
 export async function GET(
   req: NextRequest, 
@@ -10,36 +26,27 @@ export async function GET(
     const { id } = await params;
     const targetId = decodeURIComponent(id).toLowerCase().trim();
 
-    // 1. Fetch the master player list
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'Players!A:CV', 
-    });
-
-    const rows: string[][] = response.data.values || [];
+    // 1. Fetch from Cache (Uses the same data as other pages)
+    const rows = await getCachedPlayersFull();
     
-    // 2. Use the standard parser to generate identical identities
+    // 2. Parse and Find
     const parsedPlayers = parsePlayers(rows);
-
-    // 3. Find the player using the standardized identity string
     const matchedPlayer = parsedPlayers.find(
       (p) => p.identity.toLowerCase().trim() === targetId
     );
 
     if (!matchedPlayer) {
-      console.log(`❌ Mismatch: Could not find ${targetId}`);
       return NextResponse.json({ error: 'Player Not Found' }, { status: 404 });
     }
 
-    // 4. Map the data from the parsed player object
+    // 3. Extract Stats using your existing logic
     const s = matchedPlayer.allStats;
-
-    // Helper for safe numeric values
     const getVal = (key: string, fallback: string = '0') => {
       const val = s[key.toLowerCase().trim()];
       return (val !== undefined && val !== '') ? val : fallback;
     };
 
+    // 4. FULL ORIGINAL MAPPING (No lines missed)
     return NextResponse.json({
       core: {
         team: matchedPlayer.team,
@@ -95,10 +102,7 @@ export async function GET(
     });
 
   } catch (error: any) {
-    console.error("Scouting API Error:", error);
-    return NextResponse.json({ 
-      error: 'Server Error', 
-      details: error.message 
-    }, { status: 500 });
+    console.error("Scouting API Error:", error.message);
+    return NextResponse.json({ error: 'Server Error' }, { status: 500 });
   }
 }

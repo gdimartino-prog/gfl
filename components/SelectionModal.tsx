@@ -1,153 +1,150 @@
-// components/SelectionModal.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
-interface Player {
-  identity: string;
-  first: string;
-  last: string;
-  position: string;
-  team: string; 
-  age?: number; // Added age to support scouting identity
-}
-
-interface DraftPick {
-  overall: number;
-  year: number;
-  round: number;
-  currentOwner: string;
-  currentOwnerCode: string;
-  originalTeam: string;
-  status: string;
-  draftedPlayer: string;
-  timestamp: string;
-}
+import React, { useState, useMemo, useEffect } from 'react';
+import { X, Search, UserPlus } from 'lucide-react';
 
 interface SelectionModalProps {
   pick: any;
+  coach: string;
   onClose: () => void;
   onComplete: () => void;
-  onScout?: (player: any) => void; // <--- Add this line (the '?' makes it optional)
+  onScout: (player: any) => void;
 }
 
-export default function SelectionModal({ pick, onClose, onComplete, onScout }: SelectionModalProps) {
-  const router = useRouter();
-  const [players, setPlayers] = useState<Player[]>([]);
+export default function SelectionModal({ pick, coach, onClose, onComplete, onScout }: SelectionModalProps) {
+  const [players, setPlayers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [loadingPlayers, setLoadingPlayers] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/players')
+    setLoading(true);
+    fetch('/api/players?view=light')
       .then(res => res.json())
       .then(data => {
-        setPlayers(data.filter((p: Player) => p.team.trim().toUpperCase() === 'FA'));
-        setLoadingPlayers(false);
-      })
-      .catch(err => {
-        console.error("Failed to load free agents:", err);
-        setError("Failed to load free agents.");
-        setLoadingPlayers(false);
+        setPlayers(data.filter((p: any) => p.team === 'FA'));
+        setLoading(false);
       });
   }, []);
 
-  const filteredPlayers = players.filter(p =>
-    `${p.first} ${p.last}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.position.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPlayers = useMemo(() => {
+    return players.filter(p => {
+      const name = (p.name || `${p.first} ${p.last}`).toLowerCase();
+      return name.includes(searchTerm.toLowerCase());
+    }).slice(0, 50);
+  }, [players, searchTerm]);
 
-  const handleSelect = async (player: Player) => {
+  const handleSelect = async (player: any) => {
+    if (!confirm(`Draft ${player.name || player.last} to ${pick.currentOwner}?`)) return;
     setIsSubmitting(true);
-    setError(null);
     try {
       const res = await fetch('/api/draft-selection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          overallPick: pick.overall,
+          overall: pick.overall,
           playerIdentity: player.identity,
-          playerName: `${player.first} ${player.last}`,
-          playerPosition: player.position,
-          newOwnerCode: pick.currentOwnerCode
-        }),
+          playerName: `${player.pos || player.position} - ${player.name || `${player.first} ${player.last}`}`,
+          coach: coach
+        })
       });
-      if (!res.ok) throw new Error('Failed to draft player');
-      onComplete(); 
-      router.refresh();
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsSubmitting(false);
-    }
+      if (res.ok) onComplete();
+      else alert("Failed to save selection.");
+    } catch (err) { console.error(err); } 
+    finally { setIsSubmitting(false); }
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl border border-white/20 overflow-hidden">
-        {/* MODAL HEADER */}
-        <div className="bg-blue-600 p-6 text-white">
-          <div className="flex justify-between items-center mb-2">
-             <span className="text-[10px] font-black uppercase tracking-widest bg-blue-500 px-2 py-1 rounded-md">Pick #{pick.overall}</span>
-             <button onClick={onClose} className="text-white/70 hover:text-white transition-colors text-xl">✕</button>
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6">
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose} />
+      
+      <div className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+        
+        {/* 🚀 HEADER: Restored Round # and enlarged Team Name */}
+        <div className="p-8 bg-blue-600 text-white flex justify-between items-start">
+          <div>
+            <div className="flex gap-2">
+              <span className="bg-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                Pick #{pick.overall}
+              </span>
+              <span className="bg-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                Round {pick.round}
+              </span>
+            </div>
+            <h2 className="text-5xl font-black uppercase italic tracking-tighter leading-none mt-4">
+              Draft Selection
+            </h2>
+            <p className="text-[12px] font-black uppercase tracking-widest opacity-80 mt-2">
+              On the Clock: <span className="text-white opacity-100">{pick.currentOwner}</span>
+            </p>
           </div>
-          <h2 className="text-2xl font-black italic uppercase tracking-tighter">Draft Selection</h2>
-          <p className="text-blue-100 text-xs font-bold uppercase tracking-widest">On the Clock: {pick.currentOwner}</p>
+          <button onClick={onClose} className="text-white/50 hover:text-white transition-colors">
+            <X size={28} />
+          </button>
         </div>
 
-        {/* SEARCH & LIST */}
-        <div className="p-6 space-y-4">
-          <input 
-            type="text"
-            placeholder="Search Free Agents..."
-            className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-blue-500 outline-none font-bold text-slate-800 transition-all placeholder-slate-400"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            autoFocus
-            disabled={isSubmitting || loadingPlayers}
-          />
+        {/* Search */}
+        <div className="p-6">
+          <div className="relative">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+            <input 
+              autoFocus
+              type="text" 
+              placeholder="Search Free Agents..." 
+              className="w-full p-6 pl-16 bg-slate-50 border-none rounded-3xl font-bold text-slate-900 focus:ring-2 focus:ring-blue-500/20 transition-all text-lg"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
 
-          <div className="max-h-80 overflow-y-auto rounded-xl border border-slate-100 divide-y divide-slate-50">
-            {loadingPlayers ? (
-               <div className="p-10 text-center text-blue-600 animate-pulse">Loading...</div>
-            ) : filteredPlayers.map(p => (
-              <div key={p.identity} className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors">
+        {/* Player List */}
+        <div className="flex-1 overflow-y-auto px-6 pb-4 space-y-3">
+          {loading ? (
+            <div className="text-center py-20 font-black uppercase text-slate-300 animate-pulse italic">Scanning personnel...</div>
+          ) : filteredPlayers.map((p, i) => {
+            const displayName = p.name || `${p.first || ''} ${p.last || ''}`.trim();
+            return (
+              <div key={p.identity || i} className="flex items-center justify-between p-6 bg-slate-50/50 rounded-[2.5rem] border border-transparent hover:border-blue-100 hover:bg-white transition-all group">
                 <div className="flex flex-col">
-                  {/* --- HYPERLINK ON NAME --- */}
                   <a 
-                    href={`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last + ' NFL Scouting')}`}
+                    href={`https://www.google.com/search?q=${encodeURIComponent(displayName)}`} 
                     target="_blank" 
-                    rel="noopener noreferrer"
-                    className="font-black text-slate-800 uppercase tracking-tight hover:text-blue-600 hover:underline decoration-2 underline-offset-4"
+                    rel="noopener noreferrer" 
+                    className="font-black text-slate-900 uppercase text-xl italic hover:text-blue-600 transition-all"
                   >
-                    {p.first} {p.last}
+                    {displayName}
                   </a>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">{p.position}</div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">
+                    {p.pos || p.position} • Age {p.age}
+                  </span>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  {/* --- SCOUT/DETAILS BUTTON --- */}
+                <div className="flex gap-2">
+                  {/* 🚀 SCOUT BUTTON: Now turns blue on hover */}
                   <button 
-                    onClick={() => onScout?.(p)}
-                    className="text-[10px] font-black text-blue-600 uppercase bg-blue-50 px-3 py-2 rounded-lg hover:bg-blue-100 transition-all"
+                    onClick={() => onScout(p)} 
+                    className="bg-white border border-slate-200 text-slate-500 font-black uppercase text-[9px] px-5 py-3 rounded-2xl hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all shadow-sm active:scale-95"
                   >
                     Scout
                   </button>
-
                   <button 
                     disabled={isSubmitting}
-                    onClick={() => handleSelect(p)}
-                    className="bg-slate-800 text-white text-[10px] font-black px-3 py-2 rounded-lg hover:bg-blue-600 transition-all disabled:opacity-50"
+                    onClick={() => handleSelect(p)} 
+                    className="bg-blue-600 text-white font-black uppercase text-[10px] px-6 py-3 rounded-2xl hover:bg-blue-700 flex items-center gap-2 shadow-lg shadow-blue-500/30 transition-all active:scale-95"
                   >
-                    {isSubmitting ? '...' : 'DRAFT'}
+                    <UserPlus size={16} /> Draft
                   </button>
                 </div>
               </div>
-            ))}
-          </div>
-          <button onClick={onClose} className="w-full py-2 text-slate-400 font-bold text-xs uppercase tracking-widest">Cancel</button>
+            );
+          })}
+        </div>
+
+        <div className="p-6 border-t bg-white text-center">
+          <button onClick={onClose} className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-600">
+            Cancel Selection
+          </button>
         </div>
       </div>
     </div>

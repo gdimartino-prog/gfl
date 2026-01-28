@@ -69,7 +69,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ data, onClose }) => {
     return String(val);
   };
 
-  // 3. DISPLAY ORDER (Logic updated to include blocking for all offense)
+  // 3. DISPLAY ORDER
   let displayKeys: string[] = [];
   if (isOL) {
     displayKeys = ['run block', 'pass block', 'games', 'durability', 'salary'];
@@ -84,7 +84,8 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ data, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-md">
+    /* 🚀 FIX: Increased z-index to 200 and backdrop blur to xl */
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-xl">
       <div className="bg-[#020617] w-full max-w-6xl rounded-[2.5rem] border-2 border-slate-700 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
         
         {/* Header Section */}
@@ -103,9 +104,6 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ data, onClose }) => {
             </h2>
           </div>
           <div className="flex gap-3">
-            {/* <button onClick={() => setShowDebug(!showDebug)} className="px-4 py-2 text-[10px] font-bold text-slate-500 hover:text-white border border-slate-700 rounded-lg uppercase tracking-widest transition-colors">
-              {showDebug ? 'Hide Data' : 'Debug API'}
-            </button> */}
             <button onClick={onClose} className="p-4 bg-slate-800 hover:bg-red-500 rounded-full text-white transition-all border border-slate-600 text-2xl leading-none">
               &times;
             </button>
