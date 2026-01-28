@@ -21,6 +21,11 @@ interface TickerProps {
 }
 
 export default function RecentPicksTicker({ picks, teams }: TickerProps) {
+
+  if (typeof window !== 'undefined') {
+    console.log("✅ TICKER VERSION: Jan 28 - V1.2 (Separate Ticker State)");
+  }
+
   const [mounted, setMounted] = useState(false);
 
   // 🚀 Step 1: Prevent Hydration Mismatch
