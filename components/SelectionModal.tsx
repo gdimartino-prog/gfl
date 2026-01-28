@@ -49,7 +49,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
           // 🚀 ADDED: These are required by your draft-selection logic
           playerPosition: player.pos || player.position || 'N/A',
           newOwnerCode: pick.currentOwner,
-          coachName: coach
+          coachName: coach || 'Unknown Coach'
         })
       });
       
