@@ -411,7 +411,7 @@ export default function DraftPage() {
       {showSelectionModal && selectedPick && (
         <SelectionModal 
           pick={{...selectedPick, currentOwner: getFullTeamName(selectedPick.currentOwner), currentOwnerCode: resolveCode(selectedPick.currentOwner)}}
-          coach={session?.user?.name || "George"}
+          coach={session?.user?.name || "Unknown Coach"}
           onClose={() => { setSelectedPick(null); setShowSelectionModal(false); }}
           onComplete={() => { setSelectedPick(null); setShowSelectionModal(false); loadData(); setFaPlayers([]); }}
           onScout={(p) => fetchFAWithDetails(p)} 
