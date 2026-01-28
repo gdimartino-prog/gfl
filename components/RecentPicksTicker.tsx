@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Zap } from 'lucide-react';
 
 interface Pick {
@@ -20,8 +20,15 @@ interface TickerProps {
   teams: Team[];
 }
 
-
 export default function RecentPicksTicker({ picks, teams }: TickerProps) {
+  const [mounted, setMounted] = useState(false);
+
+  // 🚀 Step 1: Prevent Hydration Mismatch
+  // This ensures the component only renders once the browser is ready.
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const getFullTeamName = (shortCode: string) => {
     if (!shortCode) return "Unknown";
     const cleanCode = shortCode.match(/\(([^)]+)\)/)?.[1] || shortCode.trim().toUpperCase();
@@ -30,15 +37,30 @@ export default function RecentPicksTicker({ picks, teams }: TickerProps) {
   };
 
   const completedPicks = useMemo(() => {
+    if (!picks || !Array.isArray(picks)) return [];
     return [...picks]
       .filter(p => p.status === 'Completed' || (p.draftedPlayer && p.draftedPlayer.trim() !== ''))
       .sort((a, b) => Number(b.overall) - Number(a.overall))
       .slice(0, 10); 
   }, [picks]);
 
-  if (completedPicks.length === 0) return null;
+  // If not mounted yet, return null (prevents invisible flash in production)
+  if (!mounted) return null;
 
-  // This helper creates the content once so we can duplicate it exactly
+  // 🚀 Step 2: Show a placeholder if no data is found
+  // If you see this in production, the CSS is working, but the API data is empty.
+  if (completedPicks.length === 0) {
+    return (
+      <div className="w-full bg-slate-900 border-y border-white/10 py-4 overflow-hidden relative">
+        <div className="flex items-center justify-center gap-4 text-slate-500 font-black uppercase text-[10px] tracking-[0.3em]">
+          <Zap size={14} className="opacity-20" />
+          <span>Waiting for 2026 Draft Data...</span>
+          <Zap size={14} className="opacity-20" />
+        </div>
+      </div>
+    );
+  }
+
   const renderPicks = () => (
     <>
       {completedPicks.map((p, i) => (
@@ -69,11 +91,8 @@ export default function RecentPicksTicker({ picks, teams }: TickerProps) {
         </div>
       </div>
 
-      {/* LAYOUT TRICK: 
-          We use two containers with the EXACT same classes. 
-          The 'gap-12' here must match the gap between the two lists.
-      */}
       <div className="flex whitespace-nowrap overflow-hidden">
+        {/* The classes below match the Tailwind v4 @theme configuration */}
         <div className="flex animate-marquee items-center gap-12 shrink-0">
           {renderPicks()}
         </div>
