@@ -123,3 +123,23 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* --- Optimized Ticker Animation --- */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    /* We move exactly 100% of the single list width */
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  display: flex !important;
+  /* 'linear' is crucial to prevent jumping at the loop point */
+  animation: marquee-scroll 40s linear infinite !important;
+  /* Using will-change tells the GPU to handle the movement for buttery smoothness */
+  will-change: transform;
+  min-width: 100%;
+}

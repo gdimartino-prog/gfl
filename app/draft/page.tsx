@@ -6,6 +6,7 @@ import PlayerCard from '@/components/PlayerCard';
 import { getPositionStats } from '@/lib/playerStats'; 
 import { useSession } from "next-auth/react";
 import { Clock, Search, RotateCw, X, Zap, ChevronRight, Filter } from 'lucide-react';
+import RecentPicksTicker from '@/components/RecentPicksTicker';
 
 export const dynamic = 'force-dynamic';
 
@@ -175,15 +176,15 @@ export default function DraftPage() {
       const topHydrate = processedFAs.slice(0, 10);
       topHydrate.forEach(p => fetchFAWithDetails(p, true));
     }
-  }, [showFA, faPosFilter, faSearch]);
+  }, [showFA, faPosFilter, faSearch, processedFAs]);
 
   if (loading) return <div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Syncing Draft Board...</div>;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10 bg-gray-50 min-h-screen text-slate-900">
+    <div className="bg-gray-50 min-h-screen text-slate-900">
       
       {/* HEADER SECTION */}
-      <header className="border-b border-slate-200 pb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <header className="max-w-7xl mx-auto p-4 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h1 className="text-6xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
             Draft <span className="text-blue-600">Board</span>
@@ -214,128 +215,133 @@ export default function DraftPage() {
         </div>
       </header>
 
-    {/* CLOCK SECTION: Restored Pick and Round indicators */}
-    {onClockPick && (
-      <div className="bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-slate-800 p-10 flex flex-col md:flex-row justify-between items-center gap-10">
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2">
-            <Zap size={14} className="text-blue-500 fill-blue-500" />
-            <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">
-              GFL Direct: On the Clock
-            </span>
-          </div>
-          
-          <h2 className="text-7xl font-black text-white uppercase italic tracking-tighter leading-none">
-            {getFullTeamName(onClockPick.currentOwner)}
-          </h2>
+      {/* 🚀 TICKER PLACEMENT */}
+      <RecentPicksTicker picks={picks} teams={teams} />
 
-          {/* 🚀 RESTORED ROW: Pick and Round info */}
-          <div className="flex items-center gap-4 mt-2">
-            <span className="text-slate-400 font-black text-[11px] uppercase tracking-[0.2em]">
-              Pick #{onClockPick.overall}
-            </span>
-            <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
-            <span className="text-slate-400 font-black text-[11px] uppercase tracking-[0.2em]">
-              Round {onClockPick.round}
-            </span>
+      <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-10">
+
+        {/* CLOCK SECTION */}
+        {onClockPick && (
+          <div className="bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-slate-800 p-10 flex flex-col md:flex-row justify-between items-center gap-10">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Zap size={14} className="text-blue-500 fill-blue-500" />
+                <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">
+                  GFL Direct: On the Clock
+                </span>
+              </div>
+              
+              <h2 className="text-7xl font-black text-white uppercase italic tracking-tighter leading-none">
+                {getFullTeamName(onClockPick.currentOwner)}
+              </h2>
+
+              <div className="flex items-center gap-4 mt-2">
+                <span className="text-slate-400 font-black text-[11px] uppercase tracking-[0.2em]">
+                  Pick #{onClockPick.overall}
+                </span>
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+                <span className="text-slate-400 font-black text-[11px] uppercase tracking-[0.2em]">
+                  Round {onClockPick.round}
+                </span>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 min-w-[300px] text-center">
+              <p className="text-8xl font-mono font-black text-amber-400 tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+                {timeLeft}
+              </p>
+              <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-widest">
+                Remaining Selection Time
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* FILTER BAR */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
+          <FilterSelect label="Season" value={yearFilter} onChange={setYearFilter} options={Array.from(new Set(picks.map(p => p.year))).sort()} />
+          <FilterSelect label="Franchise" value={teamFilter} onChange={setTeamFilter} options={Array.from(new Set(picks.map(p => getFullTeamName(p.currentOwner)))).sort()} />
+          <FilterSelect label="Round" value={roundFilter} onChange={setRoundFilter} options={Array.from(new Set(picks.map(p => p.round))).sort((a,b)=>a-b)} />
+          <div className="space-y-1">
+            <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Find Player</label>
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className="w-full p-3.5 pl-10 bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 transition-all" 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+              />
+            </div>
           </div>
         </div>
 
-        <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 min-w-[300px] text-center">
-          <p className="text-8xl font-mono font-black text-amber-400 tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
-            {timeLeft}
-          </p>
-          <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-widest">
-            Remaining Selection Time
-          </p>
-        </div>
-      </div>
-    )}
-
-      {/* FILTER BAR */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
-        <FilterSelect label="Season" value={yearFilter} onChange={setYearFilter} options={Array.from(new Set(picks.map(p => p.year))).sort()} />
-        <FilterSelect label="Franchise" value={teamFilter} onChange={setTeamFilter} options={Array.from(new Set(picks.map(p => getFullTeamName(p.currentOwner)))).sort()} />
-        <FilterSelect label="Round" value={roundFilter} onChange={setRoundFilter} options={Array.from(new Set(picks.map(p => p.round))).sort((a,b)=>a-b)} />
-        <div className="space-y-1">
-          <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Find Player</label>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              className="w-full p-3.5 pl-10 bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 transition-all" 
-              value={searchTerm} 
-              onChange={(e) => setSearchTerm(e.target.value)} 
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* DRAFT TABLE */}
-      <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-900 text-white uppercase text-[9px] font-black tracking-[0.25em]">
-                <th className="px-10 py-6">Pick</th>
-                <th className="px-10 py-6">Drafted Player</th>
-                <th className="px-10 py-6">Current Owner</th>
-                <th className="px-10 py-6 text-right pr-16">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filteredPicks.map((pick) => {
-                const isDrafted = !!pick.draftedPlayer && !pick.draftedPlayer.includes("SKIPPED");
-                const isSkipped = !!pick.draftedPlayer && pick.draftedPlayer.includes("SKIPPED");
-                const isOnClock = onClockPick && pick.overall === onClockPick.overall;
-                return (
-                  <tr key={pick.overall} className={`transition-all ${isOnClock ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
-                    <td className="px-10 py-8">
-                      <span className={`text-4xl font-black italic tracking-tighter ${isOnClock ? 'text-blue-600' : isDrafted ? 'text-slate-100' : 'text-slate-200'}`}>
-                        {pick.overall}
-                      </span>
-                    </td>
-                    <td className="px-10 py-4">
-                      {isDrafted ? (
-                        <div className="flex flex-col">
-                          <a href={`https://www.google.com/search?q=${encodeURIComponent(pick.draftedPlayer.split(' - ').pop() || pick.draftedPlayer)}`} target="_blank" rel="noopener noreferrer" className="text-base font-black uppercase text-slate-900 hover:text-blue-600 transition-all">
-                            {pick.draftedPlayer}
-                          </a>
-                          <span className="text-[10px] font-black text-slate-400 uppercase italic mt-1">{pick.timestamp}</span>
-                        </div>
-                      ) : isSkipped ? (
-                        <div className="flex flex-col text-orange-500 uppercase">
-                          <span className="font-black text-[11px]">Expired (Skipped)</span>
-                          <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
-                        </div>
-                      ) : (
-                        <span className={`text-[11px] font-black uppercase tracking-widest ${isOnClock ? 'text-blue-500 animate-pulse' : 'text-slate-200'}`}>
-                          {isOnClock ? 'On the Clock' : 'Awaiting Turn'}
+        {/* DRAFT TABLE */}
+        <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-900 text-white uppercase text-[9px] font-black tracking-[0.25em]">
+                  <th className="px-10 py-6">Pick</th>
+                  <th className="px-10 py-6">Drafted Player</th>
+                  <th className="px-10 py-6">Current Owner</th>
+                  <th className="px-10 py-6 text-right pr-16">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filteredPicks.map((pick) => {
+                  const isDrafted = !!pick.draftedPlayer && !pick.draftedPlayer.includes("SKIPPED") && pick.draftedPlayer.trim() !== "";
+                  const isSkipped = !!pick.draftedPlayer && pick.draftedPlayer.includes("SKIPPED");
+                  const isOnClock = onClockPick && pick.overall === onClockPick.overall;
+                  return (
+                    <tr key={pick.overall} className={`transition-all ${isOnClock ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
+                      <td className="px-10 py-8">
+                        <span className={`text-4xl font-black italic tracking-tighter ${isOnClock ? 'text-blue-600' : isDrafted ? 'text-slate-100' : 'text-slate-200'}`}>
+                          {pick.overall}
                         </span>
-                      )}
-                    </td>
-                    <td className="px-10 py-4">
-                        <span className="text-sm font-black uppercase tracking-tight text-slate-700">{getFullTeamName(pick.currentOwner)}</span>
-                    </td>
-                    <td className="px-10 py-4 text-right pr-16">
-                      {isDrafted ? (
-                        <span className="text-emerald-500 font-black text-[10px] uppercase border border-emerald-100 bg-emerald-50 px-4 py-2 rounded-full tracking-widest">Finalized</span>
-                      ) : isSkipped && session ? (
-                        <button onClick={() => { setSelectedPick(pick); setShowSelectionModal(true); }} className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-orange-600 transition-all active:scale-95">Late Selection</button>
-                      ) : isOnClock && session ? (
-                        <button onClick={() => { setSelectedPick(pick); setShowSelectionModal(true); }} className="bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-blue-700 transition-all active:scale-95">Enter Selection</button>
-                      ) : (
-                        <span className="text-slate-200 font-black text-[10px] uppercase tracking-widest">Locked</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td className="px-10 py-4">
+                        {isDrafted ? (
+                          <div className="flex flex-col">
+                            <a href={`https://www.google.com/search?q=${encodeURIComponent(pick.draftedPlayer.split(' - ').pop() || pick.draftedPlayer)}`} target="_blank" rel="noopener noreferrer" className="text-base font-black uppercase text-slate-900 hover:text-blue-600 transition-all">
+                              {pick.draftedPlayer}
+                            </a>
+                            <span className="text-[10px] font-black text-slate-400 uppercase italic mt-1">{pick.timestamp}</span>
+                          </div>
+                        ) : isSkipped ? (
+                          <div className="flex flex-col text-orange-500 uppercase">
+                            <span className="font-black text-[11px]">Expired (Skipped)</span>
+                            <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
+                          </div>
+                        ) : (
+                          <span className={`text-[11px] font-black uppercase tracking-widest ${isOnClock ? 'text-blue-500 animate-pulse' : 'text-slate-200'}`}>
+                            {isOnClock ? 'On the Clock' : 'Awaiting Turn'}
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-10 py-4">
+                          <span className="text-sm font-black uppercase tracking-tight text-slate-700">{getFullTeamName(pick.currentOwner)}</span>
+                      </td>
+                      <td className="px-10 py-4 text-right pr-16">
+                        {isDrafted ? (
+                          <span className="text-emerald-500 font-black text-[10px] uppercase border border-emerald-100 bg-emerald-50 px-4 py-2 rounded-full tracking-widest">Finalized</span>
+                        ) : isSkipped && session ? (
+                          <button onClick={() => { setSelectedPick(pick); setShowSelectionModal(true); }} className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-orange-600 transition-all active:scale-95">Late Selection</button>
+                        ) : isOnClock && session ? (
+                          <button onClick={() => { setSelectedPick(pick); setShowSelectionModal(true); }} className="bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-blue-700 transition-all active:scale-95">Enter Selection</button>
+                        ) : (
+                          <span className="text-slate-200 font-black text-[10px] uppercase tracking-widest">Locked</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      </main>
 
       {/* FREE AGENT DRAWER */}
       {showFA && (
@@ -350,7 +356,6 @@ export default function DraftPage() {
               <button onClick={() => setShowFA(false)} className="bg-slate-800 p-3 rounded-2xl text-slate-400 hover:text-white transition-all"><X size={24} /></button>
             </div>
 
-            {/* ADVANCED SCOUTING CONTROLS */}
             <div className="p-6 bg-white border-b shadow-sm space-y-4">
               <div className="flex gap-3">
                 <div className="relative flex-[2]">
@@ -363,7 +368,6 @@ export default function DraftPage() {
                 </select>
               </div>
               
-              {/* HORIZONTAL POSITION FILTER */}
               <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
                 {['All', 'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'].map(pos => (
                   <button key={pos} onClick={() => setFaPosFilter(pos)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all shrink-0 ${faPosFilter === pos ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>{pos}</button>
