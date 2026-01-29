@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 interface Game {
   year: string;
@@ -13,9 +13,16 @@ interface Game {
 }
 
 export default function ScheduleClient({ initialGames }: { initialGames: Game[] }) {
+  // 🚀 REF: For auto-scrolling the navigation rail
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const activeWeekRef = useRef<HTMLButtonElement>(null);
+
   // 1. Extract years and sort descending (Newest first)
-  const availableYears = Array.from(new Set(initialGames.map(g => g.year.toString())))
-    .sort((a, b) => Number(b) - Number(a));
+  const availableYears = useMemo(() => 
+    Array.from(new Set(initialGames.map(g => g.year.toString())))
+      .sort((a, b) => Number(b) - Number(a)),
+    [initialGames]
+  );
 
   const [selectedYear, setSelectedYear] = useState(availableYears[0]);
 
@@ -23,26 +30,47 @@ export default function ScheduleClient({ initialGames }: { initialGames: Game[] 
   const gamesInYear = initialGames.filter(g => g.year.toString() === selectedYear);
 
   // 3. Extract and Sort Weeks (Natural sort: 1, 2 ... 14, 15-WC, 16-SEMIS)
-  const weeksInYear = Array.from(new Set(gamesInYear.map(g => g.week.toString())))
-    .sort((a, b) => {
-      const numA = parseInt(a);
-      const numB = parseInt(b);
-      return numA - numB;
-    });
+  const weeksInYear = useMemo(() => 
+    Array.from(new Set(gamesInYear.map(g => g.week.toString())))
+      .sort((a, b) => {
+        const numA = parseInt(a);
+        const numB = parseInt(b);
+        return numA - numB;
+      }),
+    [gamesInYear]
+  );
 
   // 4. LOGIC: Find the FIRST week in the sequence that is incomplete
-  const firstIncompleteWeek = weeksInYear.find(weekNum => {
-    const gamesInWeek = gamesInYear.filter(g => g.week.toString() === weekNum);
-    return gamesInWeek.some(g => {
-      const vStr = (g.vScore || "").toString().trim();
-      const hStr = (g.hScore || "").toString().trim();
-      return vStr === "" || vStr === "00" || hStr === "" || hStr === "00";
+  const firstIncompleteWeek = useMemo(() => {
+    return weeksInYear.find(weekNum => {
+      const gamesInWeek = gamesInYear.filter(g => g.week.toString() === weekNum);
+      return gamesInWeek.some(g => {
+        const vStr = (g.vScore || "").toString().trim();
+        const hStr = (g.hScore || "").toString().trim();
+        return vStr === "" || vStr === "00" || hStr === "" || hStr === "00";
+      });
     });
-  });
+  }, [weeksInYear, gamesInYear]);
 
   // Default to the first incomplete week, or the last week of the season if finished
   const activeWeek = firstIncompleteWeek || weeksInYear[weeksInYear.length - 1] || '1';
   const [selectedWeek, setSelectedWeek] = useState(activeWeek);
+
+  // 🚀 5. AUTO-SCROLL EFFECT
+  // This runs when the component mounts or when the year changes
+  useEffect(() => {
+    if (activeWeekRef.current) {
+      // Small timeout ensures the rail has rendered before calculating position
+      const timer = setTimeout(() => {
+        activeWeekRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center', // Centers the button in the horizontal rail
+        });
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [selectedYear, firstIncompleteWeek]);
 
   // Handle year change: Reset week to the active/first week of that specific year
   const handleYearChange = (year: string) => {
@@ -52,10 +80,11 @@ export default function ScheduleClient({ initialGames }: { initialGames: Game[] 
       .sort((a, b) => parseInt(a) - parseInt(b));
     
     const newIncomplete = newWeeks.find(w => {
-        return newYearGames.filter(g => g.week.toString() === w).some(g => {
-            const v = (g.vScore || "").toString().trim();
-            return v === "" || v === "00";
-        });
+      return newYearGames.filter(g => g.week.toString() === w).some(g => {
+        const v = (g.vScore || "").toString().trim();
+        const h = (g.hScore || "").toString().trim();
+        return v === "" || v === "00" || h === "" || h === "00";
+      });
     });
     setSelectedWeek(newIncomplete || newWeeks[0] || '1');
   };
@@ -82,7 +111,10 @@ export default function ScheduleClient({ initialGames }: { initialGames: Game[] 
       </div>
 
       {/* WEEK NAVIGATION */}
-      <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar sticky top-16 z-40 bg-[#f8fafc]/80 backdrop-blur-md py-4 px-2 -mx-2">
+      <div 
+        ref={scrollContainerRef}
+        className="flex gap-2 overflow-x-auto pb-4 no-scrollbar sticky top-16 z-40 bg-[#f8fafc]/80 backdrop-blur-md py-4 px-2 -mx-2"
+      >
         {weeksInYear.map(week => {
           const isCurrentActiveWeek = week === firstIncompleteWeek;
           const isSelected = selectedWeek === week;
@@ -91,6 +123,8 @@ export default function ScheduleClient({ initialGames }: { initialGames: Game[] 
           return (
             <button
               key={week}
+              // 🚀 ATTACH REF HERE
+              ref={week === activeWeek ? activeWeekRef : null}
               onClick={() => setSelectedWeek(week)}
               className={`px-6 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shrink-0 border-2 flex items-center gap-2 ${
                 isSelected 
