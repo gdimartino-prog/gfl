@@ -323,7 +323,18 @@ export default function DraftPage() {
                         )}
                       </td>
                       <td className="px-10 py-4">
+                        <div className="flex flex-col">
                           <span className="text-sm font-black uppercase tracking-tight text-slate-700">{getFullTeamName(pick.currentOwner)}</span>
+
+                          {pick.originalTeam && pick.currentOwner && 
+                              pick.originalTeam.trim().toLowerCase() !== pick.currentOwner.trim().toLowerCase() && (
+                                <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
+                                  {/* Wrap originalTeam in getFullTeamName to get the long version */}
+                                  VIA {getFullTeamName(pick.originalTeam)}
+                                </span>
+                              )}
+
+                        </div>
                       </td>
                       <td className="px-10 py-4 text-right pr-16">
                         {isDrafted ? (
