@@ -22,8 +22,8 @@ interface DraftPick {
   currentOwner: string;
   status: string;
   draftedPlayer?: string;
-  timestamp?: string;
-  via?: string | null;   // 🚀 Calculated by lib/draftpicks
+  timestamp: string;
+  via: string | null;   // 🚀 Calculated by lib/draftpicks
   history?: string;      // 🚀 From Column K
 }
 
