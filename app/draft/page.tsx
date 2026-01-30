@@ -21,7 +21,7 @@ interface DraftPick {
   originalTeam: string;
   currentOwner: string;
   status: string;
-  draftedPlayer?: string;
+  draftedPlayer: string;
   timestamp: string;
   via: string | null;   // 🚀 Calculated by lib/draftpicks
   history?: string;      // 🚀 From Column K
@@ -69,8 +69,18 @@ export default function DraftPage() {
       ]);
 
       const sortedPicks = Array.isArray(pRes) 
-        ? pRes.sort((a, b) => Number(a.overall) - Number(b.overall))
-        : [];
+      ? pRes
+          .map((p: any) => ({
+            ...p,
+            // 🚀 Ensure mandatory strings for the Ticker and UI
+            draftedPlayer: p.draftedPlayer || "", 
+            timestamp: p.timestamp || "",
+            // 🚀 Ensure our new trade fields exist
+            history: p.history || "",
+            via: p.via || null
+          }))
+          .sort((a, b) => Number(a.overall) - Number(b.overall))
+      : [];
       
       setPicks(sortedPicks);
       setTeams(tRes);
