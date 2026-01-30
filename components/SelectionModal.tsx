@@ -48,7 +48,8 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
           playerName: player.name || `${player.first} ${player.last}`,
           // 🚀 ADDED: These are required by your draft-selection logic
           playerPosition: player.pos || player.position || 'N/A',
-          newOwnerCode: pick.currentOwner,
+          //newOwnerCode: pick.currentOwner,
+          newOwnerCode: pick.currentOwnerCode || pick.currentOwner,
           coachName: coach || 'Unknown Coach'
         })
       });
