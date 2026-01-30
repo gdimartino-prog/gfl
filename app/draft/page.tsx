@@ -106,7 +106,7 @@ export default function DraftPage() {
       const now = new Date().getTime();
       const startTimeStr = previousPick?.timestamp;
       const startRef = startTimeStr ? new Date(startTimeStr).getTime() : new Date().getTime() - (1000 * 60); 
-      const roundNum = parseInt(onClockPick.round);
+      const roundNum = number(onClockPick.round);
       const limitMs = (roundNum <= 2 ? 24 : 12) * 60 * 60 * 1000;
       const expiryTime = startRef + limitMs;
       const diff = expiryTime - now;
