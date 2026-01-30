@@ -14,9 +14,23 @@ export const dynamic = 'force-dynamic';
 
 interface Team { name: string; short: string; }
 
+interface DraftPick {
+  year: number;
+  round: number;
+  overall: number;
+  originalTeam: string;
+  currentOwner: string;
+  status: string;
+  draftedPlayer?: string;
+  timestamp?: string;
+  via?: string | null;   // 🚀 Calculated by lib/draftpicks
+  history?: string;      // 🚀 From Column K
+}
+
 export default function DraftPage() {
   const { data: session } = useSession();
-  const [picks, setPicks] = useState<any[]>([]);
+  //const [picks, setPicks] = useState<any[]>([]);
+  const [picks, setPicks] = useState<DraftPick[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -322,20 +336,55 @@ export default function DraftPage() {
                           </span>
                         )}
                       </td>
+
                       <td className="px-10 py-4">
                         <div className="flex flex-col">
-                          <span className="text-sm font-black uppercase tracking-tight text-slate-700">{getFullTeamName(pick.currentOwner)}</span>
+                          {/* 1. Current Owner Full Name */}
+                          <span className="text-sm font-black uppercase tracking-tight text-slate-700">
+                            {getFullTeamName(pick.currentOwner)}
+                          </span>
 
-                          {pick.originalTeam && pick.currentOwner && 
-                              pick.originalTeam.trim().toLowerCase() !== pick.currentOwner.trim().toLowerCase() && (
-                                <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
-                                  {/* Wrap originalTeam in getFullTeamName to get the long version */}
-                                  VIA {getFullTeamName(pick.originalTeam)}
-                                </span>
-                              )}
-
+                          {/* 🚀 ROBUST CONDITIONAL TRADE DISPLAY */}
+                          {pick.history && pick.history.trim() !== "" ? (
+                            <div className="flex flex-col">
+                              {(() => {
+                                // Identify all team codes in the string (e.g., "TFT", "LM")
+                                const teamCodes = pick.history.match(/[A-Z0-9]+/g) || [];
+                                
+                                // Case A: Multiple teams found (3 or more) -> Show full path
+                                if (teamCodes.length >= 3) {
+                                  return (
+                                    <>
+                                      <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
+                                        VIA {getFullTeamName(pick.originalTeam)}
+                                      </span>
+                                      <span className="text-[9px] font-black uppercase text-blue-400 italic tracking-[0.1em] leading-tight mt-1">
+                                        {/* Map every code to a full name and join with an arrow */}
+                                        {teamCodes.map(code => getFullTeamName(code)).join(' → ')}
+                                      </span>
+                                    </>
+                                  );
+                                }
+                                
+                                // Case B: Exactly 2 teams (Single Trade) -> Show only VIA
+                                return (
+                                  <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
+                                    VIA {getFullTeamName(pick.originalTeam)}
+                                  </span>
+                                );
+                              })()}
+                            </div>
+                          ) : (
+                            /* Fallback if History is empty */
+                            pick.via && (
+                              <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
+                                VIA {getFullTeamName(pick.via)}
+                              </span>
+                            )
+                          )}
                         </div>
                       </td>
+
                       <td className="px-10 py-4 text-right pr-16">
                         {isDrafted ? (
                           <span className="text-emerald-500 font-black text-[10px] uppercase border border-emerald-100 bg-emerald-50 px-4 py-2 rounded-full tracking-widest">Finalized</span>

@@ -10,7 +10,7 @@ export async function GET() {
     // UPDATED: Extended range to A:J to capture Columns I and J
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'DraftPicks!A:J', 
+      range: 'DraftPicks!A:K', 
     });
 
     const rows = response.data.values;
@@ -27,7 +27,8 @@ export async function GET() {
       draftedPlayer: p[6] || '', // Column G
       timestamp: p[7] || '',     // Column H
       // p[8] is Column I (Notes/Skipped Logic)
-      processedBy: p[9] || ''    // Column J: The Coach's Name
+      processedBy: p[9] || '',    // Column J: The Coach's Name
+      history: p[10] || ''       // Column K: The History Column
     }));
 
     return NextResponse.json(formattedPicks);

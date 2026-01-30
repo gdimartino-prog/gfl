@@ -9,7 +9,8 @@ export type DraftPick = {
   overall: number;     
   originalTeam: string; 
   currentOwner: string; 
-  status: string;      
+  status: string;
+  history?: string;      
 };
 
 /**
@@ -19,25 +20,42 @@ export async function getAllDraftPicks(): Promise<DraftPick[]> {
   try {
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET}!A2:G`,
+      range: `${SHEET}!A2:K`, // 🚀 Expanded to K to get Pick History
     });
 
     const rows = res.data.values;
     if (!Array.isArray(rows)) return [];
 
-    return rows.map(r => ({
-      year: Number(r[0]),
-      round: Number(r[1]),
-      overall: Number(r[2]),
-      originalTeam: r[3] || '',
-      currentOwner: r[4] || '',
-      status: r[5] || 'Active',
-    }));
+    return rows.map(r => {
+      // 1. Clean the incoming data
+      const originalTeam = (r[3] || '').trim();
+      const currentOwner = (r[4] || '').trim();
+      const pickHistory = (r[10] || '').trim(); // Column K is index 10
+
+      // 2. Logic: Only show "VIA" if it's not the original team
+      // Using toLowerCase() to ensure "NYG" matches "nyg"
+      const viaTeam = (originalTeam && currentOwner && originalTeam.toLowerCase() !== currentOwner.toLowerCase()) 
+        ? originalTeam 
+        : null;
+
+      // 3. Construct the clean object
+      return {
+        year: Number(r[0]),
+        round: Number(r[1]),
+        overall: Number(r[2]),
+        originalTeam,
+        currentOwner,
+        via: viaTeam,
+        history: pickHistory,
+        status: r[5] || 'Active',
+      };
+    });
   } catch (error) {
     console.error('getAllDraftPicks failed:', error);
     throw error;
   }
 }
+
 
 /**
  * Find a specific pick using Year, Round, and the Current Owner
