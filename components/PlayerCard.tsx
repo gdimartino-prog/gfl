@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Player } from '@/types';
 
 interface PlayerCardProps {
-  data: any;
+  data: Player;
   onClose: () => void;
 }
 

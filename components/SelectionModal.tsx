@@ -2,17 +2,18 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { X, Search, UserPlus } from 'lucide-react';
+import { Player, DraftPick } from '@/types';
 
 interface SelectionModalProps {
-  pick: any;
+  pick: DraftPick | any;
   coach: string;
   onClose: () => void;
   onComplete: () => Promise<void> | void;
-  onScout: (player: any) => void;
+  onScout: (player: Player) => void;
 }
 
 export default function SelectionModal({ pick, coach, onClose, onComplete, onScout }: SelectionModalProps) {
-  const [players, setPlayers] = useState<any[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,7 +23,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
     fetch(`/api/players?view=light&t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
-        setPlayers(data.filter((p: any) => p.team === 'FA'));
+        setPlayers(data.filter((p: Player) => p.team === 'FA'));
         setLoading(false);
       });
   }, []);
@@ -34,7 +35,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
     }).slice(0, 50);
   }, [players, searchTerm]);
 
-  const handleSelect = async (player: any) => {
+  const handleSelect = async (player: Player) => {
     if (!confirm(`Draft ${player.name || player.last} to ${pick.currentOwner}?`)) return;
     setIsSubmitting(true);
     try {

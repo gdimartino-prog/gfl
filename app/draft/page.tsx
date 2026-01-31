@@ -13,37 +13,6 @@ import RecentPicksTicker from '@/components/RecentPicksTicker';
 
 export const dynamic = 'force-dynamic';
 
-interface Team { name: string; short: string; }
-
-interface Player {
-  identity: string;
-  name?: string;
-  first?: string;
-  last?: string;
-  pos?: string;
-  position?: string;
-  offense?: string;
-  defense?: string;
-  special?: string;
-  age?: number;
-  salary?: string | number;
-  stats?: any;
-  allStats?: any;
-}
-
-interface DraftPick {
-  year: number;
-  round: number;
-  overall: number;
-  originalTeam: string;
-  currentOwner: string;
-  status: string;
-  draftedPlayer: string;
-  timestamp: string;
-  via: string | null;   // 🚀 Calculated by lib/draftpicks
-  history?: string;      // 🚀 From Column K
-}
-
 export default function DraftPage() {
   const { data: session } = useSession();
   const router = useRouter();
