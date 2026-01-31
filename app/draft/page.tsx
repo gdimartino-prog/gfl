@@ -24,6 +24,7 @@ interface Player {
   position?: string;
   offense?: string;
   defense?: string;
+  special?: string;
   age?: number;
   salary?: string | number;
   stats?: any;
