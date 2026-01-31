@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
 import { Clock, Search, RotateCw, X, Zap, ChevronRight, Filter } from 'lucide-react';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
+import { Team, Player, DraftPick } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
