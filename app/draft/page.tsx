@@ -175,11 +175,37 @@ export default function DraftPage() {
         return matchesSearch && matchesPos;
       })
       .sort((a, b) => {
-        const valA = Number(a.overall || a.core?.overall || 0);
-        const valB = Number(b.overall || b.core?.overall || 0);
-        if (faSortKey === 'age') return (Number(a.age || a.core?.age || 0) - Number(b.age || b.core?.age || 0));
-        return valB - valA;
+        // 1. Independent Alphabetical Mode (Last Name First)
+        if (faSortKey === 'alpha') {
+          const lastA = (a.last || "").toLowerCase();
+          const lastB = (b.last || "").toLowerCase();
+          
+          // If last names are different, sort by last name
+          if (lastA !== lastB) return lastA.localeCompare(lastB);
+          
+          // If last names are same, sort by first name
+          return (a.first || "").localeCompare(b.first || "");
+        }
+
+        // 2. Independent Age Mode
+        if (faSortKey === 'age') {
+          return Number(a.age || 0) - Number(b.age || 0);
+        }
+
+        // 3. Default: Salary/OVR Mode (Highest to Lowest)
+        const salaryA = Number(String(a.salary || 0).replace(/[^0-9.-]+/g,""));
+        const salaryB = Number(String(b.salary || 0).replace(/[^0-9.-]+/g,""));
+
+        if (salaryB !== salaryA) return salaryB - salaryA;
+
+        // Fallback tie-breaker (Last Name then First Name)
+        const lastA = (a.last || "").toLowerCase();
+        const lastB = (b.last || "").toLowerCase();
+        if (lastA !== lastB) return lastA.localeCompare(lastB);
+        return (a.first || "").localeCompare(b.first || "");
       });
+
+
   }, [faPlayers, faSearch, faPosFilter, faSortKey]);
 
   // --- 🚀 HYDRATION ENGINE ---
@@ -226,7 +252,7 @@ export default function DraftPage() {
             onClick={() => { 
               setFaLoading(true); 
               setShowFA(true); 
-              fetch(`/api/players?view=light&t=${Date.now()}`).then(r => r.json()).then(res => { 
+              fetch(`/api/players?view=light&t=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()).then(res => { 
                 setFaPlayers(res.filter((p: any) => p.team === 'FA')); 
                 setFaLoading(false); 
               }); 
@@ -437,6 +463,7 @@ export default function DraftPage() {
                 <select className="flex-1 p-2 bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase text-slate-900" value={faSortKey} onChange={(e) => setFaSortKey(e.target.value)}>
                   <option value="overall">Sort: OVR</option>
                   <option value="age">Sort: AGE</option>
+                  <option value="alpha">Sort: A-Z</option>
                 </select>
               </div>
               

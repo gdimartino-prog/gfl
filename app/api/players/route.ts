@@ -19,13 +19,13 @@ const getCachedPlayersFull = unstable_cache(
   { revalidate: 60, tags: ['players'] } 
 );
 
-// Master Cache for Light Data (A:I)
+// Master Cache for Light Data (A:V)
 const getCachedPlayersLight = unstable_cache(
   async () => {
     console.log("Light Cache Expired: Fetching A:I from Google...");
     const result = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'Players!A:I', 
+      range: 'Players!A:V', 
     });
     return result.data.values || [];
   },
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
 
     // 1. Fetch Data (Bypass cache if 't' parameter is present)
     if (forceFresh) {
-      const range = isLight ? 'Players!A:I' : 'Players!A:CV';
+      const range = isLight ? 'Players!A:V' : 'Players!A:CV';
       const result = await sheets.spreadsheets.values.get({
         spreadsheetId: SHEET_ID,
         range: range,
