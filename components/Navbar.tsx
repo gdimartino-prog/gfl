@@ -38,11 +38,11 @@ export default function Navbar() {
   const navItems = [
     { name: 'Rosters', href: '/rosters' },
     { name: 'Schedule', href: '/schedule' }, 
+    { name: 'Standings', href: '/standings' },
     { name: 'Transactions', href: '/transactions' }, 
+    { name: 'COA Hub', href: '/coaching' }, 
     { name: 'Draft Board', href: '/draft' },
     { name: 'Cuts', href: '/cuts' },
-    { name: 'Standings', href: '/standings' },
-    { name: 'COA Hub', href: '/coaching' }, 
     { name: 'Resources', href: '/resources' },
     { name: 'Constitution', href: '/rules' }, 
   ];

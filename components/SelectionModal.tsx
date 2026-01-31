@@ -19,7 +19,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/players?view=light')
+    fetch('/api/players?view=light', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         setPlayers(data.filter((p: any) => p.team === 'FA'));
