@@ -7,7 +7,7 @@ interface SelectionModalProps {
   pick: any;
   coach: string;
   onClose: () => void;
-  onComplete: () => void;
+  onComplete: () => Promise<void> | void;
   onScout: (player: any) => void;
 }
 
@@ -19,7 +19,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/players?view=light', { cache: 'no-store' })
+    fetch(`/api/players?view=light&t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         setPlayers(data.filter((p: any) => p.team === 'FA'));
@@ -55,7 +55,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
       });
       
       if (res.ok) {
-        onComplete();
+        await onComplete();
       } else {
         const errorData = await res.json();
         alert(`Failed to save selection: ${errorData.error || 'Unknown error'}`);

@@ -7,12 +7,28 @@ import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
 import { getPositionStats } from '@/lib/playerStats'; 
 import { useSession } from "next-auth/react";
+import { useRouter } from 'next/navigation';
 import { Clock, Search, RotateCw, X, Zap, ChevronRight, Filter } from 'lucide-react';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
 
 export const dynamic = 'force-dynamic';
 
 interface Team { name: string; short: string; }
+
+interface Player {
+  identity: string;
+  name?: string;
+  first?: string;
+  last?: string;
+  pos?: string;
+  position?: string;
+  offense?: string;
+  defense?: string;
+  age?: number;
+  salary?: string | number;
+  stats?: any;
+  allStats?: any;
+}
 
 interface DraftPick {
   year: number;
@@ -29,6 +45,7 @@ interface DraftPick {
 
 export default function DraftPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   //const [picks, setPicks] = useState<any[]>([]);
   const [picks, setPicks] = useState<DraftPick[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -43,15 +60,16 @@ export default function DraftPage() {
   
   // Free Agent States
   const [showFA, setShowFA] = useState(false);
-  const [faPlayers, setFaPlayers] = useState<any[]>([]); 
+  const [faPlayers, setFaPlayers] = useState<Player[]>([]); 
   const [faLoading, setFaLoading] = useState(false);
   const [faSearch, setFaSearch] = useState('');
   const [faPosFilter, setFaPosFilter] = useState('All');
   const [faSortKey, setFaSortKey] = useState('overall');
   
   // Selection & Scouting States
-  const [selectedPlayer, setSelectedPlayer] = useState<any>(null); 
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null); 
   const [selectedPick, setSelectedPick] = useState<any>(null);
+  const [modalSessionId, setModalSessionId] = useState(0);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
 
   // Timer States
@@ -63,9 +81,9 @@ export default function DraftPage() {
     if (showRefreshState) setIsRefreshing(true);
     try {
       const [pRes, tRes, rRes] = await Promise.all([
-        fetch('/api/draft-picks', { cache: 'no-store' }).then(res => res.json()),
-        fetch('/api/teams').then(res => res.json()),
-        fetch('/api/rules').then(res => res.json()) 
+        fetch(`/api/draft-picks?t=${Date.now()}`, { cache: 'no-store' }).then(res => res.json()),
+        fetch(`/api/teams?t=${Date.now()}`, { cache: 'no-store' }).then(res => res.json()),
+        fetch(`/api/rules?t=${Date.now()}`, { cache: 'no-store' }).then(res => res.json()) 
       ]);
 
       const sortedPicks = Array.isArray(pRes) 
@@ -161,6 +179,32 @@ export default function DraftPage() {
     });
   }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, teams]);
 
+  // Helper to render trade history logic cleanly
+  const renderTradeHistory = (pick: DraftPick) => {
+    if (!pick.history || pick.history.trim() === "") {
+      return pick.via ? (
+        <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
+          VIA {getFullTeamName(pick.via)}
+        </span>
+      ) : null;
+    }
+
+    const teamCodes = pick.history.match(/[A-Z0-9]+/g) || [];
+    
+    return (
+      <div className="flex flex-col">
+        <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
+          VIA {getFullTeamName(pick.originalTeam)}
+        </span>
+        {teamCodes.length >= 3 && (
+          <span className="text-[9px] font-black uppercase text-blue-400 italic tracking-[0.1em] leading-tight mt-1">
+            {teamCodes.map(code => getFullTeamName(code)).join(' → ')}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   const processedFAs = useMemo(() => {
     if (!Array.isArray(faPlayers)) return [];
     return [...faPlayers]
@@ -209,7 +253,7 @@ export default function DraftPage() {
   }, [faPlayers, faSearch, faPosFilter, faSortKey]);
 
   // --- 🚀 HYDRATION ENGINE ---
-  const fetchFAWithDetails = async (p: any, silent = false) => {
+  const fetchFAWithDetails = async (p: Player, silent = false) => {
     if (silent && (p.stats || p.allStats?.receptions)) return;
     try {
       const r = await fetch(`/api/players/details/${encodeURIComponent(p.identity)}`);
@@ -379,45 +423,7 @@ export default function DraftPage() {
                           <span className="text-sm font-black uppercase tracking-tight text-slate-700">
                             {getFullTeamName(pick.currentOwner)}
                           </span>
-
-                          {/* 🚀 ROBUST CONDITIONAL TRADE DISPLAY */}
-                          {pick.history && pick.history.trim() !== "" ? (
-                            <div className="flex flex-col">
-                              {(() => {
-                                // Identify all team codes in the string (e.g., "TFT", "LM")
-                                const teamCodes = pick.history.match(/[A-Z0-9]+/g) || [];
-                                
-                                // Case A: Multiple teams found (3 or more) -> Show full path
-                                if (teamCodes.length >= 3) {
-                                  return (
-                                    <>
-                                      <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
-                                        VIA {getFullTeamName(pick.originalTeam)}
-                                      </span>
-                                      <span className="text-[9px] font-black uppercase text-blue-400 italic tracking-[0.1em] leading-tight mt-1">
-                                        {/* Map every code to a full name and join with an arrow */}
-                                        {teamCodes.map(code => getFullTeamName(code)).join(' → ')}
-                                      </span>
-                                    </>
-                                  );
-                                }
-                                
-                                // Case B: Exactly 2 teams (Single Trade) -> Show only VIA
-                                return (
-                                  <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
-                                    VIA {getFullTeamName(pick.originalTeam)}
-                                  </span>
-                                );
-                              })()}
-                            </div>
-                          ) : (
-                            /* Fallback if History is empty */
-                            pick.via && (
-                              <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
-                                VIA {getFullTeamName(pick.via)}
-                              </span>
-                            )
-                          )}
+                          {renderTradeHistory(pick)}
                         </div>
                       </td>
 
@@ -425,9 +431,29 @@ export default function DraftPage() {
                         {isDrafted ? (
                           <span className="text-emerald-500 font-black text-[10px] uppercase border border-emerald-100 bg-emerald-50 px-4 py-2 rounded-full tracking-widest">Finalized</span>
                         ) : isSkipped && session ? (
-                          <button onClick={() => { setSelectedPick(pick); setShowSelectionModal(true); }} className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-orange-600 transition-all active:scale-95">Late Selection</button>
+                          <button 
+                            disabled={isRefreshing}
+                            onClick={() => { 
+                              setModalSessionId(Date.now()); 
+                              setSelectedPick(pick); 
+                              setShowSelectionModal(true); 
+                            }} 
+                            className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-orange-600 transition-all active:scale-95"
+                          >
+                            Late Selection
+                          </button>
                         ) : isOnClock && session ? (
-                          <button onClick={() => { setSelectedPick(pick); setShowSelectionModal(true); }} className="bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-blue-700 transition-all active:scale-95">Enter Selection</button>
+                          <button 
+                            disabled={isRefreshing}
+                            onClick={() => { 
+                              setModalSessionId(Date.now()); 
+                              setSelectedPick(pick); 
+                              setShowSelectionModal(true); 
+                            }} 
+                            className="bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-blue-700 transition-all active:scale-95"
+                          >
+                            Enter Selection
+                          </button>
                         ) : (
                           <span className="text-slate-200 font-black text-[10px] uppercase tracking-widest">Locked</span>
                         )}
@@ -509,10 +535,23 @@ export default function DraftPage() {
 
       {showSelectionModal && selectedPick && (
         <SelectionModal 
+          key={`modal-${selectedPick.overall}-${modalSessionId}`}
           pick={{...selectedPick, currentOwner: getFullTeamName(selectedPick.currentOwner), currentOwnerCode: resolveCode(selectedPick.currentOwner)}}
           coach={session?.user?.name || "Unknown Coach"}
           onClose={() => { setSelectedPick(null); setShowSelectionModal(false); }}
-          onComplete={() => {  setFaPlayers([]);setSelectedPick(null); setShowSelectionModal(false); loadData(); }}
+          onComplete={async () => { 
+            setSelectedPick(null); 
+            setShowSelectionModal(false); 
+            setFaPlayers([]); 
+            setShowFA(false); 
+
+            // 🚀 PROPAGATION DELAY: Wait 1.5s for Google Sheets to settle
+            // This prevents the "immediate reopen" from hitting a stale cache
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            router.refresh(); 
+            await loadData(true); 
+          }}
           onScout={(p) => fetchFAWithDetails(p)} 
         />
       )}
