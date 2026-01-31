@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { X, Search, UserPlus } from 'lucide-react';
-import { Player, DraftPick } from '@/types';
+import { Player, DraftPick } from '../types';
 
 interface SelectionModalProps {
   pick: DraftPick | any;
