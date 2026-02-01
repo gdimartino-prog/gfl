@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
 
-
+// Adjust this to match your league's regular season length (e.g., 14 or 15)
+const TOTAL_SEASON_GAMES = 14;
 
 export default function StandingsClient({ allData, currentYear }: { allData: any[], currentYear: string }) {
   const [search, setSearch] = useState('');
@@ -59,7 +60,7 @@ export default function StandingsClient({ allData, currentYear }: { allData: any
                   </h3>
                   <div className="h-px bg-slate-200 flex-grow"></div>
                 </div>
-                <StandingsTable data={divData} isCurrent={true} />
+                <StandingsTable data={divData} isCurrent={true} showGB={true} showMagicNumber={true} />
               </div>
             );
           })}
@@ -76,6 +77,7 @@ export default function StandingsClient({ allData, currentYear }: { allData: any
               <StandingsTable 
                 data={currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes(r.division?.toString().trim().toLowerCase()))} 
                 isCurrent={true} 
+                showGB={true}
               />
             </div>
           )}
@@ -93,7 +95,10 @@ export default function StandingsClient({ allData, currentYear }: { allData: any
   );
 }
 
-function StandingsTable({ data, isCurrent }: { data: any[], isCurrent: boolean }) {
+function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = false }: { data: any[], isCurrent: boolean, showGB?: boolean, showMagicNumber?: boolean }) {
+  const leader = data[0];
+  const secondPlace = data[1];
+
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden overflow-x-auto">
       <table className="w-full text-left border-collapse min-w-[800px]">
@@ -102,6 +107,8 @@ function StandingsTable({ data, isCurrent }: { data: any[], isCurrent: boolean }
             <th className="p-4 pl-6">Year</th>
             <th className="p-4">Team / Manager</th>
             <th className="p-4 text-center">W-L-T</th>
+            {showGB && <th className="p-4 text-center">GB</th>}
+            {showMagicNumber && <th className="p-4 text-center">MN</th>}
             <th className="p-4 text-center">PF</th>
             <th className="p-4 text-center">PA</th>
             <th className="p-4 pr-6 text-center">Diff</th>
@@ -117,6 +124,27 @@ function StandingsTable({ data, isCurrent }: { data: any[], isCurrent: boolean }
             const pa = parseFloat(row.defPts) || 0;
             const calculatedDiff = (pf - pa).toFixed(1);
             const diffNum = parseFloat(calculatedDiff);
+
+            // GB Calculation logic
+            let gbDisplay = '—';
+            if (showGB && i > 0 && leader) {
+              const leaderW = Number(leader.won) || 0;
+              const leaderL = Number(leader.lost) || 0;
+              const teamW = Number(row.won) || 0;
+              const teamL = Number(row.lost) || 0;
+              const gbVal = ((leaderW - teamW) + (teamL - leaderL)) / 2;
+              gbDisplay = gbVal === 0 ? '—' : gbVal.toString();
+            }
+
+            // Magic Number logic (only for the leader relative to 2nd place)
+            let mnDisplay = '—';
+            if (showMagicNumber && i === 0 && secondPlace) {
+              const leaderW = Number(leader.won) || 0;
+              const secondL = Number(secondPlace.lost) || 0;
+              const mnVal = (TOTAL_SEASON_GAMES + 1) - leaderW - secondL;
+              
+              mnDisplay = mnVal <= 0 ? 'CL' : mnVal.toString();
+            }
 
             return (
               <tr key={i} className="hover:bg-slate-50/80 transition-colors group">
@@ -145,6 +173,18 @@ function StandingsTable({ data, isCurrent }: { data: any[], isCurrent: boolean }
                   {row.won}-{row.lost}-{row.tie}
                 </td>
                 
+                {showGB && (
+                  <td className="p-4 text-center font-bold text-slate-500">
+                    {gbDisplay}
+                  </td>
+                )}
+
+                {showMagicNumber && (
+                  <td className="p-4 text-center font-bold text-blue-600">
+                    {mnDisplay}
+                  </td>
+                )}
+
                 {/* Separated Points Columns */}
                 <td className="p-4 text-center">
                   <span className="text-emerald-600 font-black text-sm italic">

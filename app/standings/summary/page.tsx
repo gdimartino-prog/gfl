@@ -7,12 +7,15 @@ export const revalidate = 3600;
 export default async function SummaryReportPage() {
   const allData = await getHistory();
 
+  // Sort data by year ascending to ensure the most recent GM name is captured last during aggregation
+  const sortedData = [...allData].sort((a, b) => Number(a.year) - Number(b.year));
+
   // Aggregate raw rows into Franchise summaries
   const summaryMap: Record<string, any> = {};
 
-  allData.forEach((row) => {
-    // Group by Master Franchise name (handles relocations)
-    const teamKey = row.oldTeamName || row.team;
+  sortedData.forEach((row) => {
+    // Group by Team name (Column A)
+    const teamKey = row.team;
 
     if (!summaryMap[teamKey]) {
       summaryMap[teamKey] = {
@@ -21,6 +24,7 @@ export default async function SummaryReportPage() {
         wins: 0,
         losses: 0,
         ties: 0,
+        winPct: 0,
         seasons: 0,
         offPts: 0,
         defPts: 0,
@@ -49,7 +53,11 @@ export default async function SummaryReportPage() {
     t.gm = row.gm !== 'N/A' ? row.gm : t.gm;
   });
 
-  const summaryData = Object.values(summaryMap);
+  const summaryData = Object.values(summaryMap).map(t => {
+    const totalGames = t.wins + t.losses + t.ties;
+    t.winPct = totalGames > 0 ? Number(((t.wins + (0.5 * t.ties)) / totalGames).toFixed(3)) : 0;
+    return t;
+  });
 
   return (
     <div className="max-w-7xl mx-auto p-8">

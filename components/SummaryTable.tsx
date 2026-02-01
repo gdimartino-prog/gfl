@@ -15,12 +15,6 @@ export default function SummaryTable({ initialData }: { initialData: any[] }) {
       let aVal = a[key];
       let bVal = b[key];
 
-      // Special calculation for sorting by Win Percentage
-      if (key === 'pct') {
-        aVal = a.wins / (a.wins + a.losses || 1);
-        bVal = b.wins / (b.wins + b.losses || 1);
-      }
-
       return direction === 'asc' ? aVal - bVal : bVal - aVal;
     });
 
@@ -37,6 +31,9 @@ export default function SummaryTable({ initialData }: { initialData: any[] }) {
             <th className="p-4 cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('team')}>Franchise / GM</th>
             <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('seasons')}>Yrs</th>
             <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('wins')}>Record</th>
+            <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('winPct')}>
+              Pct {sortConfig.key === 'winPct' && (sortConfig.direction === 'desc' ? '▼' : '▲')}
+            </th>
             <th className="p-4 text-center">PPG (O/D)</th>
             <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('divWins')}>Div</th>
             <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('postSeason')}>Post</th>
@@ -51,7 +48,6 @@ export default function SummaryTable({ initialData }: { initialData: any[] }) {
             const totalGames = team.wins + team.losses + team.ties;
             const offPPG = totalGames > 0 ? (team.offPts / totalGames).toFixed(1) : "0.0";
             const defPPG = totalGames > 0 ? (team.defPts / totalGames).toFixed(1) : "0.0";
-            const winPct = totalGames > 0 ? (team.wins / (team.wins + team.losses)).toFixed(3) : ".000";
 
             return (
               <tr key={team.team} className="hover:bg-slate-50/50 transition-colors group">
@@ -64,10 +60,10 @@ export default function SummaryTable({ initialData }: { initialData: any[] }) {
                 </td>
                 <td className="p-4 text-center text-slate-400 font-bold">{team.seasons}</td>
                 <td className="p-4 text-center">
-                  <div className="flex flex-col">
-                    <span className="font-mono font-bold text-slate-700">{team.wins}-{team.losses}-{team.ties}</span>
-                    <span className="text-[10px] text-blue-500 font-bold">{winPct}</span>
-                  </div>
+                  <span className="font-mono font-bold text-slate-700">{team.wins}-{team.losses}-{team.ties}</span>
+                </td>
+                <td className="p-4 text-center">
+                  <span className="text-sm text-blue-600 font-black italic">{(team.winPct || 0).toFixed(3).replace(/^0/, '')}</span>
                 </td>
                 <td className="p-4 text-center">
                   <div className="flex flex-col text-[11px] font-bold">
