@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import PlayerCard from '@/components/PlayerCard';
 import TeamSelector from '@/components/TeamSelector';
 import { useTeam } from '@/context/TeamContext';
 import { useSession } from "next-auth/react";
-import { Search, ChevronRight, ExternalLink, Star, Activity, GraduationCap, ShieldCheck } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Search, ChevronRight, Star, Activity, GraduationCap, ShieldCheck } from 'lucide-react';
 import { Player, Team, DraftPick } from '../../types';
 
 export const dynamic = 'force-dynamic';
@@ -25,8 +26,17 @@ const positionOrder = [
 ];
 
 export default function RosterPage() {
+  return (
+    <Suspense fallback={<div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Loading Personnel Files...</div>}>
+      <RosterContent />
+    </Suspense>
+  );
+}
+
+function RosterContent() {
   const { data: session, status } = useSession();
   const { selectedTeam, setSelectedTeam } = useTeam(); 
+  const searchParams = useSearchParams();
   const [data, setData] = useState<{ roster: Player[], picks: DraftPick[], history: DraftPick[], schedule: any[], stats: any } | null>(null);
   const [rules, setRules] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
@@ -44,6 +54,14 @@ export default function RosterPage() {
       hasSynced.current = true;
     }
   }, [status, session, setSelectedTeam]);
+
+  // --- HANDLE INCOMING TEAM LINK ---
+  useEffect(() => {
+    const teamParam = searchParams.get('team');
+    if (teamParam) {
+      setSelectedTeam(teamParam.toUpperCase());
+    }
+  }, [searchParams, setSelectedTeam]);
 
   useEffect(() => {
     if (!selectedTeam) return;

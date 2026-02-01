@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function StandingsClient({ allData, currentYear, totalGames }: { allData: any[], currentYear: string, totalGames: number }) {
   const [search, setSearch] = useState('');
@@ -168,9 +169,12 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
                 <td className="p-4">
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2">
-                      <span className="font-black text-slate-900 uppercase italic tracking-tighter text-lg leading-tight">
+                      <Link 
+                        href={`/rosters?team=${row.teamshort || row.team}`}
+                        className="font-black text-slate-900 uppercase italic tracking-tighter text-lg leading-tight hover:text-blue-600 transition-colors"
+                      >
                         {row.team}
-                      </span>
+                      </Link>
                       {isChamp && (
                         <span className="bg-amber-400 text-amber-950 text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm italic uppercase tracking-tighter" title="Champion">
                           🏆
