@@ -27,10 +27,11 @@ const positionOrder = [
 export default function RosterPage() {
   const { data: session, status } = useSession();
   const { selectedTeam, setSelectedTeam } = useTeam(); 
-  const [data, setData] = useState<{ roster: Player[], picks: DraftPick[], schedule: any[], stats: any } | null>(null);
+  const [data, setData] = useState<{ roster: Player[], picks: DraftPick[], history: DraftPick[], schedule: any[], stats: any } | null>(null);
   const [rules, setRules] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'pos'>('default');
+  const [activeTab, setActiveTab] = useState<'ROSTER' | 'HISTORY'>('ROSTER');
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -50,9 +51,10 @@ export default function RosterPage() {
 
     const loadFranchiseData = async () => {
       try {
-        const [standingsRes, rulesRes] = await Promise.all([
+        const [standingsRes, rulesRes, draftPicksRes] = await Promise.all([
           fetch(`/api/standings`),
-          fetch(`/api/rules`)
+          fetch(`/api/rules`),
+          fetch(`/api/draft-picks`)
         ]);
 
         const standingsData = await standingsRes.json();
@@ -65,6 +67,7 @@ export default function RosterPage() {
           }
         });
         setRules(requirements);
+        const allDraftPicks = await draftPicksRes.json();
 
         const teamEntry = standingsData.find((s: any) => 
           s.team?.toString().trim().toUpperCase() === selectedTeam.trim().toUpperCase() ||
@@ -89,9 +92,19 @@ export default function RosterPage() {
             else { pf += parseInt(game.vScore); pa += parseInt(game.hScore); }
         });
 
+        // Filter for history: Match by team code in parentheses or full string
+        const history = Array.isArray(allDraftPicks) ? allDraftPicks.filter((p: any) => {
+          const ownerStr = p.currentOwner || "";
+          const match = ownerStr.match(/\(([^)]+)\)/);
+          const code = (match ? match[1] : ownerStr).trim().toUpperCase();
+          return code === selectedTeam.trim().toUpperCase() && 
+                 p.draftedPlayer && p.draftedPlayer.trim() !== "" && !p.draftedPlayer.includes("SKIPPED");
+        }).sort((a: any, b: any) => Number(b.year) - Number(a.year) || Number(a.overall) - Number(b.overall)) : [];
+
         setData({
           roster: rosterData.roster || [],
           picks: rosterData.picks || [],
+          history: history,
           schedule: scheduleData || [],
           stats: { ...teamEntry, diff: pf - pa, currentYear: DYNAMIC_YEAR }
         });
@@ -163,6 +176,14 @@ export default function RosterPage() {
       SPEC: sortFn(filtered.filter(p => p.group && ['SPEC', 'ST', 'SPECIAL'].includes(p.group))),
     };
   }, [data, sortBy, searchTerm]);
+
+  const filteredHistory = useMemo(() => {
+    if (!data?.history) return [];
+    return data.history.filter(p => 
+      (p.draftedPlayer || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.year || '').toString().includes(searchTerm)
+    );
+  }, [data?.history, searchTerm]);
 
   const needsMap = useMemo(() => {
     const map: Record<string, boolean> = {};
@@ -242,21 +263,39 @@ export default function RosterPage() {
         </div>
       )}
 
+      {/* TAB SWITCHER */}
+      <div className="flex bg-white p-1.5 rounded-[1.5rem] shadow-sm border border-slate-200 w-fit">
+        <button 
+          onClick={() => setActiveTab('ROSTER')}
+          className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'ROSTER' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}
+        >
+          Personnel & Depth
+        </button>
+        <button 
+          onClick={() => setActiveTab('HISTORY')}
+          className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'HISTORY' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}
+        >
+          Draft History
+        </button>
+      </div>
+
       {/* FILTERS */}
       <div className="flex flex-col xl:flex-row gap-6">
         <div className="relative flex-1">
           <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-          <input type="text" placeholder="Filter roster..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-white border border-slate-200 rounded-[1.5rem] py-6 pl-16 pr-8 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all text-lg shadow-sm" />
+          <input type="text" placeholder={activeTab === 'ROSTER' ? "Filter roster..." : "Search draft history..."} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-white border border-slate-200 rounded-[1.5rem] py-6 pl-16 pr-8 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all text-lg shadow-sm" />
         </div>
-        <div className="flex bg-white p-2 rounded-[1.5rem] shadow-sm border border-slate-200 gap-2">
+        {activeTab === 'ROSTER' && (
+          <div className="flex bg-white p-2 rounded-[1.5rem] shadow-sm border border-slate-200 gap-2">
           {['default', 'name', 'pos'].map((s: any) => (
             <button key={s} onClick={() => setSortBy(s)} className={`px-8 py-4 text-[10px] font-black uppercase rounded-xl transition-all ${sortBy === s ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>{s}</button>
           ))}
         </div>
+        )}
       </div>
 
       {/* POSITIONAL DASHBOARD */}
-      {!searchTerm && !loading && (
+      {activeTab === 'ROSTER' && !searchTerm && !loading && (
         <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
             <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-8 flex items-center gap-2 italic"><GraduationCap size={16} /> Positional Requirements</h3>
             <div className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-10 gap-3">
@@ -271,7 +310,7 @@ export default function RosterPage() {
       )}
 
       {/* MAIN CONTENT */}
-      {data && (
+      {data && activeTab === 'ROSTER' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20">
           <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
              <RosterSection title="Offense" players={sortedGroups.OFF} accent="bg-slate-800" color="text-blue-600 bg-blue-50" onDetails={(p: Player) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
@@ -362,6 +401,49 @@ export default function RosterPage() {
                 );
               })}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* DRAFT HISTORY CONTENT */}
+      {data && activeTab === 'HISTORY' && (
+        <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden pb-20">
+          <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+              <h2 className="font-black uppercase tracking-tighter text-xl">All-Time Draft Selections</h2>
+              <span className="text-[10px] font-bold px-2 py-1 bg-blue-100 text-blue-700 rounded-md">
+                  {filteredHistory.length} Picks
+              </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.2em]">
+                  <th className="px-8 py-5">Year</th>
+                  <th className="px-8 py-5">Pick</th>
+                  <th className="px-8 py-5">Player Selected</th>
+                  <th className="px-8 py-5">Original Team</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filteredHistory.map((pick, i) => (
+                  <tr key={i} className="hover:bg-slate-50 transition-colors group">
+                    <td className="px-8 py-6 font-bold text-slate-400">{pick.year}</td>
+                    <td className="px-8 py-6">
+                      <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg font-black italic text-xs">
+                        R{pick.round} P{pick.overall}
+                      </span>
+                    </td>
+                    <td className="px-8 py-6">
+                      <p className="font-black text-slate-900 uppercase italic tracking-tight text-lg leading-none">{pick.draftedPlayer}</p>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase mt-1.5 italic tracking-tighter">{pick.timestamp}</p>
+                    </td>
+                    <td className="px-8 py-6 text-slate-500 font-bold text-xs uppercase">
+                      {pick.originalTeam || 'Own Pick'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

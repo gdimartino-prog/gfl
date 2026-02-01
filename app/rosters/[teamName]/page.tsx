@@ -15,7 +15,7 @@ export default async function TeamDetailPage({ params }: PageProps) {
 
   try {
     // 2. Fetch fresh data from Google Sheets
-    const [playersRes, picksRes, teamsRes] = await Promise.all([
+    const [playersRes, picksRes, teamsRes, rulesRes] = await Promise.all([
       sheets.spreadsheets.values.get({ 
         spreadsheetId: SHEET_ID, 
         range: 'Players!A:CV' // Fetch full range to ensure headers map correctly
