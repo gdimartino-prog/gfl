@@ -18,6 +18,16 @@ async function getPlayerSyncTime() {
   }
 }
 
+// This captures the time when the application module is initialized.
+// In a production build, this effectively represents the build/deployment time.
+const APP_BUILD_TIME = new Date().toLocaleString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  hour12: true
+});
+
 export default async function Footer() {
   const syncTime = await getPlayerSyncTime();
   
@@ -36,14 +46,26 @@ export default async function Footer() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span className="text-[10px] font-black uppercase tracking-tight text-slate-500">
-            Player Data Sync: <span className="text-slate-900">{displayDate}</span>
-          </span>
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span className="text-[10px] font-black uppercase tracking-tight text-slate-500">
+              Player Data Sync: <span className="text-slate-900">{displayDate}</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+            </span>
+            <span className="text-[10px] font-black uppercase tracking-tight text-slate-500">
+              App Build: <span className="text-slate-900">{APP_BUILD_TIME}</span>
+            </span>
+          </div>
         </div>
       </div>
     </footer>
