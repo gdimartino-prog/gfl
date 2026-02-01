@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
 import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
 import { getPositionStats } from '@/lib/playerStats'; 
 import { useSession } from "next-auth/react";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Clock, Search, RotateCw, X, Zap, ChevronRight, Filter, ChevronUp } from 'lucide-react';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
 import { Team, Player, DraftPick } from '../../types';
@@ -13,8 +13,17 @@ import { Team, Player, DraftPick } from '../../types';
 export const dynamic = 'force-dynamic';
 
 export default function DraftPage() {
+  return (
+    <Suspense fallback={<div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Syncing Draft Board...</div>}>
+      <DraftBoardContent />
+    </Suspense>
+  );
+}
+
+function DraftBoardContent() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   //const [picks, setPicks] = useState<any[]>([]);
   const [picks, setPicks] = useState<DraftPick[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -87,6 +96,22 @@ export default function DraftPage() {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // --- HANDLE INCOMING SCOUT REQUEST ---
+  useEffect(() => {
+    const scoutPos = searchParams.get('scout');
+    if (scoutPos) {
+      setFaPosFilter(scoutPos);
+      setShowFA(true);
+      setFaLoading(true);
+      fetch(`/api/players?view=light&t=${Date.now()}`, { cache: 'no-store' })
+        .then(r => r.json())
+        .then(res => { 
+          setFaPlayers(res.filter((p: any) => p.team === 'FA')); 
+          setFaLoading(false); 
+        });
+    }
+  }, [searchParams]);
 
   // --- BACK TO TOP LOGIC ---
   useEffect(() => {
@@ -197,7 +222,11 @@ export default function DraftPage() {
         const pos = (p.offense || p.defense || p.special || p.position || p.pos || '').toUpperCase();
         
         const matchesPos = faPosFilter === 'All' || 
-          (faPosFilter === 'OL' ? ['OL', 'C', 'G', 'T', 'C-G', 'G-T'].includes(pos) : pos === faPosFilter.toUpperCase());
+          (faPosFilter === 'OL' ? ['OL', 'C', 'G', 'T', 'C-G', 'G-T'].includes(pos) : 
+           faPosFilter === 'DL' ? ['DL', 'DE', 'DT', 'NT'].includes(pos) :
+           faPosFilter === 'LB' ? ['LB', 'ILB', 'OLB', 'MLB'].includes(pos) :
+           faPosFilter === 'DB' ? ['DB', 'CB', 'S', 'FS', 'SS'].includes(pos) :
+           pos === faPosFilter.toUpperCase());
 
         return matchesSearch && matchesPos;
       })

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import Link from 'next/link';
 import PlayerCard from '@/components/PlayerCard';
 import TeamSelector from '@/components/TeamSelector';
 import { useTeam } from '@/context/TeamContext';
@@ -17,6 +18,11 @@ const positionWeights: Record<string, number> = {
   'CB': 18, 'FS': 19, 'SS': 20, 'S': 21, 'DB': 22,
   'K': 30, 'P': 31, 'LS': 32, 'KR': 33, 'PR': 34
 };
+
+const positionOrder = [
+  'QB', 'RB', 'WR', 'TE', 'LT', 'LG', 'C', 'RG', 'RT', 'OL',
+  'DE', 'DT', 'NT', 'LB', 'CB', 'S', 'K', 'P'
+];
 
 export default function RosterPage() {
   const { data: session, status } = useSession();
@@ -130,10 +136,10 @@ export default function RosterPage() {
     if (!data?.roster || Object.keys(rules).length === 0) return [];
     const counts: Record<string, number> = {};
     data.roster.forEach(p => {
-      let pos = (p.pos || "").toUpperCase();
+      let pos = (p.pos || p.position || "").toUpperCase();
       if (['OT', 'LT', 'RT', 'OG', 'LG', 'RG', 'C', 'T', 'G', 'OL'].includes(pos)) pos = 'OL';
       if (['DE', 'DT', 'NT', 'DL'].includes(pos)) pos = 'DL';
-      if (['ILB', 'OLB', 'LB', 'LB-S'].includes(pos)) pos = 'LB';
+      if (['ILB', 'OLB', 'MLB', 'LB', 'LB-S'].includes(pos)) pos = 'LB';
       if (['CB', 'LB-S', 'S', 'DB'].includes(pos)) pos = 'DB';
       counts[pos] = (counts[pos] || 0) + 1;
     });
@@ -157,6 +163,29 @@ export default function RosterPage() {
       SPEC: sortFn(filtered.filter(p => p.group && ['SPEC', 'ST', 'SPECIAL'].includes(p.group))),
     };
   }, [data, sortBy, searchTerm]);
+
+  const needsMap = useMemo(() => {
+    const map: Record<string, boolean> = {};
+    teamNeeds.forEach(n => {
+      if (n.status === 'THIN') map[n.pos] = true;
+    });
+    return map;
+  }, [teamNeeds]);
+
+  const depthGroups = useMemo(() => {
+    if (!data?.roster) return {} as Record<string, Player[]>;
+    return data.roster.reduce((acc, p) => {
+      let pos = (p.pos || p.position || '??').trim().toUpperCase();
+      // Normalize some positions for the chart
+      if (['HB', 'FB'].includes(pos)) pos = 'RB';
+      if (['ILB', 'OLB', 'MLB'].includes(pos)) pos = 'LB';
+      if (['FS', 'SS'].includes(pos)) pos = 'S';
+      
+      if (!acc[pos]) acc[pos] = [];
+      acc[pos].push(p);
+      return acc;
+    }, {} as Record<string, Player[]>);
+  }, [data?.roster]);
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10 bg-gray-50 min-h-screen text-slate-900 text-left">
@@ -273,6 +302,58 @@ export default function RosterPage() {
             </div>
 
             <RosterSection title="Special Teams" players={sortedGroups.SPEC} accent="bg-emerald-900" color="text-emerald-600 bg-emerald-50" onDetails={(p: Player) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
+          </div>
+
+          {/* TACTICAL DEPTH CHART (Full Width Bottom) */}
+          <div className="lg:col-span-12 bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm">
+            <h2 className="font-black uppercase tracking-tighter text-xl mb-8 flex items-center gap-2 text-slate-900">
+              <span className="w-2 h-8 bg-blue-600 rounded-full"></span>
+              Tactical Depth Chart
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {positionOrder.map(pos => {
+                const players = depthGroups[pos] || [];
+                if (players.length === 0) return null;
+
+                // Determine if this position belongs to a "Thin" category
+                let category = pos;
+                if (['LT', 'LG', 'C', 'RG', 'RT', 'OL'].includes(pos)) category = 'OL';
+                if (['DE', 'DT', 'NT'].includes(pos)) category = 'DL';
+                if (['CB', 'S'].includes(pos)) category = 'DB';
+                const isThin = needsMap[category];
+
+                return (
+                  <div key={pos} className={`bg-slate-50 rounded-2xl p-4 border transition-all flex flex-col gap-3 ${isThin ? 'border-red-200 bg-red-50/30 ring-1 ring-red-100' : 'border-slate-100'}`}>
+                    <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-black uppercase tracking-widest ${isThin ? 'text-red-400' : 'text-slate-400'}`}>{pos}</span>
+                        {isThin && <span className="text-[7px] font-black bg-red-500 text-white px-1 rounded-sm animate-pulse">NEED</span>}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link 
+                          href={`/draft?scout=${category}`} 
+                          className="p-1 hover:bg-blue-100 rounded text-blue-600 transition-colors"
+                          title={`Scout ${category} Free Agents`}
+                        >
+                          <Search size={12} />
+                        </Link>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isThin ? 'text-red-600 bg-red-100' : 'text-blue-600 bg-blue-50'}`}>{players.length}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      {players.map((p, idx) => {
+                        const isIR = p.team?.toUpperCase().endsWith('-IR');
+                        return (
+                          <p key={idx} className={`text-[11px] font-bold uppercase truncate ${isIR ? 'text-slate-400 italic' : 'text-slate-700'}`} title={p.name || `${p.first} ${p.last}`}>
+                            {idx + 1}. {p.last || p.name?.split(' ').pop()} {isIR && <span className="text-[8px] opacity-60">(IR)</span>}
+                          </p>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
