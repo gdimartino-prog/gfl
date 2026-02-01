@@ -154,7 +154,7 @@ export default function RosterPage() {
     return {
       OFF: sortFn(filtered.filter(p => p.group === 'OFF')),
       DEF: sortFn(filtered.filter(p => p.group === 'DEF')),
-      SPEC: sortFn(filtered.filter(p => ['SPEC', 'ST', 'SPECIAL'].includes(p.group))),
+      SPEC: sortFn(filtered.filter(p => p.group && ['SPEC', 'ST', 'SPECIAL'].includes(p.group))),
     };
   }, [data, sortBy, searchTerm]);
 

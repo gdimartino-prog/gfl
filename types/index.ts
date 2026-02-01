@@ -16,6 +16,7 @@ export interface Player {
   age?: number;
   salary?: string | number;
   team?: string;
+  group?: string;
   core?: {
     first?: string;
     last?: string;
