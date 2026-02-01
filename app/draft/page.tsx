@@ -27,7 +27,7 @@ export default function DraftPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [yearFilter, setYearFilter] = useState('All');
   const [teamFilter, setTeamFilter] = useState('All Teams');
-  const [roundFilter, setRoundFilter] = useState('All Rounds');
+  const [roundFilter, setRoundFilter] = useState('All');
   
   // Free Agent States
   const [showFA, setShowFA] = useState(false);
@@ -145,7 +145,7 @@ export default function DraftPage() {
                             draftedPlayerName.includes(searchStr);
       const matchesYear = yearFilter === 'All' || p.year?.toString() === yearFilter;
       const matchesTeam = teamFilter === 'All Teams' || getFullTeamName(p.currentOwner) === teamFilter;
-      const matchesRound = roundFilter === 'All Rounds' || p.round.toString() === roundFilter;
+      const matchesRound = roundFilter === 'All' || p.round.toString() === roundFilter;
       return matchesSearch && matchesYear && matchesTeam && matchesRound;
     });
   }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, teams]);
@@ -350,6 +350,7 @@ export default function DraftPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-900 text-white uppercase text-[9px] font-black tracking-[0.25em]">
+                  <th className="px-10 py-6">RD</th>
                   <th className="px-10 py-6">Pick</th>
                   <th className="px-10 py-6">Drafted Player</th>
                   <th className="px-10 py-6">Current Owner</th>
@@ -363,6 +364,11 @@ export default function DraftPage() {
                   const isOnClock = onClockPick && pick.overall === onClockPick.overall;
                   return (
                     <tr key={pick.overall} className={`transition-all ${isOnClock ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
+                      <td className="px-10 py-8">
+                        <span className={`text-xl font-black italic tracking-tighter ${isOnClock ? 'text-blue-400' : 'text-slate-400'}`}>
+                          {pick.round}
+                        </span>
+                      </td>
                       <td className="px-10 py-8">
                         <span className={`text-4xl font-black italic tracking-tighter ${isOnClock ? 'text-blue-600' : isDrafted ? 'text-slate-100' : 'text-slate-200'}`}>
                           {pick.overall}
