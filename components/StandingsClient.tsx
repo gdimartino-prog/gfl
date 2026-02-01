@@ -105,6 +105,8 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
             <th className="p-4 pl-6">Year</th>
             <th className="p-4">Team / Manager</th>
             <th className="p-4 text-center">W-L-T</th>
+            <th className="p-4 text-center">Pct</th>
+            <th className="p-4 text-center">PPG (O/D)</th>
             {showGB && <th className="p-4 text-center">GB</th>}
             {showMagicNumber && (
               <th 
@@ -129,6 +131,15 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
             const pa = parseFloat(row.defPts) || 0;
             const calculatedDiff = (pf - pa).toFixed(1);
             const diffNum = parseFloat(calculatedDiff);
+
+            // Win Pct logic
+            const wins = Number(row.won) || 0;
+            const losses = Number(row.lost) || 0;
+            const ties = Number(row.tie) || 0;
+            const total = wins + losses + ties;
+            const winPctDisplay = total > 0 ? ((wins + (0.5 * ties)) / total).toFixed(3).replace(/^0/, '') : '.000';
+            const offPPG = total > 0 ? (pf / total).toFixed(1) : "0.0";
+            const defPPG = total > 0 ? (pa / total).toFixed(1) : "0.0";
 
             // GB Calculation logic
             let gbDisplay = '—';
@@ -178,6 +189,19 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
                   {row.won}-{row.lost}-{row.tie}
                 </td>
                 
+                <td className="p-4 text-center">
+                  <span className="text-sm text-blue-600 font-black italic">
+                    {winPctDisplay}
+                  </span>
+                </td>
+
+                <td className="p-4 text-center">
+                  <div className="flex flex-col text-[11px] font-bold">
+                    <span className="text-emerald-600">{offPPG} <span className="text-[8px] text-slate-300">OFF</span></span>
+                    <span className="text-rose-600">{defPPG} <span className="text-[8px] text-slate-300">DEF</span></span>
+                  </div>
+                </td>
+
                 {showGB && (
                   <td className="p-4 text-center font-bold text-slate-500">
                     {gbDisplay}
