@@ -8,7 +8,7 @@ import PlayerCard from '@/components/PlayerCard';
 import { getPositionStats } from '@/lib/playerStats'; 
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
-import { Clock, Search, RotateCw, X, Zap, ChevronRight, Filter } from 'lucide-react';
+import { Clock, Search, RotateCw, X, Zap, ChevronRight, Filter, ChevronUp } from 'lucide-react';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
 import { Team, Player, DraftPick } from '../../types';
 
@@ -38,6 +38,7 @@ export default function DraftPage() {
   const [faSortKey, setFaSortKey] = useState('overall');
   
   // Selection & Scouting States
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null); 
   const [selectedPick, setSelectedPick] = useState<any>(null);
   const [modalSessionId, setModalSessionId] = useState(0);
@@ -89,6 +90,20 @@ export default function DraftPage() {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  // --- BACK TO TOP LOGIC ---
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 400) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // --- CLOCK & STATUS LOGIC ---
   const { onClockPick, previousPick } = useMemo(() => {
@@ -347,23 +362,35 @@ export default function DraftPage() {
         {/* DRAFT TABLE */}
         <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-separate border-spacing-0">
               <thead>
-                <tr className="bg-slate-900 text-white uppercase text-[9px] font-black tracking-[0.25em]">
-                  <th className="px-10 py-6">RD</th>
-                  <th className="px-10 py-6">Pick</th>
-                  <th className="px-10 py-6">Drafted Player</th>
-                  <th className="px-10 py-6">Current Owner</th>
-                  <th className="px-10 py-6 text-right pr-16">Status</th>
+                <tr className="bg-slate-900 text-white uppercase text-[9px] font-black tracking-[0.25em] sticky top-0 z-20">
+                  <th className="px-10 py-6 bg-slate-900">RD</th>
+                  <th className="px-10 py-6 bg-slate-900">Pick</th>
+                  <th className="px-10 py-6 bg-slate-900">Drafted Player</th>
+                  <th className="px-10 py-6 bg-slate-900">Current Owner</th>
+                  <th className="px-10 py-6 text-right pr-16 bg-slate-900">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filteredPicks.map((pick) => {
+                {filteredPicks.map((pick, index) => {
                   const isDrafted = !!pick.draftedPlayer && !pick.draftedPlayer.includes("SKIPPED") && pick.draftedPlayer.trim() !== "";
                   const isSkipped = !!pick.draftedPlayer && pick.draftedPlayer.includes("SKIPPED");
                   const isOnClock = onClockPick && pick.overall === onClockPick.overall;
+                  const isNewRound = index === 0 || filteredPicks[index - 1].round !== pick.round;
+
                   return (
-                    <tr key={pick.overall} className={`transition-all ${isOnClock ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
+                    <React.Fragment key={pick.overall}>
+                      {isNewRound && (
+                        <tr className="z-10">
+                          <td colSpan={5} className="sticky top-[60px] px-10 py-3 bg-slate-50/95 backdrop-blur-md border-y border-slate-100">
+                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
+                              Round {pick.round}
+                            </span>
+                          </td>
+                        </tr>
+                      )}
+                      <tr className={`transition-all ${isOnClock ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
                       <td className="px-10 py-8">
                         <span className={`text-xl font-black italic tracking-tighter ${isOnClock ? 'text-blue-400' : 'text-slate-400'}`}>
                           {pick.round}
@@ -436,6 +463,7 @@ export default function DraftPage() {
                         )}
                       </td>
                     </tr>
+                    </React.Fragment>
                   );
                 })}
               </tbody>
@@ -534,6 +562,16 @@ export default function DraftPage() {
       )}
 
       {selectedPlayer && <PlayerCard data={selectedPlayer} onClose={() => setSelectedPlayer(null)} />}
+
+      {/* BACK TO TOP BUTTON */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className={`fixed bottom-8 right-8 z-[100] bg-slate-900 text-white p-4 rounded-2xl shadow-2xl transition-all duration-300 hover:bg-blue-600 active:scale-95 ${
+          showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
+        }`}
+      >
+        <ChevronUp size={24} />
+      </button>
     </div>
   );
 }
