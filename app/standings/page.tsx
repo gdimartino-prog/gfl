@@ -1,4 +1,5 @@
 import { getHistory } from '@/lib/getHistory';
+import { sheets, SHEET_ID } from '@/lib/googleSheets';
 import StandingsClient from '@/components/StandingsClient';
 import Link from 'next/link';
 
@@ -12,14 +13,17 @@ export default async function StandingsPage() {
     allData = await getHistory();
     if (!Array.isArray(allData)) allData = [];
 
-    // Fetch rules to get dynamic season length
-    const rulesRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/rules`, { cache: 'no-store' }).catch(() => null);
-    
-    if (rulesRes?.ok) {
-      const rules = await rulesRes.json();
-      const seasonGamesRule = Array.isArray(rules) ? rules.find(r => r.setting === 'season_games') : null;
-      if (seasonGamesRule) totalGames = parseInt(seasonGamesRule.value);
-    }
+    // 🚀 DIRECT DATA ACCESS: Instead of fetching from our own API (which fails in SSR),
+    // we query Google Sheets directly using our server-side utility.
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Rules!A:B',
+    });
+
+    const rows = response.data.values || [];
+    // Find the 'season_games' setting in Column A and get value from Column B
+    const seasonGamesRule = rows.find(row => row[0] === 'season_games');
+    if (seasonGamesRule?.[1]) totalGames = parseInt(seasonGamesRule[1]);
   } catch (err) {
     console.error("Standings Page Data Fetch Error:", err);
   }
