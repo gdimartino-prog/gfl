@@ -1,10 +1,7 @@
 'use client';
 import { useState } from 'react';
 
-// Adjust this to match your league's regular season length (e.g., 14 or 15)
-const TOTAL_SEASON_GAMES = 14;
-
-export default function StandingsClient({ allData, currentYear }: { allData: any[], currentYear: string }) {
+export default function StandingsClient({ allData, currentYear, totalGames }: { allData: any[], currentYear: string, totalGames: number }) {
   const [search, setSearch] = useState('');
 
   // 1. Base Filter (Search)
@@ -60,7 +57,7 @@ export default function StandingsClient({ allData, currentYear }: { allData: any
                   </h3>
                   <div className="h-px bg-slate-200 flex-grow"></div>
                 </div>
-                <StandingsTable data={divData} isCurrent={true} showGB={true} showMagicNumber={true} />
+                <StandingsTable data={divData} isCurrent={true} showGB={true} showMagicNumber={true} totalGames={totalGames} />
               </div>
             );
           })}
@@ -78,6 +75,7 @@ export default function StandingsClient({ allData, currentYear }: { allData: any
                 data={currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes(r.division?.toString().trim().toLowerCase()))} 
                 isCurrent={true} 
                 showGB={true}
+                totalGames={totalGames}
               />
             </div>
           )}
@@ -89,13 +87,13 @@ export default function StandingsClient({ allData, currentYear }: { allData: any
          <h2 className="text-2xl font-black uppercase italic mb-8 text-slate-400 tracking-tight">
           Historical <span className="text-slate-300">Archives</span>
         </h2>
-        <StandingsTable data={history} isCurrent={false} />
+        <StandingsTable data={history} isCurrent={false} totalGames={totalGames} />
       </div>
     </div>
   );
 }
 
-function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = false }: { data: any[], isCurrent: boolean, showGB?: boolean, showMagicNumber?: boolean }) {
+function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = false, totalGames }: { data: any[], isCurrent: boolean, showGB?: boolean, showMagicNumber?: boolean, totalGames: number }) {
   const leader = data[0];
   const secondPlace = data[1];
 
@@ -108,7 +106,14 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
             <th className="p-4">Team / Manager</th>
             <th className="p-4 text-center">W-L-T</th>
             {showGB && <th className="p-4 text-center">GB</th>}
-            {showMagicNumber && <th className="p-4 text-center">MN</th>}
+            {showMagicNumber && (
+              <th 
+                className="p-4 text-center cursor-help" 
+                title={`Magic Number: (${totalGames} + 1) - (Leader Wins) - (2nd Place Losses). The number of combined leader wins and chaser losses required to clinch the division.`}
+              >
+                MN
+              </th>
+            )}
             <th className="p-4 text-center">PF</th>
             <th className="p-4 text-center">PA</th>
             <th className="p-4 pr-6 text-center">Diff</th>
@@ -141,7 +146,7 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
             if (showMagicNumber && i === 0 && secondPlace) {
               const leaderW = Number(leader.won) || 0;
               const secondL = Number(secondPlace.lost) || 0;
-              const mnVal = (TOTAL_SEASON_GAMES + 1) - leaderW - secondL;
+              const mnVal = (totalGames + 1) - leaderW - secondL;
               
               mnDisplay = mnVal <= 0 ? 'CL' : mnVal.toString();
             }

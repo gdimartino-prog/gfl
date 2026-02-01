@@ -21,10 +21,10 @@ SetTitleMatchMode 2
         Sleep 1000 
         Send "{Tab}"   
         Sleep 500
-        Send "{Home}"
-        Sleep 400
+        ;Send "{Home}"
+        ;Sleep 500
         Send "{Space}" 
-        Sleep 600
+        Sleep 500
         Send "{Tab 2}" 
         Sleep 500
         Send "{Space}" ; Clicks Export

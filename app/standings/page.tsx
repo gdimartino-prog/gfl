@@ -7,6 +7,13 @@ export const dynamic = 'force-dynamic';
 export default async function StandingsPage() {
   const allData = await getHistory();
 
+  // Fetch rules to get dynamic season length
+  const rulesRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/rules`, { cache: 'no-store' });
+  const rules = await rulesRes.json();
+  
+  const seasonGamesRule = Array.isArray(rules) ? rules.find(r => r.setting === 'season_games') : null;
+  const totalGames = seasonGamesRule ? parseInt(seasonGamesRule.value) : 14; // Fallback to 14
+
   // 1. Sort data so newest years are first
   const sortedData = [...allData].sort((a, b) => Number(b.year) - Number(a.year));
 
@@ -44,7 +51,7 @@ export default async function StandingsPage() {
       </header>
       
       {/* Pass the dynamic latestYear instead of hardcoded "2024" */}
-      <StandingsClient allData={sortedData} currentYear={latestYear} />
+      <StandingsClient allData={sortedData} currentYear={latestYear} totalGames={totalGames} />
     </div>
   );
 }
