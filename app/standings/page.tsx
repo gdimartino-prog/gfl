@@ -6,7 +6,7 @@ import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
 export default async function StandingsPage() {
-  let allData = [];
+  let allData: any[] = [];
   let totalGames = 14;
 
   try {
