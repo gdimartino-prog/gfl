@@ -6,7 +6,7 @@ import PlayerCard from '@/components/PlayerCard';
 import { getPositionStats } from '@/lib/playerStats'; 
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Clock, Search, RotateCw, X, Zap, ChevronRight, Filter, ChevronUp } from 'lucide-react';
+import { Clock, Search, RotateCw, X, Zap, ChevronRight, Filter, ChevronUp, Star } from 'lucide-react';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
 import { Team, Player, DraftPick } from '../../types';
 
@@ -45,6 +45,7 @@ function DraftBoardContent() {
   const [faSortKey, setFaSortKey] = useState('overall');
   
   // Selection & Scouting States
+  const [watchlist, setWatchlist] = useState<string[]>([]);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null); 
   const [selectedPick, setSelectedPick] = useState<any>(null);
@@ -97,6 +98,12 @@ function DraftBoardContent() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  // --- WATCHLIST PERSISTENCE ---
+  useEffect(() => {
+    const saved = localStorage.getItem('gfl-draft-watchlist');
+    if (saved) setWatchlist(JSON.parse(saved));
+  }, []);
+
   // --- HANDLE INCOMING SCOUT REQUEST ---
   useEffect(() => {
     const scoutPos = searchParams.get('scout');
@@ -107,7 +114,7 @@ function DraftBoardContent() {
       fetch(`/api/players?view=light&t=${Date.now()}`, { cache: 'no-store' })
         .then(r => r.json())
         .then(res => { 
-          setFaPlayers(res.filter((p: any) => p.team === 'FA')); 
+          setFaPlayers(res.filter((p: any) => p.team?.trim().toUpperCase() === 'FA')); 
           setFaLoading(false); 
         });
     }
@@ -219,13 +226,13 @@ function DraftBoardContent() {
       .filter(p => {
         const displayName = p.name || `${p.first || ''} ${p.last || ''}`;
         const matchesSearch = displayName.toLowerCase().includes(faSearch.toLowerCase());
-        const pos = (p.offense || p.defense || p.special || p.position || p.pos || '').toUpperCase();
+        const pos = (p.offense || p.defense || p.special || p.position || p.pos || '').trim().toUpperCase();
         
         const matchesPos = faPosFilter === 'All' || 
-          (faPosFilter === 'OL' ? ['OL', 'C', 'G', 'T', 'C-G', 'G-T'].includes(pos) : 
+          (faPosFilter === 'OL' ? ['OL', 'C', 'G', 'T', 'C-G', 'G-T', 'LT', 'RT', 'LG', 'RG', 'OT', 'OG'].includes(pos) : 
            faPosFilter === 'DL' ? ['DL', 'DE', 'DT', 'NT'].includes(pos) :
-           faPosFilter === 'LB' ? ['LB', 'ILB', 'OLB', 'MLB'].includes(pos) :
-           faPosFilter === 'DB' ? ['DB', 'CB', 'S', 'FS', 'SS'].includes(pos) :
+           faPosFilter === 'LB' ? ['LB', 'ILB', 'OLB', 'MLB', 'LB-S'].includes(pos) :
+           faPosFilter === 'DB' ? ['DB', 'CB', 'S', 'FS', 'SS', 'LB-S'].includes(pos) :
            pos === faPosFilter.toUpperCase());
 
         return matchesSearch && matchesPos;
@@ -263,6 +270,14 @@ function DraftBoardContent() {
 
 
   }, [faPlayers, faSearch, faPosFilter, faSortKey]);
+
+  const toggleWatchlist = (identity: string) => {
+    const next = watchlist.includes(identity) 
+      ? watchlist.filter(id => id !== identity)
+      : [...watchlist, identity];
+    setWatchlist(next);
+    localStorage.setItem('gfl-draft-watchlist', JSON.stringify(next));
+  };
 
   // --- 🚀 HYDRATION ENGINE ---
   const fetchFAWithDetails = async (p: Player, silent = false) => {
@@ -309,7 +324,7 @@ function DraftBoardContent() {
               setFaLoading(true); 
               setShowFA(true); 
               fetch(`/api/players?view=light&t=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()).then(res => { 
-                setFaPlayers(res.filter((p: any) => p.team === 'FA')); 
+                setFaPlayers(res.filter((p: any) => p.team?.trim().toUpperCase() === 'FA')); 
                 setFaLoading(false); 
               }); 
             }} 
@@ -534,31 +549,26 @@ function DraftBoardContent() {
             <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/50">
               {faLoading ? (
                 <div className="text-center py-20 text-slate-300 font-black uppercase animate-pulse italic">Querying Database...</div>
-              ) : processedFAs.map((p, i) => (
-                <div 
-                  key={p.identity || i} 
-                  onMouseEnter={() => fetchFAWithDetails(p, true)}
-                  className="bg-white border border-slate-100 rounded-[2rem] shadow-sm p-6 transition-all hover:border-blue-200 hover:shadow-md"
-                >
-                   <div className="flex justify-between items-start mb-6">
-                      <div className="space-y-1">
-                        <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name || `${p.first} ${p.last}`)}`} target="_blank" rel="noopener noreferrer" className="font-black text-slate-900 uppercase text-xl italic block leading-none hover:text-blue-600 transition-all">
-                          {p.name || `${p.first} ${p.last}`}
-                        </a>
-                        <div className="flex gap-2 items-center">
-                          <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">{p.pos || p.position || p.offense || p.defense}</span>
-                          <span className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Age {p.core?.age || p.age || '??'}</span>
-                        </div>
-                      </div>
-                      <button onClick={() => fetchFAWithDetails(p, false)} className="bg-slate-900 text-white text-[9px] font-black px-5 py-3 rounded-xl uppercase hover:bg-blue-600 transition-all flex items-center gap-2">Details <ChevronRight size={12} /></button>
-                   </div>
-                   <div className="grid grid-cols-5 gap-2">
-                      {getPositionStats(p).map((stat, idx) => (
-                        <StatMini key={idx} label={stat.label} val={stat.val} />
+              ) : (
+                <>
+                  {/* WATCHLIST SECTION */}
+                  {watchlist.length > 0 && faPosFilter === 'All' && !faSearch && (
+                    <div className="mb-10 space-y-4">
+                      <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] flex items-center gap-2 ml-4">
+                        <Star size={12} fill="currentColor" /> Draft Queue
+                      </h4>
+                      {processedFAs.filter(p => watchlist.includes(p.identity)).map((p) => (
+                        <PlayerFACard key={p.identity} p={p} onScout={fetchFAWithDetails} onToggleWatchlist={toggleWatchlist} isWatched={true} />
                       ))}
-                   </div>
-                </div>
-              ))}
+                      <div className="h-px bg-slate-200 mx-4 my-8" />
+                    </div>
+                  )}
+
+                  {processedFAs.filter(p => !watchlist.includes(p.identity) || faPosFilter !== 'All' || faSearch).map((p, i) => (
+                    <PlayerFACard key={p.identity || i} p={p} onScout={fetchFAWithDetails} onToggleWatchlist={toggleWatchlist} isWatched={watchlist.includes(p.identity)} />
+                  ))}
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -598,6 +608,41 @@ function DraftBoardContent() {
       >
         <ChevronUp size={24} />
       </button>
+    </div>
+  );
+}
+
+function PlayerFACard({ p, onScout, onToggleWatchlist, isWatched }: { p: Player, onScout: (p: Player, silent: boolean) => void, onToggleWatchlist: (id: string) => void, isWatched: boolean }) {
+  return (
+    <div 
+      onMouseEnter={() => onScout(p, true)}
+      className="bg-white border border-slate-100 rounded-[2rem] shadow-sm p-6 transition-all hover:border-blue-200 hover:shadow-md group/card"
+    >
+       <div className="flex justify-between items-start mb-6">
+          <div className="flex gap-4">
+            <button 
+              onClick={() => onToggleWatchlist(p.identity)}
+              className={`mt-1 transition-colors ${isWatched ? 'text-blue-600' : 'text-slate-200 hover:text-blue-400'}`}
+            >
+              <Star size={18} fill={isWatched ? "currentColor" : "none"} />
+            </button>
+            <div className="space-y-1">
+              <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name || `${p.first} ${p.last}`)}`} target="_blank" rel="noopener noreferrer" className="font-black text-slate-900 uppercase text-xl italic block leading-none hover:text-blue-600 transition-all">
+                {p.name || `${p.first} ${p.last}`}
+              </a>
+              <div className="flex gap-2 items-center">
+                <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">{p.pos || p.position || p.offense || p.defense}</span>
+                <span className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Age {p.core?.age || p.age || '??'}</span>
+              </div>
+            </div>
+          </div>
+          <button onClick={() => onScout(p, false)} className="bg-slate-900 text-white text-[9px] font-black px-5 py-3 rounded-xl uppercase hover:bg-blue-600 transition-all flex items-center gap-2">Details <ChevronRight size={12} /></button>
+       </div>
+       <div className="grid grid-cols-5 gap-2">
+          {getPositionStats(p).map((stat, idx) => (
+            <StatMini key={idx} label={stat.label} val={stat.val} />
+          ))}
+       </div>
     </div>
   );
 }

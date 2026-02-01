@@ -215,9 +215,17 @@ export default function RosterPage() {
                   ))}
                 </div>
                 <div className="h-4 w-[1px] bg-slate-700" />
-                <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">
-                  SALARY: ${totalSalary.toLocaleString()}
-                </p>
+                <div className="flex flex-col gap-1">
+                  <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">
+                    SALARY: ${totalSalary.toLocaleString()}
+                  </p>
+                  <div className="w-32 h-1 bg-slate-800 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all duration-1000 ${totalSalary > 250000000 ? 'bg-red-500' : 'bg-blue-500'}`}
+                      style={{ width: `${Math.min(100, (totalSalary / 250000000) * 100)}%` }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
