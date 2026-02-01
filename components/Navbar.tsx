@@ -11,6 +11,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [draftYear, setDraftYear] = useState<string>('2026');
+  const [currentSeason, setCurrentSeason] = useState<string>('2025');
 
   useEffect(() => {
     async function fetchRules() {
@@ -18,8 +19,10 @@ export default function Navbar() {
         const res = await fetch('/api/rules', { cache: 'no-store' });
         const rules = await res.json();
         if (Array.isArray(rules)) {
-          const yearRule = rules.find(r => r.setting === 'draft_year');
-          if (yearRule?.value) setDraftYear(yearRule.value);
+          const dYear = rules.find(r => r.setting === 'draft_year');
+          const cYear = rules.find(r => r.setting === 'cuts_year');
+          if (dYear?.value) setDraftYear(dYear.value);
+          if (cYear?.value) setCurrentSeason(cYear.value);
         }
       } catch (err) {
         console.error("Navbar rules fetch error:", err);
@@ -124,7 +127,7 @@ export default function Navbar() {
 
             <div className="bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700 hidden lg:block">
                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">
-                 {draftYear}
+                 {currentSeason}
                </span>
             </div>
           </div>

@@ -26,6 +26,7 @@ export default function TransactionsPage() {
   const { selectedTeam, setSelectedTeam } = useTeam();
   
   const [teams, setTeams] = useState<any[]>([]);
+  const [currentSeason, setCurrentSeason] = useState('');
   const [coach, setCoach] = useState('');
   const [logs, setLogs] = useState<any[]>([]); 
   const [loadingLogs, setLoadingLogs] = useState(true);
@@ -47,6 +48,13 @@ export default function TransactionsPage() {
   useEffect(() => {
     fetch('/api/teams').then(res => res.json()).then(data => {
       setTeams(Array.isArray(data) ? data : []);
+    });
+
+    fetch('/api/rules', { cache: 'no-store' }).then(res => res.json()).then(data => {
+      if (Array.isArray(data)) {
+        const cYear = data.find(r => r.setting === 'cuts_year');
+        if (cYear?.value) setCurrentSeason(cYear.value.toString());
+      }
     });
   }, []);
 
@@ -100,7 +108,7 @@ export default function TransactionsPage() {
           </h1>
           <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-3 flex items-center gap-2">
             <ShieldCheck size={14} className="text-emerald-500" />
-            Authenticated Transaction Terminal • Season 2026
+            Authenticated Transaction Terminal • Season {currentSeason}
           </p>
         </div>
         <div className="w-full md:w-80">

@@ -1,7 +1,5 @@
 'use client';
 
-// 1/28/26 3:33pm
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
@@ -76,10 +74,9 @@ export default function DraftPage() {
       setTeams(tRes);
 
       if (Array.isArray(rRes)) {
-        const yearRule = rRes.find(r => r.setting === 'draft_year');
-        if (yearRule && yearRule.value) {
-          setYearFilter(yearRule.value.toString());
-        }
+        const dYear = rRes.find(r => r.setting === 'draft_year');
+        
+        if (dYear?.value) setYearFilter(dYear.value.toString());
       }
     } catch (err) { 
       console.error("Error loading draft data:", err); 
