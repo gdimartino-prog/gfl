@@ -2,6 +2,7 @@ import { sheets, SHEET_ID } from '@/lib/googleSheets';
 import { parsePlayers } from '@/lib/players';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { Player, Team, DraftPick } from '../../../types';
 
 interface PageProps {
   params: Promise<{ teamName: string }>;
@@ -14,7 +15,7 @@ export default async function TeamDetailPage({ params }: PageProps) {
 
   try {
     // 2. Fetch fresh data from Google Sheets
-    const [playersRes, picksRes] = await Promise.all([
+    const [playersRes, picksRes, teamsRes] = await Promise.all([
       sheets.spreadsheets.values.get({ 
         spreadsheetId: SHEET_ID, 
         range: 'Players!A:CV' // Fetch full range to ensure headers map correctly
@@ -22,11 +23,16 @@ export default async function TeamDetailPage({ params }: PageProps) {
       sheets.spreadsheets.values.get({ 
         spreadsheetId: SHEET_ID, 
         range: 'DraftPicks!A:G' 
+      }),
+      sheets.spreadsheets.values.get({ 
+        spreadsheetId: SHEET_ID, 
+        range: 'Teams!A:C' 
       })
     ]);
 
     const rawPlayerRows = playersRes.data.values || [];
     const rawPickRows = picksRes.data.values || [];
+    const rawTeamRows = teamsRes.data.values || [];
 
     // 3. Use your standardized parser to generate identities
     const allPlayers = parsePlayers(rawPlayerRows);
@@ -45,6 +51,9 @@ export default async function TeamDetailPage({ params }: PageProps) {
         overall: row[2],
         original: row[3]
       }));
+      
+    const teamInfo = rawTeamRows.find(row => row[1]?.toUpperCase() === teamShort);
+    const coachName = teamInfo ? teamInfo[2] : 'Unknown Coach';
 
     if (teamRoster.length === 0 && teamPicks.length === 0) return notFound();
 
@@ -53,7 +62,7 @@ export default async function TeamDetailPage({ params }: PageProps) {
         {/* TEAM HEADER */}
         <div className="bg-slate-900 rounded-[3rem] p-12 text-white shadow-2xl relative overflow-hidden">
           <h1 className="text-6xl font-black italic uppercase tracking-tighter">{teamShort}</h1>
-          <p className="text-blue-400 font-bold tracking-widest uppercase mt-2">Franchise Personnel File</p>
+          <p className="text-blue-400 font-bold tracking-widest uppercase mt-2">Franchise Personnel File • Coach: {coachName}</p>
           <div className="absolute top-0 right-0 p-8 opacity-10">
              <span className="text-9xl font-black italic">{teamShort}</span>
           </div>
@@ -77,14 +86,14 @@ export default async function TeamDetailPage({ params }: PageProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {teamRoster.map((p, i) => (
+                {teamRoster.map((p: Player, i) => (
                   <tr key={i} className="hover:bg-blue-50/50 transition-colors group">
                     <td className="px-8 py-5 font-mono font-black text-blue-600">
-                      {p.position}
+                      {p.pos || p.position}
                     </td>
                     <td className="px-8 py-5">
                       <p className="font-bold text-slate-800 uppercase leading-none">{p.first} {p.last}</p>
-                      <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-tighter">Age: {p.age}</p>
+                      <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-tighter">Age: {p.core?.age || p.age}</p>
                     </td>
                     <td className="px-8 py-5 text-right">
                       {/* CRITICAL: encodeURIComponent handles spaces in names like "Austin III" */}

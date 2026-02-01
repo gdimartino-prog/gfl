@@ -6,6 +6,7 @@ import TeamSelector from '@/components/TeamSelector';
 import { useTeam } from '@/context/TeamContext';
 import { useSession } from "next-auth/react";
 import { Search, ChevronRight, ExternalLink, Star, Activity, GraduationCap, ShieldCheck } from 'lucide-react';
+import { Player, Team, DraftPick } from '../../types';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,11 +21,11 @@ const positionWeights: Record<string, number> = {
 export default function RosterPage() {
   const { data: session, status } = useSession();
   const { selectedTeam, setSelectedTeam } = useTeam(); 
-  const [data, setData] = useState<{ roster: any[], picks: any[], schedule: any[], stats: any } | null>(null);
+  const [data, setData] = useState<{ roster: Player[], picks: DraftPick[], schedule: any[], stats: any } | null>(null);
   const [rules, setRules] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'pos'>('default');
-  const [viewingPlayer, setViewingPlayer] = useState<any>(null);
+  const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   
   const lastPlayedRef = useRef<HTMLDivElement>(null);
@@ -72,7 +73,7 @@ export default function RosterPage() {
         const rosterData = await rosterRes.json();
         const scheduleData = await scheduleRes.json();
 
-        const yearRule = rulesData.find((r: any) => r.setting === 'cut_year');
+        const yearRule = rulesData.find((r: any) => r.setting === 'cuts_year');
         const DYNAMIC_YEAR = yearRule ? yearRule.value.toString() : "2025";
 
         let pf = 0; let pa = 0;
@@ -117,6 +118,14 @@ export default function RosterPage() {
       });
   }, [data]);
 
+  const totalSalary = useMemo(() => {
+    if (!data?.roster) return 0;
+    return data.roster.reduce((acc, p) => {
+      const s = Number(String(p.salary || 0).replace(/[^0-9.-]+/g,""));
+      return acc + s;
+    }, 0);
+  }, [data?.roster]);
+
   const teamNeeds = useMemo(() => {
     if (!data?.roster || Object.keys(rules).length === 0) return [];
     const counts: Record<string, number> = {};
@@ -135,12 +144,12 @@ export default function RosterPage() {
   }, [data?.roster, rules]);
 
   const sortedGroups = useMemo(() => {
-    if (!data?.roster) return { OFF: [], DEF: [], SPEC: [] };
-    const filtered = data.roster.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()) || p.pos.toLowerCase().includes(searchTerm.toLowerCase()));
-    const sortFn = (players: any[]) => [...players].sort((a, b) => {
-        if (sortBy === 'name') return a.name.split(' ').pop().localeCompare(b.name.split(' ').pop());
-        if (sortBy === 'pos') return a.pos.localeCompare(b.pos);
-        return (positionWeights[a.pos] || 99) - (positionWeights[b.pos] || 99);
+    if (!data?.roster) return { OFF: [] as Player[], DEF: [] as Player[], SPEC: [] as Player[] };
+    const filtered = data.roster.filter(p => (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (p.pos || '').toLowerCase().includes(searchTerm.toLowerCase()));
+    const sortFn = (players: Player[]) => [...players].sort((a, b) => {
+        if (sortBy === 'name') return (a.name || '').split(' ').pop()!.localeCompare((b.name || '').split(' ').pop()!);
+        if (sortBy === 'pos') return (a.pos || '').localeCompare(b.pos || '');
+        return (positionWeights[a.pos || ''] || 99) - (positionWeights[b.pos || ''] || 99);
     });
     return {
       OFF: sortFn(filtered.filter(p => p.group === 'OFF')),
@@ -176,6 +185,10 @@ export default function RosterPage() {
                     <div key={i} className={`w-3 h-3 rounded-full ${isWin ? 'bg-emerald-500' : 'bg-red-500'}`} />
                   ))}
                 </div>
+                <div className="h-4 w-[1px] bg-slate-700" />
+                <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">
+                  SALARY: ${totalSalary.toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
@@ -224,8 +237,8 @@ export default function RosterPage() {
       {data && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20">
           <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-             <RosterSection title="Offense" players={sortedGroups.OFF} accent="bg-slate-800" color="text-blue-600 bg-blue-50" onDetails={(p: any) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
-             <RosterSection title="Defense" players={sortedGroups.DEF} accent="bg-red-900" color="text-red-600 bg-red-50" onDetails={(p: any) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
+             <RosterSection title="Offense" players={sortedGroups.OFF} accent="bg-slate-800" color="text-blue-600 bg-blue-50" onDetails={(p: Player) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
+             <RosterSection title="Defense" players={sortedGroups.DEF} accent="bg-red-900" color="text-red-600 bg-red-50" onDetails={(p: Player) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
           </div>
 
           <div className="lg:col-span-4 space-y-10">
@@ -250,7 +263,7 @@ export default function RosterPage() {
             <div className="bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 border border-slate-800 text-left">
               <h3 className="font-black text-white text-[10px] tracking-[0.3em] uppercase mb-8 flex items-center gap-2"><Star size={14} className="text-blue-500" /> Draft Capital</h3>
               <div className="space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                {data.picks?.map((pick: any, i: number) => (
+                {data.picks?.map((pick: DraftPick, i: number) => (
                   <div key={i} className="bg-slate-800/40 border border-slate-700/50 p-5 rounded-[1.5rem] flex items-center gap-6">
                     <div className="bg-blue-600 text-white w-14 h-14 rounded-2xl flex flex-col items-center justify-center font-black shrink-0 leading-none"><span className="text-[9px] mb-1 opacity-60 font-black">{pick.year}</span><span className="text-base italic uppercase tracking-tighter">R{pick.round}</span></div>
                     <div className="flex-grow"><p className="text-white font-black text-sm uppercase italic tracking-tighter leading-none mb-1.5">Pick #{pick.overall || 'TBD'}</p><p className="text-[10px] font-bold text-slate-500 uppercase italic leading-none">Origin: <span className="text-blue-400/80">{pick.originalTeam || '—'}</span></p></div>
@@ -259,7 +272,7 @@ export default function RosterPage() {
               </div>
             </div>
 
-            <RosterSection title="Special Teams" players={sortedGroups.SPEC} accent="bg-emerald-900" color="text-emerald-600 bg-emerald-50" onDetails={(p: any) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
+            <RosterSection title="Special Teams" players={sortedGroups.SPEC} accent="bg-emerald-900" color="text-emerald-600 bg-emerald-50" onDetails={(p: Player) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
           </div>
         </div>
       )}
@@ -267,7 +280,7 @@ export default function RosterPage() {
   );
 }
 
-function RosterSection({ title, players, accent, color, onDetails }: any) {
+function RosterSection({ title, players, accent, color, onDetails }: { title: string, players: Player[], accent: string, color: string, onDetails: (p: Player) => void }) {
   return (
     <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden text-left h-fit">
       <div className={`px-8 py-5 font-black text-white ${accent} flex justify-between items-center uppercase tracking-widest text-[10px]`}>
@@ -275,13 +288,13 @@ function RosterSection({ title, players, accent, color, onDetails }: any) {
         <span className="bg-white/20 px-3 py-1 rounded-lg italic">{players.length}</span>
       </div>
       <div className="divide-y divide-slate-50">
-        {players.map((p: any, i: number) => (
+        {players.map((p: Player, i: number) => (
           <div key={i} className="group flex items-center justify-between p-5 hover:bg-slate-50 transition-all">
             <div className="flex items-center gap-4 min-w-0">
               <span className={`shrink-0 font-mono text-[9px] font-black ${color} w-10 h-10 flex items-center justify-center rounded-xl uppercase italic shadow-inner`}>{p.pos}</span>
               <div className="min-w-0">
-                <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name)}`} target="_blank" rel="noopener noreferrer" className="text-sm font-black text-slate-900 uppercase italic tracking-tighter leading-none hover:text-blue-600 truncate block">{p.name}</a>
-                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-1">Age {p.age || '??'}</p>
+                <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name || '')}`} target="_blank" rel="noopener noreferrer" className="text-sm font-black text-slate-900 uppercase italic tracking-tighter leading-none hover:text-blue-600 truncate block">{p.name}</a>
+                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-1">Age {p.core?.age || p.age || '??'}</p>
               </div>
             </div>
             <button onClick={() => onDetails(p)} className="flex-shrink-0 ml-4 flex items-center justify-center w-12 h-12 rounded-xl bg-slate-100 text-slate-400 group-hover:bg-blue-600 group-hover:text-white active:scale-95 transition-all shadow-sm"><ChevronRight size={20} /></button>

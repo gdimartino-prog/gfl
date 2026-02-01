@@ -6,14 +6,14 @@ export default function StandingsClient({ allData, currentYear, totalGames }: { 
 
   // 1. Base Filter (Search)
   const filtered = allData.filter(row => 
-    row.team?.toLowerCase().includes(search.toLowerCase()) || 
-    row.year?.toString().includes(search)
+    row.team?.toString().toLowerCase().includes(search.toLowerCase()) || 
+    row.year?.toString().toLowerCase().includes(search.toLowerCase())
   );
 
   // 2. Separate Current Season from History
-  const currentSeasonRaw = filtered.filter(r => r.year.toString() === currentYear.toString());
-  const history = filtered.filter(r => r.year.toString() !== currentYear.toString())
-    .sort((a, b) => Number(b.year) - Number(a.year) || Number(b.won) - Number(a.won));
+  const currentSeasonRaw = filtered.filter(r => r.year?.toString() === currentYear?.toString());
+  const history = filtered.filter(r => r.year?.toString() !== currentYear?.toString())
+    .sort((a, b) => Number(b.year || 0) - Number(a.year || 0) || Number(b.won || 0) - Number(a.won || 0));
 
   const divisions = ["East", "Central", "West"];
 
@@ -44,7 +44,7 @@ export default function StandingsClient({ allData, currentYear, totalGames }: { 
         <div className="grid gap-12">
           {divisions.map(div => {
             const divData = currentSeasonRaw
-              .filter(r => r.division?.toString().trim().toLowerCase() === div.toLowerCase())
+              .filter(r => r.division?.toString()?.trim().toLowerCase() === div.toLowerCase())
               .sort((a, b) => Number(b.pct) - Number(a.pct) || Number(b.diff) - Number(a.diff));
             
             if (divData.length === 0) return null;
@@ -63,7 +63,7 @@ export default function StandingsClient({ allData, currentYear, totalGames }: { 
           })}
 
           {/* FALLBACK: If teams exist for current year but have no division assigned */}
-          {currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes(r.division?.toString().trim().toLowerCase())).length > 0 && (
+          {currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes(r.division?.toString()?.trim().toLowerCase())).length > 0 && (
             <div>
               <div className="flex items-center gap-3 mb-4">
                  <h3 className="text-xl font-black uppercase italic text-slate-400 tracking-tight">
@@ -72,7 +72,7 @@ export default function StandingsClient({ allData, currentYear, totalGames }: { 
                 <div className="h-px bg-slate-100 flex-grow"></div>
               </div>
               <StandingsTable 
-                data={currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes(r.division?.toString().trim().toLowerCase()))} 
+                data={currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes(r.division?.toString()?.trim().toLowerCase()))} 
                 isCurrent={true} 
                 showGB={true}
                 totalGames={totalGames}

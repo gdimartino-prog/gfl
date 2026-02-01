@@ -5,21 +5,30 @@ import Link from 'next/link';
 export const dynamic = 'force-dynamic';
 
 export default async function StandingsPage() {
-  const allData = await getHistory();
+  let allData = [];
+  let totalGames = 14;
 
-  // Fetch rules to get dynamic season length
-  const rulesRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/rules`, { cache: 'no-store' });
-  const rules = await rulesRes.json();
-  
-  const seasonGamesRule = Array.isArray(rules) ? rules.find(r => r.setting === 'season_games') : null;
-  const totalGames = seasonGamesRule ? parseInt(seasonGamesRule.value) : 14; // Fallback to 14
+  try {
+    allData = await getHistory();
+    if (!Array.isArray(allData)) allData = [];
+
+    // Fetch rules to get dynamic season length
+    const rulesRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/rules`, { cache: 'no-store' }).catch(() => null);
+    
+    if (rulesRes?.ok) {
+      const rules = await rulesRes.json();
+      const seasonGamesRule = Array.isArray(rules) ? rules.find(r => r.setting === 'season_games') : null;
+      if (seasonGamesRule) totalGames = parseInt(seasonGamesRule.value);
+    }
+  } catch (err) {
+    console.error("Standings Page Data Fetch Error:", err);
+  }
 
   // 1. Sort data so newest years are first
-  const sortedData = [...allData].sort((a, b) => Number(b.year) - Number(a.year));
+  const sortedData = [...allData].sort((a, b) => Number(b.year || 0) - Number(a.year || 0));
 
   // 2. Dynamically find the most recent year in your spreadsheet
-  // If data exists, use the year from the first row; otherwise default to 2025
-  const latestYear = sortedData.length > 0 ? sortedData[0].year.toString() : "2025";
+  const latestYear = sortedData.length > 0 ? (sortedData[0].year?.toString() || "2025") : "2025";
 
   return (
     <div className="max-w-7xl mx-auto p-8">
