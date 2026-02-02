@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { updatePassword } from "@/lib/actions";
-import { Lock, ShieldCheck, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Lock, ShieldCheck, AlertCircle, CheckCircle2, Radio } from "lucide-react";
+import Link from "next/link";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -107,6 +108,21 @@ export default function SettingsPage() {
              </div>
           </div>
           
+          <Link 
+            href="/coaching"
+            className="block bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-all group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="bg-blue-50 p-3 rounded-2xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <Radio size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Personnel Logistics</p>
+                <h3 className="text-sm font-black uppercase italic text-slate-900">Update COA File →</h3>
+              </div>
+            </div>
+          </Link>
+
           <div className="p-6 border-2 border-dashed border-slate-200 rounded-[2rem] text-slate-400">
             <p className="text-[10px] font-bold leading-relaxed uppercase italic">
               Updating your credentials will sync to Column H of the Coaches Master Sheet.
@@ -164,7 +180,7 @@ export default function SettingsPage() {
               disabled={status === "loading"}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 text-white font-black uppercase italic tracking-widest py-5 rounded-2xl shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"
             >
-              {status === "loading" ? "Updating Google Sheets..." : "Commit Security Update"}
+              {status === "loading" ? "Updating Database..." : "Save Security Settings"}
             </button>
           </form>
         </div>

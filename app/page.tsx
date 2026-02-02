@@ -82,6 +82,14 @@ export default async function HomePage() {
       color: 'border-slate-500',
       isExternal: true,
       protected: false
+    },
+    {
+      title: 'Franchise Settings',
+      desc: 'Update your coach profile and perform security password resets.',
+      href: '/settings',
+      icon: '⚙️',
+      color: 'border-slate-600',
+      protected: true
     }
   ];
 
@@ -164,15 +172,7 @@ export default async function HomePage() {
 
           {/* AUTHORIZED FOOTER ACTIONS */}
           {session && (
-            <div className="mt-8 pt-8 border-t border-slate-100 flex items-center justify-between">
-               <Link 
-                 href="/settings" 
-                 className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors group"
-               >
-                 <span className="text-lg group-hover:rotate-90 transition-transform duration-500">⚙️</span> 
-                 League Settings
-               </Link>
-
+            <div className="mt-8 pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-4">
                <div className="flex items-center gap-6">
                  <div className="h-4 w-[1px] bg-slate-200" />
                  <LogoutButton />
