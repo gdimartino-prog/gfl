@@ -181,7 +181,7 @@ function RosterContent() {
       
       parts.forEach(part => {
         const pt = part.trim();
-        if (['OT', 'LT', 'RT', 'OG', 'LG', 'RG', 'C', 'T', 'G', 'OL', 'C-G', 'G-T'].includes(pt)) categories.add('OL');
+        if (['OT', 'LT', 'RT', 'OG', 'LG', 'RG', 'C', 'T', 'G', 'OL', 'C-G', 'G-T', 'C-T'].includes(pt)) categories.add('OL');
         else if (['DE', 'DT', 'NT', 'DL'].includes(pt)) categories.add('DL');
         else if (['ILB', 'OLB', 'MLB', 'LB'].includes(pt)) categories.add('LB');
         else if (['CB', 'S', 'FS', 'SS', 'DB'].includes(pt)) categories.add('DB');
@@ -236,15 +236,15 @@ function RosterContent() {
 
   const depthGroups = useMemo(() => {
     if (!data?.roster) return {} as Record<string, Player[]>;
-    return data.roster.reduce((acc, p) => {
+    const groups = data.roster.reduce((acc, p) => {
       const rawPos = (p.pos || p.position || '??').trim().toUpperCase();
       const parts = rawPos.split('-');
       const categories = new Set<string>();
 
       parts.forEach(part => {
         const pt = part.trim();
-        if (['HB', 'FB'].includes(pt)) categories.add('RB');
-        else if (['LT', 'LG', 'C', 'RG', 'RT', 'OL', 'OT', 'OG', 'G', 'T', 'C-G', 'G-T'].includes(pt)) categories.add('OL');
+        if (['HB', 'FB', 'RB'].includes(pt)) categories.add('RB');
+        else if (['LT', 'LG', 'C', 'RG', 'RT', 'OL', 'OT', 'OG', 'G', 'T', 'C-G', 'G-T', 'C-T'].includes(pt)) categories.add('OL');
         else if (['DE', 'DT', 'NT', 'DL'].includes(pt)) categories.add('DL');
         else if (['ILB', 'OLB', 'MLB', 'LB'].includes(pt)) categories.add('LB');
         else if (['CB', 'S', 'FS', 'SS', 'DB'].includes(pt)) categories.add('DB');
@@ -260,6 +260,25 @@ function RosterContent() {
       });
       return acc;
     }, {} as Record<string, Player[]>);
+
+    // Sort each group by specific position weight then last name
+    Object.keys(groups).forEach(cat => {
+      groups[cat].sort((a, b) => {
+        const posA = (a.pos || a.position || '').split('-')[0].trim().toUpperCase();
+        const posB = (b.pos || b.position || '').split('-')[0].trim().toUpperCase();
+        
+        const weightA = positionWeights[posA] || 99;
+        const weightB = positionWeights[posB] || 99;
+
+        if (weightA !== weightB) return weightA - weightB;
+
+        const lastA = (a.last || a.name?.split(' ').pop() || '').toLowerCase();
+        const lastB = (b.last || b.name?.split(' ').pop() || '').toLowerCase();
+        return lastA.localeCompare(lastB);
+      });
+    });
+
+    return groups;
   }, [data?.roster]);
 
   return (
@@ -457,7 +476,7 @@ function RosterContent() {
                             className={`text-[11px] font-bold uppercase truncate w-full text-left hover:text-blue-600 transition-colors ${isIR ? 'text-slate-400 italic' : 'text-slate-700'}`} 
                             title={p.name || `${p.first} ${p.last}`}
                           >
-                            {idx + 1}. {p.name || `${p.first} ${p.last}`} {isIR && <span className="text-[8px] opacity-60">(IR)</span>}
+                            {idx + 1}. <span className="text-[9px] text-slate-400 font-black mr-1">[{p.pos || p.position}]</span> {p.name || `${p.first} ${p.last}`} {isIR && <span className="text-[8px] opacity-60">(IR)</span>}
                           </button>
                         );
                       })}

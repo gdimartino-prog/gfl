@@ -232,10 +232,11 @@ function DraftBoardContent() {
         
         const matchesPos = faPosFilter === 'All' || 
           (faPosFilter === 'Starred' ? watchlist.includes(p.identity) :
-           faPosFilter === 'OL' ? posParts.some(pt => ['OL', 'C', 'G', 'T', 'C-G', 'G-T', 'LT', 'RT', 'LG', 'RG', 'OT', 'OG'].includes(pt)) : 
+           faPosFilter === 'OL' ? posParts.some(pt => ['OL', 'C', 'G', 'T', 'C-G', 'G-T', 'LT', 'RT', 'LG', 'RG', 'OT', 'OG', 'C-T'].includes(pt)) : 
            faPosFilter === 'DL' ? posParts.some(pt => ['DL', 'DE', 'DT', 'NT'].includes(pt)) :
            faPosFilter === 'LB' ? posParts.some(pt => ['LB', 'ILB', 'OLB', 'MLB', 'LB-S'].includes(pt)) :
            faPosFilter === 'DB' ? posParts.some(pt => ['DB', 'CB', 'S', 'FS', 'SS', 'LB-S'].includes(pt)) :
+           faPosFilter === 'RB' ? posParts.some(pt => ['RB', 'HB', 'FB'].includes(pt)) :
            posParts.includes(faPosFilter.toUpperCase()));
 
         return matchesSearch && matchesPos;
