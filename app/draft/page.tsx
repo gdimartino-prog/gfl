@@ -242,13 +242,11 @@ function DraftBoardContent() {
         return matchesSearch && matchesPos;
       })
       .sort((a, b) => {
-        // 0. Starred Mode (Priority to Watchlist)
-        if (faSortKey === 'starred') {
-          const aStarred = watchlist.includes(a.identity);
-          const bStarred = watchlist.includes(b.identity);
-          if (aStarred && !bStarred) return -1;
-          if (!aStarred && bStarred) return 1;
-        }
+        // 🚀 RESTORED: Global Priority - Starred players always float to the top
+        const aStarred = watchlist.includes(a.identity);
+        const bStarred = watchlist.includes(b.identity);
+        if (aStarred && !bStarred) return -1;
+        if (!aStarred && bStarred) return 1;
 
         // 1. Independent Alphabetical Mode (Last Name First)
         if (faSortKey === 'alpha') {
@@ -547,7 +545,6 @@ function DraftBoardContent() {
                 </div>
                 <select className="flex-1 p-2 bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase text-slate-900" value={faSortKey} onChange={(e) => setFaSortKey(e.target.value)}>
                   <option value="overall">Sort: OVR</option>
-                  <option value="starred">Sort: Starred</option>
                   <option value="age">Sort: AGE</option>
                   <option value="alpha">Sort: A-Z</option>
                 </select>
@@ -575,23 +572,10 @@ function DraftBoardContent() {
                 <div className="text-center py-20 text-slate-300 font-black uppercase animate-pulse italic">Querying Database...</div>
               ) : (
                 <>
-                  {/* WATCHLIST SECTION */}
-                  {watchlist.length > 0 && faPosFilter === 'All' && !faSearch && faSortKey !== 'starred' && (
-                    <div className="mb-10 space-y-4">
-                      <h4 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] flex items-center gap-2 ml-4">
-                        <Star size={12} fill="currentColor" /> Draft Queue
-                      </h4>
-                      {processedFAs.filter(p => watchlist.includes(p.identity)).map((p) => (
-                        <PlayerFACard key={p.identity} p={p} onScout={fetchFAWithDetails} onToggleWatchlist={toggleWatchlist} isWatched={true} />
-                      ))}
-                      <div className="h-px bg-slate-200 mx-4 my-8" />
-                    </div>
-                  )}
-
                   {processedFAs.length === 0 ? (
                     <div className="text-center py-20 text-slate-300 font-black uppercase italic">No players found matching criteria</div>
                   ) : (
-                    processedFAs.filter(p => !watchlist.includes(p.identity) || faPosFilter !== 'All' || faSearch).map((p, i) => (
+                    processedFAs.map((p, i) => (
                       <PlayerFACard key={p.identity || i} p={p} onScout={fetchFAWithDetails} onToggleWatchlist={toggleWatchlist} isWatched={watchlist.includes(p.identity)} />
                     ))
                   )}
