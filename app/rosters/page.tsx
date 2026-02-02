@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import PlayerCard from '@/components/PlayerCard';
 import TeamSelector from '@/components/TeamSelector';
@@ -21,8 +21,7 @@ const positionWeights: Record<string, number> = {
 };
 
 const positionOrder = [
-  'QB', 'RB', 'WR', 'TE', 'LT', 'LG', 'C', 'RG', 'RT', 'OL',
-  'DE', 'DT', 'NT', 'LB', 'CB', 'S', 'K', 'P'
+  'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'
 ];
 
 export default function RosterPage() {
@@ -101,11 +100,14 @@ function RosterContent() {
         const scheduleData = await scheduleRes.json();
 
         const yearRule = rulesData.find((r: any) => r.setting === 'cuts_year');
-        const DYNAMIC_YEAR = yearRule ? yearRule.value.toString() : "2025";
+        const DYNAMIC_YEAR = yearRule?.value ? yearRule.value.toString() : "2025";
+
+        const limitRule = rulesData.find((r: any) => r.setting === 'limit_roster');
+        const rosterLimit = limitRule ? parseInt(limitRule.value) : 53;
 
         let pf = 0; let pa = 0;
         scheduleData.filter((g: any) => g.year === DYNAMIC_YEAR && g.status === "Final").forEach((game: any) => {
-            const isHome = [game.home.toUpperCase()].includes(teamEntry?.team?.toUpperCase()) || [game.home.toUpperCase()].includes(teamEntry?.teamshort?.toUpperCase());
+            const isHome = [(game.home || "").toUpperCase()].includes(teamEntry?.team?.toUpperCase()) || [(game.home || "").toUpperCase()].includes(teamEntry?.teamshort?.toUpperCase());
             if (isHome) { pf += parseInt(game.hScore); pa += parseInt(game.vScore); }
             else { pf += parseInt(game.vScore); pa += parseInt(game.hScore); }
         });
@@ -124,12 +126,18 @@ function RosterContent() {
           picks: rosterData.picks || [],
           history: history,
           schedule: scheduleData || [],
-          stats: { ...teamEntry, diff: pf - pa, currentYear: DYNAMIC_YEAR }
+          stats: { ...teamEntry, diff: pf - pa, currentYear: DYNAMIC_YEAR, rosterLimit }
         });
       } catch (err) { console.error(err); } finally { setLoading(false); }
     };
     loadFranchiseData();
   }, [selectedTeam]);
+
+  const handlePlayerDetails = useCallback((p: Player) => {
+    fetch(`/api/players/details/${encodeURIComponent(p.identity)}`)
+      .then(r => r.json())
+      .then(setViewingPlayer);
+  }, []);
 
   useEffect(() => {
     if (data?.schedule && !loading) {
@@ -146,32 +154,14 @@ function RosterContent() {
     if (!data?.schedule || !data?.stats?.currentYear) return [];
     const teamName = (data.stats.team || "").toUpperCase();
     return data.schedule
-      .filter(g => g.year === data.stats.currentYear && g.status === "Final" && (g.home.toUpperCase() === teamName || g.visitor.toUpperCase() === teamName))
+      .filter(g => g.year === data.stats.currentYear && g.status === "Final" && ((g.home || "").toUpperCase() === teamName || (g.visitor || "").toUpperCase() === teamName))
       .sort((a, b) => parseInt(a.week) - parseInt(b.week))
       .slice(-5)
       .map(game => {
-        const isHome = game.home.toUpperCase() === teamName;
+        const isHome = (game.home || "").toUpperCase() === teamName;
         return isHome ? (parseInt(game.hScore) > parseInt(game.vScore)) : (parseInt(game.vScore) > parseInt(game.hScore));
       });
   }, [data]);
-
-  const totalSalary = useMemo(() => {
-    if (!data?.roster) return 0;
-    return data.roster.reduce((acc, p) => {
-      const s = Number(String(p.salary || 0).replace(/[^0-9.-]+/g,""));
-      return acc + s;
-    }, 0);
-  }, [data?.roster]);
-
-  const salaryByGroup = useMemo(() => {
-    if (!data?.roster) return { OFF: 0, DEF: 0, SPEC: 0 };
-    return data.roster.reduce((acc, p) => {
-      const group = p.group === 'ST' || p.group === 'SPECIAL' ? 'SPEC' : (p.group || 'OFF');
-      const s = Number(String(p.salary || 0).replace(/[^0-9.-]+/g,""));
-      acc[group as keyof typeof acc] = (acc[group as keyof typeof acc] || 0) + s;
-      return acc;
-    }, { OFF: 0, DEF: 0, SPEC: 0 });
-  }, [data?.roster]);
 
   const rosterStatus = useMemo(() => {
     if (!data?.roster) return { active: 0, ir: 0 };
@@ -185,12 +175,25 @@ function RosterContent() {
     if (!data?.roster || Object.keys(rules).length === 0) return [];
     const counts: Record<string, number> = {};
     data.roster.forEach(p => {
-      let pos = (p.pos || p.position || "").toUpperCase();
-      if (['OT', 'LT', 'RT', 'OG', 'LG', 'RG', 'C', 'T', 'G', 'OL'].includes(pos)) pos = 'OL';
-      if (['DE', 'DT', 'NT', 'DL'].includes(pos)) pos = 'DL';
-      if (['ILB', 'OLB', 'MLB', 'LB', 'LB-S'].includes(pos)) pos = 'LB';
-      if (['CB', 'LB-S', 'S', 'DB'].includes(pos)) pos = 'DB';
-      counts[pos] = (counts[pos] || 0) + 1;
+      const rawPos = (p.pos || p.position || "").toUpperCase();
+      const parts = rawPos.split('-');
+      const categories = new Set<string>();
+      
+      parts.forEach(part => {
+        const pt = part.trim();
+        if (['OT', 'LT', 'RT', 'OG', 'LG', 'RG', 'C', 'T', 'G', 'OL', 'C-G', 'G-T'].includes(pt)) categories.add('OL');
+        else if (['DE', 'DT', 'NT', 'DL'].includes(pt)) categories.add('DL');
+        else if (['ILB', 'OLB', 'MLB', 'LB'].includes(pt)) categories.add('LB');
+        else if (['CB', 'S', 'FS', 'SS', 'DB'].includes(pt)) categories.add('DB');
+        else if (['LB-S'].includes(pt)) { categories.add('LB'); categories.add('DB'); }
+        else if (['QB', 'RB', 'HB', 'FB', 'WR', 'TE', 'K', 'P'].includes(pt)) {
+          categories.add(['HB', 'FB'].includes(pt) ? 'RB' : pt);
+        }
+      });
+      
+      categories.forEach(cat => {
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
     });
     return Object.entries(rules).map(([pos, min]) => {
       const current = counts[pos] || 0;
@@ -203,8 +206,10 @@ function RosterContent() {
     const filtered = data.roster.filter(p => (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (p.pos || '').toLowerCase().includes(searchTerm.toLowerCase()));
     const sortFn = (players: Player[]) => [...players].sort((a, b) => {
         if (sortBy === 'name') return (a.name || '').split(' ').pop()!.localeCompare((b.name || '').split(' ').pop()!);
-        if (sortBy === 'pos') return (a.pos || '').localeCompare(b.pos || '');
-        return (positionWeights[a.pos || ''] || 99) - (positionWeights[b.pos || ''] || 99);
+        const posA = (a.pos || '').split('-')[0].trim();
+        const posB = (b.pos || '').split('-')[0].trim();
+        if (sortBy === 'pos') return posA.localeCompare(posB);
+        return (positionWeights[posA] || 99) - (positionWeights[posB] || 99);
     });
     return {
       OFF: sortFn(filtered.filter(p => p.group === 'OFF')),
@@ -232,14 +237,27 @@ function RosterContent() {
   const depthGroups = useMemo(() => {
     if (!data?.roster) return {} as Record<string, Player[]>;
     return data.roster.reduce((acc, p) => {
-      let pos = (p.pos || p.position || '??').trim().toUpperCase();
-      // Normalize some positions for the chart
-      if (['HB', 'FB'].includes(pos)) pos = 'RB';
-      if (['ILB', 'OLB', 'MLB'].includes(pos)) pos = 'LB';
-      if (['FS', 'SS'].includes(pos)) pos = 'S';
-      
-      if (!acc[pos]) acc[pos] = [];
-      acc[pos].push(p);
+      const rawPos = (p.pos || p.position || '??').trim().toUpperCase();
+      const parts = rawPos.split('-');
+      const categories = new Set<string>();
+
+      parts.forEach(part => {
+        const pt = part.trim();
+        if (['HB', 'FB'].includes(pt)) categories.add('RB');
+        else if (['LT', 'LG', 'C', 'RG', 'RT', 'OL', 'OT', 'OG', 'G', 'T', 'C-G', 'G-T'].includes(pt)) categories.add('OL');
+        else if (['DE', 'DT', 'NT', 'DL'].includes(pt)) categories.add('DL');
+        else if (['ILB', 'OLB', 'MLB', 'LB'].includes(pt)) categories.add('LB');
+        else if (['CB', 'S', 'FS', 'SS', 'DB'].includes(pt)) categories.add('DB');
+        else if (['LB-S'].includes(pt)) { categories.add('LB'); categories.add('DB'); }
+        else if (['QB', 'WR', 'TE', 'K', 'P'].includes(pt)) categories.add(pt);
+      });
+
+      categories.forEach(cat => {
+        if (!acc[cat]) acc[cat] = [];
+        if (!acc[cat].find(existing => existing.identity === p.identity)) {
+          acc[cat].push(p);
+        }
+      });
       return acc;
     }, {} as Record<string, Player[]>);
   }, [data?.roster]);
@@ -265,6 +283,9 @@ function RosterContent() {
               <h2 className="text-4xl font-black uppercase italic tracking-tighter leading-none">{data.stats.team} <span className="text-blue-500 not-italic ml-2">{data.stats.nickname}</span></h2>
               <div className="flex items-center gap-4 mt-4">
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">COACH: {data.stats.coach?.toUpperCase()}</p>
+                {rosterStatus.active > data.stats.rosterLimit && (
+                  <span className="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded animate-pulse shadow-lg shadow-red-500/20">OVER LIMIT</span>
+                )}
                 <div className="h-4 w-[1px] bg-slate-700" />
                 <div className="flex gap-1.5">
                   {recentForm.map((isWin, i) => (
@@ -273,24 +294,13 @@ function RosterContent() {
                 </div>
                 <div className="h-4 w-[1px] bg-slate-700" />
                 <div className="flex flex-col gap-1">
-                  <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">
-                    SALARY: ${totalSalary.toLocaleString()}
-                  </p>
-                  <div className="w-32 h-1 bg-slate-800 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full transition-all duration-1000 ${totalSalary > 250000000 ? 'bg-red-500' : 'bg-blue-500'}`}
-                      style={{ width: `${Math.min(100, (totalSalary / 250000000) * 100)}%` }}
-                    />
-                  </div>
-                <div className="h-4 w-[1px] bg-slate-700" />
-                <div className="flex flex-col gap-1">
-                  <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">
-                    ROSTER: {rosterStatus.active} / 53
+                  <p className={`text-[10px] font-black uppercase tracking-widest ${rosterStatus.active > data.stats.rosterLimit ? 'text-red-500 animate-pulse' : 'text-emerald-400'}`}>
+                    ROSTER: {rosterStatus.active} / {data.stats.rosterLimit}
                   </p>
                   <div className="w-24 h-1 bg-slate-800 rounded-full overflow-hidden flex">
                     <div 
-                      className={`h-full transition-all duration-1000 ${rosterStatus.active > 53 ? 'bg-red-500' : 'bg-emerald-500'}`}
-                      style={{ width: `${Math.min(100, (rosterStatus.active / 53) * 100)}%` }}
+                      className={`h-full transition-all duration-1000 ${rosterStatus.active > data.stats.rosterLimit ? 'bg-red-500' : 'bg-emerald-500'}`}
+                      style={{ width: `${Math.min(100, (rosterStatus.active / data.stats.rosterLimit) * 100)}%` }}
                     />
                   </div>
                 </div>
@@ -300,7 +310,6 @@ function RosterContent() {
                 </div>
               </div>
             </div>
-          </div>
           <div className="flex gap-12 pr-6">
             <div className="text-center">
               <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-3">Record</p>
@@ -345,24 +354,6 @@ function RosterContent() {
         )}
       </div>
 
-      {/* SALARY BREAKDOWN MINI-DASHBOARD */}
-      {activeTab === 'ROSTER' && !searchTerm && !loading && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center justify-between">
-            <div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Offense Spending</p><p className="text-2xl font-black text-blue-600">${salaryByGroup.OFF.toLocaleString()}</p></div>
-            <div className="text-[10px] font-black text-slate-300 bg-slate-50 px-3 py-1 rounded-lg">{totalSalary > 0 ? Math.round((salaryByGroup.OFF / totalSalary) * 100) : 0}%</div>
-          </div>
-          <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center justify-between">
-            <div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Defense Spending</p><p className="text-2xl font-black text-red-600">${salaryByGroup.DEF.toLocaleString()}</p></div>
-            <div className="text-[10px] font-black text-slate-300 bg-slate-50 px-3 py-1 rounded-lg">{totalSalary > 0 ? Math.round((salaryByGroup.DEF / totalSalary) * 100) : 0}%</div>
-          </div>
-          <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center justify-between">
-            <div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Special Teams</p><p className="text-2xl font-black text-emerald-600">${salaryByGroup.SPEC.toLocaleString()}</p></div>
-            <div className="text-[10px] font-black text-slate-300 bg-slate-50 px-3 py-1 rounded-lg">{totalSalary > 0 ? Math.round((salaryByGroup.SPEC / totalSalary) * 100) : 0}%</div>
-          </div>
-        </div>
-      )}
-
       {/* POSITIONAL DASHBOARD */}
       {activeTab === 'ROSTER' && !searchTerm && !loading && (
         <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
@@ -382,8 +373,8 @@ function RosterContent() {
       {data && activeTab === 'ROSTER' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20">
           <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-             <RosterSection title="Offense" players={sortedGroups.OFF} accent="bg-slate-800" color="text-blue-600 bg-blue-50" onDetails={(p: Player) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
-             <RosterSection title="Defense" players={sortedGroups.DEF} accent="bg-red-900" color="text-red-600 bg-red-50" onDetails={(p: Player) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
+             <RosterSection title="Offense" players={sortedGroups.OFF} accent="bg-slate-800" color="text-blue-600 bg-blue-50" onDetails={handlePlayerDetails} />
+             <RosterSection title="Defense" players={sortedGroups.DEF} accent="bg-red-900" color="text-red-600 bg-red-50" onDetails={handlePlayerDetails} />
           </div>
 
           <div className="lg:col-span-4 space-y-10">
@@ -393,7 +384,7 @@ function RosterContent() {
                 {data.schedule?.filter(g => g.year === data.stats?.currentYear).map((game, i, arr) => {
                   const targetIdx = arr.map(g => g.status).lastIndexOf("Final");
                   const teamName = (data.stats.team || "").toUpperCase();
-                  const isHome = game.home.toUpperCase() === teamName;
+                  const isHome = (game.home || "").toUpperCase() === teamName;
                   const isWin = isHome ? (parseInt(game.hScore) > parseInt(game.vScore)) : (parseInt(game.vScore) > parseInt(game.hScore));
                   return (
                     <div key={i} ref={i === targetIdx ? lastPlayedRef : null} className={`flex items-center justify-between p-6 transition-all ${i === targetIdx ? 'bg-amber-50/50' : 'hover:bg-slate-50'}`}>
@@ -417,7 +408,7 @@ function RosterContent() {
               </div>
             </div>
 
-            <RosterSection title="Special Teams" players={sortedGroups.SPEC} accent="bg-emerald-900" color="text-emerald-600 bg-emerald-50" onDetails={(p: Player) => fetch(`/api/players/details/${encodeURIComponent(p.identity)}`).then(r => r.json()).then(setViewingPlayer)} />
+            <RosterSection title="Special Teams" players={sortedGroups.SPEC} accent="bg-emerald-900" color="text-emerald-600 bg-emerald-50" onDetails={handlePlayerDetails} />
           </div>
 
           {/* TACTICAL DEPTH CHART (Full Width Bottom) */}
@@ -460,9 +451,14 @@ function RosterContent() {
                       {players.map((p, idx) => {
                         const isIR = p.team?.toUpperCase().endsWith('-IR');
                         return (
-                          <p key={idx} className={`text-[11px] font-bold uppercase truncate ${isIR ? 'text-slate-400 italic' : 'text-slate-700'}`} title={p.name || `${p.first} ${p.last}`}>
-                            {idx + 1}. {p.last || p.name?.split(' ').pop()} {isIR && <span className="text-[8px] opacity-60">(IR)</span>}
-                          </p>
+                          <button 
+                            key={idx} 
+                            onClick={() => handlePlayerDetails(p)}
+                            className={`text-[11px] font-bold uppercase truncate w-full text-left hover:text-blue-600 transition-colors ${isIR ? 'text-slate-400 italic' : 'text-slate-700'}`} 
+                            title={p.name || `${p.first} ${p.last}`}
+                          >
+                            {idx + 1}. {p.name || `${p.first} ${p.last}`} {isIR && <span className="text-[8px] opacity-60">(IR)</span>}
+                          </button>
                         );
                       })}
                     </div>

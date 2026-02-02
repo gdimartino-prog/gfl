@@ -54,6 +54,9 @@ export default function TransactionsPage() {
       if (Array.isArray(data)) {
         const cYear = data.find(r => r.setting === 'cuts_year');
         if (cYear?.value) setCurrentSeason(cYear.value.toString());
+
+        const limit = data.find(r => r.setting === 'limit_roster');
+        if (limit?.value) console.log(`✅ Transaction Terminal: Roster Limit set to ${limit.value}`);
       }
     });
   }, []);
