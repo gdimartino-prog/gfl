@@ -163,6 +163,24 @@ function RosterContent() {
     }, 0);
   }, [data?.roster]);
 
+  const salaryByGroup = useMemo(() => {
+    if (!data?.roster) return { OFF: 0, DEF: 0, SPEC: 0 };
+    return data.roster.reduce((acc, p) => {
+      const group = p.group === 'ST' || p.group === 'SPECIAL' ? 'SPEC' : (p.group || 'OFF');
+      const s = Number(String(p.salary || 0).replace(/[^0-9.-]+/g,""));
+      acc[group as keyof typeof acc] = (acc[group as keyof typeof acc] || 0) + s;
+      return acc;
+    }, { OFF: 0, DEF: 0, SPEC: 0 });
+  }, [data?.roster]);
+
+  const rosterStatus = useMemo(() => {
+    if (!data?.roster) return { active: 0, ir: 0 };
+    return {
+      active: data.roster.filter(p => !p.team?.toUpperCase().endsWith('-IR')).length,
+      ir: data.roster.filter(p => p.team?.toUpperCase().endsWith('-IR')).length
+    };
+  }, [data?.roster]);
+
   const teamNeeds = useMemo(() => {
     if (!data?.roster || Object.keys(rules).length === 0) return [];
     const counts: Record<string, number> = {};
@@ -264,6 +282,21 @@ function RosterContent() {
                       style={{ width: `${Math.min(100, (totalSalary / 250000000) * 100)}%` }}
                     />
                   </div>
+                <div className="h-4 w-[1px] bg-slate-700" />
+                <div className="flex flex-col gap-1">
+                  <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">
+                    ROSTER: {rosterStatus.active} / 53
+                  </p>
+                  <div className="w-24 h-1 bg-slate-800 rounded-full overflow-hidden flex">
+                    <div 
+                      className={`h-full transition-all duration-1000 ${rosterStatus.active > 53 ? 'bg-red-500' : 'bg-emerald-500'}`}
+                      style={{ width: `${Math.min(100, (rosterStatus.active / 53) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+                {rosterStatus.ir > 0 && (
+                  <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest">+{rosterStatus.ir} IR</p>
+                )}
                 </div>
               </div>
             </div>
@@ -311,6 +344,24 @@ function RosterContent() {
         </div>
         )}
       </div>
+
+      {/* SALARY BREAKDOWN MINI-DASHBOARD */}
+      {activeTab === 'ROSTER' && !searchTerm && !loading && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center justify-between">
+            <div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Offense Spending</p><p className="text-2xl font-black text-blue-600">${salaryByGroup.OFF.toLocaleString()}</p></div>
+            <div className="text-[10px] font-black text-slate-300 bg-slate-50 px-3 py-1 rounded-lg">{totalSalary > 0 ? Math.round((salaryByGroup.OFF / totalSalary) * 100) : 0}%</div>
+          </div>
+          <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center justify-between">
+            <div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Defense Spending</p><p className="text-2xl font-black text-red-600">${salaryByGroup.DEF.toLocaleString()}</p></div>
+            <div className="text-[10px] font-black text-slate-300 bg-slate-50 px-3 py-1 rounded-lg">{totalSalary > 0 ? Math.round((salaryByGroup.DEF / totalSalary) * 100) : 0}%</div>
+          </div>
+          <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex items-center justify-between">
+            <div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Special Teams</p><p className="text-2xl font-black text-emerald-600">${salaryByGroup.SPEC.toLocaleString()}</p></div>
+            <div className="text-[10px] font-black text-slate-300 bg-slate-50 px-3 py-1 rounded-lg">{totalSalary > 0 ? Math.round((salaryByGroup.SPEC / totalSalary) * 100) : 0}%</div>
+          </div>
+        </div>
+      )}
 
       {/* POSITIONAL DASHBOARD */}
       {activeTab === 'ROSTER' && !searchTerm && !loading && (
@@ -470,11 +521,23 @@ function RosterContent() {
 }
 
 function RosterSection({ title, players, accent, color, onDetails }: { title: string, players: Player[], accent: string, color: string, onDetails: (p: Player) => void }) {
+  const avgAge = useMemo(() => {
+    const playersWithAge = players.filter(p => p.core?.age || p.age);
+    if (playersWithAge.length === 0) return 0;
+    const total = playersWithAge.reduce((sum, p) => sum + Number(p.core?.age || p.age || 0), 0);
+    return (total / playersWithAge.length).toFixed(1);
+  }, [players]);
+
   return (
     <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden text-left h-fit">
       <div className={`px-8 py-5 font-black text-white ${accent} flex justify-between items-center uppercase tracking-widest text-[10px]`}>
         <span>{title}</span>
-        <span className="bg-white/20 px-3 py-1 rounded-lg italic">{players.length}</span>
+        <div className="flex items-center gap-4">
+          {Number(avgAge) > 0 && (
+            <span className="text-white/40">AVG AGE: <span className="text-white">{avgAge}</span></span>
+          )}
+          <span className="bg-white/20 px-3 py-1 rounded-lg italic">{players.length}</span>
+        </div>
       </div>
       <div className="divide-y divide-slate-50">
         {players.map((p: Player, i: number) => (
