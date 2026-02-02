@@ -1,6 +1,7 @@
 export interface Team {
   name: string;
   short: string;
+  lastSync?: string;
 }
 
 export interface Player {

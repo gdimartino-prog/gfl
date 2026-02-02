@@ -11,6 +11,7 @@ export default function SettingsPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [teamInfo, setTeamInfo] = useState({ name: "", nickname: "" });
+  const [lastUpload, setLastUpload] = useState<string | null>(null);
 
   // Fetch dynamic team info based on logged-in ID
   useEffect(() => {
@@ -19,9 +20,10 @@ export default function SettingsPage() {
       const userTeamId = (session.user as any).id;
 
       try {
-        const res = await fetch('/api/standings');
-        const standings = await res.json();
-        const myTeam = standings.find((s: any) => 
+        // 🚀 Fetch from /api/teams to get Coaches tab data including sync info
+        const res = await fetch('/api/teams');
+        const teams = await res.json();
+        const myTeam = teams.find((s: any) => 
           s.teamshort?.toUpperCase() === userTeamId?.toUpperCase()
         );
         
@@ -30,6 +32,8 @@ export default function SettingsPage() {
             name: myTeam.team || "", 
             nickname: myTeam.nickname || "" 
           });
+          // 🚀 Set the last upload from the new column in your Coaches tab
+          if (myTeam.lastSync) setLastUpload(myTeam.lastSync);
         }
       } catch (err) {
         console.error("Failed to fetch team details", err);
@@ -117,7 +121,10 @@ export default function SettingsPage() {
                 <Radio size={20} />
               </div>
               <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Personnel Logistics</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                  Personnel Logistics 
+                  {lastUpload && <span className="text-blue-500 font-bold">• Sync: {lastUpload}</span>}
+                </p>
                 <h3 className="text-sm font-black uppercase italic text-slate-900">Update COA File →</h3>
               </div>
             </div>

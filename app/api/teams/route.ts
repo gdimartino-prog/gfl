@@ -12,7 +12,8 @@ export async function GET() {
         name: c.team,
         short: c.teamshort,
         coach: c.coach,
-        commissioner: c.isCommissioner
+        commissioner: c.isCommissioner,
+        lastSync: c.lastSync
       }));
 
     return NextResponse.json(activeTeams);
