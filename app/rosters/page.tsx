@@ -436,7 +436,7 @@ function RosterContent() {
               <span className="w-2 h-8 bg-blue-600 rounded-full"></span>
               Tactical Depth Chart
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               {positionOrder.map(pos => {
                 const players = depthGroups[pos] || [];
                 if (players.length === 0) return null;
