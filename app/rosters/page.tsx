@@ -145,9 +145,9 @@ function RosterContent() {
 
   const recentForm = useMemo(() => {
     if (!data?.schedule || !data?.stats?.currentYear) return [];
-    const teamName = (data.stats.team || "").toUpperCase();
+    const teamName = (data?.stats?.team || "").toUpperCase();
     return data.schedule
-      .filter(g => g.year === data.stats.currentYear && g.status === "Final" && ((g.home || "").toUpperCase() === teamName || (g.visitor || "").toUpperCase() === teamName))
+      .filter(g => g.year === data?.stats?.currentYear && g.status === "Final" && ((g.home || "").toUpperCase() === teamName || (g.visitor || "").toUpperCase() === teamName))
       .sort((a, b) => parseInt(a.week) - parseInt(b.week))
       .slice(-5)
       .map(game => {
@@ -167,7 +167,7 @@ function RosterContent() {
   const teamNeeds = useMemo(() => {
     if (!data?.roster || Object.keys(rules).length === 0) return [];
     const counts: Record<string, number> = {};
-    data.roster.forEach(p => {
+    data?.roster?.forEach(p => {
       const categories = getNormalizedCategories(p.pos || p.position || "");
       categories.forEach(cat => {
         counts[cat] = (counts[cat] || 0) + 1;
@@ -179,9 +179,13 @@ function RosterContent() {
     });
   }, [data?.roster, rules]);
 
+  const complianceIssues = useMemo(() => {
+    return teamNeeds.filter(n => n.status === 'THIN');
+  }, [teamNeeds]);
+
   const sortedGroups = useMemo(() => {
     if (!data?.roster) return { OFF: [] as Player[], DEF: [] as Player[], SPEC: [] as Player[] };
-    const filtered = data.roster.filter(p => (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (p.pos || '').toLowerCase().includes(searchTerm.toLowerCase()));
+    const filtered = data?.roster?.filter(p => (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (p.pos || '').toLowerCase().includes(searchTerm.toLowerCase())) || [];
     const sortFn = (players: Player[]) => [...players].sort((a, b) => {
         if (sortBy === 'name') return (a.name || '').split(' ').pop()!.localeCompare((b.name || '').split(' ').pop()!);
         const posA = (a.pos || '').split('-')[0].trim();
@@ -198,7 +202,7 @@ function RosterContent() {
 
   const filteredHistory = useMemo(() => {
     if (!data?.history) return [];
-    return data.history.filter(p => 
+    return data?.history?.filter(p => 
       (p.draftedPlayer || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (p.year || '').toString().includes(searchTerm)
     );
@@ -214,7 +218,7 @@ function RosterContent() {
 
   const depthGroups = useMemo(() => {
     if (!data?.roster) return {} as Record<string, Player[]>;
-    const groups = data.roster.reduce((acc, p) => {
+    const groups = data?.roster?.reduce((acc, p) => {
       const categories = getNormalizedCategories(p.pos || p.position || "??");
 
       categories.forEach(cat => {
@@ -264,11 +268,17 @@ function RosterContent() {
           <div className="flex items-center gap-8">
             <div className="w-4 h-4 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.6)]" />
             <div>
-              <h2 className="text-4xl font-black uppercase italic tracking-tighter leading-none">{data.stats.team} <span className="text-blue-500 not-italic ml-2">{data.stats.nickname}</span></h2>
+              <h2 className="text-4xl font-black uppercase italic tracking-tighter leading-none">{data?.stats?.team} <span className="text-blue-500 not-italic ml-2">{data?.stats?.nickname}</span></h2>
               <div className="flex items-center gap-4 mt-4">
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">COACH: {data.stats.coach?.toUpperCase()}</p>
-                {rosterStatus.active > data.stats.rosterLimit && (
-                  <span className="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded animate-pulse shadow-lg shadow-red-500/20">OVER LIMIT</span>
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">COACH: {data?.stats?.coach?.toUpperCase()}</p>
+                {(rosterStatus.active > (data?.stats?.rosterLimit || 53) || complianceIssues.length > 0) && (
+                  <span className="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded animate-pulse shadow-lg shadow-red-500/20">
+                    {rosterStatus.active > (data?.stats?.rosterLimit || 53) && complianceIssues.length > 0 
+                      ? 'ROSTER VIOLATION' 
+                      : rosterStatus.active > (data?.stats?.rosterLimit || 53) 
+                        ? 'OVER LIMIT' 
+                        : 'NON-COMPLIANT'}
+                  </span>
                 )}
                 <div className="h-4 w-[1px] bg-slate-700" />
                 <div className="flex gap-1.5">
@@ -278,13 +288,13 @@ function RosterContent() {
                 </div>
                 <div className="h-4 w-[1px] bg-slate-700" />
                 <div className="flex flex-col gap-1">
-                  <p className={`text-[10px] font-black uppercase tracking-widest ${rosterStatus.active > data.stats.rosterLimit ? 'text-red-500 animate-pulse' : 'text-emerald-400'}`}>
-                    ROSTER: {rosterStatus.active} / {data.stats.rosterLimit}
+                  <p className={`text-[10px] font-black uppercase tracking-widest ${rosterStatus.active > (data?.stats?.rosterLimit || 53) ? 'text-red-500 animate-pulse' : 'text-emerald-400'}`}>
+                    ROSTER: {rosterStatus.active} / {data?.stats?.rosterLimit}
                   </p>
                   <div className="w-24 h-1 bg-slate-800 rounded-full overflow-hidden flex">
                     <div 
-                      className={`h-full transition-all duration-1000 ${rosterStatus.active > data.stats.rosterLimit ? 'bg-red-500' : 'bg-emerald-500'}`}
-                      style={{ width: `${Math.min(100, (rosterStatus.active / data.stats.rosterLimit) * 100)}%` }}
+                      className={`h-full transition-all duration-1000 ${rosterStatus.active > (data?.stats?.rosterLimit || 53) ? 'bg-red-500' : 'bg-emerald-500'}`}
+                      style={{ width: `${Math.min(100, (rosterStatus.active / (data?.stats?.rosterLimit || 53)) * 100)}%` }}
                     />
                   </div>
                 </div>
@@ -297,11 +307,11 @@ function RosterContent() {
           <div className="flex gap-12 pr-6">
             <div className="text-center">
               <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-3">Record</p>
-              <p className="text-4xl font-black italic tracking-tighter">{data.stats.wins || 0}-{data.stats.losses || 0}</p>
+              <p className="text-4xl font-black italic tracking-tighter">{data?.stats?.wins || 0}-{data?.stats?.losses || 0}</p>
             </div>
             <div className="text-center">
               <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-3">Diff</p>
-              <p className={`text-4xl font-black italic tracking-tighter ${data.stats.diff >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{data.stats.diff}</p>
+              <p className={`text-4xl font-black italic tracking-tighter ${(data?.stats?.diff || 0) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>{data?.stats?.diff || 0}</p>
             </div>
           </div>
         </div>
@@ -338,6 +348,31 @@ function RosterContent() {
         )}
       </div>
 
+      {/* COMPLIANCE WARNING BOX */}
+      {activeTab === 'ROSTER' && !searchTerm && (rosterStatus.active > (data?.stats?.rosterLimit || 53) || complianceIssues.length > 0) && !loading && (
+        <div className="bg-red-50 border-2 border-red-100 rounded-[2rem] p-8 flex items-start gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="bg-red-500 p-3 rounded-2xl text-white shadow-lg shadow-red-500/20">
+            <ShieldCheck size={24} />
+          </div>
+          <div className="text-left">
+            <h3 className="text-lg font-black uppercase italic text-red-900 tracking-tight">Roster Compliance Warning</h3>
+            <p className="text-sm text-red-700 font-bold mt-1">The following requirements are not currently met:</p>
+            <div className="flex flex-wrap gap-2 mt-4">
+              {rosterStatus.active > (data?.stats?.rosterLimit || 53) && (
+                <span className="bg-white border border-red-200 text-red-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                  Roster Size: {rosterStatus.active} / {data?.stats?.rosterLimit}
+                </span>
+              )}
+              {complianceIssues.map(issue => (
+                <span key={issue.pos} className="bg-white border border-red-200 text-red-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
+                  {issue.pos}: {issue.current} / {issue.min}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* POSITIONAL DASHBOARD */}
       {activeTab === 'ROSTER' && !searchTerm && !loading && (
         <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8">
@@ -365,9 +400,9 @@ function RosterContent() {
             <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden text-left">
               <div className="px-8 py-5 font-black text-white bg-blue-600 uppercase tracking-widest text-[10px]"><span>Schedule</span></div>
               <div className="divide-y divide-slate-50 max-h-[400px] overflow-y-auto custom-scrollbar">
-                {data.schedule?.filter(g => g.year === data.stats?.currentYear).map((game, i, arr) => {
+                {data?.schedule?.filter(g => g.year === data?.stats?.currentYear).map((game, i, arr) => {
                   const targetIdx = arr.map(g => g.status).lastIndexOf("Final");
-                  const teamName = (data.stats.team || "").toUpperCase();
+                  const teamName = (data?.stats?.team || "").toUpperCase();
                   const isHome = (game.home || "").toUpperCase() === teamName;
                   const isWin = isHome ? (parseInt(game.hScore) > parseInt(game.vScore)) : (parseInt(game.vScore) > parseInt(game.hScore));
                   return (

@@ -46,7 +46,7 @@ export default function StandingsClient({ allData, currentYear, totalGames }: { 
         <div className="grid gap-12">
           {divisions.map(div => {
             const divData = currentSeasonRaw
-              .filter(r => r.division?.toString()?.trim().toLowerCase() === div.toLowerCase())
+              .filter(r => (r.division || "").toString().trim().toLowerCase() === div.toLowerCase())
               .sort((a, b) => Number(b.pct) - Number(a.pct) || Number(b.diff) - Number(a.diff));
             
             if (divData.length === 0) return null;
@@ -65,7 +65,7 @@ export default function StandingsClient({ allData, currentYear, totalGames }: { 
           })}
 
           {/* FALLBACK: If teams exist for current year but have no division assigned */}
-          {currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes(r.division?.toString()?.trim().toLowerCase())).length > 0 && (
+          {currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes((r.division || "").toString().trim().toLowerCase())).length > 0 && (
             <div>
               <div className="flex items-center gap-3 mb-4">
                  <h3 className="text-xl font-black uppercase italic text-slate-400 tracking-tight">
@@ -74,7 +74,7 @@ export default function StandingsClient({ allData, currentYear, totalGames }: { 
                 <div className="h-px bg-slate-100 flex-grow"></div>
               </div>
               <StandingsTable 
-                data={currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes(r.division?.toString()?.trim().toLowerCase()))} 
+                data={currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes((r.division || "").toString().trim().toLowerCase()))} 
                 isCurrent={true} 
                 showGB={true}
                 totalGames={totalGames}
@@ -129,8 +129,8 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
             const isPlayoff = String(row.isPlayoff) === "1" || String(row.isPlayoff).toLowerCase() === "true";
 
             // MATH FIX: Calculate DIFF live to ensure accuracy
-            const pf = parseFloat(row.offPts) || 0;
-            const pa = parseFloat(row.defPts) || 0;
+            const pf = Number(row.offPts) || 0;
+            const pa = Number(row.defPts) || 0;
             const calculatedDiff = (pf - pa).toFixed(1);
             const diffNum = parseFloat(calculatedDiff);
 
