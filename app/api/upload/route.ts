@@ -29,6 +29,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Filename required" }, { status: 400 });
     }
 
+    // 🛡️ SECURITY: Ensure the filename starts with the user's authorized team ID
+    // This prevents Coach A from overwriting Coach B's files.
+    const teamCode = (session?.user as any)?.id;
+    if (!filename.toUpperCase().startsWith(teamCode?.toUpperCase())) {
+      return NextResponse.json({ error: "Unauthorized: Filename mismatch with Team ID" }, { status: 403 });
+    }
+
     const blobFile = await request.blob();
 
     // UPDATED PUT FUNCTION
@@ -39,10 +46,8 @@ export async function POST(request: Request) {
     });
 
     // 🚀 SYNC TO GOOGLE SHEETS
-    // If we have a session, use the user's ID (team short code) to update the timestamp in Coaches tab
-    if (session?.user) {
-      const teamCode = (session.user as any).id;
-      if (teamCode) await updateCoachSync(teamCode);
+    if (teamCode) {
+      await updateCoachSync(teamCode);
     }
 
     return NextResponse.json(blob);

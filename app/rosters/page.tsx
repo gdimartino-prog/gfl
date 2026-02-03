@@ -8,17 +8,10 @@ import { useTeam } from '@/context/TeamContext';
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, ChevronRight, Star, Activity, GraduationCap, ShieldCheck } from 'lucide-react';
+import { getNormalizedCategories, positionWeights } from '@/lib/utils';
 import { Player, Team, DraftPick } from '../../types';
 
 export const dynamic = 'force-dynamic';
-
-const positionWeights: Record<string, number> = {
-  'QB': 1, 'RB': 2, 'HB': 2, 'FB': 3, 'WR': 4, 'TE': 5,
-  'OT': 6, 'LT': 6, 'RT': 6, 'T': 6, 'OG': 7, 'LG': 7, 'RG': 7, 'G': 7, 'C': 8, 'OL': 9,
-  'DT': 10, 'NT': 11, 'DE': 12, 'DL': 13, 'MLB': 14, 'ILB': 15, 'OLB': 16, 'LB': 17,
-  'CB': 18, 'FS': 19, 'SS': 20, 'S': 21, 'DB': 22,
-  'K': 30, 'P': 31, 'LS': 32, 'KR': 33, 'PR': 34
-};
 
 const positionOrder = [
   'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'
@@ -175,22 +168,7 @@ function RosterContent() {
     if (!data?.roster || Object.keys(rules).length === 0) return [];
     const counts: Record<string, number> = {};
     data.roster.forEach(p => {
-      const rawPos = (p.pos || p.position || "").toUpperCase();
-      const parts = rawPos.split('-');
-      const categories = new Set<string>();
-      
-      parts.forEach(part => {
-        const pt = part.trim();
-        if (['OT', 'LT', 'RT', 'OG', 'LG', 'RG', 'C', 'T', 'G', 'OL', 'C-G', 'G-T', 'C-T'].includes(pt)) categories.add('OL');
-        else if (['DE', 'DT', 'NT', 'DL'].includes(pt)) categories.add('DL');
-        else if (['ILB', 'OLB', 'MLB', 'LB'].includes(pt)) categories.add('LB');
-        else if (['CB', 'S', 'FS', 'SS', 'DB'].includes(pt)) categories.add('DB');
-        else if (['LB-S'].includes(pt)) { categories.add('LB'); categories.add('DB'); }
-        else if (['QB', 'RB', 'HB', 'FB', 'WR', 'TE', 'K', 'P'].includes(pt)) {
-          categories.add(['HB', 'FB'].includes(pt) ? 'RB' : pt);
-        }
-      });
-      
+      const categories = getNormalizedCategories(p.pos || p.position || "");
       categories.forEach(cat => {
         counts[cat] = (counts[cat] || 0) + 1;
       });
@@ -237,20 +215,7 @@ function RosterContent() {
   const depthGroups = useMemo(() => {
     if (!data?.roster) return {} as Record<string, Player[]>;
     const groups = data.roster.reduce((acc, p) => {
-      const rawPos = (p.pos || p.position || '??').trim().toUpperCase();
-      const parts = rawPos.split('-');
-      const categories = new Set<string>();
-
-      parts.forEach(part => {
-        const pt = part.trim();
-        if (['HB', 'FB', 'RB'].includes(pt)) categories.add('RB');
-        else if (['LT', 'LG', 'C', 'RG', 'RT', 'OL', 'OT', 'OG', 'G', 'T', 'C-G', 'G-T', 'C-T'].includes(pt)) categories.add('OL');
-        else if (['DE', 'DT', 'NT', 'DL'].includes(pt)) categories.add('DL');
-        else if (['ILB', 'OLB', 'MLB', 'LB'].includes(pt)) categories.add('LB');
-        else if (['CB', 'S', 'FS', 'SS', 'DB'].includes(pt)) categories.add('DB');
-        else if (['LB-S'].includes(pt)) { categories.add('LB'); categories.add('DB'); }
-        else if (['QB', 'WR', 'TE', 'K', 'P'].includes(pt)) categories.add(pt);
-      });
+      const categories = getNormalizedCategories(p.pos || p.position || "??");
 
       categories.forEach(cat => {
         if (!acc[cat]) acc[cat] = [];

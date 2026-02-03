@@ -7,6 +7,7 @@ import { getPositionStats } from '@/lib/playerStats';
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Clock, Search, RotateCw, X, Zap, ChevronRight, Filter, ChevronUp, Star } from 'lucide-react';
+import { getNormalizedCategories } from '@/lib/utils';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
 import { Team, Player, DraftPick } from '../../types';
 
@@ -227,17 +228,12 @@ function DraftBoardContent() {
       .filter(p => {
         const displayName = p.name || `${p.first || ''} ${p.last || ''}`;
         const matchesSearch = displayName.toLowerCase().includes(faSearch.toLowerCase());
-        const pos = (p.offense || p.defense || p.special || p.position || p.pos || '').trim().toUpperCase();
-        const posParts = pos.split('-');
+        const rawPos = p.offense || p.defense || p.special || p.position || p.pos || '';
+        const categories = getNormalizedCategories(rawPos);
         
         const matchesPos = faPosFilter === 'All' || 
           (faPosFilter === 'Starred' ? watchlist.includes(p.identity) :
-           faPosFilter === 'OL' ? posParts.some(pt => ['OL', 'C', 'G', 'T', 'C-G', 'G-T', 'LT', 'RT', 'LG', 'RG', 'OT', 'OG', 'C-T'].includes(pt)) : 
-           faPosFilter === 'DL' ? posParts.some(pt => ['DL', 'DE', 'DT', 'NT'].includes(pt)) :
-           faPosFilter === 'LB' ? posParts.some(pt => ['LB', 'ILB', 'OLB', 'MLB', 'LB-S'].includes(pt)) :
-           faPosFilter === 'DB' ? posParts.some(pt => ['DB', 'CB', 'S', 'FS', 'SS', 'LB-S'].includes(pt)) :
-           faPosFilter === 'RB' ? posParts.some(pt => ['RB', 'HB', 'FB'].includes(pt)) :
-           posParts.includes(faPosFilter.toUpperCase()));
+           categories.includes(faPosFilter.toUpperCase()));
 
         return matchesSearch && matchesPos;
       })

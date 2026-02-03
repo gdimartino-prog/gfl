@@ -1,8 +1,9 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { StandingRow } from '../types';
 
-export default function StandingsClient({ allData, currentYear, totalGames }: { allData: any[], currentYear: string, totalGames: number }) {
+export default function StandingsClient({ allData, currentYear, totalGames }: { allData: StandingRow[], currentYear: string, totalGames: number }) {
   const [search, setSearch] = useState('');
 
   // 1. Base Filter (Search)
@@ -94,7 +95,7 @@ export default function StandingsClient({ allData, currentYear, totalGames }: { 
   );
 }
 
-function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = false, totalGames }: { data: any[], isCurrent: boolean, showGB?: boolean, showMagicNumber?: boolean, totalGames: number }) {
+function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = false, totalGames }: { data: StandingRow[], isCurrent: boolean, showGB?: boolean, showMagicNumber?: boolean, totalGames: number }) {
   const leader = data[0];
   const secondPlace = data[1];
 
@@ -123,7 +124,7 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {data.map((row: any, i: number) => {
+          {data.map((row, i) => {
             const isChamp = String(row.isChampion) === "1" || String(row.isChampion).toLowerCase() === "true";
             const isPlayoff = String(row.isPlayoff) === "1" || String(row.isPlayoff).toLowerCase() === "true";
 

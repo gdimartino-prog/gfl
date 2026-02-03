@@ -51,3 +51,20 @@ export interface DraftPick {
   via: string | null;
   history?: string;
 }
+
+export interface StandingRow {
+  year: string | number;
+  team: string;
+  teamshort?: string;
+  gm?: string;
+  won: number;
+  lost: number;
+  tie: number;
+  pct: number;
+  offPts: number;
+  defPts: number;
+  diff: number;
+  division?: string;
+  isChampion?: boolean | string | number;
+  isPlayoff?: boolean | string | number;
+}
