@@ -1,13 +1,21 @@
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
+import { unstable_cache } from 'next/cache';
 
-async function getPlayerSyncTime() {
-  try {
+const getCachedSyncTime = unstable_cache(
+  async () => {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'Rules!A:B', 
     });
+    return response.data.values || [];
+  },
+  ['footer-player-sync-time'],
+  { revalidate: 300, tags: ['rules'] } // Cache for 5 minutes
+);
 
-    const rows = response.data.values || [];
+async function getPlayerSyncTime() {
+  try {
+    const rows = await getCachedSyncTime();
     // Looks for the row you labeled 'player_sync'
     const syncRow = rows.find(row => row[0] === 'player_sync');
     

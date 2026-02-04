@@ -11,6 +11,10 @@ import { Search, ChevronRight, Star, Activity, GraduationCap, ShieldCheck } from
 import { getNormalizedCategories, positionWeights } from '@/lib/utils';
 import { Player, Team, DraftPick } from '../../types';
 
+interface RosterPlayer extends Player {
+  group?: string;
+}
+
 export const dynamic = 'force-dynamic';
 
 const positionOrder = [
@@ -29,7 +33,7 @@ function RosterContent() {
   const { data: session, status } = useSession();
   const { selectedTeam, setSelectedTeam } = useTeam(); 
   const searchParams = useSearchParams();
-  const [data, setData] = useState<{ roster: Player[], picks: DraftPick[], history: DraftPick[], schedule: any[], stats: any } | null>(null);
+  const [data, setData] = useState<{ roster: RosterPlayer[], picks: DraftPick[], history: DraftPick[], schedule: any[], stats: any } | null>(null);
   const [rules, setRules] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'pos'>('default');
@@ -184,8 +188,8 @@ function RosterContent() {
   }, [teamNeeds]);
 
   const sortedGroups = useMemo(() => {
-    if (!data?.roster) return { OFF: [] as Player[], DEF: [] as Player[], SPEC: [] as Player[] };
-    const filtered = data?.roster?.filter(p => (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (p.pos || '').toLowerCase().includes(searchTerm.toLowerCase())) || [];
+    if (!data?.roster) return { OFF: [] as RosterPlayer[], DEF: [] as RosterPlayer[], SPEC: [] as RosterPlayer[] };
+    const filtered = data.roster.filter(p => (p.name || '').toLowerCase().includes(searchTerm.toLowerCase()) || (p.pos || '').toLowerCase().includes(searchTerm.toLowerCase()));
     const sortFn = (players: Player[]) => [...players].sort((a, b) => {
         if (sortBy === 'name') return (a.name || '').split(' ').pop()!.localeCompare((b.name || '').split(' ').pop()!);
         const posA = (a.pos || '').split('-')[0].trim();
@@ -535,7 +539,7 @@ function RosterContent() {
   );
 }
 
-function RosterSection({ title, players, accent, color, onDetails }: { title: string, players: Player[], accent: string, color: string, onDetails: (p: Player) => void }) {
+function RosterSection({ title, players, accent, color, onDetails }: { title: string, players: RosterPlayer[], accent: string, color: string, onDetails: (p: Player) => void }) {
   const avgAge = useMemo(() => {
     const playersWithAge = players.filter(p => p.core?.age || p.age);
     if (playersWithAge.length === 0) return 0;
