@@ -117,10 +117,10 @@ export default function SettingsPage() {
       
       <div className="border-b border-slate-200 pb-8">
         <h1 className="text-5xl font-black italic uppercase tracking-tighter text-slate-900 leading-none">
-          Account <span className="text-blue-600">Security</span>
+          Franchise Settings <span className="text-blue-600">Security</span>
         </h1>
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-2">
-          Coach Credentials • Season 2026 Security Protocol
+          Coach Credentials • Security Protocol
         </p>
       </div>
 
