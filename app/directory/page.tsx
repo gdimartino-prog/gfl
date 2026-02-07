@@ -3,17 +3,27 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Mail, Phone, ShieldCheck, ExternalLink, UserCircle } from 'lucide-react';
 import Link from 'next/link';
+import { formatPhone } from '@/lib/utils';
+import { useSession } from 'next-auth/react';
 
 export default function DirectoryPage() {
+  const { data: session } = useSession();
   const [teams, setTeams] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [seasonYear, setSeasonYear] = useState('2026');
 
   useEffect(() => {
-    fetch('/api/teams')
-      .then(res => res.json())
-      .then(data => {
-        setTeams(data);
+    Promise.all([
+      fetch('/api/teams').then(res => res.json()),
+      fetch('/api/rules').then(res => res.json())
+    ])
+      .then(([teamsData, rulesData]) => {
+        setTeams(teamsData);
+        
+        const year = rulesData.find((r: any) => r.setting === 'cuts_year')?.value;
+        if (year) setSeasonYear(year);
+        
         setLoading(false);
       })
       .catch(err => {
@@ -30,15 +40,6 @@ export default function DirectoryPage() {
     );
   }, [teams, searchTerm]);
 
-  const formatPhone = (value: string) => {
-    if (!value) return "—";
-    const digits = value.replace(/\D/g, "");
-    if (digits.length === 10) {
-      return `+1-${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-    }
-    return value;
-  };
-
   if (loading) {
     return <div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Accessing League Records...</div>;
   }
@@ -50,7 +51,7 @@ export default function DirectoryPage() {
           League <span className="text-blue-600">Directory</span>
         </h1>
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-3 flex items-center gap-2">
-          <UserCircle size={14} className="text-blue-500" /> Official GFL Coach Registry • Season 2026
+          <UserCircle size={14} className="text-blue-500" /> Official GFL Coach Registry • Season {seasonYear}
         </p>
       </header>
 
@@ -88,7 +89,18 @@ export default function DirectoryPage() {
                   </td>
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-2">
-                      <p className="font-bold text-slate-700 uppercase text-sm">{team.coach}</p>
+                      {team.short === (session?.user as any)?.id ? (
+                        <Link 
+                          href="/settings" 
+                          className="font-bold text-blue-600 hover:text-blue-800 uppercase text-sm flex items-center gap-1 group/name"
+                          title="Edit your profile"
+                        >
+                          {team.coach}
+                          <ExternalLink size={10} className="opacity-0 group-hover/name:opacity-100 transition-opacity" />
+                        </Link>
+                      ) : (
+                        <p className="font-bold text-slate-700 uppercase text-sm">{team.coach}</p>
+                      )}
                       {team.commissioner && (
                         <span title="League Commissioner">
                           <ShieldCheck size={14} className="text-blue-600" />

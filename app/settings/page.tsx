@@ -124,27 +124,33 @@ export default function SettingsPage() {
         </p>
       </div>
 
+      {/* COACH PROFILE HEADER */}
+      <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white shadow-2xl border border-slate-800 flex flex-col md:flex-row justify-between items-center gap-8">
+        <div className="flex items-center gap-6">
+          <div className="w-3 h-12 bg-blue-600 rounded-full" />
+          <div>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Logged In Coach</p>
+            <h2 className="text-3xl font-black uppercase italic leading-none">{session?.user?.name || "Active Coach"}</h2>
+          </div>
+        </div>
+
+        <div className="flex gap-12">
+          <div>
+            <p className="text-slate-500 font-black text-[9px] uppercase tracking-widest mb-1">Franchise</p>
+            <p className="text-white font-bold text-lg uppercase italic leading-none">
+              {teamInfo.name} <span className="text-blue-500 not-italic">{teamInfo.nickname}</span>
+            </p>
+          </div>
+          <div>
+            <p className="text-slate-500 font-black text-[9px] uppercase tracking-widest mb-1">Authorized ID</p>
+            <p className="text-white font-mono text-lg leading-none">{(session?.user as any)?.id || "---"}</p>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* LEFT COLUMN: INFO */}
         <div className="md:col-span-1 space-y-4">
-          <div className="bg-slate-900 p-6 rounded-[2rem] text-white shadow-xl border border-slate-800">
-             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Logged In Coach</p>
-             <h2 className="text-2xl font-black uppercase italic leading-none">{session?.user?.name || "Active Coach"}</h2>
-             
-             <div className="mt-6 pt-6 border-t border-slate-800 space-y-4">
-                <div>
-                  <p className="text-slate-500 font-black text-[9px] uppercase tracking-widest mb-1">Team Name</p>
-                  <p className="text-white font-bold text-sm uppercase italic">
-                    {teamInfo.name} <span className="text-blue-500 not-italic">{teamInfo.nickname}</span>
-                  </p>
-                </div>
-                <div>
-                  <p className="text-slate-500 font-black text-[9px] uppercase tracking-widest mb-1">Authorized ID</p>
-                  <p className="text-white font-mono text-sm">{(session?.user as any)?.id || "---"}</p>
-                </div>
-             </div>
-          </div>
-          
           <Link 
             href="/coaching"
             className="block bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-all group"
@@ -177,12 +183,6 @@ export default function SettingsPage() {
               </div>
             </div>
           </Link>
-
-          <div className="p-6 border-2 border-dashed border-slate-200 rounded-[2rem] text-slate-400">
-            <p className="text-[10px] font-bold leading-relaxed uppercase italic">
-              Updating your credentials will sync to Column H of the Coaches Master Sheet.
-            </p>
-          </div>
         </div>
 
         {/* RIGHT COLUMN: FORM */}

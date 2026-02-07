@@ -11,6 +11,7 @@ export async function GET() {
       .map((c) => ({
         name: c.team,
         short: c.teamshort,
+        nickname: c.nickname,
         coach: c.coach,
         commissioner: c.isCommissioner,
         lastSync: c.lastSync,

@@ -4,6 +4,7 @@ export type Coach = {
   coach: string;
   team: string;
   teamshort: string;
+  nickname: string;
   isCommissioner: boolean;
   status: string;
   mobile: string;
@@ -25,6 +26,7 @@ export async function getCoaches(): Promise<Coach[]> {
     team: r[0] || '',
     teamshort: r[1] || '',
     coach: r[2] || '',
+    nickname: r[6] || '',
     isCommissioner: r[3] === 'TRUE' || r[3] === 'true',
     mobile: r[4] || '',
     status: (r[5] || '').toLowerCase().trim(),
