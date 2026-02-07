@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { updatePassword } from "@/lib/actions";
 import { Lock, ShieldCheck, AlertCircle, CheckCircle2, Radio, Mail, Phone, Users } from "lucide-react";
+import { formatPhone } from "@/lib/utils";
 import Link from "next/link";
 
 export default function SettingsPage() {
@@ -12,17 +13,6 @@ export default function SettingsPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [teamInfo, setTeamInfo] = useState({ name: "", nickname: "", email: "", mobile: "" });
   const [lastUpload, setLastUpload] = useState<string | null>(null);
-
-  const formatPhone = (value: string) => {
-    if (!value) return "";
-    const digits = value.replace(/\D/g, "");
-    if (digits.length === 10) {
-      return `+1-${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-    } else if (digits.length === 11 && digits.startsWith("1")) {
-      return `+1-${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
-    }
-    return value;
-  };
 
   // Fetch dynamic team info based on logged-in ID
   useEffect(() => {

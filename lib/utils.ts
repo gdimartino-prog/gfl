@@ -42,3 +42,14 @@ export function getNormalizedCategories(rawPos: string): string[] {
 
   return Array.from(categories);
 }
+
+export function formatPhone(value: string) {
+  if (!value) return "";
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 10) {
+    return `+1-${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  } else if (digits.length === 11 && digits.startsWith("1")) {
+    return `+1-${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
+  }
+  return value;
+}

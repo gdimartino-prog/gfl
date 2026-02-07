@@ -8,7 +8,7 @@ import { useTeam } from '@/context/TeamContext';
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, ChevronRight, Star, Activity, GraduationCap, ShieldCheck, Mail, Phone, Users } from 'lucide-react';
-import { getNormalizedCategories, positionWeights } from '@/lib/utils';
+import { getNormalizedCategories, positionWeights, formatPhone } from '@/lib/utils';
 import { Player, Team, DraftPick } from '../../types';
 
 interface RosterPlayer extends Player {
@@ -20,17 +20,6 @@ export const dynamic = 'force-dynamic';
 const positionOrder = [
   'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'
 ];
-
-const formatPhone = (value: string) => {
-  if (!value) return "";
-  const digits = value.replace(/\D/g, "");
-  if (digits.length === 10) {
-    return `+1-${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-  } else if (digits.length === 11 && digits.startsWith("1")) {
-    return `+1-${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
-  }
-  return value;
-};
 
 export default function RosterPage() {
   return (

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, LogOut, ShieldCheck } from 'lucide-react';
+import { Menu, X, LogOut, ShieldCheck, Users } from 'lucide-react';
 import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
@@ -47,6 +47,7 @@ export default function Navbar() {
     { name: 'Draft Board', href: '/draft' },
     { name: 'Cuts', href: '/cuts' },
     { name: 'Resources', href: '/resources' },
+    { name: 'Directory', href: '/directory' },
     { name: 'Constitution', href: '/rules' }, 
   ];
 
