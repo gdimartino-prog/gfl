@@ -6,6 +6,8 @@ export type Coach = {
   teamshort: string;
   isCommissioner: boolean;
   status: string;
+  mobile: string;
+  email: string;
   lastSync: string;
 };
 
@@ -13,22 +15,63 @@ export type Coach = {
 export async function getCoaches(): Promise<Coach[]> {
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
-    range: 'Coaches',
+    range: 'Coaches!A:J',
   });
 
   const rows = res.data.values || [];
 
-  // Assuming columns: team | teamshort | coach | isCommissioner
+  // Assuming columns: team (0) | teamshort (1) | coach (2) | commissioner (3) | mobile (4) | status (5) | nickname (6) | password (7) | lastSync (8) | email (9)
   const coaches: Coach[] = rows.slice(1).map(r => ({
     team: r[0] || '',
     teamshort: r[1] || '',
     coach: r[2] || '',
     isCommissioner: r[3] === 'TRUE' || r[3] === 'true',
+    mobile: r[4] || '',
     status: (r[5] || '').toLowerCase().trim(),
     lastSync: r[8] || '',
+    email: r[9] || '',
   }));
 
   return coaches;
+}
+
+/**
+ * Updates coach contact information in the Coaches tab
+ */
+export async function updateCoachContact(teamCode: string, mobile: string, email: string) {
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: 'Coaches!A:B',
+    });
+
+    const rows = response.data.values || [];
+    const rowIndex = rows.findIndex(row => 
+      row[1]?.toString().trim().toUpperCase() === teamCode.trim().toUpperCase()
+    );
+
+    if (rowIndex === -1) return { success: false, error: 'Team not found' };
+
+    // Update Column E (Mobile - Index 4) and Column J (Email - Index 9)
+    const updates = [
+      { range: `Coaches!E${rowIndex + 1}`, values: [[mobile]] },
+      { range: `Coaches!J${rowIndex + 1}`, values: [[email]] }
+    ];
+
+    for (const update of updates) {
+      await sheets.spreadsheets.values.update({
+        spreadsheetId: SHEET_ID,
+        range: update.range,
+        valueInputOption: 'RAW',
+        requestBody: { values: update.values }
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Failed to update coach contact:", error);
+    return { success: false };
+  }
 }
 
 /**

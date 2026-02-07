@@ -7,7 +7,7 @@ import TeamSelector from '@/components/TeamSelector';
 import { useTeam } from '@/context/TeamContext';
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, ChevronRight, Star, Activity, GraduationCap, ShieldCheck } from 'lucide-react';
+import { Search, ChevronRight, Star, Activity, GraduationCap, ShieldCheck, Mail, Phone, Users } from 'lucide-react';
 import { getNormalizedCategories, positionWeights } from '@/lib/utils';
 import { Player, Team, DraftPick } from '../../types';
 
@@ -21,6 +21,17 @@ const positionOrder = [
   'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'
 ];
 
+const formatPhone = (value: string) => {
+  if (!value) return "";
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 10) {
+    return `+1-${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+  } else if (digits.length === 11 && digits.startsWith("1")) {
+    return `+1-${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
+  }
+  return value;
+};
+
 export default function RosterPage() {
   return (
     <Suspense fallback={<div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Loading Personnel Files...</div>}>
@@ -33,7 +44,7 @@ function RosterContent() {
   const { data: session, status } = useSession();
   const { selectedTeam, setSelectedTeam } = useTeam(); 
   const searchParams = useSearchParams();
-  const [data, setData] = useState<{ roster: RosterPlayer[], picks: DraftPick[], history: DraftPick[], schedule: any[], stats: any } | null>(null);
+  const [data, setData] = useState<{ roster: RosterPlayer[], picks: DraftPick[], history: DraftPick[], schedule: any[], stats: any, coachContact?: any } | null>(null);
   const [rules, setRules] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'pos'>('default');
@@ -65,10 +76,11 @@ function RosterContent() {
 
     const loadFranchiseData = async () => {
       try {
-        const [standingsRes, rulesRes, draftPicksRes] = await Promise.all([
+        const [standingsRes, rulesRes, draftPicksRes, teamsRes] = await Promise.all([
           fetch(`/api/standings`),
           fetch(`/api/rules`),
-          fetch(`/api/draft-picks`)
+          fetch(`/api/draft-picks`),
+          fetch(`/api/teams`)
         ]);
 
         const standingsData = await standingsRes.json();
@@ -82,6 +94,12 @@ function RosterContent() {
         });
         setRules(requirements);
         const allDraftPicks = await draftPicksRes.json();
+        const allTeams = await teamsRes.json();
+
+        const coachContact = allTeams.find((t: any) => 
+          t.short?.toUpperCase() === selectedTeam.toUpperCase() || 
+          t.name?.toUpperCase() === selectedTeam.toUpperCase()
+        );
 
         const teamEntry = standingsData.find((s: any) => 
           s.team?.toString().trim().toUpperCase() === selectedTeam.trim().toUpperCase() ||
@@ -123,7 +141,8 @@ function RosterContent() {
           picks: rosterData.picks || [],
           history: history,
           schedule: scheduleData || [],
-          stats: { ...teamEntry, diff: pf - pa, currentYear: DYNAMIC_YEAR, rosterLimit }
+          stats: { ...teamEntry, diff: pf - pa, currentYear: DYNAMIC_YEAR, rosterLimit },
+          coachContact
         });
       } catch (err) { console.error(err); } finally { setLoading(false); }
     };
@@ -275,6 +294,18 @@ function RosterContent() {
               <h2 className="text-4xl font-black uppercase italic tracking-tighter leading-none">{data?.stats?.team} <span className="text-blue-500 not-italic ml-2">{data?.stats?.nickname}</span></h2>
               <div className="flex items-center gap-4 mt-4">
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">COACH: {data?.stats?.coach?.toUpperCase()}</p>
+                {data?.coachContact?.email && (
+                  <a href={`mailto:${data.coachContact.email}`} className="flex items-center gap-1 text-[10px] font-black text-blue-400 hover:text-blue-300 uppercase tracking-widest transition-colors">
+                    <Mail size={12} /> {data.coachContact.email}
+                  </a>
+                )}
+                {data?.coachContact?.mobile && (
+                  <p className="flex items-center gap-1 text-[10px] font-black text-slate-400 uppercase tracking-widest"><Phone size={12} /> {formatPhone(data.coachContact.mobile)}</p>
+                )}
+                <div className="h-4 w-[1px] bg-slate-700" />
+                <Link href="/directory" className="flex items-center gap-1 text-[10px] font-black text-slate-400 hover:text-blue-600 uppercase tracking-widest transition-colors">
+                  <Users size={12} /> League Directory
+                </Link>
                 {(rosterStatus.active > (data?.stats?.rosterLimit || 53) || complianceIssues.length > 0) && (
                   <span className="bg-red-600 text-white text-[8px] font-black px-2 py-0.5 rounded animate-pulse shadow-lg shadow-red-500/20">
                     {rosterStatus.active > (data?.stats?.rosterLimit || 53) && complianceIssues.length > 0 

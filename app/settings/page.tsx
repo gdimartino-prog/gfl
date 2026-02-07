@@ -3,15 +3,26 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { updatePassword } from "@/lib/actions";
-import { Lock, ShieldCheck, AlertCircle, CheckCircle2, Radio } from "lucide-react";
+import { Lock, ShieldCheck, AlertCircle, CheckCircle2, Radio, Mail, Phone, Users } from "lucide-react";
 import Link from "next/link";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [teamInfo, setTeamInfo] = useState({ name: "", nickname: "" });
+  const [teamInfo, setTeamInfo] = useState({ name: "", nickname: "", email: "", mobile: "" });
   const [lastUpload, setLastUpload] = useState<string | null>(null);
+
+  const formatPhone = (value: string) => {
+    if (!value) return "";
+    const digits = value.replace(/\D/g, "");
+    if (digits.length === 10) {
+      return `+1-${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    } else if (digits.length === 11 && digits.startsWith("1")) {
+      return `+1-${digits.slice(1, 4)}-${digits.slice(4, 7)}-${digits.slice(7)}`;
+    }
+    return value;
+  };
 
   // Fetch dynamic team info based on logged-in ID
   useEffect(() => {
@@ -24,13 +35,15 @@ export default function SettingsPage() {
         const res = await fetch('/api/teams');
         const teams = await res.json();
         const myTeam = teams.find((s: any) => 
-          s.teamshort?.toUpperCase() === userTeamId?.toUpperCase()
+          s.short?.toUpperCase() === userTeamId?.toUpperCase()
         );
         
         if (myTeam) {
           setTeamInfo({ 
             name: myTeam.team || "", 
-            nickname: myTeam.nickname || "" 
+            nickname: myTeam.nickname || "",
+            email: myTeam.email || "",
+            mobile: formatPhone(myTeam.mobile || "")
           });
           // 🚀 Set the last upload from the new column in your Coaches tab
           if (myTeam.lastSync) setLastUpload(myTeam.lastSync);
@@ -42,6 +55,36 @@ export default function SettingsPage() {
 
     fetchTeamDetails();
   }, [session]);
+
+  async function handleContactUpdate(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setStatus("loading");
+    setErrorMessage("");
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const rawMobile = formData.get("mobile") as string;
+    const mobile = formatPhone(rawMobile);
+
+    try {
+      const res = await fetch('/api/teams', {
+        method: 'POST',
+        body: JSON.stringify({ email, mobile }),
+      });
+      const result = await res.json();
+      
+      if (result.success) {
+        setStatus("success");
+        setTeamInfo(prev => ({ ...prev, email, mobile }));
+      } else {
+        setStatus("error");
+        setErrorMessage(result.error || "Failed to update contact info.");
+      }
+    } catch (err) {
+      setStatus("error");
+      setErrorMessage("Connection error. Please try again.");
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -130,6 +173,21 @@ export default function SettingsPage() {
             </div>
           </Link>
 
+          <Link 
+            href="/directory"
+            className="block bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-all group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="bg-emerald-50 p-3 rounded-2xl text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <Users size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">League Directory</p>
+                <h3 className="text-sm font-black uppercase italic text-slate-900">View Coach Contacts →</h3>
+              </div>
+            </div>
+          </Link>
+
           <div className="p-6 border-2 border-dashed border-slate-200 rounded-[2rem] text-slate-400">
             <p className="text-[10px] font-bold leading-relaxed uppercase italic">
               Updating your credentials will sync to Column H of the Coaches Master Sheet.
@@ -138,7 +196,57 @@ export default function SettingsPage() {
         </div>
 
         {/* RIGHT COLUMN: FORM */}
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 space-y-8">
+          {/* CONTACT INFO FORM */}
+          <div className="bg-white border border-slate-100 shadow-2xl rounded-[2.5rem] p-8 md:p-12 space-y-8">
+            <div className="space-y-1">
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter">League <span className="text-blue-600">Directory</span></h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Update your contact details for other coaches</p>
+            </div>
+            
+            <form onSubmit={handleContactUpdate} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2 text-left">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                    <input 
+                      name="email"
+                      type="email" 
+                      defaultValue={teamInfo.email}
+                      className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900"
+                      placeholder="coach@example.com"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-left">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Phone Number</label>
+                  <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                    <input 
+                      key={teamInfo.mobile}
+                      name="mobile"
+                      type="text" 
+                      defaultValue={teamInfo.mobile}
+                      className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900"
+                      placeholder="+1-xxx-xxx-xxxx"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                type="submit"
+                disabled={status === "loading"}
+                className="w-full bg-slate-900 hover:bg-blue-600 disabled:bg-slate-200 text-white font-black uppercase italic tracking-widest py-5 rounded-2xl shadow-xl transition-all active:scale-[0.98]"
+              >
+                {status === "loading" ? "Updating Directory..." : "Update Directory Info"}
+              </button>
+            </form>
+          </div>
+
+          {/* PASSWORD FORM */}
           <form onSubmit={handleSubmit} className="bg-white border border-slate-100 shadow-2xl rounded-[2.5rem] p-8 md:p-12 space-y-8">
             <div className="space-y-6">
               <div className="space-y-2 text-left">
