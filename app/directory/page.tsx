@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Mail, Phone, ShieldCheck, ExternalLink, UserCircle } from 'lucide-react';
 import Link from 'next/link';
-import { formatPhone } from '@/lib/utils';
 
 export default function DirectoryPage() {
   const [teams, setTeams] = useState<any[]>([]);
@@ -30,6 +29,15 @@ export default function DirectoryPage() {
       t.short?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [teams, searchTerm]);
+
+  const formatPhone = (value: string) => {
+    if (!value) return "—";
+    const digits = value.replace(/\D/g, "");
+    if (digits.length === 10) {
+      return `+1-${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    return value;
+  };
 
   if (loading) {
     return <div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Accessing League Records...</div>;
@@ -82,7 +90,9 @@ export default function DirectoryPage() {
                     <div className="flex items-center gap-2">
                       <p className="font-bold text-slate-700 uppercase text-sm">{team.coach}</p>
                       {team.commissioner && (
-                        <ShieldCheck size={14} className="text-blue-600" title="League Commissioner" />
+                        <span title="League Commissioner">
+                          <ShieldCheck size={14} className="text-blue-600" />
+                        </span>
                       )}
                     </div>
                   </td>
