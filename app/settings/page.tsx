@@ -13,6 +13,7 @@ export default function SettingsPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [teamInfo, setTeamInfo] = useState({ name: "", nickname: "", email: "", mobile: "" });
   const [lastUpload, setLastUpload] = useState<string | null>(null);
+  const [seasonYear, setSeasonYear] = useState("2026");
 
   // Fetch dynamic team info based on logged-in ID
   useEffect(() => {
@@ -22,15 +23,23 @@ export default function SettingsPage() {
 
       try {
         // 🚀 Fetch from /api/teams to get Coaches tab data including sync info
-        const res = await fetch('/api/teams');
-        const teams = await res.json();
+        const [teamsRes, rulesRes] = await Promise.all([
+          fetch('/api/teams'),
+          fetch('/api/rules')
+        ]);
+        const teams = await teamsRes.json();
+        const rules = await rulesRes.json();
+
+        const year = rules.find((r: any) => r.setting === 'cuts_year')?.value;
+        if (year) setSeasonYear(year);
+
         const myTeam = teams.find((s: any) => 
           s.short?.toUpperCase() === userTeamId?.toUpperCase()
         );
         
         if (myTeam) {
           setTeamInfo({ 
-            name: myTeam.team || "", 
+            name: myTeam.name || "", 
             nickname: myTeam.nickname || "",
             email: myTeam.email || "",
             mobile: formatPhone(myTeam.mobile || "")
@@ -120,7 +129,7 @@ export default function SettingsPage() {
           Franchise Settings <span className="text-blue-600">Security</span>
         </h1>
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-2">
-          Coach Credentials • Security Protocol
+          Coach Credentials • Season {seasonYear} Security Protocol
         </p>
       </div>
 
