@@ -7,7 +7,8 @@ import { formatPhone } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
 
 export default function DirectoryPage() {
-  const { data: session } = useSession();
+  // 🔒 Enforce authentication and redirect to login if not authenticated
+  const { data: session, status } = useSession({ required: true });
   const [teams, setTeams] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -40,8 +41,12 @@ export default function DirectoryPage() {
     );
   }, [teams, searchTerm]);
 
-  if (loading) {
-    return <div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Accessing League Records...</div>;
+  if (status === "loading" || loading) {
+    return (
+      <div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">
+        {status === "loading" ? "Verifying Credentials..." : "Accessing League Records..."}
+      </div>
+    );
   }
 
   return (

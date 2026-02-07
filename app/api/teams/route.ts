@@ -5,6 +5,10 @@ import { logSystemEvent } from '@/lib/googleSheets';
 
 export async function GET() {
   try {
+    // 🔒 Verify authentication before returning sensitive contact data
+    const session = await auth();
+    if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const allCoaches = await getCoaches();
     const activeTeams = allCoaches
       .filter((c) => c.status === 'active')

@@ -8,7 +8,8 @@ import { formatPhone } from "@/lib/utils";
 import Link from "next/link";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  // 🔒 Enforce authentication
+  const { data: session, status: authStatus } = useSession({ required: true });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [teamInfo, setTeamInfo] = useState({ name: "", nickname: "", email: "", mobile: "" });
@@ -119,6 +120,10 @@ export default function SettingsPage() {
       setStatus("error");
       setErrorMessage("Connection error. Please try again.");
     }
+  }
+
+  if (authStatus === "loading") {
+    return <div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Verifying Credentials...</div>;
   }
 
   return (
