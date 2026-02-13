@@ -200,7 +200,15 @@ export default function ScheduleClient({ initialGames }: { initialGames: Game[] 
   );
 }
 
-function TeamLine({ name, score, isWinner, label, isHome = false }: any) {
+interface TeamLineProps {
+  name: string;
+  score: string | null;
+  isWinner: boolean;
+  label: string;
+  isHome?: boolean;
+}
+
+function TeamLine({ name, score, isWinner, label, isHome = false }: TeamLineProps) {
   return (
     <div className="flex justify-between items-center">
       <div className="flex flex-col text-left">

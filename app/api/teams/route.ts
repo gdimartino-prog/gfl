@@ -15,6 +15,8 @@ export async function GET() {
       .map((c) => ({
         name: c.team,
         short: c.teamshort,
+        team: c.team,
+        teamshort: c.teamshort,
         nickname: c.nickname,
         coach: c.coach,
         commissioner: c.isCommissioner,
@@ -36,7 +38,7 @@ export async function POST(req: Request) {
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { email, mobile } = await req.json();
-    const teamCode = (session.user as any).id;
+    const teamCode = (session.user as { id?: string }).id || "";
 
     const result = await updateCoachContact(teamCode, mobile, email);
     
@@ -50,7 +52,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(result);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }
 }

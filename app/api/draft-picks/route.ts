@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { sheets, SHEET_ID } from '@/lib/googleSheets'; 
+import { getSheetsClient } from '@/lib/google-cloud';
 import { transferDraftPick } from '@/lib/draftPicks';
 
 export const dynamic = 'force-dynamic';
@@ -7,6 +7,9 @@ export const revalidate = 0;
 
 export async function GET() {
   try {
+    const sheets = getSheetsClient();
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
     // UPDATED: Extended range to A:J to capture Columns I and J
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
@@ -17,7 +20,7 @@ export async function GET() {
     if (!rows || rows.length === 0) return NextResponse.json([]);
 
     // Map the rows to objects including the new G, H, and J columns
-    const formattedPicks = rows.slice(1).map((p: any) => ({
+    const formattedPicks = rows.slice(1).map((p: string[]) => ({
       year: p[0] || '',
       round: p[1] || '',
       overall: p[2] || '',

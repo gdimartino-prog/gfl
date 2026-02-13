@@ -1,12 +1,16 @@
-import { sheets, SHEET_ID } from '@/lib/googleSheets';
+import { getSheetsClient } from '@/lib/google-cloud';
 import { parsePlayers } from '@/lib/players';
 import { findPlayerRowIndex } from '@/lib/playerLookup';
 import { logTransaction } from '@/lib/transactions';
+import { getCoaches } from '@/lib/config';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const sheets = getSheetsClient();
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'Transactions!A:J', 
@@ -28,26 +32,28 @@ export async function GET() {
     })).reverse();
 
     return Response.json(data);
-  } catch (error: any) {
-    return Response.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { type, identity, toTeam, coach, details, status, weekBack, fromTeam } = body;
+    const { type, identity, toTeam, details, fromTeam } = body;
 
-    const [res, configRes] = await Promise.all([
-      sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'Players' }),
-      sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'Coaches!A:B' }) // Fetch for shortcode lookup
+    const sheets = getSheetsClient();
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
+    const [res, coaches] = await Promise.all([
+      sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'Players!A:CV' }),
+      getCoaches()
     ]);
 
     const rows = res.data.values || [];
-    const coachRows = configRes.data.values || [];
     
     // Create a map of Full Name -> Shortcode
-    const teamMap = new Map(coachRows.map(r => [String(r[0]).trim().toLowerCase(), String(r[1]).trim()]));
+    const teamMap = new Map(coaches.map(c => [c.team.toLowerCase(), c.teamshort]));
 
     const player = parsePlayers(rows).find(p => p.identity.trim().toLowerCase() === identity.trim().toLowerCase());
     if (!player) return Response.json({ error: 'Player not found' }, { status: 404 });
@@ -76,7 +82,7 @@ export async function POST(req: Request) {
     await logTransaction({ ...body, fromTeam: fromTeam || player.team, details });
 
     return Response.json({ success: true });
-  } catch (err: any) {
-    return Response.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return Response.json({ error: err instanceof Error ? err.message : 'Internal Server Error' }, { status: 500 });
   }
 }

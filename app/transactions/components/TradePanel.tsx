@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 
 interface Team { name: string; short: string; coach: string; }
 interface Player { first: string; last: string; team: string; position: string; identity: string; }
@@ -16,7 +15,6 @@ export default function TradePanel({
   coach: string; 
   onComplete?: () => void 
 }) {
-  const router = useRouter();
   const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<Player[]>([]);
   const [draftPicks, setDraftPicks] = useState<DraftPick[]>([]);
@@ -178,7 +176,7 @@ export default function TradePanel({
         const errData = await res.json();
         setStatus(`❌ Trade failed: ${errData.error || 'Server Error'}`);
       }
-    } catch (err) {
+    } catch {
       setStatus('❌ Network error processing trade.');
     } finally {
       setLoading(false);

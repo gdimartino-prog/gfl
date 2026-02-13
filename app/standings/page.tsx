@@ -2,11 +2,12 @@ import { getHistory } from '@/lib/getHistory';
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
 import StandingsClient from '@/components/StandingsClient';
 import Link from 'next/link';
+import { StandingRow } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
 export default async function StandingsPage() {
-  let allData: any[] = [];
+  let allData: StandingRow[] = [];
   let totalGames = 14;
 
   try {

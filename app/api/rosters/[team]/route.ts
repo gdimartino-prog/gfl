@@ -1,66 +1,52 @@
-import { sheets, SHEET_ID } from '@/lib/googleSheets';
-import { parsePlayers } from '@/lib/players'; // Use your master parser
+import { getPlayers } from '@/lib/players';
+import { getAllDraftPicks } from '@/lib/draftPicks';
+import { NextResponse } from 'next/server';
 
 type RouteContext = {
   params: Promise<{ team: string }>;
 };
 
-export async function GET(req: Request, { params }: RouteContext) {
+export async function GET(_req: Request, { params }: RouteContext) {
   try {
     const resolvedParams = await params;
     const teamShort = resolvedParams.team.toUpperCase();
 
-    // 1. Fetch data with sufficient range for header mapping
-    const [playersRes, picksRes] = await Promise.all([
-      sheets.spreadsheets.values.get({ 
-        spreadsheetId: SHEET_ID, 
-        range: 'Players!A:CV' // Ensure range includes all identity columns
-      }),
-      sheets.spreadsheets.values.get({ 
-        spreadsheetId: SHEET_ID, 
-        range: 'DraftPicks!A:G' 
-      })
+    // 1. Fetch both datasets using centralized utilities (handles caching internally)
+    const [allPlayers, allPicks] = await Promise.all([
+      getPlayers(),
+      getAllDraftPicks()
     ]);
 
-    const rawPlayers = playersRes.data.values || [];
-    const allPicks = picksRes.data.values || [];
-
-    // 2. Use parsePlayers to get stable identities & full names
-    const parsedPlayers = parsePlayers(rawPlayers);
-
-    // 3. Filter and Format for your specific Roster UI
-    const roster = parsedPlayers
+    // 2. Process Roster
+    const roster = allPlayers
       .filter(p => p.team?.toUpperCase() === teamShort)
       .map(p => ({
-        identity: p.identity, // CRITICAL: Fixes the 404 error
-        name: `${p.first} ${p.last}`, // Preserves "Austin III"
+        identity: p.identity,
+        name: `${p.first} ${p.last}`.trim(),
         age: p.age.toString(),
         offensePos: p.offense,
         defensePos: p.defense,
         specialPos: p.special,
-        // UI Logic for grouping
+        // Logic for unit grouping
         group: p.offense ? 'OFF' : p.defense ? 'DEF' : 'SPEC',
-        pos: (p.offense || p.defense || p.special || '??').toUpperCase()
+        pos: p.position.toUpperCase() || '??'
       }));
     
-    // 4. Process Draft Picks
+    // 3. Process Draft Picks
     const picks = allPicks
-      .filter(row => row[4]?.toUpperCase() === teamShort)
-      .map(row => ({
-        year: row[0],
-        round: row[1],
-        overall: row[2],
-        originalTeam: row[3],
-        currentOwner: row[4]
+      .filter(p => p.currentOwner?.toUpperCase() === teamShort)
+      .map(p => ({
+        year: p.year,
+        round: p.round,
+        overall: p.overall,
+        originalTeam: p.originalTeam,
+        currentOwner: p.currentOwner
       }))
-      .sort((a, b) => 
-        Number(a.year) - Number(b.year) || 
-        Number(a.overall) - Number(b.overall)
-      );
+      .sort((a, b) => a.year - b.year || a.overall - b.overall);
 
-    return Response.json({ roster, picks });
-  } catch (error: any) {
+    return NextResponse.json({ roster, picks });
+  } catch (error: unknown) {
     console.error("Roster API Error:", error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -1,7 +1,54 @@
 export interface Team {
   name: string;
   short: string;
+  team: string;
+  teamshort: string;
+  coach?: string;
+  email?: string;
+  mobile?: string;
+  commissioner?: boolean;
   lastSync?: string;
+}
+
+export interface PlayerStats {
+  games?: string | number;
+  passing?: {
+    att?: string | number;
+    attempts?: string | number;
+    comp?: string | number;
+    completions?: string | number;
+    yds?: string | number;
+    yards?: string | number;
+    int?: string | number;
+    interceptions?: string | number;
+    td?: string | number;
+    tds?: string | number;
+  };
+  rushing?: {
+    att?: string | number;
+    attempts?: string | number;
+    yds?: string | number;
+    yards?: string | number;
+    long?: string | number;
+    td?: string | number;
+    tds?: string | number;
+  };
+  receiving?: {
+    receptions?: string | number;
+    rec?: string | number;
+    yds?: string | number;
+    yards?: string | number;
+    long?: string | number;
+    td?: string | number;
+    tds?: string | number;
+  };
+  defense?: {
+    int?: string | number;
+    interceptions?: string | number;
+    tackles?: string | number;
+    sacks?: string | number;
+    stuffs?: string | number;
+  };
 }
 
 export interface Player {
@@ -33,10 +80,14 @@ export interface Player {
     salary?: string | number;
   };
   ratings?: {
-    [key: string]: any;
+    [key: string]: string | number | undefined;
   };
-  stats?: any;
-  allStats?: any;
+  dur?: string;
+  run?: string;
+  pass?: string;
+  overall?: string | number;
+  stats?: PlayerStats;
+  allStats?: Record<string, string>;
 }
 
 export interface DraftPick {
@@ -45,6 +96,7 @@ export interface DraftPick {
   overall: number;
   originalTeam: string;
   currentOwner: string;
+  currentOwnerCode?: string;
   status: string;
   draftedPlayer: string;
   timestamp: string;
@@ -56,6 +108,8 @@ export interface StandingRow {
   year: string | number;
   team: string;
   teamshort?: string;
+  nickname?: string;
+  coach?: string;
   gm?: string;
   won: number;
   lost: number;
@@ -65,6 +119,9 @@ export interface StandingRow {
   defPts: number;
   diff: number;
   division?: string;
-  isChampion?: boolean | string | number;
-  isPlayoff?: boolean | string | number;
+  isDivWinner?: boolean;
+  isPlayoff?: boolean;
+  isSuperBowl?: boolean;
+  isChampion?: boolean;
+  oldTeamName?: string | null;
 }

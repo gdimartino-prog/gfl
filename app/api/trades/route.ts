@@ -1,4 +1,4 @@
-import { sheets, SHEET_ID } from '@/lib/googleSheets';
+import { getSheetsClient } from '@/lib/google-cloud';
 import { logTransaction } from '@/lib/transactions';
 import { auth } from "@/auth";
 
@@ -7,13 +7,16 @@ export async function POST(req: Request) {
   const session = await auth();
 
   // 2. Authorization Check (Only George or an Admin can finalize trades)
-  const isAdmin = session?.user?.name === "George Di Martino" || (session?.user as any)?.role === "admin";
+  const isAdmin = session?.user?.name === "George Di Martino" || (session?.user as { role?: string })?.role === "admin";
 
   if (!isAdmin) {
     return Response.json({ message: "Unauthorized: Admin access required to process trades." }, { status: 401 });
   }
 
   try {
+    const sheets = getSheetsClient();
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
     const body = await req.json();
     const { 
       fromTeam, toTeam, fromFull, toFull, submittedBy,
@@ -29,7 +32,7 @@ export async function POST(req: Request) {
 
     const playerRows = playerRes.data.values || [];
     const draftRows = draftRes.data.values || [];
-    const updatePromises: Promise<any>[] = [];
+    const updatePromises: Promise<unknown>[] = [];
 
     // --- EXECUTE ASSET MOVEMENT (Ownership Updates) ---
 
@@ -87,13 +90,16 @@ export async function POST(req: Request) {
     }
 
     return Response.json({ success: true });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Trade API Error:", error);
-    return Response.json({ success: false, error: error.message }, { status: 500 });
+    return Response.json({ success: false, error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
   }
 }
 
 async function updateCell(sheetName: string, column: string, rowNum: number, value: string) {
+  const sheets = getSheetsClient();
+  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
   return sheets.spreadsheets.values.update({
     spreadsheetId: SHEET_ID,
     range: `${sheetName}!${column}${rowNum}`,

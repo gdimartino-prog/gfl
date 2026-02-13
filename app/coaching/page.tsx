@@ -8,7 +8,7 @@ export default async function CoachingPage() {
   
   // Logic: Priority is Team Name, fallback to Coach Name
   // Note: Check if your session object stores team as 'session.user.team'
-  const teamName = (session?.user as any)?.team || session?.user?.name;
+  const teamName = (session?.user as { team?: string })?.team || session?.user?.name;
   const isAuthenticated = !!session;
 
   return (

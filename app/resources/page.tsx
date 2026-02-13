@@ -11,13 +11,13 @@ export default async function ResourcesPage() {
       </h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {Object.entries(categories).map(([group, links]: [string, any]) => (
+        {Object.entries(categories).map(([group, links]) => (
           <div key={group} className="space-y-4">
             <h2 className="text-xl font-bold border-b-2 border-indigo-100 pb-2 text-gray-700 uppercase tracking-tight">
               {group}
             </h2>
             <div className="flex flex-col gap-3">
-              {links.map((link: any) => (
+              {links.map((link) => (
                 <a 
                   key={link.name} 
                   href={link.url} 

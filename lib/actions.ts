@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
-import { sheets, SHEET_ID } from "@/lib/googleSheets";
+import { getSheetsClient } from "@/lib/google-cloud";
 import { revalidatePath } from "next/cache";
 
 export async function updatePassword(newPassword: string) {
@@ -12,9 +12,12 @@ export async function updatePassword(newPassword: string) {
   }
 
   // The session provides 'VV' as the ID for George
-  const userTeamId = (session.user as any).id; 
+  const userTeamId = (session.user as { id?: string }).id; 
 
   try {
+    const sheets = getSheetsClient();
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: "Coaches!A:H", // Ensure we fetch through Column H

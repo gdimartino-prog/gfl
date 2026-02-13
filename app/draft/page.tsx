@@ -6,7 +6,7 @@ import PlayerCard from '@/components/PlayerCard';
 import { getPositionStats } from '@/lib/playerStats'; 
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Clock, Search, RotateCw, X, Zap, ChevronRight, Filter, ChevronUp, Star } from 'lucide-react';
+import { Search, RotateCw, X, Zap, ChevronRight, ChevronUp, Star } from 'lucide-react';
 import { getNormalizedCategories } from '@/lib/utils';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
 import { Team, Player, DraftPick } from '../../types';
@@ -49,13 +49,13 @@ function DraftBoardContent() {
   const [watchlist, setWatchlist] = useState<string[]>([]);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null); 
-  const [selectedPick, setSelectedPick] = useState<any>(null);
+  const [selectedPick, setSelectedPick] = useState<DraftPick | null>(null);
   const [modalSessionId, setModalSessionId] = useState(0);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
 
   // Timer States
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
-  const [progress, setProgress] = useState<number>(100);
+  const [progress, setProgress] = useState(100);
 
   // --- DATA LOADING ---
   const loadData = useCallback(async (showRefreshState = false) => {
@@ -69,7 +69,7 @@ function DraftBoardContent() {
 
       const sortedPicks = Array.isArray(pRes) 
       ? pRes
-          .map((p: any) => ({
+          .map((p: DraftPick) => ({
             ...p,
             // 🚀 Ensure mandatory strings for the Ticker and UI
             draftedPlayer: p.draftedPlayer || "", 
@@ -112,10 +112,10 @@ function DraftBoardContent() {
       setFaPosFilter(scoutPos);
       setShowFA(true);
       setFaLoading(true);
-      fetch(`/api/players?view=light&t=${Date.now()}`, { cache: 'no-store' })
+      fetch(`/api/players?t=${Date.now()}`, { cache: 'no-store' })
         .then(r => r.json())
         .then(res => { 
-          const faOnly = Array.isArray(res) ? res.filter((p: any) => p.team?.trim().toUpperCase() === 'FA') : [];
+          const faOnly = Array.isArray(res) ? res.filter((p: Player) => p.team?.trim().toUpperCase() === 'FA') : [];
           setFaPlayers(faOnly); 
           setFaLoading(false); 
         });
@@ -150,7 +150,8 @@ function DraftBoardContent() {
     const timerInterval = setInterval(() => {
       const now = new Date().getTime();
       const startTimeStr = previousPick?.timestamp;
-      const startRef = startTimeStr ? new Date(startTimeStr).getTime() : new Date().getTime() - (1000 * 60); 
+      const parsedStart = startTimeStr ? new Date(startTimeStr).getTime() : NaN;
+      const startRef = !isNaN(parsedStart) ? parsedStart : new Date().getTime() - (1000 * 60); 
       const roundNum = Number(onClockPick.round);
       const limitMs = (roundNum <= 2 ? 24 : 12) * 60 * 60 * 1000;
       const expiryTime = startRef + limitMs;
@@ -176,12 +177,12 @@ function DraftBoardContent() {
     return (match ? match[1] : str).trim().toUpperCase();
   };
 
-  const getFullTeamName = (shortCode: string) => {
+  const getFullTeamName = useCallback((shortCode: string) => {
     if (!shortCode) return "Unknown Team";
     const codeToMatch = resolveCode(shortCode);
     const team = teams.find(t => resolveCode(t.short) === codeToMatch);
     return team ? team.name : shortCode;
-  };
+  }, [teams]);
 
   const filteredPicks = useMemo(() => {
     return picks.filter(p => {
@@ -194,7 +195,7 @@ function DraftBoardContent() {
       const matchesRound = roundFilter === 'All' || p.round.toString() === roundFilter;
       return matchesSearch && matchesYear && matchesTeam && matchesRound;
     });
-  }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, teams]);
+  }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, getFullTeamName]);
 
   // Helper to render trade history logic cleanly
   const renderTradeHistory = (pick: DraftPick) => {
@@ -329,8 +330,8 @@ function DraftBoardContent() {
             onClick={() => { 
               setFaLoading(true); 
               setShowFA(true); 
-              fetch(`/api/players?view=light&t=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()).then(res => { 
-                const faOnly = Array.isArray(res) ? res.filter((p: any) => p.team?.trim().toUpperCase() === 'FA') : [];
+              fetch(`/api/players?t=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()).then(res => { 
+                const faOnly = Array.isArray(res) ? res.filter((p: Player) => p.team?.trim().toUpperCase() === 'FA') : [];
                 setFaPlayers(faOnly); 
                 setFaLoading(false); 
               }); 
@@ -376,13 +377,23 @@ function DraftBoardContent() {
               </div>
             </div>
 
-            <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 min-w-[300px] text-center">
+            <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 min-w-[300px] text-center relative overflow-hidden">
               <p className="text-8xl font-mono font-black text-amber-400 tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
                 {timeLeft}
               </p>
               <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-widest">
                 Remaining Selection Time
               </p>
+
+              {/* Visual Progress Bar */}
+              <div className="absolute bottom-0 left-0 w-full h-1.5 bg-slate-700/30">
+                <div 
+                  className={`h-full transition-all duration-1000 ease-linear ${
+                    progress < 10 ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)]'
+                  }`}
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -656,7 +667,7 @@ function PlayerFACard({ p, onScout, onToggleWatchlist, isWatched }: { p: Player,
 }
 
 // 🚀 HELPER COMPONENTS
-function FilterSelect({ label, value, onChange, options }: { label: string, value: string, onChange: (v: string) => void, options: any[] }) {
+function FilterSelect({ label, value, onChange, options }: { label: string, value: string, onChange: (v: string) => void, options: (string | number)[] }) {
   return (
     <div className="space-y-1">
       <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">{label}</label>
@@ -668,7 +679,7 @@ function FilterSelect({ label, value, onChange, options }: { label: string, valu
   );
 }
 
-function StatMini({ label, val }: { label: string, val: any }) {
+function StatMini({ label, val }: { label: string, val: string | number | undefined }) {
   return (
     <div className="flex flex-col items-center justify-center bg-slate-50 rounded-2xl py-3 border border-slate-100">
       <span className="text-[7px] font-black text-slate-400 uppercase leading-none mb-1 tracking-tighter">{label}</span>

@@ -1,13 +1,8 @@
 // components/CoachDownloadHub.tsx
 import { 
-  UploadCloud, 
   FileCheck, // <-- Add this one
-  ShieldAlert, 
-  Download, 
-  Clock, 
-  Loader2, 
-  RefreshCw, 
-  File 
+  Download,
+  Clock
 } from 'lucide-react';
 
 

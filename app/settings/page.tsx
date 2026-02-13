@@ -20,7 +20,7 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchTeamDetails = async () => {
       if (!session?.user) return;
-      const userTeamId = (session.user as any).id;
+      const userTeamId = (session.user as { id?: string }).id;
 
       try {
         // 🚀 Fetch from /api/teams to get Coaches tab data including sync info
@@ -31,10 +31,10 @@ export default function SettingsPage() {
         const teams = await teamsRes.json();
         const rules = await rulesRes.json();
 
-        const year = rules.find((r: any) => r.setting === 'cuts_year')?.value;
+        const year = rules.find((r: { setting: string }) => r.setting === 'cuts_year')?.value;
         if (year) setSeasonYear(year);
 
-        const myTeam = teams.find((s: any) => 
+        const myTeam = teams.find((s: { short: string }) => 
           s.short?.toUpperCase() === userTeamId?.toUpperCase()
         );
         
@@ -81,6 +81,7 @@ export default function SettingsPage() {
         setErrorMessage(result.error || "Failed to update contact info.");
       }
     } catch (err) {
+      console.error("Contact update failed:", err);
       setStatus("error");
       setErrorMessage("Connection error. Please try again.");
     }
@@ -116,7 +117,7 @@ export default function SettingsPage() {
         setStatus("error");
         setErrorMessage(result.error || "Failed to update password.");
       }
-    } catch (err) {
+    } catch {
       setStatus("error");
       setErrorMessage("Connection error. Please try again.");
     }
@@ -157,7 +158,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <p className="text-slate-500 font-black text-[9px] uppercase tracking-widest mb-1">Authorized ID</p>
-            <p className="text-white font-mono text-lg leading-none">{(session?.user as any)?.id || "---"}</p>
+            <p className="text-white font-mono text-lg leading-none">{(session?.user as { id?: string })?.id || "---"}</p>
           </div>
         </div>
       </div>

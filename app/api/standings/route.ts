@@ -11,18 +11,18 @@ export async function GET() {
     ]);
 
     // 2. Map through each team and calculate their 2025 performance
-    const standings = teams.map((team: any) => {
+    const standings = teams.map((team: { team: string; teamshort: string }) => {
       let wins = 0;
       let losses = 0;
       let pf = 0;
       let pa = 0;
 
       // Filter for 2025 games where this team played and the game is 'Final'
-      schedule.filter((g: any) => 
+      schedule.filter((g: { year: string; status: string; home: string; visitor: string }) => 
         g.year === "2025" && 
         g.status === "Final" && 
         (g.home === team.team || g.visitor === team.team || g.home === team.teamshort || g.visitor === team.teamshort)
-      ).forEach((game: any) => {
+      ).forEach((game: { hScore: string; vScore: string; home: string }) => {
         const hS = parseInt(game.hScore) || 0;
         const vS = parseInt(game.vScore) || 0;
         
@@ -52,7 +52,7 @@ export async function GET() {
     standings.sort((a, b) => b.wins - a.wins || b.diff - a.diff);
 
     return NextResponse.json(standings);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to calculate standings' }, { status: 500 });
   }
 }

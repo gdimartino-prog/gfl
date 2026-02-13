@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UploadCloud, FileCheck, AlertCircle } from 'lucide-react';
+import { UploadCloud } from 'lucide-react';
 
 export default function CoachFileUpload({ teamName }: { teamName: string }) {
   const [file, setFile] = useState<File | null>(null);

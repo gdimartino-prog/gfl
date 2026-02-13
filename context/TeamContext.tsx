@@ -14,7 +14,11 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   // Load from localStorage so it remembers after a page refresh
   useEffect(() => {
     const saved = localStorage.getItem('gfl-selected-team');
-    if (saved) setSelectedTeam(saved);
+    if (saved) {
+      requestAnimationFrame(() => {
+        setSelectedTeam(saved);
+      });
+    }
   }, []);
 
   const updateTeam = (team: string) => {

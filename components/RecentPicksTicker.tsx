@@ -31,7 +31,10 @@ export default function RecentPicksTicker({ picks, teams }: TickerProps) {
   // 🚀 Step 1: Prevent Hydration Mismatch
   // This ensures the component only renders once the browser is ready.
   useEffect(() => {
-    setMounted(true);
+    const handle = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+    return () => cancelAnimationFrame(handle);
   }, []);
 
   const getFullTeamName = (shortCode: string) => {

@@ -10,7 +10,6 @@ import {
   Zap, 
   ShieldCheck, 
   RotateCw,
-  ClipboardList,
   Activity
 } from 'lucide-react';
 import FreeAgentPanel from './components/FreeAgentPanel';
@@ -19,16 +18,17 @@ import IRPanel from './components/IRPanel';
 import TradePanel from './components/TradePanel';
 import TeamSelector from '@/components/TeamSelector';
 import { useTeam } from '@/context/TeamContext';
+import { Team } from '@/types';
 
 export default function TransactionsPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const { selectedTeam, setSelectedTeam } = useTeam();
   
-  const [teams, setTeams] = useState<any[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [currentSeason, setCurrentSeason] = useState('');
   const [coach, setCoach] = useState('');
-  const [logs, setLogs] = useState<any[]>([]); 
+  const [logs, setLogs] = useState<Record<string, string>[]>([]); 
   const [loadingLogs, setLoadingLogs] = useState(true);
   const [filterTeam, setFilterTeam] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
@@ -38,8 +38,8 @@ export default function TransactionsPage() {
 
   // 1. SESSION SYNC
   useEffect(() => {
-    if (status === "authenticated" && (session?.user as any)?.id && !hasSynced.current) {
-      setSelectedTeam((session.user as any).id);
+    if (status === "authenticated" && (session?.user as { id?: string })?.id && !hasSynced.current) {
+      setSelectedTeam((session.user as { id?: string }).id || '');
       hasSynced.current = true;
     }
   }, [status, session, setSelectedTeam]);
@@ -75,7 +75,7 @@ export default function TransactionsPage() {
 
   useEffect(() => {
     const teamObj = teams.find(t => t.teamshort === selectedTeam || t.short === selectedTeam);
-    setCoach(teamObj ? teamObj.coach : '');
+    setCoach(teamObj?.coach || '');
   }, [selectedTeam, teams]);
 
   const handleTransactionComplete = async () => {
@@ -131,7 +131,7 @@ export default function TransactionsPage() {
             {tabs.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as 'FA' | 'DROP' | 'IR' | 'TRADE')}
                 className={`flex flex-col items-center justify-center gap-3 p-6 rounded-2xl transition-all group ${
                   activeTab === tab.id 
                     ? `${tab.activeColor} text-white shadow-lg scale-[1.02]` 
@@ -167,7 +167,7 @@ export default function TransactionsPage() {
 
             <div className="p-6 bg-slate-900 border-t border-slate-800 text-[10px] font-mono text-slate-500 uppercase tracking-widest flex justify-between px-10">
               <p>COACH: <span className="text-white italic">{session?.user?.name || 'GUEST'}</span></p>
-              <p>AUTH_ID: <span className="text-emerald-400">{(session?.user as any)?.id || 'NONE'}</span></p>
+              <p>AUTH_ID: <span className="text-emerald-400">{(session?.user as { id?: string })?.id || 'NONE'}</span></p>
               <p className="hidden md:block">ENCRYPTION: <span className="text-blue-400">AES-256-GCM</span></p>
             </div>
           </div>

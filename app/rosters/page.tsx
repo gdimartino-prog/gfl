@@ -6,13 +6,16 @@ import PlayerCard from '@/components/PlayerCard';
 import TeamSelector from '@/components/TeamSelector';
 import { useTeam } from '@/context/TeamContext';
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Search, ChevronRight, Star, Activity, GraduationCap, ShieldCheck, Mail, Phone, Users } from 'lucide-react';
 import { getNormalizedCategories, positionWeights, formatPhone } from '@/lib/utils';
-import { Player, Team, DraftPick } from '../../types';
+import { Player, DraftPick, Team, StandingRow } from '../../types';
 
 interface RosterPlayer extends Player {
   group?: string;
+  offensePos?: string;
+  defensePos?: string;
+  specialPos?: string;
 }
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +36,14 @@ function RosterContent() {
   const { data: session, status } = useSession();
   const { selectedTeam, setSelectedTeam } = useTeam(); 
   const searchParams = useSearchParams();
-  const [data, setData] = useState<{ roster: RosterPlayer[], picks: DraftPick[], history: DraftPick[], schedule: any[], stats: any, coachContact?: any } | null>(null);
+  const [data, setData] = useState<{ 
+    roster: RosterPlayer[], 
+    picks: DraftPick[], 
+    history: DraftPick[], 
+    schedule: Record<string, string | null>[], 
+    stats: StandingRow & { diff: number, currentYear: string, rosterLimit: number }, 
+    coachContact?: Team 
+  } | null>(null);
   const [rules, setRules] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'pos'>('default');
@@ -45,8 +55,8 @@ function RosterContent() {
   const hasSynced = useRef(false);
 
   useEffect(() => {
-    if (status === "authenticated" && (session?.user as any)?.id && !hasSynced.current) {
-      setSelectedTeam((session.user as any).id);
+    if (status === "authenticated" && (session?.user as { id?: string })?.id && !hasSynced.current) {
+      setSelectedTeam((session.user as { id?: string }).id || '');
       hasSynced.current = true;
     }
   }, [status, session, setSelectedTeam]);
@@ -76,7 +86,7 @@ function RosterContent() {
         const rulesData = await rulesRes.json();
         
         const requirements: Record<string, number> = {};
-        rulesData.forEach((r: any) => {
+        rulesData.forEach((r: { setting: string; value: string }) => {
           if (r.setting?.startsWith('min_')) {
             requirements[r.setting.replace('min_', '').toUpperCase()] = parseInt(r.value);
           }
@@ -85,12 +95,12 @@ function RosterContent() {
         const allDraftPicks = await draftPicksRes.json();
         const allTeams = await teamsRes.json();
 
-        const coachContact = allTeams.find((t: any) => 
+        const coachContact = allTeams.find((t: { short: string; name: string }) => 
           t.short?.toUpperCase() === selectedTeam.toUpperCase() || 
           t.name?.toUpperCase() === selectedTeam.toUpperCase()
         );
 
-        const teamEntry = standingsData.find((s: any) => 
+        const teamEntry = standingsData.find((s: { team: string; teamshort: string }) => 
           s.team?.toString().trim().toUpperCase() === selectedTeam.trim().toUpperCase() ||
           s.teamshort?.toString().trim().toUpperCase() === selectedTeam.trim().toUpperCase()
         );
@@ -103,34 +113,46 @@ function RosterContent() {
         const rosterData = await rosterRes.json();
         const scheduleData = await scheduleRes.json();
 
-        const yearRule = rulesData.find((r: any) => r.setting === 'cuts_year');
+        const yearRule = rulesData.find((r: { setting: string }) => r.setting === 'cuts_year');
         const DYNAMIC_YEAR = yearRule?.value ? yearRule.value.toString() : "2025";
 
-        const limitRule = rulesData.find((r: any) => r.setting === 'limit_roster');
+        const limitRule = rulesData.find((r: { setting: string; value: string }) => r.setting === 'limit_roster');
         const rosterLimit = limitRule ? parseInt(limitRule.value) : 53;
 
         let pf = 0; let pa = 0;
-        scheduleData.filter((g: any) => g.year === DYNAMIC_YEAR && g.status === "Final").forEach((game: any) => {
+        scheduleData.filter((g: { year: string; status: string }) => g.year === DYNAMIC_YEAR && g.status === "Final").forEach((game: { home: string; hScore: string; vScore: string }) => {
             const isHome = [(game.home || "").toUpperCase()].includes(teamEntry?.team?.toUpperCase()) || [(game.home || "").toUpperCase()].includes(teamEntry?.teamshort?.toUpperCase());
             if (isHome) { pf += parseInt(game.hScore); pa += parseInt(game.vScore); }
             else { pf += parseInt(game.vScore); pa += parseInt(game.hScore); }
         });
 
         // Filter for history: Match by team code in parentheses or full string
-        const history = Array.isArray(allDraftPicks) ? allDraftPicks.filter((p: any) => {
+        const history = Array.isArray(allDraftPicks) ? allDraftPicks.filter((p: { currentOwner: string; draftedPlayer: string }) => {
           const ownerStr = p.currentOwner || "";
           const match = ownerStr.match(/\(([^)]+)\)/);
           const code = (match ? match[1] : ownerStr).trim().toUpperCase();
           return code === selectedTeam.trim().toUpperCase() && 
                  p.draftedPlayer && p.draftedPlayer.trim() !== "" && !p.draftedPlayer.includes("SKIPPED");
-        }).sort((a: any, b: any) => Number(b.year) - Number(a.year) || Number(a.overall) - Number(b.overall)) : [];
+        }).sort((a: { year: number; overall: number }, b: { year: number; overall: number }) => Number(b.year) - Number(a.year) || Number(a.overall) - Number(b.overall)) : [];
 
         setData({
           roster: rosterData.roster || [],
           picks: rosterData.picks || [],
           history: history,
           schedule: scheduleData || [],
-          stats: { ...teamEntry, diff: pf - pa, currentYear: DYNAMIC_YEAR, rosterLimit },
+          stats: { 
+            team: selectedTeam,
+            won: 0, 
+            lost: 0, 
+            tie: 0, 
+            pct: 0, 
+            offPts: 0, 
+            defPts: 0,
+            ...teamEntry, 
+            diff: pf - pa, 
+            currentYear: DYNAMIC_YEAR, 
+            rosterLimit 
+          },
           coachContact
         });
       } catch (err) { console.error(err); } finally { setLoading(false); }
@@ -160,11 +182,11 @@ function RosterContent() {
     const teamName = (data?.stats?.team || "").toUpperCase();
     return data.schedule
       .filter(g => g.year === data?.stats?.currentYear && g.status === "Final" && ((g.home || "").toUpperCase() === teamName || (g.visitor || "").toUpperCase() === teamName))
-      .sort((a, b) => parseInt(a.week) - parseInt(b.week))
+      .sort((a, b) => parseInt(a.week || '0') - parseInt(b.week || '0'))
       .slice(-5)
       .map(game => {
         const isHome = (game.home || "").toUpperCase() === teamName;
-        return isHome ? (parseInt(game.hScore) > parseInt(game.vScore)) : (parseInt(game.vScore) > parseInt(game.hScore));
+        return isHome ? (parseInt(game.hScore || '0') > parseInt(game.vScore || '0')) : (parseInt(game.vScore || '0') > parseInt(game.hScore || '0'));
       });
   }, [data]);
 
@@ -180,8 +202,13 @@ function RosterContent() {
     if (!data?.roster || Object.keys(rules).length === 0) return [];
     const counts: Record<string, number> = {};
     data?.roster?.forEach(p => {
-      const categories = getNormalizedCategories(p.pos || p.position || "");
-      categories.forEach(cat => {
+      // Process each position slot individually to handle multi-position players (e.g. WR/RET)
+      const slots = [p.offensePos, p.defensePos, p.specialPos].filter((s): s is string => Boolean(s));
+      const uniqueCats = new Set<string>();
+      slots.forEach(slot => {
+        getNormalizedCategories(slot).forEach(cat => uniqueCats.add(cat));
+      });
+      uniqueCats.forEach(cat => {
         counts[cat] = (counts[cat] || 0) + 1;
       });
     });
@@ -231,9 +258,14 @@ function RosterContent() {
   const depthGroups = useMemo(() => {
     if (!data?.roster) return {} as Record<string, Player[]>;
     const groups = data?.roster?.reduce((acc, p) => {
-      const categories = getNormalizedCategories(p.pos || p.position || "??");
+      // Process each position slot individually to handle multi-position players (e.g. WR/RET)
+      const slots = [p.offensePos, p.defensePos, p.specialPos].filter((s): s is string => Boolean(s));
+      const uniqueCats = new Set<string>();
+      slots.forEach(slot => {
+        getNormalizedCategories(slot).forEach(cat => uniqueCats.add(cat));
+      });
 
-      categories.forEach(cat => {
+      uniqueCats.forEach(cat => {
         if (!acc[cat]) acc[cat] = [];
         if (!acc[cat].find(existing => existing.identity === p.identity)) {
           acc[cat].push(p);
@@ -331,7 +363,7 @@ function RosterContent() {
           <div className="flex gap-12 pr-6">
             <div className="text-center">
               <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-3">Record</p>
-              <p className="text-4xl font-black italic tracking-tighter">{data?.stats?.wins || 0}-{data?.stats?.losses || 0}</p>
+              <p className="text-4xl font-black italic tracking-tighter">{data?.stats?.won || 0}-{data?.stats?.lost || 0}</p>
             </div>
             <div className="text-center">
               <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-3">Diff</p>
@@ -365,7 +397,7 @@ function RosterContent() {
         </div>
         {activeTab === 'ROSTER' && (
           <div className="flex bg-white p-2 rounded-[1.5rem] shadow-sm border border-slate-200 gap-2">
-          {['default', 'name', 'pos'].map((s: any) => (
+          {(['default', 'name', 'pos'] as const).map((s) => (
             <button key={s} onClick={() => setSortBy(s)} className={`px-8 py-4 text-[10px] font-black uppercase rounded-xl transition-all ${sortBy === s ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>{s}</button>
           ))}
         </div>
@@ -428,7 +460,7 @@ function RosterContent() {
                   const targetIdx = arr.map(g => g.status).lastIndexOf("Final");
                   const teamName = (data?.stats?.team || "").toUpperCase();
                   const isHome = (game.home || "").toUpperCase() === teamName;
-                  const isWin = isHome ? (parseInt(game.hScore) > parseInt(game.vScore)) : (parseInt(game.vScore) > parseInt(game.hScore));
+                  const isWin = isHome ? (parseInt(game.hScore || '0') > parseInt(game.vScore || '0')) : (parseInt(game.vScore || '0') > parseInt(game.hScore || '0'));
                   return (
                     <div key={i} ref={i === targetIdx ? lastPlayedRef : null} className={`flex items-center justify-between p-6 transition-all ${i === targetIdx ? 'bg-amber-50/50' : 'hover:bg-slate-50'}`}>
                       <div><span className="text-[8px] font-black text-slate-400 uppercase">Week {game.week}</span><p className="text-xs font-black uppercase italic mt-1">{isHome ? 'VS' : 'AT'} {isHome ? game.visitor : game.home}</p></div>

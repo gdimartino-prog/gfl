@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { signIn, SignInResponse } from "next-auth/react";
 import { useState } from "react";
 import { User, Lock, HelpCircle, X, AlertCircle } from "lucide-react";
 
@@ -18,13 +18,11 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     const data = Object.fromEntries(formData);
 
     try {
-      // By using 'as any', we tell TypeScript to allow the .error check
-      // This is the standard quick-fix for the NextAuth result type error
-      const result = await signIn("credentials", {
+      const result = (await signIn("credentials", {
         username: data.username as string,
         password: data.password as string,
         redirect: false, // Set to false so we can handle the error ourselves
-      }) as any;
+      })) as SignInResponse;
 
       if (result?.error) {
         setError("Invalid team name or password.");
@@ -33,7 +31,7 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         // If no error, manually redirect to the home page
         window.location.href = "/";
       }
-    } catch (err) {
+    } catch {
       setError("A connection error occurred.");
       setLoading(false);
     }

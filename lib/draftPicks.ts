@@ -1,4 +1,5 @@
-import { sheets, SHEET_ID } from './googleSheets';
+import { getSheetsClient } from './google-cloud';
+import { unstable_cache } from 'next/cache';
 
 const SHEET = 'DraftPicks';
 
@@ -17,43 +18,48 @@ export type DraftPick = {
  * Get all draft picks with full details
  */
 export async function getAllDraftPicks(): Promise<DraftPick[]> {
-  try {
-    const res = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: `${SHEET}!A2:K`, // 🚀 Expanded to K to get Pick History
-    });
+  return unstable_cache(
+    async () => {
+      const sheets = getSheetsClient();
+      const SHEET_ID = process.env.GOOGLE_SHEET_ID;
 
-    const rows = res.data.values;
-    if (!Array.isArray(rows)) return [];
+      try {
+        const res = await sheets.spreadsheets.values.get({
+          spreadsheetId: SHEET_ID,
+          range: `${SHEET}!A2:K`, 
+        });
 
-    return rows.map(r => {
-      // 1. Clean the incoming data
-      const originalTeam = (r[3] || '').trim();
-      const currentOwner = (r[4] || '').trim();
-      const pickHistory = (r[10] || '').trim(); // Column K is index 10
+        const rows = res.data.values;
+        if (!Array.isArray(rows)) return [];
 
-      // 2. Logic: Only show "VIA" if it's not the original team
-      // Using toLowerCase() to ensure "NYG" matches "nyg"
-      const viaTeam = (originalTeam && currentOwner && originalTeam.toLowerCase() !== currentOwner.toLowerCase()) 
-        ? originalTeam 
-        : null;
+        return rows.map(r => {
+          const originalTeam = (r[3] || '').trim();
+          const currentOwner = (r[4] || '').trim();
+          const pickHistory = (r[10] || '').trim();
 
-      // 3. Construct the clean object
-      return {
-        year: Number(r[0]),
-        round: Number(r[1]),
-        overall: Number(r[2]),
-        originalTeam,
-        currentOwner,
-        via: viaTeam,
-        history: pickHistory,
-        status: r[5] || 'Active',
-      };
-    });
-  } catch (error) {
-    console.error('getAllDraftPicks failed:', error);
-    throw error;
-  }
+          const viaTeam = (originalTeam && currentOwner && originalTeam.toLowerCase() !== currentOwner.toLowerCase()) 
+            ? originalTeam 
+            : null;
+
+          return {
+            year: Number(r[0]),
+            round: Number(r[1]),
+            overall: Number(r[2]),
+            originalTeam,
+            currentOwner,
+            via: viaTeam,
+            history: pickHistory,
+            status: r[5] || 'Active',
+          };
+        });
+      } catch (error) {
+        console.error('getAllDraftPicks failed:', error);
+        return [];
+      }
+    },
+    ['draft-picks-data'],
+    { revalidate: 60, tags: ['draft-picks'] }
+  )();
 }
 
 
@@ -90,6 +96,9 @@ export async function transferDraftPick(
   overall?: number,
   coachName?: string // 🚀 This 6th argument MUST be here
 ) {
+  const sheets = getSheetsClient();
+  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
   try {
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
@@ -143,6 +152,9 @@ export async function updateDraftPick(
   status?: string,
   coachName?: string // 🚀 Add this 6th argument
 ) {
+  const sheets = getSheetsClient();
+  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
   try {
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,

@@ -1,14 +1,15 @@
 // lib/playerStats.ts
+import { Player } from '../types';
 
-const calcRatio = (num: any, den: any, isPercent: boolean = false): string => {
-  const n = parseFloat(num) || 0;
-  const d = parseFloat(den) || 0;
+const calcRatio = (num: string | number, den: string | number, isPercent: boolean = false): string => {
+  const n = parseFloat(String(num)) || 0;
+  const d = parseFloat(String(den)) || 0;
   if (d === 0) return "0.0";
   const ratio = n / d;
   return isPercent ? (ratio * 100).toFixed(1) : ratio.toFixed(1);
 };
 
-export const getPositionStats = (p: any) => {
+export const getPositionStats = (p: Player) => {
   // Support all possible position keys found in your logs
   const rawPos = p.offense || p.defense || p.special || p.pos || p.core?.pos?.off || p.core?.pos?.def || p.position || "";
   const pos = rawPos.toUpperCase();
@@ -18,7 +19,7 @@ export const getPositionStats = (p: any) => {
   const ratings = p.ratings || {};
   const lightStats = p.allStats || {}; 
 
-  const dur = ratings.durability || p.durability || p.dur || "0";
+  const dur = ratings.durability || p.dur || "0";
 
   if (pos === 'QB') {
     const qb = stats.passing || {};
@@ -47,7 +48,7 @@ export const getPositionStats = (p: any) => {
   if (['WR', 'TE'].includes(pos)) {
     const wr = stats.receiving || {};
     const yds = wr.yds || wr.yards || lightStats['receiving yards'] || 0;
-    const rec = wr.receptions || wr.rec || wr.rec || lightStats.receptions || 0;
+    const rec = wr.receptions || wr.rec || lightStats.receptions || 0;
     return [
       { label: "DUR", val: dur },
       { label: "REC", val: rec },
@@ -58,8 +59,8 @@ export const getPositionStats = (p: any) => {
   }
 
   if (['OL', 'C', 'G', 'T', 'C-G', 'G-T'].includes(pos)) {
-    const rbR = parseFloat(ratings.run_block || p.run) || 0;
-    const pbR = parseFloat(ratings.pass_block || p.pass) || 0;
+    const rbR = parseFloat(String(ratings.run_block || p.run || '0')) || 0;
+    const pbR = parseFloat(String(ratings.pass_block || p.pass || '0')) || 0;
     return [
       { label: "DUR", val: dur },
       { label: "AVG-B", val: ((rbR + pbR) / 2).toFixed(0) },

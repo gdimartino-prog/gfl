@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 
-export default function SummaryTable({ initialData }: { initialData: any[] }) {
+export default function SummaryTable({ initialData }: { initialData: Record<string, string | number>[] }) {
   const [data, setData] = useState(initialData);
   const [sortConfig, setSortConfig] = useState({ key: 'championships', direction: 'desc' });
 
@@ -12,8 +12,8 @@ export default function SummaryTable({ initialData }: { initialData: any[] }) {
     }
 
     const sortedData = [...data].sort((a, b) => {
-      let aVal = a[key];
-      let bVal = b[key];
+      const aVal = Number(a[key]);
+      const bVal = Number(b[key]);
 
       return direction === 'asc' ? aVal - bVal : bVal - aVal;
     });
@@ -45,9 +45,9 @@ export default function SummaryTable({ initialData }: { initialData: any[] }) {
         </thead>
         <tbody className="divide-y divide-slate-50">
           {data.map((team, idx) => {
-            const totalGames = team.wins + team.losses + team.ties;
-            const offPPG = totalGames > 0 ? (team.offPts / totalGames).toFixed(1) : "0.0";
-            const defPPG = totalGames > 0 ? (team.defPts / totalGames).toFixed(1) : "0.0";
+            const totalGames = Number(team.wins) + Number(team.losses) + Number(team.ties);
+            const offPPG = totalGames > 0 ? (Number(team.offPts) / totalGames).toFixed(1) : "0.0";
+            const defPPG = totalGames > 0 ? (Number(team.defPts) / totalGames).toFixed(1) : "0.0";
 
             return (
               <tr key={team.team} className="hover:bg-slate-50/50 transition-colors group">
@@ -63,7 +63,7 @@ export default function SummaryTable({ initialData }: { initialData: any[] }) {
                   <span className="font-mono font-bold text-slate-700">{team.wins}-{team.losses}-{team.ties}</span>
                 </td>
                 <td className="p-4 text-center">
-                  <span className="text-sm text-blue-600 font-black italic">{(team.winPct || 0).toFixed(3).replace(/^0/, '')}</span>
+                  <span className="text-sm text-blue-600 font-black italic">{Number(team.winPct || 0).toFixed(3).replace(/^0/, '')}</span>
                 </td>
                 <td className="p-4 text-center">
                   <div className="flex flex-col text-[11px] font-bold">
@@ -76,8 +76,8 @@ export default function SummaryTable({ initialData }: { initialData: any[] }) {
                 <td className="p-4 text-center font-bold text-slate-500">{team.superBowls}</td>
                 <td className="p-4 text-right">
                   <div className="flex justify-end gap-1 whitespace-nowrap">
-                    {team.championships > 0 ? (
-                      Array(team.championships).fill(0).map((_, i) => (
+                    {Number(team.championships) > 0 ? (
+                      Array(Number(team.championships)).fill(0).map((_, i) => (
                         <span key={i} className="text-2xl drop-shadow-sm">🏆</span>
                       ))
                     ) : (

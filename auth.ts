@@ -76,18 +76,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       // If this is the first time the user logs in, attach properties to the token
       if (user) {
-        token.id = (user as any).id; // Crucial: Store the shortcode (e.g. LBI) in the token
-        token.role = (user as any).role;
-        token.team = (user as any).team;
+        token.id = user.id; // Crucial: Store the shortcode (e.g. LBI) in the token
+        token.role = user.role;
+        token.team = user.team;
       }
       return token;
     },
     async session({ session, token }) {
       // Pass properties from the token to the session object accessible by useSession()
       if (session.user) {
-        (session.user as any).id = token.id as string; // This fixes "HOME_FRANCHISE: NONE"
-        (session.user as any).role = token.role as string;
-        (session.user as any).team = token.team as string;
+        session.user.id = token.id as string; // This fixes "HOME_FRANCHISE: NONE"
+        session.user.role = token.role as string;
+        session.user.team = token.team as string;
       }
       return session;
     },

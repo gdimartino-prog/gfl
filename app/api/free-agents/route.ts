@@ -1,43 +1,24 @@
 import { NextResponse } from 'next/server';
-import { sheets, SHEET_ID } from '@/lib/googleSheets';
-import { parsePlayers } from '@/lib/players';
+import { getPlayers } from '@/lib/players';
 import { executeFreeAgentMove } from '@/lib/freeAgency';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    console.log("DEBUG: Initializing Free Agent Fetch from SHEET_ID:", SHEET_ID);
-    
-    // Fetch the wide range to capture all Action PC columns (A to CV)
-    const result = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'Players!A:CV', 
-    });
-
-    const rows = result.data.values || [];
-    
-    if (rows.length === 0) {
-      console.warn("DEBUG: No data returned from Google Sheets 'Players' tab.");
-      return NextResponse.json([]);
-    }
-
-    // 1. Parse using our dynamic header-based parser in lib/players.ts
-    const allPlayers = parsePlayers(rows);
+    // 1. Fetch parsed players from the centralized utility (handles caching internally)
+    const allPlayers = await getPlayers();
 
     // 2. Filter for Free Agents (Case-insensitive 'FA')
-    // Added safety check (p && p.team) to prevent crashes on empty rows
     const freeAgents = allPlayers.filter(
-      (p) => p && p.team && p.team.trim().toUpperCase() === 'FA'
+      (p) => p.team?.trim().toUpperCase() === 'FA'
     );
 
-    console.log(`✅ Success: Found ${allPlayers.length} total players, ${freeAgents.length} are Free Agents.`);
-
     return NextResponse.json(freeAgents);
-  } catch (error: any) {
-    console.error('❌ Free Agent API Error:', error.message);
+  } catch (error: unknown) {
+    console.error('API Error (Free Agents):', error instanceof Error ? error.message : String(error));
     return NextResponse.json(
-      { error: 'Failed to fetch free agents', details: error.message },
+      { error: 'Failed to fetch free agents', details: error instanceof Error ? error.message : 'Internal Server Error' },
       { status: 500 }
     );
   }
@@ -60,10 +41,10 @@ export async function POST(req: Request) {
     await executeFreeAgentMove(team, addIdentity, dropIdentity);
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    console.error('❌ Free agency POST error:', err.message);
+  } catch (err: unknown) {
+    console.error('❌ Free agency POST error:', err instanceof Error ? err.message : String(err));
     return NextResponse.json(
-      { error: err.message },
+      { error: err instanceof Error ? err.message : 'Internal Server Error' },
       { status: 500 }
     );
   }

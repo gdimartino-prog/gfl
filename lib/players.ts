@@ -1,4 +1,5 @@
-import { sheets, SHEET_ID } from './googleSheets';
+import { getSheetsClient } from './google-cloud';
+import { unstable_cache } from 'next/cache';
 
 export type Player = {
   team: string;
@@ -19,15 +20,15 @@ export type Player = {
   sack: string;
   dur: string;
   overall: string;
-  allStats: Record<string, string>;
+  scouting: Record<string, string>;
 };
 
 /**
  * Builds a stable identity string for a player.
  * Strictly treats empty values or '0' as blank to match the 'null' cells in your sheet.
  */
-export function buildPlayerIdentity(player: any): string {
-  const clean = (val: any) => {
+export function buildPlayerIdentity(player: Partial<Player>): string {
+  const clean = (val: string | number | null | undefined) => {
     if (val === null || val === undefined) return '';
     // Preserve internal spaces to keep "austin iii" as one segment
     const s = String(val).trim().toLowerCase().replace(/\s+/g, ' ');
@@ -46,6 +47,34 @@ export function buildPlayerIdentity(player: any): string {
   return fields.join('|');
 }
 
+/**
+ * Fetches all players from the Google Sheet with caching.
+ */
+export async function getPlayers(): Promise<Player[]> {
+  // 1. Cache the RAW ROWS from Google Sheets (much smaller than objects)
+  const getRawRows = unstable_cache(
+    async () => {
+      const sheets = getSheetsClient();
+      const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+      try {
+        const result = await sheets.spreadsheets.values.get({
+          spreadsheetId: SHEET_ID,
+          range: 'Players!A:CV', 
+        });
+        return result.data.values || [];
+      } catch (err) {
+        console.error('getRawRows Error:', err);
+        return [];
+      }
+    },
+    ['players-raw-data'],
+    { revalidate: 60, tags: ['players'] }
+  );
+
+  const rows = await getRawRows();
+  // 2. Parse the rows into objects AFTER retrieving from cache
+  return parsePlayers(rows);
+}
 
 /**
  * Parse players from the Google Sheet "Players" tab using header mapping.
@@ -56,6 +85,18 @@ export function parsePlayers(rows: string[][]): Player[] {
   // 1. Map headers to lowercase keys for easy searching
   const headers = rows[0].map(h => h ? h.toLowerCase().trim() : '');
   const colIndex = (name: string) => headers.indexOf(name.toLowerCase().trim());
+
+  // Pre-calculate indices for scouting whitelist to fix the 2MB cache limit
+  const whitelist = [
+    'uniform', 'run block', 'pass block', 'run defense', 'pass defense', 
+    'pass rush', 'total defense', 'breakaway', 'short yardage', 'audible', 
+    'pressure', 'receiving', 'durability', 'salary', 'years', 'games', 
+    'rush attempts', 'rush yards', 'rush long', 'rush TD', 'receptions', 
+    'receiving yards', 'receiving TD', 'receiving long', 'pass attempts', 
+    'completions', 'pass yards', 'pass interceptions', 'pass TD', 
+    'interceptions', 'tackles', 'sacks', 'stuffs'
+  ];
+  const whitelistIndices = whitelist.map(h => ({ header: h, index: colIndex(h) }));
 
   const [, ...dataRows] = rows;
 
@@ -83,7 +124,7 @@ export function parsePlayers(rows: string[][]): Player[] {
       const identityData = {
         first,
         last,
-        age: val('age'),
+        age: Number(val('age')) || 0,
         offense: off,
         defense: def,
         special: spec,
@@ -102,16 +143,21 @@ export function parsePlayers(rows: string[][]): Player[] {
         isIR: team.toUpperCase().includes('-IR'),
         
         // Mapped ratings/stats
-        run: val('run block'),
-        pass: val('pass block'),
-        rush: val('rush yards'),
-        int: val('interceptions'),
-        sack: val('sacks'),
-        dur: val('durability'),
-        overall: val('overall'),
+        run: val('run block') || '0',
+        pass: val('pass block') || '0',
+        rush: val('rush yards') || '0',
+        int: val('interceptions') || '0',
+        sack: val('sacks') || '0',
+        dur: val('durability') || '0',
+        overall: val('overall') || '0',
         
-        // Dictionary for deep scouting
-        allStats: Object.fromEntries(headers.map((h, i) => [h, row[i] || ''])),
+        // Optimized scouting dictionary (Only keep what the PlayerCard needs)
+        scouting: Object.fromEntries(
+          whitelistIndices.map(({ header, index }) => [
+            header, 
+            (index !== -1 && row[index]) ? row[index].trim() : ''
+          ])
+        ),
         
         // Build the stabilized 6-field identity string
         identity: buildPlayerIdentity(identityData)
@@ -136,6 +182,9 @@ export function parsePlayers(rows: string[][]): Player[] {
  */
 export async function removeBlankPlayerRows() {
   try {
+    const sheets = getSheetsClient();
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
       range: 'Players!A:CV',

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { Player, Team } from '@/types';
 
 export default function FreeAgentPanel({ 
   team, 
@@ -11,9 +12,9 @@ export default function FreeAgentPanel({
   coach: string; 
   onComplete?: () => void 
 }) {
-  const [freeAgents, setFreeAgents] = useState<any[]>([]);
-  const [myRoster, setMyRoster] = useState<any[]>([]);
-  const [teamMetadata, setTeamMetadata] = useState<any[]>([]); 
+  const [freeAgents, setFreeAgents] = useState<Player[]>([]);
+  const [myRoster, setMyRoster] = useState<Player[]>([]);
+  const [teamMetadata, setTeamMetadata] = useState<Team[]>([]); // Added for name resolution
   const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
   const [isInjuryMode, setIsInjuryMode] = useState(false);
@@ -57,7 +58,7 @@ export default function FreeAgentPanel({
       if (activeCode) {
         // Filter roster based on the shortcode (e.g., 'VV')
         const filtered = Array.isArray(playersData) 
-          ? playersData.filter((p: any) => resolveCode(p.team) === activeCode) 
+          ? playersData.filter((p: Player) => resolveCode(p.team || '') === activeCode) 
           : [];
         setMyRoster(filtered);
       }
@@ -140,7 +141,7 @@ export default function FreeAgentPanel({
       } else {
         throw new Error("Transaction failed on server");
       }
-    } catch (err) { 
+    } catch { 
       alert('Error processing pickup'); 
     } finally { 
       setLoading(false); 
@@ -151,9 +152,10 @@ export default function FreeAgentPanel({
     <div className="space-y-4 border p-5 rounded-xl bg-white shadow-lg border-blue-100 text-left text-black">
       <div className="flex justify-between items-center border-b pb-3">
         <h3 className="font-black text-xl uppercase text-blue-700 italic">Free Agent Pickup</h3>
-        <label className="flex items-center gap-2 text-[10px] font-black text-amber-600 cursor-pointer uppercase">
+        <label className="flex items-center gap-3 text-xs font-black text-amber-600 cursor-pointer uppercase">
           <input 
             type="checkbox" 
+            className="w-5 h-5 cursor-pointer accent-amber-600"
             checked={isInjuryMode} 
             onChange={(e) => setIsInjuryMode(e.target.checked)} 
           />

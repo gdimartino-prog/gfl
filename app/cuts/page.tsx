@@ -6,16 +6,13 @@ import TeamSelector from '@/components/TeamSelector';
 import { useTeam } from '@/context/TeamContext'; 
 import { useSession } from "next-auth/react";
 import { 
-  ShieldAlert, 
   Clock, 
-  Save, 
   Search, 
   UserCheck, 
-  Zap, 
   Scissors, 
-  RotateCw, 
-  ChevronRight 
+  RotateCw
 } from 'lucide-react';
+import { Team, Player } from '@/types';
 
 interface GroupStats {
   avgAge: string | number;
@@ -81,10 +78,10 @@ function CountdownTimer({ dueDate }: { dueDate: string }) {
 
 export default function CutsPage() {
   const { data: session, status } = useSession();
-  const [teams, setTeams] = useState<any[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const { selectedTeam, setSelectedTeam } = useTeam();
   
-  const [roster, setRoster] = useState<any[]>([]);
+  const [roster, setRoster] = useState<Player[]>([]);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [orphanedPlayers, setOrphanedPlayers] = useState<OrphanedPlayer[]>([]);
   const [summary, setSummary] = useState<Record<string, TeamSummary>>({});
@@ -92,15 +89,14 @@ export default function CutsPage() {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [rosterLoading, setRosterLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [viewingPlayer, setViewingPlayer] = useState<any>(null);
+  const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
 
   const hasSynced = useRef(false);
   const rosterHeaderRef = useRef<HTMLDivElement>(null);
 
-  const isCommissioner = (session?.user as any)?.role === "admin";
-  const userTeamId = (session?.user as any)?.id; 
+  const isCommissioner = (session?.user as { role?: string })?.role === "admin";
+  const userTeamId = (session?.user as { id?: string })?.id; 
   const canEdit = isCommissioner || (selectedTeam === userTeamId);
 
   const isExpired = useMemo(() => {
@@ -121,13 +117,16 @@ export default function CutsPage() {
         setLoading(true);
         const rulesRes = await fetch(`/api/rules?ts=${Date.now()}`, { cache: 'no-store' });
         const rulesArr = await rulesRes.json();
-        const newCfg: any = { protected: 30, pullback: 8, cuts_year: '', draft_year: '', cuts_due_date: '' }; 
+        const newCfg: Config = { protected: 30, pullback: 8, cuts_year: '', draft_year: '', cuts_due_date: '' }; 
 
         if (Array.isArray(rulesArr)) {
-          rulesArr.forEach(r => {
-            if (r.setting === 'limit_protected' || r.setting === 'protected') newCfg.protected = parseInt(r.value);
-            else if (r.setting === 'limit_pullback' || r.setting === 'pullback') newCfg.pullback = parseInt(r.value);
-            else newCfg[r.setting] = r.value;
+          rulesArr.forEach((r: { setting: string; value: string }) => {
+            const s = r.setting;
+            if (s === 'limit_protected' || s === 'protected') newCfg.protected = parseInt(r.value);
+            else if (s === 'limit_pullback' || s === 'pullback') newCfg.pullback = parseInt(r.value);
+            else if (s === 'cuts_year' || s === 'draft_year' || s === 'cuts_due_date') {
+              newCfg[s] = r.value;
+            }
           });
         }
         setConfig(newCfg);
@@ -146,30 +145,29 @@ export default function CutsPage() {
   useEffect(() => {
     if (!selectedTeam || !config?.cuts_year) return;
     async function loadTeam() {
-      setRosterLoading(true);
       try {
         const [pRes, cRes] = await Promise.all([
           fetch(`/api/players?team=${selectedTeam}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
           fetch(`/api/cuts?team=${selectedTeam}&year=${config.cuts_year}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json())
         ]);
 
-        const processedRoster = pRes.map((p: any) => ({
+        const processedRoster = pRes.map((p: Player) => ({
           ...p,
           identity: [p.first, p.last, p.age, p.offense, p.defense, p.special].map(v => String(v || '').trim().toLowerCase()).join('|')
         }));
 
-        const currentRosterIdentities = new Set(processedRoster.map((p: any) => p.identity));
+        const currentRosterIdentities = new Set(processedRoster.map((p: Player) => p.identity));
         const orphaned = Object.entries(cRes.selections || {})
           .filter(([id, status]) => status !== 'cut' && !currentRosterIdentities.has(id))
-          .map(([id, status]) => {
+          .map(([id, status]): OrphanedPlayer => {
             const parts = id.split('|');
             return { id, status: String(status), name: `${parts[0]} ${parts[1]}`.toUpperCase() };
           });
 
         setOrphanedPlayers(orphaned);
-        setRoster(processedRoster.sort((a: any, b: any) => (a.last || '').localeCompare(b.last || '')));
+        setRoster(processedRoster.sort((a: Player, b: Player) => (a.last || '').localeCompare(b.last || '')));
         setSelections(cRes.selections || {});
-      } catch (e) { console.error(e); } finally { setRosterLoading(false); }
+      } catch (e) { console.error(e); }
     }
     loadTeam();
   }, [selectedTeam, config?.cuts_year]);
@@ -178,7 +176,8 @@ export default function CutsPage() {
     const getStats = (type: string): GroupStats => {
       const rosterList = roster.filter(p => (selections[p.identity] || 'cut') === type);
       const orphanedList = orphanedPlayers.filter(p => p.status === type);
-      const totalAge = rosterList.reduce((sum, p) => sum + (parseInt(p.age) || 0), 0);
+      //const totalAge = rosterList.reduce((sum, p) => sum + (parseInt(p.age) || 0), 0);
+      const totalAge = rosterList.reduce((sum, p) => sum + (p.age || 0), 0);
       const posMap: Record<string, number> = {};
       rosterList.forEach(p => { 
         const pos = p.offense || p.defense || p.special || 'UNK';
@@ -369,7 +368,7 @@ export default function CutsPage() {
   );
 }
 
-function StatCard({ title, stats, color, border, icon }: any) {
+function StatCard({ title, stats, color, border, icon }: { title: string, stats: GroupStats, color: string, border: string, icon: React.ReactNode }) {
   const count = stats?.count ?? 0;
   const avgAge = stats?.avgAge ?? '0';
   const posMap = stats?.posMap ?? {};
@@ -387,7 +386,7 @@ function StatCard({ title, stats, color, border, icon }: any) {
         </div>
       </div>
       <div className="pt-4 border-t border-slate-50 flex flex-wrap gap-2">
-        {Object.entries(posMap).map(([pos, val]: any) => (
+        {Object.entries(posMap).map(([pos, val]) => (
           <span key={pos} className="bg-slate-50 text-slate-500 px-3 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-tighter border border-slate-100">{pos} {val}</span>
         ))}
       </div>
@@ -395,7 +394,7 @@ function StatCard({ title, stats, color, border, icon }: any) {
   );
 }
 
-function StatusBtn({ label, active, color, onClick, isCutType }: any) {
+function StatusBtn({ label, active, color, onClick, isCutType }: { label: string, active: boolean, color: string, onClick: () => void, isCutType?: boolean }) {
   const base = "flex-1 sm:flex-none px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border-2 transition-all min-w-[125px] italic shadow-sm active:scale-95";
   if (active) return <button onClick={onClick} className={`${base} ${color} text-white border-transparent shadow-lg scale-105 z-10`}>{label}</button>;
   return <button onClick={onClick} className={`${base} bg-white ${isCutType ? 'text-red-500 border-red-50 hover:bg-red-50' : 'text-slate-300 border-slate-100 hover:bg-slate-50'}`}>{label}</button>;

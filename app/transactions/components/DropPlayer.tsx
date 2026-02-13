@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { Player, Team } from '@/types';
 
 export default function DropPlayer({ 
   team, 
@@ -11,8 +12,8 @@ export default function DropPlayer({
   coach: string; 
   onComplete?: () => void 
 }) {
-  const [roster, setRoster] = useState<any[]>([]);
-  const [teamMetadata, setTeamMetadata] = useState<any[]>([]); 
+  const [roster, setRoster] = useState<Player[]>([]);
+  const [teamMetadata, setTeamMetadata] = useState<Team[]>([]); 
   const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -35,7 +36,7 @@ export default function DropPlayer({
       const teamData = await teamRes.json();
       
       const players = Array.isArray(playerData) 
-        ? playerData.filter((p: any) => p.team === team) 
+        ? playerData.filter((p: Player) => p.team === team) 
         : [];
         
       setRoster(players);
@@ -99,7 +100,7 @@ useEffect(() => {
         if (onComplete) onComplete(); 
         alert(`${fullDescription} waived successfully.`);
       }
-    } catch (err) {
+    } catch {
       alert('Error waiving player.');
     } finally {
       setLoading(false);

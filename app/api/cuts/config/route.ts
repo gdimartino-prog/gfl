@@ -1,8 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { sheets, SHEET_ID } from '@/lib/googleSheets';
+import { NextResponse } from 'next/server';
+import { getSheetsClient } from '@/lib/google-cloud';
 
 export async function GET() {
   try {
+    const sheets = getSheetsClient();
+    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
     // Expanded range to G20 just to be safe for future config additions
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,

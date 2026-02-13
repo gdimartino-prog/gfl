@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, LogOut, ShieldCheck, Users } from 'lucide-react';
+import { Menu, X, LogOut, ShieldCheck } from 'lucide-react';
 import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar() {
@@ -106,7 +106,7 @@ export default function Navbar() {
                 <div className="text-right">
                   <p className="text-[7px] font-black uppercase text-slate-500 tracking-widest leading-none mb-1">Authenticated</p>
                   <p className="text-[10px] font-black text-white uppercase italic whitespace-nowrap">
-                    {(session.user as any)?.team || session.user?.name}
+                    {(session.user as { team?: string; name?: string }).team || session.user?.name}
                   </p>
                 </div>
                 <button 

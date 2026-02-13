@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { Player, Team } from '@/types';
 
 export default function IRPanel({ 
   team, 
@@ -11,8 +12,8 @@ export default function IRPanel({
   coach: string; 
   onComplete?: () => void 
 }) {
-  const [roster, setRoster] = useState<any[]>([]);
-  const [teamMetadata, setTeamMetadata] = useState<any[]>([]); 
+  const [roster, setRoster] = useState<Player[]>([]);
+  const [teamMetadata, setTeamMetadata] = useState<Team[]>([]); 
   const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -36,7 +37,7 @@ export default function IRPanel({
       
       // 3. Filter for active roster only (not already on IR)
       const players = Array.isArray(playerData) 
-        ? playerData.filter((p: any) => p.team === team) 
+        ? playerData.filter((p: Player) => p.team === team) 
         : [];
           
       setRoster(players);
@@ -89,7 +90,7 @@ export default function IRPanel({
         if (onComplete) onComplete();
         alert(`Successfully moved ${fullDescription} to IR`);
       }
-    } catch (err) {
+    } catch {
       alert('Error saving IR transaction');
     } finally {
       setLoading(false);

@@ -5,7 +5,7 @@ import { X, Search, UserPlus } from 'lucide-react';
 import { Player, DraftPick } from '../types';
 
 interface SelectionModalProps {
-  pick: DraftPick | any;
+  pick: DraftPick;
   coach: string;
   onClose: () => void;
   onComplete: () => Promise<void> | void;

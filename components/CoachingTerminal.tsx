@@ -3,12 +3,19 @@
 import { useState, useRef, useEffect } from 'react';
 import { UploadCloud, FileCheck, ShieldAlert, Download, Clock, Loader2, RefreshCw, File } from 'lucide-react';
 
+interface CoachFile {
+  pathname: string;
+  url: string;
+  downloadUrl: string;
+  uploadedAt: string;
+}
+
 export default function CoachingTerminal({ teamName }: { teamName: string }) {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [blob, setBlob] = useState<any>(null);
+  const [blob, setBlob] = useState<{ url: string } | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [allFiles, setAllFiles] = useState<any[]>([]);
+  const [allFiles, setAllFiles] = useState<CoachFile[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
 
   const fetchFiles = async () => {
@@ -18,12 +25,12 @@ export default function CoachingTerminal({ teamName }: { teamName: string }) {
       const data = await response.json();
       
       // Filter for .COA files (case-insensitive)
-      const coachFiles = data.filter((f: any) => f.pathname.toLowerCase().endsWith('.coa'));
+      const coachFiles = data.filter((f: CoachFile) => f.pathname.toLowerCase().endsWith('.coa'));
       
       // SORT ALPHABETICALLY A-Z
-      coachFiles.sort((a: any, b: any) => {
-        const nameA = a.pathname.split('/').pop().toLowerCase();
-        const nameB = b.pathname.split('/').pop().toLowerCase();
+      coachFiles.sort((a: CoachFile, b: CoachFile) => {
+        const nameA = (a.pathname.split('/').pop() || '').toLowerCase();
+        const nameB = (b.pathname.split('/').pop() || '').toLowerCase();
         return nameA.localeCompare(nameB);
       });
 
@@ -155,7 +162,7 @@ export default function CoachingTerminal({ teamName }: { teamName: string }) {
                 </div>
             ) : (
               allFiles.map((file) => {
-                const displayName = file.pathname.split('/').pop().replace(/\.(coa|COA)$/, '').replace(/_/g, ' ');
+                const displayName = (file.pathname.split('/').pop() || '').replace(/\.(coa|COA)$/, '').replace(/_/g, ' ');
                 return (
                   <div key={file.url} className="bg-slate-800/50 border border-slate-700/50 p-6 rounded-[2rem] flex items-center justify-between group hover:border-blue-500/50 transition-all">
                       <div>

@@ -1,4 +1,5 @@
-import { sheets, SHEET_ID } from './googleSheets';
+import { getSheetsClient } from './google-cloud';
+import { unstable_cache } from 'next/cache';
 
 export type Coach = {
   coach: string;
@@ -14,33 +15,47 @@ export type Coach = {
 
 // Reads config tab and returns all coaches
 export async function getCoaches(): Promise<Coach[]> {
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: 'Coaches!A:J',
-  });
+  return unstable_cache(
+    async () => {
+      const sheets = getSheetsClient();
+      const SHEET_ID = process.env.GOOGLE_SHEET_ID;
 
-  const rows = res.data.values || [];
+      try {
+        const res = await sheets.spreadsheets.values.get({
+          spreadsheetId: SHEET_ID,
+          range: 'Coaches!A:J',
+        });
 
-  // Assuming columns: team (0) | teamshort (1) | coach (2) | commissioner (3) | mobile (4) | status (5) | nickname (6) | password (7) | lastSync (8) | email (9)
-  const coaches: Coach[] = rows.slice(1).map(r => ({
-    team: r[0] || '',
-    teamshort: r[1] || '',
-    coach: r[2] || '',
-    nickname: r[6] || '',
-    isCommissioner: r[3] === 'TRUE' || r[3] === 'true',
-    mobile: r[4] || '',
-    status: (r[5] || '').toLowerCase().trim(),
-    lastSync: r[8] || '',
-    email: r[9] || '',
-  }));
+        const rows = res.data.values || [];
 
-  return coaches;
+        return rows.slice(1).map(r => ({
+          team: r[0] || '',
+          teamshort: r[1] || '',
+          coach: r[2] || '',
+          nickname: r[6] || '',
+          isCommissioner: r[3] === 'TRUE' || r[3] === 'true',
+          mobile: r[4] || '',
+          status: (r[5] || '').toLowerCase().trim(),
+          lastSync: r[8] || '',
+          email: r[9] || '',
+        }));
+      } catch (error) {
+        console.error("getCoaches Error:", error);
+        return [];
+      }
+    },
+    ['coaches-data'],
+    { revalidate: 60, tags: ['coaches'] }
+  )();
 }
 
 /**
  * Updates coach contact information in the Coaches tab
  */
 export async function updateCoachContact(teamCode: string, mobile: string, email: string) {
+  const sheets = getSheetsClient();
+  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
@@ -80,6 +95,9 @@ export async function updateCoachContact(teamCode: string, mobile: string, email
  * Updates the last_sync timestamp for a specific coach in the Coaches tab (Column I)
  */
 export async function updateCoachSync(teamCode: string) {
+  const sheets = getSheetsClient();
+  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
   try {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,

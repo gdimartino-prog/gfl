@@ -5,11 +5,12 @@ import { Search, Mail, Phone, ShieldCheck, ExternalLink, UserCircle } from 'luci
 import Link from 'next/link';
 import { formatPhone } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
+import { Team } from '@/types';
 
 export default function DirectoryPage() {
   // 🔒 Enforce authentication and redirect to login if not authenticated
   const { data: session, status } = useSession({ required: true });
-  const [teams, setTeams] = useState<any[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [seasonYear, setSeasonYear] = useState('2026');
@@ -22,7 +23,7 @@ export default function DirectoryPage() {
       .then(([teamsData, rulesData]) => {
         setTeams(teamsData);
         
-        const year = rulesData.find((r: any) => r.setting === 'cuts_year')?.value;
+        const year = rulesData.find((r: { setting: string; value: string }) => r.setting === 'cuts_year')?.value;
         if (year) setSeasonYear(year);
         
         setLoading(false);
@@ -94,7 +95,7 @@ export default function DirectoryPage() {
                   </td>
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-2">
-                      {team.short === (session?.user as any)?.id ? (
+                      {team.short === (session?.user as { id?: string })?.id ? (
                         <Link 
                           href="/settings" 
                           className="font-bold text-blue-600 hover:text-blue-800 uppercase text-sm flex items-center gap-1 group/name"

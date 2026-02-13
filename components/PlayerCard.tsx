@@ -9,7 +9,7 @@ interface PlayerCardProps {
 }
 
 const PlayerCard: React.FC<PlayerCardProps> = ({ data, onClose }) => {
-  const [showDebug, setShowDebug] = useState(false);
+  const [showDebug] = useState(false);
   if (!data) return null;
 
   // 1. POSITION & ROLE DETECTION
@@ -25,7 +25,7 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ data, onClose }) => {
   // 2. THE STAT MAPPING ENGINE
   const getStatValue = (label: string): string => {
     const key = label.toLowerCase().trim();
-    let val: any = null;
+    let val: string | number | null | undefined = null;
 
     // --- RATINGS & SHARED ---
     if (key === 'salary') val = data.contract?.salary;

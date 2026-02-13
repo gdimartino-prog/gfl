@@ -10,8 +10,25 @@ export default async function SummaryReportPage() {
   // Sort data by year ascending to ensure the most recent GM name is captured last during aggregation
   const sortedData = [...allData].sort((a, b) => Number(a.year) - Number(b.year));
 
+  interface TeamSummary {
+    [key: string]: string | number;
+    team: string;
+    gm: string;
+    wins: number;
+    losses: number;
+    ties: number;
+    winPct: number;
+    seasons: number;
+    offPts: number;
+    defPts: number;
+    divWins: number;
+    postSeason: number;
+    superBowls: number;
+    championships: number;
+  }
+
   // Aggregate raw rows into Franchise summaries
-  const summaryMap: Record<string, any> = {};
+  const summaryMap: Record<string, TeamSummary> = {};
 
   sortedData.forEach((row) => {
     // Group by Team name (Column A)
@@ -50,7 +67,9 @@ export default async function SummaryReportPage() {
     if (row.isChampion) t.championships += 1;
 
     // Ensure we have the most recent GM name
-    t.gm = row.gm !== 'N/A' ? row.gm : t.gm;
+    if (row.gm && row.gm !== 'N/A') {
+      t.gm = row.gm;
+    }
   });
 
   const summaryData = Object.values(summaryMap).map(t => {

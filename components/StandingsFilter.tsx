@@ -2,26 +2,32 @@
 
 import { useState } from 'react';
 
-export default function StandingsFilter({ data, currentYear, renderTable }: any) {
+interface StandingsFilterProps {
+  data: { team: string; year: string | number }[];
+  currentYear: string;
+  renderTable: (data: { team: string; year: string | number }[], isCurrent: boolean) => React.ReactNode;
+}
+
+export default function StandingsFilter({ data, currentYear, renderTable }: StandingsFilterProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTeam, setSelectedTeam] = useState('All Teams');
 
   // FIX: Explicitly type 'teams' as string[] to resolve the 'unknown' key error
   const teams: string[] = [
     'All Teams', 
-    ...Array.from(new Set(data.map((row: any) => row.team)))
+    ...Array.from(new Set(data.map((row: { team: string }) => row.team)))
   ].sort() as string[];
 
   // Filtering Logic
-  const filteredData = data.filter((row: any) => {
+  const filteredData = data.filter((row: { team: string; year: string | number }) => {
     const matchesSearch = row.team.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           row.year.toString().includes(searchTerm);
     const matchesTeam = selectedTeam === 'All Teams' || row.team === selectedTeam;
     return matchesSearch && matchesTeam;
   });
 
-  const currentSeason = filteredData.filter((row: any) => row.year === currentYear);
-  const historicalData = filteredData.filter((row: any) => row.year !== currentYear);
+  const currentSeason = filteredData.filter((row: { year: string | number }) => row.year.toString() === currentYear);
+  const historicalData = filteredData.filter((row: { year: string | number }) => row.year.toString() !== currentYear);
 
   return (
     <div className="space-y-8">

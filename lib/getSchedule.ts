@@ -1,19 +1,11 @@
-import { google } from 'googleapis';
+import { getSheetsClient } from './google-cloud';
 import { unstable_cache } from 'next/cache'; // Add this import
 
 export async function getSchedule() {
   // Wrap the entire fetch logic in a cache function
   return unstable_cache(
     async () => {
-      const auth = new google.auth.GoogleAuth({
-        credentials: {
-          client_email: process.env.GOOGLE_CLIENT_EMAIL,
-          private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-        },
-        scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-      });
-
-      const sheets = google.sheets({ version: 'v4', auth });
+      const sheets = getSheetsClient();
       
       try {
         console.log("Fetching fresh schedule from Google...");
@@ -22,7 +14,7 @@ export async function getSchedule() {
           range: 'Schedule!A:G', 
         });
 
-        const [headers, ...rows] = response.data.values || [];
+        const [, ...rows] = response.data.values || [];
         return rows.map((row) => ({
           year: row[0],
           week: row[1],

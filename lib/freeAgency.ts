@@ -1,5 +1,6 @@
-import { sheets, SHEET_ID } from './googleSheets';
-import { parsePlayers, Player } from './players';
+import { getSheetsClient } from './google-cloud';
+import { parsePlayers } from './players';
+import { findPlayerRowIndex } from './playerLookup';
 
 /**
  * Execute a free agent pickup + waive transaction
@@ -10,6 +11,9 @@ export async function executeFreeAgentMove(
   dropIdentity: string
 ) {
   // 1. Load players
+  const sheets = getSheetsClient();
+  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: SHEET_ID,
     range: 'Players',
@@ -39,29 +43,9 @@ export async function executeFreeAgentMove(
   }
 
   // 3. Find row indexes in sheet
-  const [, ...dataRows] = rows;
-
-  const addRowIndex = dataRows.findIndex(
-    row =>
-      row[2] === addPlayer.first &&
-      row[3] === addPlayer.last &&
-      Number(row[5]) === addPlayer.age
-  );
-
-  const dropRowIndex = dataRows.findIndex(
-    row =>
-      row[2] === dropPlayer.first &&
-      row[3] === dropPlayer.last &&
-      Number(row[5]) === dropPlayer.age
-  );
-
-  if (addRowIndex === -1 || dropRowIndex === -1) {
-    throw new Error('Player row not found in sheet');
-  }
-
-  // Sheet row numbers (account for header row)
-  const addSheetRow = addRowIndex + 2;
-  const dropSheetRow = dropRowIndex + 2;
+  // Using the dynamic utility ensures we find the correct row even if columns move
+  const addSheetRow = findPlayerRowIndex(rows, { identity: addIdentity });
+  const dropSheetRow = findPlayerRowIndex(rows, { identity: dropIdentity });
 
   // 4. Execute updates
   await sheets.spreadsheets.values.batchUpdate({

@@ -1,22 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sheets, SHEET_ID } from '@/lib/googleSheets';
-import { parsePlayers } from '@/lib/players';
-import { unstable_cache } from 'next/cache';
+import { getPlayers } from '@/lib/players';
 
 export const dynamic = 'force-dynamic';
-
-// 🚀 SHARED CACHE: This matches the main /api/players cache key
-const getCachedPlayersFull = unstable_cache(
-  async () => {
-    const result = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'Players!A:CV', 
-    });
-    return result.data.values || [];
-  },
-  ['players-full'],
-  { revalidate: 60, tags: ['players'] } 
-);
 
 export async function GET(
   req: NextRequest, 
@@ -26,12 +11,11 @@ export async function GET(
     const { id } = await params;
     const targetId = decodeURIComponent(id).toLowerCase().trim();
 
-    // 1. Fetch from Cache (Uses the same data as other pages)
-    const rows = await getCachedPlayersFull();
+    // 1. Fetch from Cache (Uses the centralized utility)
+    const players = await getPlayers();
     
-    // 2. Parse and Find
-    const parsedPlayers = parsePlayers(rows);
-    const matchedPlayer = parsedPlayers.find(
+    // 2. Find the player in the cached array
+    const matchedPlayer = players.find(
       (p) => p.identity.toLowerCase().trim() === targetId
     );
 
@@ -40,7 +24,7 @@ export async function GET(
     }
 
     // 3. Extract Stats using your existing logic
-    const s = matchedPlayer.allStats;
+    const s = matchedPlayer.scouting;
     const getVal = (key: string, fallback: string = '0') => {
       const val = s[key.toLowerCase().trim()];
       return (val !== undefined && val !== '') ? val : fallback;
@@ -101,8 +85,8 @@ export async function GET(
       }
     });
 
-  } catch (error: any) {
-    console.error("Scouting API Error:", error.message);
+  } catch (error: unknown) {
+    console.error("Scouting API Error:", error instanceof Error ? error.message : String(error));
     return NextResponse.json({ error: 'Server Error' }, { status: 500 });
   }
 }

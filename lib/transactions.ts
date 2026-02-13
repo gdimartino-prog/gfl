@@ -1,4 +1,4 @@
-import { sheets, SHEET_ID } from './googleSheets';
+import { getSheetsClient } from './google-cloud';
 
 export type Transaction = {
   type: string;
@@ -23,11 +23,13 @@ function formatTimestamp(date: Date) {
 
 export async function logTransaction(tx: Transaction) {
   const timestamp = formatTimestamp(new Date());
+  const sheets = getSheetsClient();
+  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
 
   // --- 1. PREPARE MESSAGE (Includes Position Fix) ---
   // Priority types that use pre-formatted details from the frontend
   const useDetailsTypes = ['TRADE', 'INJURY PICKUP', 'WAIVE', 'DROP', 'IR MOVE', 'ADD'];
-  let finalMessage = (useDetailsTypes.includes(tx.type) && tx.details) 
+  const finalMessage = (useDetailsTypes.includes(tx.type) && tx.details) 
     ? tx.details 
     : tx.identity;
 

@@ -1,4 +1,5 @@
 import LoginForm from "@/components/LoginForm";
+import Image from "next/image";
 
 export default function LoginPage() {
   return (
@@ -8,10 +9,12 @@ export default function LoginPage() {
         {/* League Logo & Header Section */}
         <div className="text-center flex flex-col items-center">
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-6 inline-block">
-            <img 
+            <Image 
               src="/icon.png" 
               alt="GFL Logo" 
               className="h-24 w-auto object-contain"
+              width={96}
+              height={96}
             />
           </div>
           
