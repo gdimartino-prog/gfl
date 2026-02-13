@@ -175,6 +175,17 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
       .sort((a, b) => seedMap[a.team].seed - seedMap[b.team].seed);
   }, [allData, currentYear, seedMap, playoffTeams]);
 
+  // 🚀 BUBBLE WATCH: Extract teams just outside the qualifying spots (Seeds 9 & 10)
+  const bubbleTeams = useMemo(() => {
+    return allData
+      .filter(r => 
+        r.year?.toString() === currentYear?.toString() && 
+        seedMap[r.team]?.seed > playoffTeams && 
+        seedMap[r.team]?.seed <= playoffTeams + 2
+      )
+      .sort((a, b) => seedMap[a.team].seed - seedMap[b.team].seed);
+  }, [allData, currentYear, seedMap, playoffTeams]);
+
   return (
     <div className="space-y-10">
       {/* Search Bar */}
@@ -230,6 +241,36 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
               );
             })}
           </div>
+
+          {/* BUBBLE WATCH SECTION */}
+          {bubbleTeams.length > 0 && (
+            <div className="mt-10 pt-8 border-t border-slate-100">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                <h3 className="text-[10px] font-black text-amber-600 uppercase tracking-[0.2em]">
+                  On the Bubble
+                </h3>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                {bubbleTeams.map((team) => {
+                  const seedInfo = seedMap[team.team];
+                  return (
+                    <div key={team.team} className="flex flex-col items-center text-center p-4 rounded-2xl bg-amber-50/30 border border-amber-100/50 hover:border-amber-200 transition-all group">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-[10px] mb-3 shadow-sm bg-white text-amber-600 border border-amber-100">
+                        {seedInfo.seed}
+                      </div>
+                      <span className="text-[10px] font-black uppercase italic tracking-tighter text-slate-700 leading-tight group-hover:text-amber-600 transition-colors truncate w-full">
+                        {team.team.replace(/^[a-z*]-/i, '')}
+                      </span>
+                      <span className="text-[8px] font-bold text-slate-400 uppercase mt-1">
+                        {team.won}-{team.lost}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
