@@ -1,7 +1,7 @@
 'use client';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Search, Zap } from 'lucide-react';
 import { StandingRow } from '../types';
 
 interface ScheduleGame {
@@ -168,6 +168,13 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
     return map;
   }, [allData, allGames, currentYear]);
 
+  // 🚀 PLAYOFF PICTURE: Extract teams currently in a qualifying spot
+  const playoffPicture = useMemo(() => {
+    return allData
+      .filter(r => r.year?.toString() === currentYear?.toString() && seedMap[r.team]?.seed <= playoffTeams)
+      .sort((a, b) => seedMap[a.team].seed - seedMap[b.team].seed);
+  }, [allData, currentYear, seedMap, playoffTeams]);
+
   return (
     <div className="space-y-10">
       {/* Search Bar */}
@@ -181,6 +188,50 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
+
+      {/* PLAYOFF PICTURE SUMMARY */}
+      {playoffPicture.length > 0 && (
+        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-blue-100 overflow-hidden relative animate-in fade-in slide-in-from-top-4 duration-700">
+          <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-black px-6 py-2 uppercase tracking-[0.2em] rounded-bl-3xl shadow-sm">
+            Live Projections
+          </div>
+          
+          <div className="flex items-center gap-3 mb-8">
+            <div className="bg-blue-50 p-3 rounded-2xl text-blue-600">
+              <Zap size={24} className="fill-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">
+                Playoff <span className="text-blue-600">Picture</span>
+              </h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                Top {playoffTeams} teams qualify for the post-season
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+            {playoffPicture.map((team) => {
+              const seedInfo = seedMap[team.team];
+              const isDivLeader = seedInfo.seed <= divisions.length;
+              
+              return (
+                <div key={team.team} className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-xs mb-3 shadow-sm ${isDivLeader ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-100'}`}>
+                    {seedInfo.seed}
+                  </div>
+                  <span className="text-[11px] font-black uppercase italic tracking-tighter text-slate-900 leading-tight group-hover:text-blue-600 transition-colors truncate w-full">
+                    {team.team.replace(/^[a-z*]-/i, '')}
+                  </span>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase mt-1">
+                    {team.won}-{team.lost}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* CURRENT SEASON SECTION */}
       <div className="space-y-12">
