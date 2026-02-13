@@ -31,13 +31,13 @@ export default async function SummaryReportPage() {
   const summaryMap: Record<string, TeamSummary> = {};
 
   sortedData.forEach((row) => {
-    // Group by Team name (Column A)
-    const teamKey = row.team;
+    // 🚀 NORMALIZE: Strip clinching prefixes (x-, y-, *-) for aggregation
+    const teamKey = row.team.replace(/^[a-z*]-/i, '');
 
     if (!summaryMap[teamKey]) {
       summaryMap[teamKey] = {
         team: teamKey,
-        gm: row.gm || 'N/A',
+        gm: (row.gm && row.gm !== 'N/A' && row.gm.toLowerCase() !== 'manager') ? row.gm : 'N/A',
         wins: 0,
         losses: 0,
         ties: 0,
@@ -67,7 +67,7 @@ export default async function SummaryReportPage() {
     if (row.isChampion) t.championships += 1;
 
     // Ensure we have the most recent GM name
-    if (row.gm && row.gm !== 'N/A') {
+    if (row.gm && row.gm !== 'N/A' && row.gm.toLowerCase() !== 'manager') {
       t.gm = row.gm;
     }
   });

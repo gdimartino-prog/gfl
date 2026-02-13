@@ -171,7 +171,7 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2">
                       <Link 
-                        href={`/rosters?team=${row.teamshort || row.team}`}
+                      href={`/rosters?team=${row.teamshort || row.team.replace(/^[a-z*]-/i, '')}`}
                         className="font-black text-slate-900 uppercase italic tracking-tighter text-lg leading-tight hover:text-blue-600 transition-colors"
                       >
                         {row.team}

@@ -32,8 +32,23 @@ export default async function StandingsPage() {
   // 1. Sort data so newest years are first
   const sortedData = [...allData].sort((a, b) => Number(b.year || 0) - Number(a.year || 0));
 
+  // 🚀 GM RECOVERY: Build a map of the most recent GM for each team to handle 
+  // cases where clinching prefixes (x-, y-) cause missing data in the sheet.
+  const gmMap: Record<string, string> = {};
+  sortedData.forEach(r => {
+    const cleanName = r.team.replace(/^[a-z*]-/i, '');
+    if (r.gm && r.gm !== 'N/A' && r.gm.toLowerCase() !== 'manager' && !gmMap[cleanName]) {
+      gmMap[cleanName] = r.gm;
+    }
+  });
+
+  const enrichedData = sortedData.map(r => ({
+    ...r,
+    gm: (!r.gm || r.gm === 'N/A' || r.gm.toLowerCase() === 'manager') ? (gmMap[r.team.replace(/^[a-z*]-/i, '')] || 'Unknown Manager') : r.gm
+  }));
+
   // 2. Dynamically find the most recent year in your spreadsheet
-  const latestYear = sortedData.length > 0 ? (sortedData[0].year?.toString() || "2025") : "2025";
+  const latestYear = enrichedData.length > 0 ? (enrichedData[0].year?.toString() || "2025") : "2025";
 
   return (
     <div className="max-w-7xl mx-auto p-8">
@@ -65,7 +80,7 @@ export default async function StandingsPage() {
       </header>
       
       {/* Pass the dynamic latestYear instead of hardcoded "2024" */}
-      <StandingsClient allData={sortedData} currentYear={latestYear} totalGames={totalGames} />
+      <StandingsClient allData={enrichedData} currentYear={latestYear} totalGames={totalGames} />
     </div>
   );
 }
