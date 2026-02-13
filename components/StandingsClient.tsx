@@ -107,6 +107,20 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
       // 5. Point Differential
       return Number(b.diff) - Number(a.diff);
     };
+
+    // Helper: Identify the specific metric that broke a tie between two teams
+    const getTiebreakerMetric = (a: StandingRow, b: StandingRow, isSameDiv: boolean) => {
+      if (Number(a.pct) !== Number(b.pct)) return null;
+      const h2h = getH2H(a.team, b.team);
+      if (h2h !== 0.5) return "Head-to-Head";
+      if (isSameDiv && a.division && b.division) {
+        const divA = getDivWinPct(a.team, a.division);
+        const divB = getDivWinPct(b.team, b.division);
+        if (divA !== divB) return "Division Record";
+      }
+      if (Number(a.offPts) !== Number(b.offPts)) return "Points For";
+      return "Point Differential";
+    };
     
     // 1. Get leaders of each division
     const divisionLeaders: StandingRow[] = [];
@@ -127,9 +141,29 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
       .sort((a, b) => compareTeams(a, b, false));
 
     // 4. Map Team Name -> Seed Number
-    const map: Record<string, number> = {};
-    divisionLeaders.forEach((team, idx) => { map[team.team] = idx + 1; });
-    wildcards.forEach((team, idx) => { map[team.team] = divisionLeaders.length + idx + 1; });
+    const map: Record<string, { seed: number, reason: string }> = {};
+    
+    divisionLeaders.forEach((team, idx) => { 
+      const seed = idx + 1;
+      let reason = `Seed #${seed}: Division Winner`;
+      if (idx > 0 && Number(team.pct) === Number(divisionLeaders[idx-1].pct)) {
+        reason += ` • Lost tiebreaker to ${divisionLeaders[idx-1].team} via ${getTiebreakerMetric(team, divisionLeaders[idx-1], false)}`;
+      } else if (idx < divisionLeaders.length - 1 && Number(team.pct) === Number(divisionLeaders[idx+1].pct)) {
+        reason += ` • Won tiebreaker over ${divisionLeaders[idx+1].team} via ${getTiebreakerMetric(team, divisionLeaders[idx+1], false)}`;
+      }
+      map[team.team] = { seed, reason }; 
+    });
+
+    wildcards.forEach((team, idx) => { 
+      const seed = divisionLeaders.length + idx + 1;
+      let reason = `Seed #${seed}: Wildcard`;
+      if (idx > 0 && Number(team.pct) === Number(wildcards[idx-1].pct)) {
+        reason += ` • Lost tiebreaker to ${wildcards[idx-1].team} via ${getTiebreakerMetric(team, wildcards[idx-1], false)}`;
+      } else if (idx < wildcards.length - 1 && Number(team.pct) === Number(wildcards[idx+1].pct)) {
+        reason += ` • Won tiebreaker over ${wildcards[idx+1].team} via ${getTiebreakerMetric(team, wildcards[idx+1], false)}`;
+      }
+      map[team.team] = { seed, reason }; 
+    });
 
     return map;
   }, [allData, allGames, currentYear]);
@@ -256,7 +290,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
   );
 }
 
-function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = false, totalGames, seedMap = {}, playoffTeams = 0 }: { data: StandingRow[], isCurrent: boolean, showGB?: boolean, showMagicNumber?: boolean, totalGames: number, seedMap?: Record<string, number>, playoffTeams?: number }) {
+function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = false, totalGames, seedMap = {}, playoffTeams = 0 }: { data: StandingRow[], isCurrent: boolean, showGB?: boolean, showMagicNumber?: boolean, totalGames: number, seedMap?: Record<string, { seed: number, reason: string }>, playoffTeams?: number }) {
   const leader = data[0];
   const secondPlace = data[1];
 
@@ -337,9 +371,14 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
                 <td className="p-4 pl-6 font-bold text-slate-400 text-sm">{row.year}</td>
                 {isCurrent && (
                   <td className="p-4 text-center">
-                    {seedMap[row.team] ? (
-                      <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-black ${seedMap[row.team] <= playoffTeams ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-400'}`}>
-                        {seedMap[row.team]}
+                    {seedMap[row.team]?.seed ? (
+                      <span 
+                        title={seedMap[row.team].reason}
+                        className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-black cursor-help transition-transform hover:scale-110 ${
+                          seedMap[row.team].seed <= playoffTeams ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-400'
+                        }`}
+                      >
+                        {seedMap[row.team].seed}
                       </span>
                     ) : '—'}
                   </td>
