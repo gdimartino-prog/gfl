@@ -7,7 +7,7 @@ export default function SummaryTable({ initialData }: { initialData: Record<stri
   const [sortConfig, setSortConfig] = useState({ key: 'championships', direction: 'desc' });
 
   const displayData = useMemo(() => {
-    let result = initialData.filter(team => {
+    const result = initialData.filter(team => {
       const s = searchTerm.toLowerCase();
       return (
         String(team.team || '').toLowerCase().includes(s) ||

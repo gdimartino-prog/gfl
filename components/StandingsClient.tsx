@@ -4,12 +4,21 @@ import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { StandingRow } from '../types';
 
-export default function StandingsClient({ allData, allGames, currentYear, totalGames, playoffTeams }: { allData: StandingRow[], allGames: any[], currentYear: string, totalGames: number, playoffTeams: number }) {
+interface ScheduleGame {
+  year?: string | number;
+  status?: string;
+  home?: string;
+  visitor?: string;
+  hScore?: string | number;
+  vScore?: string | number;
+}
+
+const divisions = ["East", "Central", "West"];
+
+export default function StandingsClient({ allData, allGames, currentYear, totalGames, playoffTeams }: { allData: StandingRow[], allGames: ScheduleGame[], currentYear: string, totalGames: number, playoffTeams: number }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [historySearch, setHistorySearch] = useState('');
   const [historyYear, setHistoryYear] = useState('All');
-
-  const divisions = ["East", "Central", "West"];
 
   // 1. Current Season Filter
   const currentSeasonRaw = allData.filter(r => 
@@ -123,7 +132,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
     wildcards.forEach((team, idx) => { map[team.team] = divisionLeaders.length + idx + 1; });
 
     return map;
-  }, [allData, currentYear]);
+  }, [allData, allGames, currentYear]);
 
   return (
     <div className="space-y-10">

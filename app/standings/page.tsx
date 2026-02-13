@@ -7,9 +7,18 @@ import { StandingRow } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
+interface ScheduleGame {
+  year?: string | number;
+  status?: string;
+  home?: string;
+  visitor?: string;
+  hScore?: string | number;
+  vScore?: string | number;
+}
+
 export default async function StandingsPage() {
   let allData: StandingRow[] = [];
-  let allGames: any[] = [];
+  let allGames: ScheduleGame[] = [];
   let totalGames = 14;
   let playoffTeams = 8;
 
