@@ -1,4 +1,5 @@
 import { getHistory } from '@/lib/getHistory';
+import { getSchedule } from '@/lib/getSchedule';
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
 import StandingsClient from '@/components/StandingsClient';
 import Link from 'next/link';
@@ -8,10 +9,12 @@ export const dynamic = 'force-dynamic';
 
 export default async function StandingsPage() {
   let allData: StandingRow[] = [];
+  let allGames: any[] = [];
   let totalGames = 14;
+  let playoffTeams = 8;
 
   try {
-    allData = await getHistory();
+    [allData, allGames] = await Promise.all([getHistory(), getSchedule()]);
     if (!Array.isArray(allData)) allData = [];
 
     // 🚀 DIRECT DATA ACCESS: Instead of fetching from our own API (which fails in SSR),
@@ -25,6 +28,9 @@ export default async function StandingsPage() {
     // Find the 'season_games' setting in Column A and get value from Column B
     const seasonGamesRule = rows.find(row => row[0] === 'season_games');
     if (seasonGamesRule?.[1]) totalGames = parseInt(seasonGamesRule[1]);
+
+    const playoffTeamsRule = rows.find(row => row[0] === 'playoff_teams');
+    if (playoffTeamsRule?.[1]) playoffTeams = parseInt(playoffTeamsRule[1]);
   } catch (err) {
     console.error("Standings Page Data Fetch Error:", err);
   }
@@ -80,7 +86,7 @@ export default async function StandingsPage() {
       </header>
       
       {/* Pass the dynamic latestYear instead of hardcoded "2024" */}
-      <StandingsClient allData={enrichedData} currentYear={latestYear} totalGames={totalGames} />
+      <StandingsClient allData={enrichedData} allGames={allGames} currentYear={latestYear} totalGames={totalGames} playoffTeams={playoffTeams} />
     </div>
   );
 }
