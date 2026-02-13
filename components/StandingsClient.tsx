@@ -71,7 +71,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
     const getDivWinPct = (team: string, division: string) => {
       const divTeams = new Set(fullCurrentSeason.filter(r => r.division === division).map(r => r.team));
       const divGames = currentGames.filter(g => 
-        (g.home === team && divTeams.has(g.visitor)) || (g.visitor === team && divTeams.has(g.home))
+        (g.home === team && divTeams.has(g.visitor || '')) || (g.visitor === team && divTeams.has(g.home || ''))
       );
       if (divGames.length === 0) return 0;
       let wins = 0;
