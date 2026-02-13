@@ -95,7 +95,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
       if (h2h !== 0.5) return h2h > 0.5 ? -1 : 1;
 
       // 3. Division Record (Only for ties within same division)
-      if (isSameDiv && a.division) {
+      if (isSameDiv && a.division && b.division) {
         const divA = getDivWinPct(a.team, a.division);
         const divB = getDivWinPct(b.team, b.division);
         if (divB !== divA) return divB - divA;
