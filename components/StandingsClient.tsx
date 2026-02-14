@@ -13,6 +13,11 @@ interface ScheduleGame {
   vScore?: string | number;
 }
 
+interface DraftOrderTeam extends StandingRow {
+  draftReason: string;
+  sos: number;
+}
+
 const divisions = ["East", "Central", "West"];
 
 export default function StandingsClient({ allData, allGames, currentYear, totalGames, playoffTeams }: { allData: StandingRow[], allGames: ScheduleGame[], currentYear: string, totalGames: number, playoffTeams: number }) {
@@ -241,7 +246,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
 
     const combined = [...nonPlayoff, ...playoff];
 
-    return combined.map((team, idx) => {
+    return combined.map((team, idx): DraftOrderTeam => {
       const pickNum = idx + 1;
       const isPlayoffTeam = seedMap[team.team].seed <= playoffTeams;
       let reason = `Pick #${pickNum}: ${isPlayoffTeam ? 'Playoff Team' : 'Non-Playoff Team'}`;
@@ -481,7 +486,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
               return (
                 <div key={team.team} className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all group relative">
                   <div 
-                    title={(team as any).draftReason}
+                    title={team.draftReason}
                     className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[10px] mb-3 shadow-sm cursor-help transition-transform hover:scale-110 ${isPlayoffTeam ? 'bg-slate-200 text-slate-500' : 'bg-orange-500 text-white'}`}
                   >
                     #{idx + 1}
@@ -492,7 +497,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
                   <span className="text-[8px] font-bold text-slate-400 uppercase mt-1 flex flex-col">
                     <span>{team.won}-{team.lost}</span>
                     {!isPlayoffTeam && (
-                      <span className="text-orange-500 font-black mt-0.5">SOS: {((team as any).sos || 0).toFixed(3).replace(/^0/, '')}</span>
+                      <span className="text-orange-500 font-black mt-0.5">SOS: {(team.sos || 0).toFixed(3).replace(/^0/, '')}</span>
                     )}
                   </span>
                 </div>
