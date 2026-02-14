@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { Search } from 'lucide-react';
 
 interface Team { name: string; short: string; coach: string; }
 interface Player { first: string; last: string; team: string; position: string; identity: string; }
@@ -24,6 +25,9 @@ export default function TradePanel({
   const [toPlayers, setToPlayers] = useState<string[]>([]);
   const [fromDraftPicks, setFromDraftPicks] = useState<string[]>([]);
   const [toDraftPicks, setToDraftPicks] = useState<string[]>([]);
+
+  const [fromSearch, setFromSearch] = useState('');
+  const [toSearch, setToSearch] = useState('');
 
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
@@ -91,14 +95,20 @@ export default function TradePanel({
 
   // Memoized Asset Lists
   const fromTeamPlayers = useMemo(() => {
-    const list = players.filter(p => resolveCode(p.team) === activeCode);
+    const list = players.filter(p => 
+      resolveCode(p.team) === activeCode && 
+      (fromPlayers.includes(p.identity) || `${p.first} ${p.last}`.toLowerCase().includes(fromSearch.toLowerCase()))
+    );
     return sortPlayers(list);
-  }, [players, activeCode]);
+  }, [players, activeCode, fromSearch, fromPlayers]);
 
   const toTeamPlayers = useMemo(() => {
-    const list = players.filter(p => resolveCode(p.team) === partnerCode);
+    const list = players.filter(p => 
+      resolveCode(p.team) === partnerCode && 
+      (toPlayers.includes(p.identity) || `${p.first} ${p.last}`.toLowerCase().includes(toSearch.toLowerCase()))
+    );
     return sortPlayers(list);
-  }, [players, partnerCode]);
+  }, [players, partnerCode, toSearch, toPlayers]);
   
   const fromTeamDraftPicks = useMemo(() => {
     const list = draftPicks.filter(p => resolveCode(p.currentOwner) === activeCode);
@@ -209,10 +219,20 @@ export default function TradePanel({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="p-4 bg-blue-50/50 rounded-lg border border-blue-100">
           <p className="text-[11px] font-black text-blue-700 uppercase mb-3 text-center tracking-widest">Your Assets ({activeCode})</p>
-          <div className="space-y-3">
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-300" size={12} />
+              <input 
+                type="text" 
+                placeholder="Search your roster..." 
+                className="w-full p-2 pl-7 text-[10px] border rounded bg-white text-black outline-none focus:border-blue-400"
+                value={fromSearch}
+                onChange={e => setFromSearch(e.target.value)}
+              />
+            </div>
             <select 
               multiple 
-              className="border-2 border-white w-full h-32 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold" 
+              className="border-2 border-white w-full h-80 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold custom-scrollbar" 
               value={fromPlayers} 
               onChange={e => setFromPlayers(Array.from(e.target.selectedOptions, o => o.value))}
             >
@@ -222,7 +242,7 @@ export default function TradePanel({
             </select>
             <select 
               multiple 
-              className="border-2 border-white w-full h-24 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold" 
+              className="border-2 border-white w-full h-48 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold custom-scrollbar" 
               value={fromDraftPicks} 
               onChange={e => setFromDraftPicks(Array.from(e.target.selectedOptions, o => o.value))}
             >
@@ -235,10 +255,20 @@ export default function TradePanel({
 
         <div className="p-4 bg-red-50/50 rounded-lg border border-red-100">
           <p className="text-[11px] font-black text-red-700 uppercase mb-3 text-center tracking-widest">Partner Assets ({partnerCode || '...' })</p>
-          <div className="space-y-3">
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-300" size={12} />
+              <input 
+                type="text" 
+                placeholder="Search partner roster..." 
+                className="w-full p-2 pl-7 text-[10px] border rounded bg-white text-black outline-none focus:border-red-400"
+                value={toSearch}
+                onChange={e => setToSearch(e.target.value)}
+              />
+            </div>
             <select 
               multiple 
-              className="border-2 border-white w-full h-32 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold" 
+              className="border-2 border-white w-full h-80 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold custom-scrollbar" 
               value={toPlayers} 
               onChange={e => setToPlayers(Array.from(e.target.selectedOptions, o => o.value))}
             >
@@ -248,7 +278,7 @@ export default function TradePanel({
             </select>
             <select 
               multiple 
-              className="border-2 border-white w-full h-24 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold" 
+              className="border-2 border-white w-full h-48 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold custom-scrollbar" 
               value={toDraftPicks} 
               onChange={e => setToDraftPicks(Array.from(e.target.selectedOptions, o => o.value))}
             >
