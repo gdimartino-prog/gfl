@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { Search } from 'lucide-react';
 import { Player, Team } from '@/types';
 
 export default function DropPlayer({ 
@@ -16,6 +17,7 @@ export default function DropPlayer({
   const [teamMetadata, setTeamMetadata] = useState<Team[]>([]); 
   const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
+  const [rosterSearch, setRosterSearch] = useState('');
 
   // Consolidated Data Fetching
   const fetchData = useCallback(async () => {
@@ -117,19 +119,34 @@ useEffect(() => {
       </div>
       
       <div className="space-y-1">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Select Player to Release</label>
-        <select
-          value={selectedIdentity}
-          onChange={e => setSelectedIdentity(e.target.value)}
-          className="border-2 border-gray-100 p-3 w-full rounded-lg text-sm outline-none focus:border-red-400 transition-colors text-black font-medium"
-        >
-          <option value="">-- Choose Player --</option>
-          {sortedRoster.map((p, i) => (
-            <option key={i} value={p.identity}>
-              {p.last || p.name}, {p.first || ''} ({p.position || p.pos})
-            </option>
-          ))}
-        </select>
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Select Player to Release</label>
+        <div className="space-y-2">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-red-400" size={14} />
+            <input 
+              type="text" 
+              placeholder="Search your roster..." 
+              className="w-full p-2 pl-8 text-xs border rounded bg-white text-black outline-none focus:border-red-400"
+              value={rosterSearch}
+              onChange={e => setRosterSearch(e.target.value)}
+            />
+          </div>
+          <select
+            size={6}
+            value={selectedIdentity}
+            onChange={e => setSelectedIdentity(e.target.value)}
+            className="border-2 border-gray-100 p-2 w-full h-48 rounded-lg text-sm outline-none focus:border-red-400 transition-colors text-black font-medium bg-white custom-scrollbar"
+          >
+            <option value="">-- Choose Player --</option>
+            {sortedRoster
+              .filter(p => p.identity === selectedIdentity || `${p.first} ${p.last} ${p.name}`.toLowerCase().includes(rosterSearch.toLowerCase()))
+              .map((p, i) => (
+              <option key={i} value={p.identity}>
+                {p.last || p.name}, {p.first || ''} ({p.position || p.pos})
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <button

@@ -76,6 +76,17 @@ export default function TradePanel({
   const activeCode = useMemo(() => resolveCode(team), [team]);
   const partnerCode = useMemo(() => resolveCode(toTeam), [toTeam]);
 
+  const activeFullName = useMemo(() => {
+    const entry = teams.find(t => resolveCode(t.short) === activeCode);
+    return entry ? entry.name : team;
+  }, [teams, activeCode, team]);
+
+  const partnerFullName = useMemo(() => {
+    if (!toTeam) return '...';
+    const entry = teams.find(t => resolveCode(t.short) === partnerCode);
+    return entry ? entry.name : toTeam;
+  }, [teams, partnerCode, toTeam]);
+
   // Asset Sorting Logic
   const sortPlayers = (playerList: Player[]) => {
     return [...playerList].sort((a, b) => {
@@ -129,13 +140,8 @@ export default function TradePanel({
     setLoading(true);
     setStatus('⏳ Processing trade assets...');
 
-    const getFullName = (code: string) => {
-      const entry = teams.find(t => resolveCode(t.short) === code);
-      return entry ? entry.name : code;
-    };
-
-    const fullFrom = getFullName(activeCode);
-    const fullTo = getFullName(partnerCode);
+    const fullFrom = activeFullName;
+    const fullTo = partnerFullName;
 
     try {
       const formattedPlayersFrom = players
@@ -198,7 +204,7 @@ export default function TradePanel({
       <div className="flex justify-between items-center border-b pb-3">
         <h3 className="font-black text-xl uppercase text-purple-700 tracking-tighter italic">Trade Center</h3>
         <span className="text-[10px] bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full font-bold uppercase italic tracking-tighter">
-          {activeCode} Proposing
+          {activeFullName} Proposing
         </span>
       </div>
 
@@ -218,7 +224,8 @@ export default function TradePanel({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="p-4 bg-blue-50/50 rounded-lg border border-blue-100">
-          <p className="text-[11px] font-black text-blue-700 uppercase mb-3 text-center tracking-widest">Your Assets ({activeCode})</p>
+          <p className="text-[11px] font-black text-blue-700 uppercase mb-3 text-center tracking-widest">Your Assets ({activeFullName})</p>
+          <p className="text-[9px] text-blue-400 text-center mb-2 italic">Hold Ctrl (Win) or Cmd (Mac) to select multiple assets</p>
           <div className="space-y-2">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-300" size={12} />
@@ -254,7 +261,8 @@ export default function TradePanel({
         </div>
 
         <div className="p-4 bg-red-50/50 rounded-lg border border-red-100">
-          <p className="text-[11px] font-black text-red-700 uppercase mb-3 text-center tracking-widest">Partner Assets ({partnerCode || '...' })</p>
+          <p className="text-[11px] font-black text-red-700 uppercase mb-3 text-center tracking-widest">Partner Assets ({partnerFullName})</p>
+          <p className="text-[9px] text-red-400 text-center mb-2 italic">Hold Ctrl (Win) or Cmd (Mac) to select multiple assets</p>
           <div className="space-y-2">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-300" size={12} />

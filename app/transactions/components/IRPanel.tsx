@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { Search } from 'lucide-react';
 import { Player, Team } from '@/types';
 
 export default function IRPanel({ 
@@ -16,6 +17,7 @@ export default function IRPanel({
   const [teamMetadata, setTeamMetadata] = useState<Team[]>([]); 
   const [selectedIdentity, setSelectedIdentity] = useState('');
   const [loading, setLoading] = useState(false);
+  const [rosterSearch, setRosterSearch] = useState('');
 
   const loadData = useCallback(async () => {
     if (!team) return;
@@ -112,18 +114,33 @@ export default function IRPanel({
         <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded font-bold uppercase tracking-widest italic">Injured Reserve Move</span>
       </div>
 
-      <select
-        value={selectedIdentity}
-        onChange={e => setSelectedIdentity(e.target.value)}
-        className="border-2 border-amber-50 p-3 w-full rounded-lg text-sm outline-none focus:border-amber-400 transition-colors text-black font-medium bg-gray-50"
-      >
-        <option value="">-- Select Player for IR --</option>
-        {sortedRoster.map((p, i) => (
-          <option key={i} value={p.identity}>
-            {p.last || p.name}, {p.first || ''} ({(p.position || p.pos || "??").toUpperCase()})
-          </option>
-        ))}
-      </select>
+      <div className="space-y-2">
+        <div className="relative">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-amber-400" size={14} />
+          <input 
+            type="text" 
+            placeholder="Search your roster..." 
+            className="w-full p-2 pl-8 text-xs border rounded bg-white text-black outline-none focus:border-amber-400"
+            value={rosterSearch}
+            onChange={e => setRosterSearch(e.target.value)}
+          />
+        </div>
+        <select
+          size={6}
+          value={selectedIdentity}
+          onChange={e => setSelectedIdentity(e.target.value)}
+          className="border-2 border-amber-50 p-2 w-full h-48 rounded-lg text-sm outline-none focus:border-amber-400 transition-colors text-black font-medium bg-white custom-scrollbar"
+        >
+          <option value="">-- Select Player for IR --</option>
+          {sortedRoster
+            .filter(p => p.identity === selectedIdentity || `${p.first} ${p.last} ${p.name}`.toLowerCase().includes(rosterSearch.toLowerCase()))
+            .map((p, i) => (
+            <option key={i} value={p.identity}>
+              {p.last || p.name}, {p.first || ''} ({(p.position || p.pos || "??").toUpperCase()})
+            </option>
+          ))}
+        </select>
+      </div>
 
       <button
         onClick={handleIR}

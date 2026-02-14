@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { Search } from 'lucide-react';
 import { Player, Team } from '@/types';
 
 export default function FreeAgentPanel({ 
@@ -21,6 +22,7 @@ export default function FreeAgentPanel({
   const [injuredIdentity, setInjuredIdentity] = useState('');
   const [weekOccurred, setWeekOccurred] = useState('');
   const [duration, setDuration] = useState('');
+  const [rosterSearch, setRosterSearch] = useState('');
 
   // Helper to extract VV from "Vico (VV)" if needed
   const resolveCode = (teamString: string) => {
@@ -181,22 +183,38 @@ export default function FreeAgentPanel({
 
       {isInjuryMode && (
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-3 animate-in fade-in zoom-in duration-200">
-          <select 
-            value={injuredIdentity} 
-            onChange={e => setInjuredIdentity(e.target.value)} 
-            className="w-full p-2 border rounded text-black font-medium"
-          >
-            <option value="">-- Select Injured Player --</option>
-            {[...myRoster].sort((a, b) => (a.last || "").localeCompare(b.last || "")).map((p, i) => (
-              <option key={i} value={p.identity}>
-                {p.last}, {p.first} ({(p.position || p.pos || "??").toUpperCase()})
-              </option>
-            ))}
-          </select>
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-amber-400" size={14} />
+              <input 
+                type="text" 
+                placeholder="Search your roster..." 
+                className="w-full p-2 pl-8 text-xs border rounded bg-white text-black outline-none focus:border-amber-400"
+                value={rosterSearch}
+                onChange={e => setRosterSearch(e.target.value)}
+              />
+            </div>
+            <select 
+              size={6}
+              value={injuredIdentity} 
+              onChange={e => setInjuredIdentity(e.target.value)} 
+              className="w-full h-48 p-2 border rounded text-black font-medium bg-white outline-none focus:border-amber-400 custom-scrollbar"
+            >
+              <option value="">-- Select Injured Player --</option>
+              {[...myRoster]
+                .sort((a, b) => (a.last || "").localeCompare(b.last || ""))
+                .filter(p => p.identity === injuredIdentity || `${p.first} ${p.last}`.toLowerCase().includes(rosterSearch.toLowerCase()))
+                .map((p, i) => (
+                <option key={i} value={p.identity}>
+                  {p.last}, {p.first} ({(p.position || p.pos || "??").toUpperCase()})
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="flex gap-2">
             <input 
               type="number" 
-              placeholder="Wk" 
+              placeholder="Week Injury Occurred" 
               value={weekOccurred} 
               onChange={e => setWeekOccurred(e.target.value)} 
               className="w-1/2 p-2 border rounded text-black outline-none focus:border-amber-400" 
