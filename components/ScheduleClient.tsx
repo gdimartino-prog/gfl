@@ -10,7 +10,7 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
 
   // 1. Extract years and sort descending (Newest first)
   const availableYears = useMemo(() => 
-    Array.from(new Set(initialGames.map(g => g.year.toString())))
+    Array.from(new Set(initialGames.map(g => String(g.year || ""))))
       .sort((a, b) => Number(b) - Number(a)),
     [initialGames]
   );
@@ -18,11 +18,11 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
   const [selectedYear, setSelectedYear] = useState(availableYears[0]);
 
   // 2. Filter games for the selected year
-  const gamesInYear = initialGames.filter(g => g.year.toString() === selectedYear);
+  const gamesInYear = initialGames.filter(g => String(g.year || "") === selectedYear);
 
   // 3. Extract and Sort Weeks (Natural sort: 1, 2 ... 14, 15-WC, 16-SEMIS)
   const weeksInYear = useMemo(() => 
-    Array.from(new Set(gamesInYear.map(g => g.week.toString())))
+    Array.from(new Set(gamesInYear.map(g => String(g.week || ""))))
       .sort((a, b) => {
         const numA = parseInt(a);
         const numB = parseInt(b);
@@ -34,7 +34,7 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
   // 4. LOGIC: Find the FIRST week in the sequence that is incomplete
   const firstIncompleteWeek = useMemo(() => {
     return weeksInYear.find(weekNum => {
-      const gamesInWeek = gamesInYear.filter(g => g.week.toString() === weekNum);
+      const gamesInWeek = gamesInYear.filter(g => String(g.week || "") === weekNum);
       return gamesInWeek.some(g => {
         const vStr = (g.vScore || "").toString().trim();
         const hStr = (g.hScore || "").toString().trim();
@@ -66,12 +66,12 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
   // Handle year change: Reset week to the active/first week of that specific year
   const handleYearChange = (year: string) => {
     setSelectedYear(year);
-    const newYearGames = initialGames.filter(g => g.year.toString() === year);
-    const newWeeks = Array.from(new Set(newYearGames.map(g => g.week.toString())))
+    const newYearGames = initialGames.filter(g => String(g.year || "") === year);
+    const newWeeks = Array.from(new Set(newYearGames.map(g => String(g.week || ""))))
       .sort((a, b) => parseInt(a) - parseInt(b));
     
     const newIncomplete = newWeeks.find(w => {
-      return newYearGames.filter(g => g.week.toString() === w).some(g => {
+      return newYearGames.filter(g => String(g.week || "") === w).some(g => {
         const v = (g.vScore || "").toString().trim();
         const h = (g.hScore || "").toString().trim();
         return v === "" || v === "00" || h === "" || h === "00";
@@ -80,7 +80,7 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
     setSelectedWeek(newIncomplete || newWeeks[0] || '1');
   };
 
-  const filteredGames = gamesInYear.filter(g => g.week.toString() === selectedWeek);
+  const filteredGames = gamesInYear.filter(g => String(g.week || "") === selectedWeek);
 
   return (
     <div className="space-y-8">
@@ -143,8 +143,8 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
           const vRaw = (game.vScore || "").toString().trim();
           const hRaw = (game.hScore || "").toString().trim();
           const isFinal = vRaw !== "" && vRaw !== "00" && hRaw !== "" && hRaw !== "00";
-          const isPlayoff = game.week.includes('-');
-          const roundName = isPlayoff ? game.week.split('-')[1] : null;
+          const isPlayoff = String(game.week || "").includes('-');
+          const roundName = isPlayoff ? String(game.week || "").split('-')[1] : null;
 
           return (
             <div key={i} className={`relative rounded-[2rem] border transition-all duration-300 overflow-hidden group ${
@@ -160,7 +160,7 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
               
               <div className="p-8 space-y-6">
                 <TeamLine 
-                    name={game.visitor} 
+                    name={game.visitor || "Unknown"} 
                     score={vRaw === "" || vRaw === "00" ? null : vRaw} 
                     isWinner={isFinal && Number(vRaw) > Number(hRaw)} 
                     label="Away"
@@ -170,7 +170,7 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
                     <span className="relative bg-white px-4 text-[10px] font-black text-slate-300 italic uppercase tracking-widest rounded-full">At</span>
                 </div>
                 <TeamLine 
-                    name={game.home} 
+                    name={game.home || "Unknown"} 
                     score={hRaw === "" || hRaw === "00" ? null : hRaw} 
                     isWinner={isFinal && Number(hRaw) > Number(vRaw)} 
                     label="Home"
