@@ -225,9 +225,20 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
             {playoffPicture.map((team) => {
               const seedInfo = seedMap[team.team];
               const isDivLeader = seedInfo.seed <= divisions.length;
+              const clinchMatch = team.team.match(/^([a-z*])-/i);
+              const clinchLetter = clinchMatch ? clinchMatch[1].toUpperCase() : null;
               
               return (
-                <div key={team.team} className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group">
+                <div key={team.team} className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group relative">
+                  {clinchLetter && (
+                    <div 
+                      className="absolute top-2 right-2 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm border border-white"
+                      title={clinchLetter === 'X' ? 'Clinched Playoffs' : clinchLetter === 'Y' ? 'Clinched Division' : 'Clinched Home Field'}
+                    >
+                      <span className="text-[7px] font-black text-white leading-none">{clinchLetter}</span>
+                    </div>
+                  )}
+
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-xs mb-3 shadow-sm ${isDivLeader ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-100'}`}>
                     {seedInfo.seed}
                   </div>
@@ -254,8 +265,20 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
                 {bubbleTeams.map((team) => {
                   const seedInfo = seedMap[team.team];
+                  const clinchMatch = team.team.match(/^([a-z*])-/i);
+                  const clinchLetter = clinchMatch ? clinchMatch[1].toUpperCase() : null;
+
                   return (
-                    <div key={team.team} className="flex flex-col items-center text-center p-4 rounded-2xl bg-amber-50/30 border border-amber-100/50 hover:border-amber-200 transition-all group">
+                    <div key={team.team} className="flex flex-col items-center text-center p-4 rounded-2xl bg-amber-50/30 border border-amber-100/50 hover:border-amber-200 transition-all group relative">
+                      {clinchLetter && (
+                        <div 
+                          className="absolute top-2 right-2 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm border border-white"
+                          title={clinchLetter === 'X' ? 'Clinched Playoffs' : clinchLetter === 'Y' ? 'Clinched Division' : 'Clinched Home Field'}
+                        >
+                          <span className="text-[7px] font-black text-white leading-none">{clinchLetter}</span>
+                        </div>
+                      )}
+
                       <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-[10px] mb-3 shadow-sm bg-white text-amber-600 border border-amber-100">
                         {seedInfo.seed}
                       </div>
@@ -485,12 +508,12 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
                         {displayTeamName}
                       </Link>
                       {clinchLetter && (
-                        <span 
-                          className="bg-blue-50 text-blue-600 text-[8px] font-black px-1.5 py-0.5 rounded border border-blue-100 uppercase tracking-widest"
+                        <div 
+                          className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm border border-white shrink-0"
                           title={clinchLetter === 'X' ? 'Clinched Playoffs' : clinchLetter === 'Y' ? 'Clinched Division' : 'Clinched Home Field'}
                         >
-                          {clinchLetter}
-                        </span>
+                          <span className="text-[7px] font-black text-white leading-none">{clinchLetter}</span>
+                        </div>
                       )}
                       {isChamp && (
                         <span className="bg-amber-400 text-amber-950 text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm italic uppercase tracking-tighter" title="Champion">

@@ -187,7 +187,7 @@ export default function FreeAgentPanel({
             className="w-full p-2 border rounded text-black font-medium"
           >
             <option value="">-- Select Injured Player --</option>
-            {myRoster.map((p, i) => (
+            {[...myRoster].sort((a, b) => (a.last || "").localeCompare(b.last || "")).map((p, i) => (
               <option key={i} value={p.identity}>
                 {p.last}, {p.first} ({(p.position || p.pos || "??").toUpperCase()})
               </option>
