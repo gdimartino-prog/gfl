@@ -14,6 +14,7 @@ interface ScheduleGame {
   visitor?: string;
   hScore?: string | number;
   vScore?: string | number;
+  week?: string | number;
 }
 
 export default async function StandingsPage() {

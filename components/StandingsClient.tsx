@@ -11,6 +11,7 @@ interface ScheduleGame {
   visitor?: string;
   hScore?: string | number;
   vScore?: string | number;
+  week?: string | number;
 }
 
 interface DraftOrderTeam extends StandingRow {
