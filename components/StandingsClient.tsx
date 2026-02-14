@@ -1,7 +1,7 @@
 'use client';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search, Zap } from 'lucide-react';
+import { Search, Zap, Eye, EyeOff, ListOrdered } from 'lucide-react';
 import { StandingRow } from '../types';
 
 interface ScheduleGame {
@@ -19,6 +19,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
   const [searchTerm, setSearchTerm] = useState('');
   const [historySearch, setHistorySearch] = useState('');
   const [historyYear, setHistoryYear] = useState('All');
+  const [showPlayoff, setShowPlayoff] = useState(true);
 
   // 1. Current Season Filter
   const currentSeasonRaw = allData.filter(r => 
@@ -186,23 +187,177 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
       .sort((a, b) => seedMap[a.team].seed - seedMap[b.team].seed);
   }, [allData, currentYear, seedMap, playoffTeams]);
 
+  // 🚀 DRAFT ORDER: Calculate projected next season draft order
+  const draftOrder = useMemo(() => {
+    const fullCurrentSeason = allData.filter(r => r.year?.toString() === currentYear?.toString());
+    const currentGames = allGames.filter(g => g.year?.toString() === currentYear?.toString() && g.status === 'Final');
+
+    // 1. Calculate SOS for all teams
+    const teamStats: Record<string, { w: number, g: number }> = {};
+    fullCurrentSeason.forEach(r => {
+      const name = r.team.replace(/^[a-z*]-/i, '');
+      teamStats[name] = {
+        w: Number(r.won) + (0.5 * Number(r.tie)),
+        g: Number(r.won) + Number(r.lost) + Number(r.tie)
+      };
+    });
+
+    const sosMap: Record<string, number> = {};
+    fullCurrentSeason.forEach(r => {
+      const teamName = r.team.replace(/^[a-z*]-/i, '');
+      const opps = currentGames.filter(g => 
+        (g.home || "").replace(/^[a-z*]-/i, '') === teamName || 
+        (g.visitor || "").replace(/^[a-z*]-/i, '') === teamName
+      );
+      
+      let totalOppW = 0;
+      let totalOppG = 0;
+      opps.forEach(g => {
+        const h = (g.home || "").replace(/^[a-z*]-/i, '');
+        const v = (g.visitor || "").replace(/^[a-z*]-/i, '');
+        const opp = h === teamName ? v : h;
+        if (opp && teamStats[opp]) {
+          totalOppW += teamStats[opp].w;
+          totalOppG += teamStats[opp].g;
+        }
+      });
+      sosMap[r.team] = totalOppG > 0 ? totalOppW / totalOppG : 0;
+    });
+    
+    // 2. Non-Playoff Teams (NFL Rules: Record -> SOS -> Points For)
+    const nonPlayoff = fullCurrentSeason
+      .filter(r => seedMap[r.team]?.seed > playoffTeams)
+      .sort((a, b) => {
+        if (Number(a.pct) !== Number(b.pct)) return Number(a.pct) - Number(b.pct);
+        if (sosMap[a.team] !== sosMap[b.team]) return sosMap[a.team] - sosMap[b.team];
+        if (Number(a.offPts) !== Number(b.offPts)) return Number(a.offPts) - Number(b.offPts);
+        return Number(a.diff) - Number(b.diff);
+      });
+
+    // 3. Playoff Teams (Reverse Seeding: Lower seeds pick earlier)
+    const playoff = fullCurrentSeason
+      .filter(r => seedMap[r.team]?.seed <= playoffTeams)
+      .sort((a, b) => seedMap[b.team].seed - seedMap[a.team].seed);
+
+    const combined = [...nonPlayoff, ...playoff];
+
+    return combined.map((team, idx) => {
+      const pickNum = idx + 1;
+      const isPlayoffTeam = seedMap[team.team].seed <= playoffTeams;
+      let reason = `Pick #${pickNum}: ${isPlayoffTeam ? 'Playoff Team' : 'Non-Playoff Team'}`;
+
+      if (isPlayoffTeam) {
+        reason += ` • Reverse Seeding (Seed #${seedMap[team.team].seed})`;
+      } else {
+        const prev = idx > 0 ? combined[idx - 1] : null;
+        const next = idx < combined.length - 1 ? combined[idx + 1] : null;
+        
+        const isTiedWithPrev = prev && seedMap[prev.team].seed > playoffTeams && Number(team.pct) === Number(prev.pct);
+        const isTiedWithNext = next && seedMap[next.team].seed > playoffTeams && Number(team.pct) === Number(next.pct);
+
+        if (isTiedWithPrev) {
+          const metric = sosMap[team.team] !== sosMap[prev.team] ? "Strength of Schedule" : (Number(team.offPts) !== Number(prev.offPts) ? "Points For" : "Point Differential");
+          reason += ` • Lost tiebreaker to ${prev.team.replace(/^[a-z*]-/i, '')} via higher ${metric}`;
+        } else if (isTiedWithNext) {
+          const metric = sosMap[team.team] !== sosMap[next.team] ? "Strength of Schedule" : (Number(team.offPts) !== Number(next.offPts) ? "Points For" : "Point Differential");
+          reason += ` • Won tiebreaker over ${next.team.replace(/^[a-z*]-/i, '')} via lower ${metric}`;
+        }
+      }
+      return { ...team, draftReason: reason, sos: sosMap[team.team] };
+    });
+  }, [allData, allGames, currentYear, seedMap, playoffTeams]);
+
   return (
     <div className="space-y-10">
-      {/* Search Bar */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-        <input 
-          type="text" 
-          placeholder="Search current season..."
-          className="w-full p-3 pl-12 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all font-medium"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+      {/* Search Bar & Toggle */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="relative max-w-md w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+          <input 
+            type="text" 
+            placeholder="Search current season..."
+            className="w-full p-3 pl-12 bg-white border border-slate-200 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all font-medium"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <button 
+          onClick={() => setShowPlayoff(!showPlayoff)}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm border ${
+            showPlayoff ? 'bg-blue-600 text-white border-blue-500' : 'bg-white text-slate-400 border-slate-200 hover:text-slate-600'
+          }`}
+        >
+          {showPlayoff ? <EyeOff size={14} /> : <Eye size={14} />}
+          {showPlayoff ? 'Hide Projections' : 'Show Projections'}
+        </button>
       </div>
 
-      {/* PLAYOFF PICTURE SUMMARY */}
-      {playoffPicture.length > 0 && (
-        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-blue-100 overflow-hidden relative animate-in fade-in slide-in-from-top-4 duration-700">
+      {/* CURRENT SEASON SECTION */}
+      <div className="space-y-12">
+        <div className="flex items-end gap-4">
+          <h2 className="text-4xl font-black uppercase italic text-slate-900 tracking-tighter leading-none">
+            {currentYear} <span className="text-blue-600">Season</span>
+          </h2>
+          <div className="h-1 flex-grow bg-slate-100 rounded-full mb-1">
+            <div className="h-full bg-blue-600 w-24 rounded-full"></div>
+          </div>
+        </div>
+        
+        <div className="grid gap-12">
+          {divisions.map(div => {
+            const divData = currentSeasonRaw
+              .filter(r => (r.division || "").toString().trim().toLowerCase() === div.toLowerCase())
+              .sort((a, b) => Number(b.pct) - Number(a.pct) || Number(b.diff) - Number(a.diff));
+            
+            if (divData.length === 0) return null;
+
+            return (
+              <div key={div}>
+                <div className="flex items-center gap-3 mb-4">
+                   <h3 className="text-xl font-black uppercase italic text-blue-600 tracking-tight">
+                    {div} <span className="text-slate-400 font-normal not-italic">Division</span>
+                  </h3>
+                  <div className="h-px bg-slate-200 flex-grow"></div>
+                </div>
+                <StandingsTable 
+                  data={divData} 
+                  isCurrent={true} 
+                  showGB={true} 
+                  showMagicNumber={true} 
+                  totalGames={totalGames} 
+                  seedMap={seedMap}
+                  playoffTeams={playoffTeams}
+                />
+              </div>
+            );
+          })}
+
+          {/* FALLBACK: If teams exist for current year but have no division assigned */}
+          {currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes((r.division || "").toString().trim().toLowerCase())).length > 0 && (
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                 <h3 className="text-xl font-black uppercase italic text-slate-400 tracking-tight">
+                  Unassigned <span className="text-slate-200 font-normal not-italic">Teams</span>
+                </h3>
+                <div className="h-px bg-slate-100 flex-grow"></div>
+              </div>
+              <StandingsTable 
+                data={currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes((r.division || "").toString().trim().toLowerCase()))} 
+                isCurrent={true} 
+                showGB={true}
+                totalGames={totalGames}
+                seedMap={seedMap}
+                playoffTeams={playoffTeams}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* PLAYOFF PICTURE SUMMARY (Moved to after standings) */}
+      {showPlayoff && playoffPicture.length > 0 && (
+        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-blue-100 overflow-hidden relative animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-black px-6 py-2 uppercase tracking-[0.2em] rounded-bl-3xl shadow-sm">
             Live Projections
           </div>
@@ -297,67 +452,55 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
         </div>
       )}
 
-      {/* CURRENT SEASON SECTION */}
-      <div className="space-y-12">
-        <div className="flex items-end gap-4">
-          <h2 className="text-4xl font-black uppercase italic text-slate-900 tracking-tighter leading-none">
-            {currentYear} <span className="text-blue-600">Season</span>
-          </h2>
-          <div className="h-1 flex-grow bg-slate-100 rounded-full mb-1">
-            <div className="h-full bg-blue-600 w-24 rounded-full"></div>
+      {/* PROJECTED DRAFT ORDER */}
+      {showPlayoff && draftOrder.length > 0 && (
+        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-slate-100 overflow-hidden relative animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+          <div className="absolute top-0 right-0 bg-slate-900 text-white text-[10px] font-black px-6 py-2 uppercase tracking-[0.2em] rounded-bl-3xl shadow-sm">
+            Next Season
+          </div>
+          
+          <div className="flex items-center gap-3 mb-8">
+            <div className="bg-slate-100 p-3 rounded-2xl text-slate-600">
+              <ListOrdered size={24} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">
+                Projected <span className="text-orange-600">Draft Order</span>
+              </h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                NFL Rules: SOS tiebreakers for non-playoff teams • Reverse seeding for playoff teams
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 gap-4">
+            {draftOrder.map((team, idx) => {
+              const isPlayoffTeam = seedMap[team.team].seed <= playoffTeams;
+              const cleanName = team.team.replace(/^[a-z*]-/i, '');
+              
+              return (
+                <div key={team.team} className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all group relative">
+                  <div 
+                    title={(team as any).draftReason}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[10px] mb-3 shadow-sm cursor-help transition-transform hover:scale-110 ${isPlayoffTeam ? 'bg-slate-200 text-slate-500' : 'bg-orange-500 text-white'}`}
+                  >
+                    #{idx + 1}
+                  </div>
+                  <span className="text-[10px] font-black uppercase italic tracking-tighter text-slate-900 leading-tight truncate w-full">
+                    {cleanName}
+                  </span>
+                  <span className="text-[8px] font-bold text-slate-400 uppercase mt-1 flex flex-col">
+                    <span>{team.won}-{team.lost}</span>
+                    {!isPlayoffTeam && (
+                      <span className="text-orange-500 font-black mt-0.5">SOS: {((team as any).sos || 0).toFixed(3).replace(/^0/, '')}</span>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
-        
-        <div className="grid gap-12">
-          {divisions.map(div => {
-            const divData = currentSeasonRaw
-              .filter(r => (r.division || "").toString().trim().toLowerCase() === div.toLowerCase())
-              .sort((a, b) => Number(b.pct) - Number(a.pct) || Number(b.diff) - Number(a.diff));
-            
-            if (divData.length === 0) return null;
-
-            return (
-              <div key={div}>
-                <div className="flex items-center gap-3 mb-4">
-                   <h3 className="text-xl font-black uppercase italic text-blue-600 tracking-tight">
-                    {div} <span className="text-slate-400 font-normal not-italic">Division</span>
-                  </h3>
-                  <div className="h-px bg-slate-200 flex-grow"></div>
-                </div>
-                <StandingsTable 
-                  data={divData} 
-                  isCurrent={true} 
-                  showGB={true} 
-                  showMagicNumber={true} 
-                  totalGames={totalGames} 
-                  seedMap={seedMap}
-                  playoffTeams={playoffTeams}
-                />
-              </div>
-            );
-          })}
-
-          {/* FALLBACK: If teams exist for current year but have no division assigned */}
-          {currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes((r.division || "").toString().trim().toLowerCase())).length > 0 && (
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                 <h3 className="text-xl font-black uppercase italic text-slate-400 tracking-tight">
-                  Unassigned <span className="text-slate-200 font-normal not-italic">Teams</span>
-                </h3>
-                <div className="h-px bg-slate-100 flex-grow"></div>
-              </div>
-              <StandingsTable 
-                data={currentSeasonRaw.filter(r => !divisions.map(d => d.toLowerCase()).includes((r.division || "").toString().trim().toLowerCase()))} 
-                isCurrent={true} 
-                showGB={true}
-                totalGames={totalGames}
-                seedMap={seedMap}
-                playoffTeams={playoffTeams}
-              />
-            </div>
-          )}
-        </div>
-      </div>
+      )}
 
       {/* HISTORICAL ARCHIVES */}
       <div className="pt-16 border-t border-slate-200 space-y-8">
