@@ -1,3 +1,13 @@
+export interface ScheduleGame {
+  year?: string | number;
+  status?: string;
+  home?: string;
+  visitor?: string;
+  hScore?: string | number;
+  vScore?: string | number;
+  week?: string | number;
+}
+
 export interface Team {
   name: string;
   short: string;
@@ -7,6 +17,8 @@ export interface Team {
   email?: string;
   mobile?: string;
   commissioner?: boolean;
+  nickname?: string;
+  status?: string;
   lastSync?: string;
 }
 
@@ -108,6 +120,7 @@ export interface StandingRow {
   year: string | number;
   team: string;
   teamshort?: string;
+  short?: string;
   nickname?: string;
   coach?: string;
   gm?: string;

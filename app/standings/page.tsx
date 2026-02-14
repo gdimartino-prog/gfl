@@ -3,19 +3,9 @@ import { getSchedule } from '@/lib/getSchedule';
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
 import StandingsClient from '@/components/StandingsClient';
 import Link from 'next/link';
-import { StandingRow } from '@/types';
+import { StandingRow, ScheduleGame } from '@/types';
 
 export const dynamic = 'force-dynamic';
-
-interface ScheduleGame {
-  year?: string | number;
-  status?: string;
-  home?: string;
-  visitor?: string;
-  hScore?: string | number;
-  vScore?: string | number;
-  week?: string | number;
-}
 
 export default async function StandingsPage() {
   let allData: StandingRow[] = [];

@@ -2,17 +2,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { Search, Zap, Eye, EyeOff, ListOrdered, Trophy } from 'lucide-react';
-import { StandingRow } from '../types';
-
-interface ScheduleGame {
-  year?: string | number;
-  status?: string;
-  home?: string;
-  visitor?: string;
-  hScore?: string | number;
-  vScore?: string | number;
-  week?: string | number;
-}
+import { StandingRow, ScheduleGame } from '../types';
 
 interface DraftOrderTeam extends StandingRow {
   draftReason: string;

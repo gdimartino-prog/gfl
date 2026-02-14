@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import { useSearchParams } from 'next/navigation';
 import { Search, ChevronRight, Star, Activity, GraduationCap, ShieldCheck, Mail, Phone, Users } from 'lucide-react';
 import { getNormalizedCategories, positionWeights, formatPhone } from '@/lib/utils';
-import { Player, DraftPick, Team, StandingRow } from '../../types';
+import { Player, DraftPick, Team, StandingRow, ScheduleGame } from '../../types';
 
 interface RosterPlayer extends Player {
   group?: string;
@@ -40,7 +40,7 @@ function RosterContent() {
     roster: RosterPlayer[], 
     picks: DraftPick[], 
     history: DraftPick[], 
-    schedule: Record<string, string | null>[], 
+    schedule: ScheduleGame[], 
     stats: StandingRow & { diff: number, currentYear: string, rosterLimit: number }, 
     coachContact?: Team 
   } | null>(null);
@@ -55,7 +55,7 @@ function RosterContent() {
   const hasSynced = useRef(false);
 
   // 🚀 HELPER: Normalize names for bulletproof matching
-  const normalize = useCallback((s: any) => (s || "").toString().replace(/^[xXyY*][- ]+/g, '').replace(/[^a-z0-9 ]/gi, '').trim().toUpperCase(), []);
+  const normalize = useCallback((s: string | number | null | undefined) => (s || "").toString().replace(/^[xXyY*][- ]+/g, '').replace(/[^a-z0-9 ]/gi, '').trim().toUpperCase(), []);
 
   useEffect(() => {
     if (status === "authenticated" && (session?.user as { id?: string })?.id && !hasSynced.current) {
@@ -102,7 +102,7 @@ function RosterContent() {
         const target = normalize(selectedTeam);
 
         // 🚀 RESOLVE IDENTITY: Find the team in the official registry
-        const coachContact = allTeams.find((t: any) => 
+        const coachContact = allTeams.find((t: Team) => 
           normalize(t.short) === target || 
           normalize(t.teamshort) === target ||
           normalize(t.name) === target ||
@@ -118,10 +118,10 @@ function RosterContent() {
         const DYNAMIC_YEAR = yearRule?.value ? yearRule.value.toString() : "2025";
 
         // 🚀 ROBUST MATCHING: Find the standings entry using normalized keys
-        const teamEntry = standingsData.find((s: any) => {
+        const teamEntry = standingsData.find((s: StandingRow) => {
           const sName = normalize(s.team);
           const sShort = normalize(s.teamshort || s.short);
-          const matchesTeam = sName === targetShort || sName === targetName || sShort === targetShort || sShort === targetName;
+          const matchesTeam = sName === targetShort || sName === targetName || (sShort && (sShort === targetShort || sShort === targetName));
           
           const yearMatch = s.year?.toString() === DYNAMIC_YEAR;
           return matchesTeam && yearMatch;
@@ -140,15 +140,15 @@ function RosterContent() {
 
         let pf = 0; let pa = 0;
         // 🚀 ACCURATE DIFF: Calculate PF/PA using normalized identity
-        const currentGames = scheduleData.filter((g: any) => g.year?.toString() === DYNAMIC_YEAR && g.status === "Final");
-        currentGames.forEach((game: any) => {
+        const currentGames = scheduleData.filter((g: ScheduleGame) => g.year?.toString() === DYNAMIC_YEAR && g.status === "Final");
+        currentGames.forEach((game: ScheduleGame) => {
             const cleanHome = normalize(game.home);
             const cleanVisitor = normalize(game.visitor);
             const isHome = cleanHome === targetShort || cleanHome === targetName;
             const isVisitor = cleanVisitor === targetShort || cleanVisitor === targetName;
             
-            if (isHome) { pf += parseInt(game.hScore || '0'); pa += parseInt(game.vScore || '0'); }
-            else if (isVisitor) { pf += parseInt(game.vScore || '0'); pa += parseInt(game.hScore || '0'); }
+            if (isHome) { pf += parseInt(String(game.hScore || '0')); pa += parseInt(String(game.vScore || '0')); }
+            else if (isVisitor) { pf += parseInt(String(game.vScore || '0')); pa += parseInt(String(game.hScore || '0')); }
         });
 
         // Filter for history: Match by team code in parentheses or full string
@@ -183,7 +183,7 @@ function RosterContent() {
       } catch (err) { console.error(err); } finally { setLoading(false); }
     };
     loadFranchiseData();
-  }, [selectedTeam]);
+  }, [selectedTeam, normalize]);
 
   const handlePlayerDetails = useCallback((p: Player) => {
     fetch(`/api/players/details/${encodeURIComponent(p.identity)}`)
@@ -208,7 +208,7 @@ function RosterContent() {
     const teamName = data.coachContact.name.toUpperCase();
 
     return data.schedule
-      .filter(g => {
+      .filter((g: ScheduleGame) => {
         const matchesYear = g.year?.toString() === data.stats.currentYear;
         const isFinal = g.status === "Final";
         const cleanHome = normalize(g.home);
@@ -217,14 +217,14 @@ function RosterContent() {
                          cleanVisitor === teamShort || cleanVisitor === teamName;
         return matchesYear && isFinal && isMyTeam;
       })
-      .sort((a, b) => parseInt(a.week || '0') - parseInt(b.week || '0'))
+      .sort((a, b) => parseInt(String(a.week || '0')) - parseInt(String(b.week || '0')))
       .slice(-5)
       .map(game => {
         const cleanHome = normalize(game.home);
         const isHome = cleanHome === teamShort || cleanHome === teamName;
-        return isHome ? (parseInt(game.hScore || '0') > parseInt(game.vScore || '0')) : (parseInt(game.vScore || '0') > parseInt(game.hScore || '0'));
+        return isHome ? (parseInt(String(game.hScore || '0')) > parseInt(String(game.vScore || '0'))) : (parseInt(String(game.vScore || '0')) > parseInt(String(game.hScore || '0')));
       });
-  }, [data]);
+  }, [data, normalize]);
 
   const rosterStatus = useMemo(() => {
     if (!data?.roster) return { active: 0, ir: 0 };
