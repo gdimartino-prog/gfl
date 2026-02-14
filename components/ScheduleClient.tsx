@@ -1,18 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { ScheduleGame } from '../types';
 
-interface Game {
-  year: string;
-  week: string;
-  visitor: string;
-  home: string;
-  vScore: string | null;
-  hScore: string | null;
-  status: string;
-}
-
-export default function ScheduleClient({ initialGames }: { initialGames: Game[] }) {
+export default function ScheduleClient({ initialGames }: { initialGames: ScheduleGame[] }) {
   // 🚀 REF: For auto-scrolling the navigation rail
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeWeekRef = useRef<HTMLButtonElement>(null);

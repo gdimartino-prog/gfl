@@ -500,7 +500,7 @@ function RosterContent() {
                   const cleanHome = normalize(game.home);
                   const isHome = cleanHome === teamShort || cleanHome === teamName;
                   
-                  const isWin = isHome ? (parseInt(game.hScore || '0') > parseInt(game.vScore || '0')) : (parseInt(game.vScore || '0') > parseInt(game.hScore || '0'));
+                  const isWin = isHome ? (parseInt(String(game.hScore || '0')) > parseInt(String(game.vScore || '0'))) : (parseInt(String(game.vScore || '0')) > parseInt(String(game.hScore || '0')));
                   return (
                     <div key={i} ref={i === targetIdx ? lastPlayedRef : null} className={`flex items-center justify-between p-6 transition-all ${i === targetIdx ? 'bg-amber-50/50' : 'hover:bg-slate-50'}`}>
                       <div><span className="text-[8px] font-black text-slate-400 uppercase">Week {game.week}</span><p className="text-xs font-black uppercase italic mt-1">{isHome ? 'VS' : 'AT'} {isHome ? game.visitor : game.home}</p></div>

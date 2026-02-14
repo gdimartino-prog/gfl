@@ -1,7 +1,9 @@
 import { getSchedule } from '@/lib/getSchedule';
+import { ScheduleGame } from '@/types';
+import Link from 'next/link';
 
 export default async function NextMatchup() {
-  const games = await getSchedule();
+  const games: ScheduleGame[] = await getSchedule();
   
   // Find the first game that doesn't have a score yet
   const nextGame = games.find(g => !g.vScore || g.vScore === '');
@@ -43,6 +45,3 @@ export default async function NextMatchup() {
     </div>
   );
 }
-
-// Small fix: Make sure to import Link if using it inside this component
-import Link from 'next/link';
