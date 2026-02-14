@@ -21,6 +21,7 @@ export default async function StandingsPage() {
   let allGames: ScheduleGame[] = [];
   let totalGames = 14;
   let playoffTeams = 8;
+  let cutsYear = "";
 
   try {
     [allData, allGames] = await Promise.all([getHistory(), getSchedule()]);
@@ -40,6 +41,9 @@ export default async function StandingsPage() {
 
     const playoffTeamsRule = rows.find(row => row[0] === 'playoff_teams');
     if (playoffTeamsRule?.[1]) playoffTeams = parseInt(playoffTeamsRule[1]);
+
+    const cutsYearRule = rows.find(row => row[0] === 'cuts_year');
+    if (cutsYearRule?.[1]) cutsYear = cutsYearRule[1];
   } catch (err) {
     console.error("Standings Page Data Fetch Error:", err);
   }
@@ -63,7 +67,7 @@ export default async function StandingsPage() {
   }));
 
   // 2. Dynamically find the most recent year in your spreadsheet
-  const latestYear = enrichedData.length > 0 ? (enrichedData[0].year?.toString() || "2025") : "2025";
+  const latestYear = cutsYear || (enrichedData.length > 0 ? (enrichedData[0].year?.toString() || "2025") : "2025");
 
   return (
     <div className="max-w-7xl mx-auto p-8">

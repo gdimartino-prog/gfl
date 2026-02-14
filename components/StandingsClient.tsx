@@ -1,7 +1,7 @@
 'use client';
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Search, Zap, Eye, EyeOff, ListOrdered } from 'lucide-react';
+import { Search, Zap, Eye, EyeOff, ListOrdered, Trophy } from 'lucide-react';
 import { StandingRow } from '../types';
 
 interface ScheduleGame {
@@ -191,6 +191,24 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
       )
       .sort((a, b) => seedMap[a.team].seed - seedMap[b.team].seed);
   }, [allData, currentYear, seedMap, playoffTeams]);
+
+  // 🚀 PLAYOFF BRACKET: Group games by playoff round codes (WC, DIV, CONF, SB)
+  const playoffBracket = useMemo(() => {
+    const rounds = [
+      { code: 'WC', label: 'Wild Card' },
+      { code: 'DIV', label: 'Divisional' },
+      { code: 'CONF', label: 'Conference' },
+      { code: 'SB', label: 'Super Bowl' }
+    ];
+
+    return rounds.map(round => {
+      const games = allGames.filter(g => 
+        g.year?.toString() === currentYear?.toString() && 
+        g.week?.toString().toUpperCase() === round.code
+      );
+      return { ...round, games };
+    }).filter(r => r.games.length > 0);
+  }, [allGames, currentYear]);
 
   // 🚀 DRAFT ORDER: Calculate projected next season draft order
   const draftOrder = useMemo(() => {
@@ -457,6 +475,74 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
         </div>
       )}
 
+      {/* PLAYOFF BRACKET SECTION */}
+      {showPlayoff && playoffBracket.length > 0 && (
+        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-blue-100 overflow-hidden relative animate-in fade-in slide-in-from-bottom-4 duration-700 delay-75">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="bg-blue-600 p-3 rounded-2xl text-white shadow-lg shadow-blue-500/20">
+              <Trophy size={24} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">
+                Post-Season <span className="text-blue-500">Bracket</span>
+              </h2>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                Official Tournament Progression
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-8 overflow-x-auto pb-4 no-scrollbar">
+            {playoffBracket.map((round) => (
+              <div key={round.code} className="flex-1 min-w-[280px] space-y-4">
+                <div className="flex items-center gap-3 px-2">
+                  <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] whitespace-nowrap">{round.label}</span>
+                  <div className="h-px bg-slate-100 flex-grow"></div>
+                </div>
+                
+                <div className="space-y-3">
+                  {round.games.map((game, idx) => {
+                    const vSeed = seedMap[game.visitor || '']?.seed;
+                    const hSeed = seedMap[game.home || '']?.seed;
+                    const isFinal = game.status === 'Final';
+                    const vScore = Number(game.vScore || 0);
+                    const hScore = Number(game.hScore || 0);
+
+                    return (
+                      <div key={idx} className="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden hover:border-blue-200 transition-colors">
+                        <div className="p-4 space-y-3">
+                          {/* Visitor */}
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                              <span className="text-[9px] font-black text-slate-500 w-4">#{vSeed || '?'}</span>
+                              <span className={`text-xs font-black uppercase italic ${isFinal && vScore > hScore ? 'text-slate-900' : 'text-slate-400'}`}>
+                                {(game.visitor || 'TBD').replace(/^[a-z*]-/i, '')}
+                              </span>
+                            </div>
+                            {isFinal && <span className={`font-mono font-black ${vScore > hScore ? 'text-blue-600' : 'text-slate-300'}`}>{vScore}</span>}
+                          </div>
+                          {/* Home */}
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                              <span className="text-[9px] font-black text-slate-500 w-4">#{hSeed || '?'}</span>
+                              <span className={`text-xs font-black uppercase italic ${isFinal && hScore > vScore ? 'text-slate-900' : 'text-slate-400'}`}>
+                                {(game.home || 'TBD').replace(/^[a-z*]-/i, '')}
+                              </span>
+                            </div>
+                            {isFinal && <span className={`font-mono font-black ${hScore > vScore ? 'text-blue-600' : 'text-slate-300'}`}>{hScore}</span>}
+                          </div>
+                        </div>
+                        {!isFinal && <div className="bg-blue-50/50 py-1.5 text-center border-t border-slate-100"><span className="text-[8px] font-black text-blue-500 uppercase tracking-widest">Scheduled</span></div>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* PROJECTED DRAFT ORDER */}
       {showPlayoff && draftOrder.length > 0 && (
         <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-slate-100 overflow-hidden relative animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
@@ -669,7 +755,12 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
                         </span>
                       )}
                       {isPlayoff && !isChamp && (
-                        <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" title="Playoffs" />
+                        <div 
+                          className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center shadow-sm border border-white shrink-0" 
+                          title="Qualified for Playoffs"
+                        >
+                          <span className="text-[7px] font-black text-white leading-none">P</span>
+                        </div>
                       )}
                     </div>
                     <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest opacity-70">

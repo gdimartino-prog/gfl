@@ -105,7 +105,7 @@ SetTitleMatchMode 2
 		Sleep(500) ; Brief pause to ensure the window is ready
 		
 		; 2. Send 'y' for Yes (or '!y' for Alt+Y)
-		Send("y") 
+		; Send("y") 
 		Sleep(500) 
 	}
 
