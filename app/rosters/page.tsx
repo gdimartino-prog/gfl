@@ -54,6 +54,9 @@ function RosterContent() {
   const lastPlayedRef = useRef<HTMLDivElement>(null);
   const hasSynced = useRef(false);
 
+  // 🚀 HELPER: Normalize names for bulletproof matching
+  const normalize = useCallback((s: any) => (s || "").toString().replace(/^[xXyY*][- ]+/g, '').replace(/[^a-z0-9 ]/gi, '').trim().toUpperCase(), []);
+
   useEffect(() => {
     if (status === "authenticated" && (session?.user as { id?: string })?.id && !hasSynced.current) {
       setSelectedTeam((session.user as { id?: string }).id || '');
@@ -75,11 +78,12 @@ function RosterContent() {
 
     const loadFranchiseData = async () => {
       try {
+        const timestamp = Date.now();
         const [standingsRes, rulesRes, draftPicksRes, teamsRes] = await Promise.all([
-          fetch(`/api/standings`),
-          fetch(`/api/rules`),
-          fetch(`/api/draft-picks`),
-          fetch(`/api/teams`)
+          fetch(`/api/standings?t=${timestamp}`),
+          fetch(`/api/rules?t=${timestamp}`),
+          fetch(`/api/draft-picks?t=${timestamp}`),
+          fetch(`/api/teams?t=${timestamp}`)
         ]);
 
         const standingsData = await standingsRes.json();
@@ -95,15 +99,33 @@ function RosterContent() {
         const allDraftPicks = await draftPicksRes.json();
         const allTeams = await teamsRes.json();
 
-        const coachContact = allTeams.find((t: { short: string; name: string }) => 
-          t.short?.toUpperCase() === selectedTeam.toUpperCase() || 
-          t.name?.toUpperCase() === selectedTeam.toUpperCase()
+        const target = normalize(selectedTeam);
+
+        // 🚀 RESOLVE IDENTITY: Find the team in the official registry
+        const coachContact = allTeams.find((t: any) => 
+          normalize(t.short) === target || 
+          normalize(t.teamshort) === target ||
+          normalize(t.name) === target ||
+          normalize(t.team) === target ||
+          (t.nickname && normalize(t.nickname) === target)
         );
 
-        const teamEntry = standingsData.find((s: { team: string; teamshort: string }) => 
-          s.team?.toString().trim().toUpperCase() === selectedTeam.trim().toUpperCase() ||
-          s.teamshort?.toString().trim().toUpperCase() === selectedTeam.trim().toUpperCase()
-        );
+        const targetShort = normalize(coachContact?.teamshort || coachContact?.short || selectedTeam);
+        const targetName = normalize(coachContact?.team || coachContact?.name || selectedTeam);
+        const displayFullName = coachContact ? `${coachContact.team} ${coachContact.nickname}` : selectedTeam;
+
+        const yearRule = rulesData.find((r: { setting: string }) => r.setting === 'cuts_year');
+        const DYNAMIC_YEAR = yearRule?.value ? yearRule.value.toString() : "2025";
+
+        // 🚀 ROBUST MATCHING: Find the standings entry using normalized keys
+        const teamEntry = standingsData.find((s: any) => {
+          const sName = normalize(s.team);
+          const sShort = normalize(s.teamshort || s.short);
+          const matchesTeam = sName === targetShort || sName === targetName || sShort === targetShort || sShort === targetName;
+          
+          const yearMatch = s.year?.toString() === DYNAMIC_YEAR;
+          return matchesTeam && yearMatch;
+        });
 
         const [rosterRes, scheduleRes] = await Promise.all([
           fetch(`/api/rosters/${selectedTeam}`),
@@ -113,17 +135,20 @@ function RosterContent() {
         const rosterData = await rosterRes.json();
         const scheduleData = await scheduleRes.json();
 
-        const yearRule = rulesData.find((r: { setting: string }) => r.setting === 'cuts_year');
-        const DYNAMIC_YEAR = yearRule?.value ? yearRule.value.toString() : "2025";
-
         const limitRule = rulesData.find((r: { setting: string; value: string }) => r.setting === 'limit_roster');
         const rosterLimit = limitRule ? parseInt(limitRule.value) : 53;
 
         let pf = 0; let pa = 0;
-        scheduleData.filter((g: { year: string; status: string }) => g.year === DYNAMIC_YEAR && g.status === "Final").forEach((game: { home: string; hScore: string; vScore: string }) => {
-            const isHome = [(game.home || "").toUpperCase()].includes(teamEntry?.team?.toUpperCase()) || [(game.home || "").toUpperCase()].includes(teamEntry?.teamshort?.toUpperCase());
-            if (isHome) { pf += parseInt(game.hScore); pa += parseInt(game.vScore); }
-            else { pf += parseInt(game.vScore); pa += parseInt(game.hScore); }
+        // 🚀 ACCURATE DIFF: Calculate PF/PA using normalized identity
+        const currentGames = scheduleData.filter((g: any) => g.year?.toString() === DYNAMIC_YEAR && g.status === "Final");
+        currentGames.forEach((game: any) => {
+            const cleanHome = normalize(game.home);
+            const cleanVisitor = normalize(game.visitor);
+            const isHome = cleanHome === targetShort || cleanHome === targetName;
+            const isVisitor = cleanVisitor === targetShort || cleanVisitor === targetName;
+            
+            if (isHome) { pf += parseInt(game.hScore || '0'); pa += parseInt(game.vScore || '0'); }
+            else if (isVisitor) { pf += parseInt(game.vScore || '0'); pa += parseInt(game.hScore || '0'); }
         });
 
         // Filter for history: Match by team code in parentheses or full string
@@ -141,14 +166,14 @@ function RosterContent() {
           history: history,
           schedule: scheduleData || [],
           stats: { 
-            team: selectedTeam,
-            won: 0, 
-            lost: 0, 
-            tie: 0, 
-            pct: 0, 
-            offPts: 0, 
+            won: 0,
+            lost: 0,
+            tie: 0,
+            pct: 0,
+            offPts: 0,
             defPts: 0,
             ...teamEntry, 
+            team: displayFullName, // Use the resolved full name for display
             diff: pf - pa, 
             currentYear: DYNAMIC_YEAR, 
             rosterLimit 
@@ -178,14 +203,25 @@ function RosterContent() {
   }, [data, loading]);
 
   const recentForm = useMemo(() => {
-    if (!data?.schedule || !data?.stats?.currentYear) return [];
-    const teamName = (data?.stats?.team || "").toUpperCase();
+    if (!data?.schedule || !data?.stats?.currentYear || !data?.coachContact) return [];
+    const teamShort = data.coachContact.short.toUpperCase();
+    const teamName = data.coachContact.name.toUpperCase();
+
     return data.schedule
-      .filter(g => g.year === data?.stats?.currentYear && g.status === "Final" && ((g.home || "").toUpperCase() === teamName || (g.visitor || "").toUpperCase() === teamName))
+      .filter(g => {
+        const matchesYear = g.year?.toString() === data.stats.currentYear;
+        const isFinal = g.status === "Final";
+        const cleanHome = normalize(g.home);
+        const cleanVisitor = normalize(g.visitor);
+        const isMyTeam = cleanHome === teamShort || cleanHome === teamName || 
+                         cleanVisitor === teamShort || cleanVisitor === teamName;
+        return matchesYear && isFinal && isMyTeam;
+      })
       .sort((a, b) => parseInt(a.week || '0') - parseInt(b.week || '0'))
       .slice(-5)
       .map(game => {
-        const isHome = (game.home || "").toUpperCase() === teamName;
+        const cleanHome = normalize(game.home);
+        const isHome = cleanHome === teamShort || cleanHome === teamName;
         return isHome ? (parseInt(game.hScore || '0') > parseInt(game.vScore || '0')) : (parseInt(game.vScore || '0') > parseInt(game.hScore || '0'));
       });
   }, [data]);
@@ -458,8 +494,12 @@ function RosterContent() {
               <div className="divide-y divide-slate-50 max-h-[400px] overflow-y-auto custom-scrollbar">
                 {data?.schedule?.filter(g => g.year === data?.stats?.currentYear).map((game, i, arr) => {
                   const targetIdx = arr.map(g => g.status).lastIndexOf("Final");
-                  const teamName = (data?.stats?.team || "").toUpperCase();
-                  const isHome = (game.home || "").toUpperCase() === teamName;
+                  const teamShort = data?.coachContact?.short?.toUpperCase() || "";
+                  const teamName = data?.coachContact?.name?.toUpperCase() || "";
+                  
+                  const cleanHome = normalize(game.home);
+                  const isHome = cleanHome === teamShort || cleanHome === teamName;
+                  
                   const isWin = isHome ? (parseInt(game.hScore || '0') > parseInt(game.vScore || '0')) : (parseInt(game.vScore || '0') > parseInt(game.hScore || '0'));
                   return (
                     <div key={i} ref={i === targetIdx ? lastPlayedRef : null} className={`flex items-center justify-between p-6 transition-all ${i === targetIdx ? 'bg-amber-50/50' : 'hover:bg-slate-50'}`}>
