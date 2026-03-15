@@ -1,51 +1,58 @@
-import { getSheetsClient } from './google-cloud';
+
 import { unstable_cache } from 'next/cache';
-import { Team } from '@/types';
+import { db } from './db';
+import { standings, teams } from '@/schema';
+import { eq, desc } from 'drizzle-orm';
+import { StandingRow } from '@/types';
 
-export async function getStandings(): Promise<Team[]> {
-  return unstable_cache(
-    async () => {
-      const sheets = getSheetsClient();
-      const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+const _getStandings = unstable_cache(
+  async (leagueId: number) => {
+    const standingsData = await db
+      .select({
+        year: standings.year,
+        team: teams.name,
+        teamshort: teams.teamshort,
+        nickname: teams.nickname,
+        coach: teams.coach,
+        won: standings.wins,
+        lost: standings.losses,
+        tie: standings.ties,
+        division: standings.division,
+        offPts: standings.offPts,
+        defPts: standings.defPts,
+        isDivWinner: standings.isDivWinner,
+        isPlayoff: standings.isPlayoff,
+        isSuperBowl: standings.isSuperBowl,
+        isChampion: standings.isChampion,
+        oldTeamName: standings.oldTeamName,
+      })
+      .from(standings)
+      .leftJoin(teams, eq(standings.teamId, teams.id))
+      .where(eq(standings.leagueId, leagueId))
+      .orderBy(desc(standings.year), desc(standings.wins));
 
-      try {
-        const response = await sheets.spreadsheets.values.get({
-          spreadsheetId: SHEET_ID,
-          range: 'Coaches!A:G', // Expanded range to include Column G
-        });
+    return standingsData.map(data => ({
+      ...data,
+      gm: data.coach ?? undefined,
+      pct: (data.won + data.tie / 2) / (data.won + data.lost + data.tie) || 0,
+      offPts: data.offPts ?? 0,
+      defPts: data.defPts ?? 0,
+      diff: (data.offPts ?? 0) - (data.defPts ?? 0),
+      isDivWinner: data.isDivWinner ?? false,
+      isPlayoff: data.isPlayoff ?? false,
+      isSuperBowl: data.isSuperBowl ?? false,
+      isChampion: data.isChampion ?? false,
+    })) as StandingRow[];
+  },
+  ['standings-data'],
+  { revalidate: 60, tags: ['standings'] }
+);
 
-        const rows = response.data.values || [];
-        if (rows.length === 0) return [];
-
-        const headers = rows[0];
-
-        return rows.slice(1).map((row) => {
-          const teamObj: Record<string, string> = {};
-          
-          headers.forEach((header, i) => {
-            if (header) {
-              const key = header.toLowerCase().trim();
-              teamObj[key] = row[i] || '';
-            }
-          });
-
-          // Explicitly mapping key fields to ensure UI consistency
-          return {
-            ...teamObj,
-            name: row[0],       // e.g., "Vico"
-            short: row[1],      // e.g., "VV"
-            team: row[0],       // e.g., "Vico"
-            teamshort: row[1],  // e.g., "VV"
-            coach: row[2],      // e.g., "George Di Martino"
-            nickname: row[6]    // e.g., "Vikes" from Column G
-          };
-        });
-      } catch (error) {
-        console.error("getStandings Lib Error:", error);
-        return [];
-      }
-    },
-    ['standings-data'],
-    { revalidate: 60, tags: ['standings'] }
-  )();
+export async function getStandings(leagueId: number = 1): Promise<StandingRow[]> {
+  try {
+    return await _getStandings(leagueId);
+  } catch (error) {
+    console.error("getStandings Lib Error:", error);
+    return [];
+  }
 }

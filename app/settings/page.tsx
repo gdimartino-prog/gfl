@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { updatePassword } from "@/lib/actions";
-import { Lock, ShieldCheck, AlertCircle, CheckCircle2, Radio, Mail, Phone, Users } from "lucide-react";
+import { Lock, ShieldCheck, AlertCircle, CheckCircle2, Radio, Mail, Phone, Users, User, Shield, Tag } from "lucide-react";
 import { formatPhone } from "@/lib/utils";
 import Link from "next/link";
 
@@ -12,7 +12,7 @@ export default function SettingsPage() {
   const { data: session, status: authStatus } = useSession({ required: true });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [teamInfo, setTeamInfo] = useState({ name: "", nickname: "", email: "", mobile: "" });
+  const [teamInfo, setTeamInfo] = useState({ name: "", nickname: "", email: "", mobile: "", coach: "" });
   const [lastUpload, setLastUpload] = useState<string | null>(null);
   const [seasonYear, setSeasonYear] = useState("2026");
 
@@ -39,11 +39,12 @@ export default function SettingsPage() {
         );
         
         if (myTeam) {
-          setTeamInfo({ 
-            name: myTeam.name || "", 
+          setTeamInfo({
+            name: myTeam.name || "",
             nickname: myTeam.nickname || "",
             email: myTeam.email || "",
-            mobile: formatPhone(myTeam.mobile || "")
+            mobile: formatPhone(myTeam.mobile || ""),
+            coach: myTeam.coach || "",
           });
           // 🚀 Set the last upload from the new column in your Coaches tab
           if (myTeam.lastSync) setLastUpload(myTeam.lastSync);
@@ -65,17 +66,20 @@ export default function SettingsPage() {
     const email = formData.get("email") as string;
     const rawMobile = formData.get("mobile") as string;
     const mobile = formatPhone(rawMobile);
+    const coach = formData.get("coach") as string;
+    const nickname = formData.get("nickname") as string;
+    const team = formData.get("team") as string;
 
     try {
       const res = await fetch('/api/teams', {
         method: 'POST',
-        body: JSON.stringify({ email, mobile }),
+        body: JSON.stringify({ email, mobile, coach, nickname, team }),
       });
       const result = await res.json();
-      
+
       if (result.success) {
         setStatus("success");
-        setTeamInfo(prev => ({ ...prev, email, mobile }));
+        setTeamInfo(prev => ({ ...prev, email, mobile, coach, nickname, name: team }));
       } else {
         setStatus("error");
         setErrorMessage(result.error || "Failed to update contact info.");
@@ -212,12 +216,60 @@ export default function SettingsPage() {
             <form onSubmit={handleContactUpdate} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2 text-left">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Coach Name</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                    <input
+                      key={teamInfo.coach}
+                      name="coach"
+                      type="text"
+                      defaultValue={teamInfo.coach}
+                      className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900"
+                      placeholder="Your name"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-left">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Team Nickname</label>
+                  <div className="relative">
+                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                    <input
+                      key={teamInfo.nickname}
+                      name="nickname"
+                      type="text"
+                      defaultValue={teamInfo.nickname}
+                      className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900"
+                      placeholder="e.g. Eagles"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-left md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Team Name</label>
+                  <div className="relative">
+                    <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                    <input
+                      key={teamInfo.name}
+                      name="team"
+                      type="text"
+                      defaultValue={teamInfo.name}
+                      className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900"
+                      placeholder="e.g. Philadelphia"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2 text-left">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Email Address</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
-                    <input 
+                    <input
+                      key={teamInfo.email}
                       name="email"
-                      type="email" 
+                      type="email"
                       defaultValue={teamInfo.email}
                       className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900"
                       placeholder="coach@example.com"

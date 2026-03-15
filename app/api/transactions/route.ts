@@ -1,37 +1,59 @@
 import { getSheetsClient } from '@/lib/google-cloud';
-import { parsePlayers } from '@/lib/players';
+import { parsePlayers } from '@/lib/sheetsPlayers';
 import { findPlayerRowIndex } from '@/lib/playerLookup';
-import { logTransaction } from '@/lib/transactions';
+import { logTransaction, getTransactions, updateTransactionStatus } from '@/lib/transactions';
 import { getCoaches } from '@/lib/config';
+import { getLeagueId } from '@/lib/getLeagueId';
+import { auth } from '@/auth';
+import { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const sheets = getSheetsClient();
-    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+    const leagueId = await getLeagueId();
+    const data = await getTransactions(leagueId);
+    return Response.json(data.map(t => ({
+      id: t.id,
+      timestamp: t.date
+        ? new Date(t.date).toLocaleString('en-US', { timeZone: 'America/New_York' })
+        : '',
+      type: t.type || '',
+      details: t.description || '',
+      fromFull: t.fromTeam || '',
+      toFull: t.toTeam || '',
+      coach: t.owner || '',
+      status: t.status || '',
+      weekBack: t.weekBack?.toString() || '',
+    })));
+  } catch (error: unknown) {
+    return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
+  }
+}
 
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'Transactions!A:J', 
-    });
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const rows = response.data.values || [];
-    if (rows.length === 0) return Response.json([]);
+    const teamshort = (session.user as { id?: string }).id || '';
+    const leagueId = await getLeagueId();
+    const coaches = await getCoaches(leagueId);
+    const coach = coaches.find(c => c.teamshort === teamshort);
+    if (!coach?.isCommissioner) {
+      return Response.json({ error: 'Commissioner access required' }, { status: 403 });
+    }
 
-    // Mapping based on your Google Sheet columns
-    const data = rows.slice(1).map((row) => ({
-      timestamp: row[0] || '',
-      type: row[1] || '',
-      details: row[2] || '',      // Column C: "Desc" (The Description)
-      fromFull: row[3] || '',     // Column D
-      toFull: row[4] || '',       // Column E
-      coach: row[5] || '',        // Column G: "Owner" (Coach Name)
-      status: row[6] || '',       // Column G
-      weekBack: row[7] || ''      // Column H
-    })).reverse();
+    const { id, status } = await req.json();
+    if (!id || !status) return Response.json({ error: 'id and status required' }, { status: 400 });
 
-    return Response.json(data);
+    const validStatuses = ['Done', 'Pending', 'On Team'];
+    if (!validStatuses.includes(status)) {
+      return Response.json({ error: 'Invalid status value' }, { status: 400 });
+    }
+
+    await updateTransactionStatus(Number(id), status);
+    return Response.json({ success: true });
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
   }
@@ -51,8 +73,6 @@ export async function POST(req: Request) {
     ]);
 
     const rows = res.data.values || [];
-    
-    // Create a map of Full Name -> Shortcode
     const teamMap = new Map(coaches.map(c => [c.team.toLowerCase(), c.teamshort]));
 
     const player = parsePlayers(rows).find(p => p.identity.trim().toLowerCase() === identity.trim().toLowerCase());
@@ -62,13 +82,11 @@ export async function POST(req: Request) {
     let newTeamValue = player.team;
 
     if (type === 'ADD' || type === 'INJURY PICKUP') {
-      // Resolve "Vico" to "VV" using the map
       const lookup = toTeam.trim().toLowerCase();
-      newTeamValue = teamMap.get(lookup) || toTeam; 
+      newTeamValue = teamMap.get(lookup) || toTeam;
     } else if (type === 'DROP' || type === 'WAIVE') {
-      newTeamValue = 'FA'; 
+      newTeamValue = 'FA';
     } else if (type === 'IR' || type === 'IR MOVE') {
-      // Keep existing shortcode but append -IR
       newTeamValue = `${player.team}-IR`;
     }
 

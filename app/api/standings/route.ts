@@ -1,12 +1,14 @@
-import { getHistory } from '@/lib/getHistory';
+import { getStandings } from '@/lib/getStandings';
+import { getLeagueId } from '@/lib/getLeagueId';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const history = await getHistory();
-    return NextResponse.json(history);
+    const leagueId = await getLeagueId();
+    const data = await getStandings(leagueId);
+    return NextResponse.json(data);
   } catch (error) {
     console.error('API /standings failed:', error);
-    return NextResponse.json({ error: 'Failed to load standings' }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
   }
 }

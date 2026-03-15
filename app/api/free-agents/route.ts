@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getPlayers } from '@/lib/players';
 import { executeFreeAgentMove } from '@/lib/freeAgency';
+import { getLeagueId } from '@/lib/getLeagueId';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const leagueId = await getLeagueId();
     // 1. Fetch parsed players from the centralized utility (handles caching internally)
-    const allPlayers = await getPlayers();
+    const allPlayers = await getPlayers(leagueId);
 
     // 2. Filter for Free Agents (Case-insensitive 'FA')
     const freeAgents = allPlayers.filter(

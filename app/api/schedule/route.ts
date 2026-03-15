@@ -1,10 +1,11 @@
 import { getSchedule } from '@/lib/getSchedule';
 import { getStandings } from '@/lib/getStandings'; // Using your lib as a lookup
+import { getLeagueId } from '@/lib/getLeagueId';
 import { NextRequest, NextResponse } from 'next/server';
 import { Team } from '@/types';
 
 interface Game {
-  year: string;
+  year: number | null;
   week: string;
   visitor: string;
   home: string;
@@ -18,10 +19,12 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const teamCode = searchParams.get('team'); // e.g., "VV"
 
+    const leagueId = await getLeagueId();
+
     // 1. Fetch both datasets in parallel
     const [allGames, allTeams] = await Promise.all([
-      getSchedule(),
-      getStandings()
+      getSchedule(leagueId),
+      getStandings(leagueId)
     ]);
 
     if (!teamCode) return NextResponse.json(allGames);

@@ -1,45 +1,50 @@
 import { sheets, SHEET_ID } from '@/lib/googleSheets';
 import { unstable_cache } from 'next/cache';
+import { db } from '@/lib/db';
+import { leagues } from '@/schema';
+import { eq } from 'drizzle-orm';
+import { auth } from '@/auth';
+import { getLeagueId } from '@/lib/getLeagueId';
 
 const getCachedSyncTime = unstable_cache(
   async () => {
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SHEET_ID,
-      range: 'Rules!A:B', 
+      range: 'Rules!A:B',
     });
     return response.data.values || [];
   },
   ['footer-player-sync-time'],
-  { revalidate: 300, tags: ['rules'] } // Cache for 5 minutes
+  { revalidate: 300, tags: ['rules'] }
 );
 
-async function getPlayerSyncTime() {
-  try {
-    const rows = await getCachedSyncTime();
-    // Looks for the row you labeled 'player_sync'
-    const syncRow = rows.find(row => row[0] === 'player_sync');
-    
-    return syncRow ? syncRow[1] : null;
-  } catch (error) {
-    console.error("Footer Sync Fetch Error:", error);
-    return null;
-  }
-}
-
-// This captures the time when the application module is initialized.
-// In a production build, this effectively represents the build/deployment time.
 const APP_BUILD_TIME = new Date().toLocaleString('en-US', {
   month: 'short',
   day: 'numeric',
   hour: 'numeric',
   minute: '2-digit',
-  hour12: true
+  hour12: true,
+  timeZone: 'America/New_York'
 });
 
 export default async function Footer() {
-  const syncTime = await getPlayerSyncTime();
-  
-  // If the cell is empty or error occurs, show a default or "LIVE"
+  const session = await auth();
+
+  let leagueName = 'Football League';
+  let syncTime: string | null = null;
+
+  if (session) {
+    const [syncRows, leagueId] = await Promise.all([
+      getCachedSyncTime().catch(() => []),
+      getLeagueId(),
+    ]);
+    const syncRow = (syncRows as string[][]).find(r => r[0] === 'player_sync');
+    syncTime = syncRow ? syncRow[1] : null;
+
+    const leagueRows = await db.select({ name: leagues.name }).from(leagues).where(eq(leagues.id, leagueId)).limit(1);
+    if (leagueRows[0]?.name) leagueName = leagueRows[0].name;
+  }
+
   const displayDate = syncTime ? syncTime.toUpperCase() : "Player Synced date unavailable";
 
   return (
@@ -47,10 +52,10 @@ export default async function Footer() {
       <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex flex-col text-center md:text-left">
           <span className="text-xl font-black tracking-tighter text-slate-900 leading-none italic uppercase">
-            GFL<span className="text-blue-600">MANAGER</span>
+            {leagueName} <span className="text-blue-600">Manager</span>
           </span>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-            © 2026 Gridiron Football League
+            © 2026 {leagueName}
           </p>
         </div>
 

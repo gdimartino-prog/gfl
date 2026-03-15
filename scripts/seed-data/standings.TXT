@@ -1,0 +1,28 @@
+  GFL2025 Standings
+
+  East               W  L  T   Pct Stk Pts  Ave Opp  Ave  Diff     Home      Div      Conf    Internet
+x-Tetbury           11  6  0  .647  L1 513 30.2 412 24.2   5.9   6  2  0   8  2  0  11  6  0   5  4  0
+  Urban             10  7  0  .588  W1 499 29.4 409 24.1   5.3   6  2  0   7  3  0  10  7  0   7  4  0
+  Las Vegas          7 10  0  .412  W2 299 17.6 364 21.4  -3.8   4  4  0   6  4  0   7 10  0   0  7  0
+  London             5 12  0  .294  L3 405 23.8 586 34.5 -10.6   4  4  0   5  5  0   5 12  0   0  0  0
+  Old Bridge         4 13  0  .235  L1 292 17.2 541 31.8 -14.6   1  7  0   3  7  0   4 13  0   1  4  0
+  LE                 2 15  0  .118  W1 309 18.2 529 31.1 -12.9   1  7  0   1  9  0   2 15  0   0  0  0
+
+  Central            W  L  T   Pct Stk Pts  Ave Opp  Ave  Diff     Home      Div      Conf    Internet
+x-Amalfi            14  3  0  .824  W2 573 33.7 369 21.7  12.0   9  0  0   9  1  0  14  3  0  11  2  0
+  DC                13  4  0  .765  W1 491 28.9 339 19.9   8.9   8  0  0   7  3  0  13  4  0   9  3  0
+  Tampa             12  5  0  .706  W4 467 27.5 371 21.8   5.6   6  2  0   6  4  0  12  5  0   9  5  0
+  Carolina           9  8  0  .529  L1 455 26.8 423 24.9   1.9   5  3  0   3  7  0   9  8  0   6  8  0
+  Newark Bay         7 10  0  .412  L2 428 25.2 422 24.8   0.4   5  4  0   4  6  0   7 10  0   5  8  0
+  Satriale           2 15  0  .118  L6 253 14.9 453 26.6 -11.8   2  7  0   1  9  0   2 15  0   1  5  0
+
+  West               W  L  T   Pct Stk Pts  Ave Opp  Ave  Diff     Home      Div      Conf    Internet
+  LBI               14  3  0  .824  W2 535 31.5 352 20.7  10.8   8  1  0   8  2  0  14  3  0   9  1  0
+  Fur Peace         14  3  0  .824  L1 549 32.3 393 23.1   9.2   8  1  0   8  2  0  14  3  0   9  3  0
+  Tinton Falls      13  4  0  .765  W1 552 32.5 375 22.1  10.4   6  3  0   6  4  0  13  4  0   0  0  0
+  Kigali             7 10  0  .412  W2 418 24.6 487 28.6  -4.1   4  5  0   4  6  0   7 10  0   2  8  0
+  Crimson            5 12  0  .294  L3 327 19.2 472 27.8  -8.5   3  6  0   2  8  0   5 12  0   1  5  0
+  Vico               4 13  0  .235  L2 397 23.4 465 27.4  -4.0   2  7  0   2  8  0   4 13  0   1  9  0
+
+    Division         W  L  T   Pct Stk Pts  Ave Opp  Ave  Diff     Home      Div      Conf    Internet
+x-Injuries           0  0  0  .000       0  0.0   0  0.0   0.0   0  0  0   0  0  0   0  0  0   0  0  0

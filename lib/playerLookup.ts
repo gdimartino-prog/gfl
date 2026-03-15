@@ -1,4 +1,4 @@
-import { parsePlayers } from './players';
+import { parsePlayers } from './sheetsPlayers';
 
 /**
  * Finds the row index for a specific player in the master 'Players' sheet.

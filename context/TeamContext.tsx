@@ -3,7 +3,8 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 
 type TeamContextType = {
   selectedTeam: string;
-  setSelectedTeam: (team: string) => void;
+  setSelectedTeam: (team: string) => void;   // persists to localStorage
+  initTeam: (team: string) => void;          // sets state only, no localStorage
 };
 
 const TeamContext = createContext<TeamContextType | undefined>(undefined);
@@ -27,7 +28,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <TeamContext.Provider value={{ selectedTeam, setSelectedTeam: updateTeam }}>
+    <TeamContext.Provider value={{ selectedTeam, setSelectedTeam: updateTeam, initTeam: setSelectedTeam }}>
       {children}
     </TeamContext.Provider>
   );

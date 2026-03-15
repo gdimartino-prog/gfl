@@ -1,5 +1,7 @@
-import { getSheetsClient } from './google-cloud';
-import { unstable_cache } from 'next/cache';
+
+import { db } from './db';
+import { teams } from '@/schema';
+import { eq } from 'drizzle-orm';
 
 export type Coach = {
   coach: string;
@@ -13,126 +15,72 @@ export type Coach = {
   lastSync: string;
 };
 
-// Reads config tab and returns all coaches
-export async function getCoaches(): Promise<Coach[]> {
-  return unstable_cache(
-    async () => {
-      const sheets = getSheetsClient();
-      const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+// Reads teams table and returns coaches, optionally filtered by league
+export async function getCoaches(leagueId: number = 1): Promise<Coach[]> {
+  const allTeams = await db.select().from(teams).where(eq(teams.leagueId, leagueId));
+  return allTeams.map(t => ({
+      team: t.name,
+      coach: t.coach || '',
+      teamshort: t.teamshort || '',
+      nickname: t.nickname || '',
+      isCommissioner: t.isCommissioner || false,
+      status: t.status || 'active',
+      mobile: t.mobile || '',
+      email: t.email || '',
+      lastSync: t.touch_dt?.toString() || '',
+  }));
+}
 
-      try {
-        const res = await sheets.spreadsheets.values.get({
-          spreadsheetId: SHEET_ID,
-          range: 'Coaches!A:J',
-        });
-
-        const rows = res.data.values || [];
-
-        return rows.slice(1).map(r => ({
-          team: r[0] || '',
-          teamshort: r[1] || '',
-          coach: r[2] || '',
-          nickname: r[6] || '',
-          isCommissioner: r[3] === 'TRUE' || r[3] === 'true',
-          mobile: r[4] || '',
-          status: (r[5] || '').toLowerCase().trim(),
-          lastSync: r[8] || '',
-          email: r[9] || '',
-        }));
-      } catch (error) {
-        console.error("getCoaches Error:", error);
-        return [];
-      }
-    },
-    ['coaches-data'],
-    { revalidate: 60, tags: ['coaches'] }
-  )();
+export async function getCoachByTeamCode(teamCode: string) {
+    const team = await db.select().from(teams).where(eq(teams.id, parseInt(teamCode)));
+    if (team.length === 0) return null;
+    const t = team[0];
+    return {
+        team: t.name,
+        coach: t.coach || '',
+        teamshort: t.teamshort || '',
+        nickname: t.nickname || '',
+        isCommissioner: t.isCommissioner || false,
+        status: t.status || 'active',
+        mobile: t.mobile || '',
+        email: t.email || '',
+        lastSync: t.touch_dt?.toString() || '',
+    }
 }
 
 /**
  * Updates coach contact information in the Coaches tab
  */
-export async function updateCoachContact(teamCode: string, mobile: string, email: string) {
-  const sheets = getSheetsClient();
-  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-
-  try {
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'Coaches!A:B',
-    });
-
-    const rows = response.data.values || [];
-    const rowIndex = rows.findIndex(row => 
-      row[1]?.toString().trim().toUpperCase() === teamCode.trim().toUpperCase()
-    );
-
-    if (rowIndex === -1) return { success: false, error: 'Team not found' };
-
-    // Update Column E (Mobile - Index 4) and Column J (Email - Index 9)
-    const updates = [
-      { range: `Coaches!E${rowIndex + 1}`, values: [[mobile]] },
-      { range: `Coaches!J${rowIndex + 1}`, values: [[email]] }
-    ];
-
-    for (const update of updates) {
-      await sheets.spreadsheets.values.update({
-        spreadsheetId: SHEET_ID,
-        range: update.range,
-        valueInputOption: 'RAW',
-        requestBody: { values: update.values }
-      });
+export async function updateCoachContact(
+    teamCode: string,
+    mobile: string,
+    email: string,
+    coach?: string,
+    nickname?: string,
+    team?: string,
+) {
+    try {
+        const fields: Record<string, unknown> = { mobile, email };
+        if (coach !== undefined) fields.coach = coach;
+        if (nickname !== undefined) fields.nickname = nickname;
+        if (team !== undefined) fields.name = team;
+        await db.update(teams).set(fields).where(eq(teams.teamshort, teamCode.toUpperCase()));
+        return { success: true };
+    } catch (error) {
+        console.error("❌ Failed to update coach contact:", error);
+        return { success: false };
     }
-
-    return { success: true };
-  } catch (error) {
-    console.error("❌ Failed to update coach contact:", error);
-    return { success: false };
-  }
 }
 
 /**
  * Updates the last_sync timestamp for a specific coach in the Coaches tab (Column I)
  */
 export async function updateCoachSync(teamCode: string) {
-  const sheets = getSheetsClient();
-  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-
-  try {
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'Coaches!A:B',
-    });
-
-    const rows = response.data.values || [];
-    const rowIndex = rows.findIndex(row => 
-      row[1]?.toString().trim().toUpperCase() === teamCode.trim().toUpperCase()
-    );
-
-    if (rowIndex === -1) {
-      console.error(`❌ updateCoachSync: Team ${teamCode} not found.`);
-      return { success: false };
+    try {
+        await db.update(teams).set({ touch_dt: new Date() }).where(eq(teams.teamshort, teamCode.toUpperCase()));
+        return { success: true, timestamp: new Date() };
+    } catch (error) {
+        console.error("❌ Failed to update coach sync timestamp:", error);
+        return { success: false };
     }
-
-    const now = new Date();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    const yyyy = now.getFullYear();
-    const hh = String(now.getHours()).padStart(2, '0');
-    const min = String(now.getMinutes()).padStart(2, '0');
-    const ss = String(now.getSeconds()).padStart(2, '0');
-    const timestamp = `${mm}/${dd}/${yyyy} ${hh}:${min}:${ss}`;
-
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SHEET_ID,
-      range: `Coaches!I${rowIndex + 1}`, // Column I is the 9th column
-      valueInputOption: 'RAW',
-      requestBody: { values: [[timestamp]] }
-    });
-
-    return { success: true, timestamp };
-  } catch (error) {
-    console.error("❌ Failed to update coach sync timestamp:", error);
-    return { success: false };
-  }
 }

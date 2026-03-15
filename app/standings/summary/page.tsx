@@ -1,11 +1,24 @@
 import { getHistory } from '@/lib/getHistory';
+import { getStandings } from '@/lib/getStandings';
 import SummaryTable from '@/components/SummaryTable';
 import Link from 'next/link';
+import { Trophy } from 'lucide-react';
+import { getLeagueId } from '@/lib/getLeagueId';
+import { db } from '@/lib/db';
+import { rules, leagues } from '@/schema';
+import { and, eq } from 'drizzle-orm';
 
 export const revalidate = 3600;
 
 export default async function SummaryReportPage() {
-  const allData = await getHistory();
+  const leagueId = await getLeagueId();
+  const [allData, leagueRows, seasonRows] = await Promise.all([
+    leagueId === 1 ? getHistory() : getStandings(leagueId),
+    db.select({ name: leagues.name }).from(leagues).where(eq(leagues.id, leagueId)).limit(1),
+    db.select({ value: rules.value }).from(rules).where(and(eq(rules.rule, 'cuts_year'), eq(rules.leagueId, leagueId))).limit(1),
+  ]);
+  const leagueName = leagueRows[0]?.name ?? 'League';
+  const season = seasonRows[0]?.value ?? '';
 
   // Sort data by year ascending to ensure the most recent GM name is captured last during aggregation
   const sortedData = [...allData].sort((a, b) => Number(a.year) - Number(b.year));
@@ -85,8 +98,8 @@ export default async function SummaryReportPage() {
           <h1 className="text-5xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">
             FRANCHISE <span className="text-blue-600">LEADERBOARD</span>
           </h1>
-          <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.3em] mt-3">
-            ALL-TIME CUMULATIVE LEAGUE RECORDS
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-3 flex items-center gap-2">
+            <Trophy size={14} className="text-blue-500" /> {leagueName} All-Time Records{season ? ` • Through Season ${season}` : ''}
           </p>
         </div>
 

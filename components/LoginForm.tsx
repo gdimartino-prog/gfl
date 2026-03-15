@@ -25,7 +25,7 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
       })) as SignInResponse;
 
       if (result?.error) {
-        setError("Invalid team name or password.");
+        setError("Invalid credentials. Please check your team name, email, or password.");
         setLoading(false);
       } else {
         // If no error, manually redirect to the home page
@@ -37,6 +37,29 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     }
   }
   
+  async function handleDemoLogin() {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = (await signIn("credentials", {
+        username: "demo",
+        password: "demo",
+        redirect: false,
+      })) as SignInResponse;
+      if (result?.error) {
+        setError("Demo login unavailable. Please contact the league office.");
+        setLoading(false);
+      } else {
+        // Force AFL (league 2) as the active league for demo users
+        document.cookie = `gfl-league-id=2; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+        window.location.href = "/";
+      }
+    } catch {
+      setError("A connection error occurred.");
+      setLoading(false);
+    }
+  }
+
   return (
     <>
       {/* 1. CREDENTIAL RECOVERY MODAL */}
@@ -59,7 +82,7 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
             </h3>
             
             <p className="text-[11px] font-bold text-slate-500 leading-relaxed uppercase tracking-tight">
-              GFL passwords are managed by the League Office. If you are locked out, please contact <span className="text-blue-600">George Di Martino</span> to reset your temporary credentials to your Team ID.
+              Passwords are managed by the League Office. If you are locked out, please contact <span className="text-blue-600">George Di Martino</span> to reset your temporary credentials to your Team ID.
             </p>
             
             <div className="mt-8 space-y-3">
@@ -93,7 +116,7 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         
         <div className="space-y-2 text-left">
           <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">
-            League Team Name
+            Team Name or Email
           </label>
           <div className="relative">
             <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
@@ -102,7 +125,7 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
               type="text"
               required
               className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 text-sm font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-300"
-              placeholder="e.g. Vico or Amalfi"
+              placeholder="Team name or email address"
             />
           </div>
         </div>
@@ -149,15 +172,29 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 
         <div className="flex flex-col gap-4 pt-2">
           <p className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-tighter italic">
-            Authorized GFL Personnel Only
+            Authorized Personnel Only
           </p>
-          
-          <button 
+
+          <button
             type="button"
             onClick={() => setShowForgotModal(true)}
             className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-blue-500 transition-colors"
           >
             Forgot Password?
+          </button>
+        </div>
+
+        <div className="border-t border-slate-100 pt-6">
+          <p className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+            Just browsing?
+          </p>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={handleDemoLogin}
+            className="w-full bg-slate-800 hover:bg-slate-700 disabled:bg-slate-200 text-white font-black uppercase italic tracking-widest py-4 rounded-2xl transition-all active:scale-[0.98] text-sm"
+          >
+            View Demo League →
           </button>
         </div>
       </form>

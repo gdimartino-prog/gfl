@@ -1,7 +1,9 @@
 import LoginForm from "@/components/LoginForm";
 import Image from "next/image";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const leagueName = 'Football League';
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
       <div className="w-full max-w-md space-y-8">
@@ -11,7 +13,7 @@ export default function LoginPage() {
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-6 inline-block">
             <Image 
               src="/icon.png" 
-              alt="GFL Logo" 
+              alt={`${leagueName} Logo`}
               className="h-24 w-auto object-contain"
               width={96}
               height={96}
@@ -19,7 +21,7 @@ export default function LoginPage() {
           </div>
           
           <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase italic leading-none">
-            GFL <span className="text-blue-600">Login</span>
+            {leagueName} <span className="text-blue-600">Login</span>
           </h1>
           <p className="mt-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
             Front Office Authentication
@@ -31,9 +33,16 @@ export default function LoginPage() {
           <LoginForm />
         </div>
 
+        <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          New coach?{" "}
+          <a href="/signup" className="text-blue-500 hover:text-blue-700 transition-colors">
+            Create an Account
+          </a>
+        </p>
+
         {/* Footer info below the card */}
         <p className="text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest">
-          Established 1993 &bull; Gridiron Football League
+          Established 1993 &bull; {leagueName}
         </p>
       </div>
     </main>

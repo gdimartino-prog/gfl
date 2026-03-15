@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPlayers } from '@/lib/players';
+import { getLeagueId } from '@/lib/getLeagueId';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(
-  req: NextRequest, 
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
     const targetId = decodeURIComponent(id).toLowerCase().trim();
 
+    const leagueId = await getLeagueId();
     // 1. Fetch from Cache (Uses the centralized utility)
-    const players = await getPlayers();
+    const players = await getPlayers(leagueId);
     
     // 2. Find the player in the cached array
     const matchedPlayer = players.find(

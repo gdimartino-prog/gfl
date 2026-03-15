@@ -1,8 +1,12 @@
-import { getHistory } from '@/lib/getHistory';
+import { getStandings } from '@/lib/getStandings';
 import { getSchedule } from '@/lib/getSchedule';
-import { sheets, SHEET_ID } from '@/lib/googleSheets';
+import { getLeagueId } from '@/lib/getLeagueId';
+import { db } from '@/lib/db';
+import { rules, leagues } from '@/schema';
+import { eq, inArray } from 'drizzle-orm';
 import StandingsClient from '@/components/StandingsClient';
 import Link from 'next/link';
+import { BarChart3 } from 'lucide-react';
 import { StandingRow, ScheduleGame } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -14,27 +18,32 @@ export default async function StandingsPage() {
   let playoffTeams = 8;
   let cutsYear = "";
 
+  let leagueName = 'League';
   try {
-    [allData, allGames] = await Promise.all([getHistory(), getSchedule()]);
-    if (!Array.isArray(allData)) allData = [];
+    const leagueId = await getLeagueId();
 
-    // 🚀 DIRECT DATA ACCESS: Instead of fetching from our own API (which fails in SSR),
-    // we query Google Sheets directly using our server-side utility.
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'Rules!A:B',
-    });
+    const [historyData, scheduleData, ruleRows, leagueRows] = await Promise.all([
+      getStandings(leagueId),
+      getSchedule(leagueId),
+      db.select({ rule: rules.rule, value: rules.value })
+        .from(rules)
+        .where(inArray(rules.rule, ['season_games', 'playoff_teams', 'cuts_year']))
+        .then(rs => Object.fromEntries(rs.map(r => [r.rule, r.value]))),
+      db.select({ name: leagues.name }).from(leagues).where(eq(leagues.id, leagueId)).limit(1),
+    ]);
 
-    const rows = response.data.values || [];
-    // Find the 'season_games' setting in Column A and get value from Column B
-    const seasonGamesRule = rows.find(row => row[0] === 'season_games');
-    if (seasonGamesRule?.[1]) totalGames = parseInt(seasonGamesRule[1]);
+    const rawData = Array.isArray(historyData) ? historyData : [];
+    // Rows with null year are assigned to the current season
+    allData = rawData.map(r => ({
+      ...r,
+      year: r.year ?? (ruleRows['cuts_year'] ? Number(ruleRows['cuts_year']) : r.year),
+    }));
+    allGames = scheduleData as ScheduleGame[];
+    leagueName = leagueRows[0]?.name ?? 'League';
 
-    const playoffTeamsRule = rows.find(row => row[0] === 'playoff_teams');
-    if (playoffTeamsRule?.[1]) playoffTeams = parseInt(playoffTeamsRule[1]);
-
-    const cutsYearRule = rows.find(row => row[0] === 'cuts_year');
-    if (cutsYearRule?.[1]) cutsYear = cutsYearRule[1];
+    if (ruleRows['season_games']) totalGames = parseInt(ruleRows['season_games']);
+    if (ruleRows['playoff_teams']) playoffTeams = parseInt(ruleRows['playoff_teams']);
+    if (ruleRows['cuts_year']) cutsYear = ruleRows['cuts_year'];
   } catch (err) {
     console.error("Standings Page Data Fetch Error:", err);
   }
@@ -67,8 +76,8 @@ export default async function StandingsPage() {
           <h1 className="text-5xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">
             League <span className="text-blue-600">Standings</span>
           </h1>
-          <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.3em] mt-3">
-            GFL Manager Official Records
+          <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-3 flex items-center gap-2">
+            <BarChart3 size={14} className="text-blue-500" /> {leagueName} Official Records • Season {latestYear}
           </p>
         </div>
 

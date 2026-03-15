@@ -1,36 +1,83 @@
-import { getSheetsClient } from '@/lib/google-cloud';
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
+import { db } from '@/lib/db';
+import { rules } from '@/schema';
+import { eq, and, isNull } from 'drizzle-orm';
+import { getLeagueId } from '@/lib/getLeagueId';
+
+const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
 
 export async function GET() {
   try {
-    const sheets = getSheetsClient();
-    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-    
-    // Specifically targeting the new "Rules" sheet
-    const range = 'Rules!A:B'; 
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: range,
-    });
-
-     const rows = response.data.values ? response.data.values.slice(1) : [];
-    
-    if (!rows) return NextResponse.json([], { status: 200 });
-
-    // Transform rows into a clean object array
-    const rules = rows.map(([setting, value]) => ({
-      setting: setting?.toString().trim().toLowerCase(),
-      value: value?.toString().trim()
-    }));
-
-    return NextResponse.json(rules, {
-      headers: { 
-        'Cache-Control': 'no-store, max-age=0',
-        'Content-Type': 'application/json'
-      }
-    });
+    const leagueId = await getLeagueId();
+    const rows = await db.select().from(rules)
+      .where(eq(rules.leagueId, leagueId))
+      .orderBy(rules.year, rules.rule);
+    return NextResponse.json(rows.map(r => ({ setting: r.rule, value: r.value, desc: r.desc, year: r.year ?? null })));
   } catch (error) {
     console.error('Rules API Error:', error);
-    return NextResponse.json({ error: 'Failed to fetch rules' }, { status: 500 });
+    return NextResponse.json([], { status: 200 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { rule, value, year, desc } = await req.json();
+    if (!rule || value === undefined) {
+      return NextResponse.json({ error: 'rule and value are required' }, { status: 400 });
+    }
+    const leagueId = await getLeagueId();
+    const yearVal = GLOBAL_ONLY_RULES.has(String(rule).trim()) ? null : (year != null && year !== '' ? Number(year) : null);
+    await db.insert(rules).values({
+      leagueId,
+      year: yearVal,
+      rule: String(rule).trim(),
+      value: String(value),
+      desc: desc ?? null,
+      touch_id: 'maintenance',
+    });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Rules POST Error:', error);
+    return NextResponse.json({ error: 'Failed to create rule' }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const { rule, value, year } = await req.json();
+    if (!rule || value === undefined) {
+      return NextResponse.json({ error: 'rule and value are required' }, { status: 400 });
+    }
+    const leagueId = await getLeagueId();
+    const yearVal = year != null ? Number(year) : null;
+    await db.update(rules)
+      .set({ value: String(value), touch_id: 'maintenance' })
+      .where(and(
+        eq(rules.rule, rule),
+        eq(rules.leagueId, leagueId),
+        yearVal != null ? eq(rules.year, yearVal) : isNull(rules.year),
+      ));
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Rules PATCH Error:', error);
+    return NextResponse.json({ error: 'Failed to update rule' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { rule, year } = await req.json();
+    if (!rule) return NextResponse.json({ error: 'rule is required' }, { status: 400 });
+    const leagueId = await getLeagueId();
+    const yearVal = year != null ? Number(year) : null;
+    await db.delete(rules).where(and(
+      eq(rules.rule, rule),
+      eq(rules.leagueId, leagueId),
+      yearVal != null ? eq(rules.year, yearVal) : isNull(rules.year),
+    ));
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Rules DELETE Error:', error);
+    return NextResponse.json({ error: 'Failed to delete rule' }, { status: 500 });
   }
 }

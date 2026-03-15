@@ -1,15 +1,21 @@
 import CoachingTerminal from '@/components/CoachingTerminal';
-import { auth } from "@/auth"; 
+import { auth } from "@/auth";
 import { ShieldCheck, Lock, ArrowRight, Info } from 'lucide-react';
 import Link from 'next/link';
+import { getLeagueId } from '@/lib/getLeagueId';
+import { db } from '@/lib/db';
+import { rules } from '@/schema';
+import { and, eq } from 'drizzle-orm';
 
 export default async function CoachingPage() {
   const session = await auth();
-  
-  // Logic: Priority is Team Name, fallback to Coach Name
-  // Note: Check if your session object stores team as 'session.user.team'
   const teamName = (session?.user as { team?: string })?.team || session?.user?.name;
   const isAuthenticated = !!session;
+
+  const leagueId = await getLeagueId();
+  const seasonRows = await db.select({ value: rules.value }).from(rules)
+    .where(and(eq(rules.rule, 'cuts_year'), eq(rules.leagueId, leagueId))).limit(1);
+  const season = seasonRows[0]?.value ?? '';
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10 bg-gray-50 min-h-screen text-left">
@@ -18,7 +24,7 @@ export default async function CoachingPage() {
           Coaching <span className="text-blue-600">Hub</span>
         </h1>
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-3 flex items-center gap-2">
-          <ShieldCheck size={14} className="text-blue-500" /> Secure Terminal • Action! PC Football Logistics
+          <ShieldCheck size={14} className="text-blue-500" /> Secure Terminal • Action! PC Football Logistics{season ? ` • Season ${season}` : ''}
         </p>
       </header>
 

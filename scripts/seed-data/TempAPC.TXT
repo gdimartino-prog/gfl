@@ -1,0 +1,205 @@
+GFL2025 Schedule
+
+ 1  Old Bridge @ Las Vegas  3-27 
+ 1  Urban @ Tetbury  27-29
+ 1  LE @ London  21-29
+ 1  Amalfi @ Satriale  21-14
+ 1  Newark Bay @ Tampa  23-17
+ 1  DC @ Carolina  20-14
+ 1  Kigali @ Crimson  27-24
+ 1  Tinton Falls @ Vico  31-18
+ 1  Fur Peace @ LBI  24-27
+
+ 2  LE @ Old Bridge  30-33
+ 2  Las Vegas @ Urban  14-30
+ 2  Tetbury @ London  28-33
+ 2  DC @ Amalfi  3-19 
+ 2  Satriale @ Newark Bay  16-17
+ 2  Tampa @ Carolina  28-17
+ 2  Fur Peace @ Kigali  33-24
+ 2  Crimson @ Tinton Falls  17-38
+ 2  Vico @ LBI  33-41
+
+ 3  Urban @ Old Bridge  34-24
+ 3  London @ Las Vegas  17-39
+ 3  Tetbury @ LE  41-33
+ 3  Newark Bay @ Amalfi  12-37
+ 3  Carolina @ Satriale  19-33
+ 3  Tampa @ DC  17-27
+ 3  Tinton Falls @ Kigali  51-30
+ 3  LBI @ Crimson  34-20
+ 3  Vico @ Fur Peace  33-36
+
+ 4  Old Bridge @ London  24-33
+ 4  Urban @ LE  28-7 
+ 4  Las Vegas @ Tetbury  12-27
+ 4  Newark Bay @ DC  27-34
+ 4  Satriale @ Tampa  15-20
+ 4  Kigali @ LBI  6-24 
+ 4  Tinton Falls @ Fur Peace  20-34
+ 4  Crimson @ Vico  31-28
+ 4  Amalfi @ Carolina  43-33
+
+ 5  Tetbury @ Old Bridge  38-26
+ 5  London @ Urban  13-45
+ 5  LE @ Las Vegas  15-21
+ 5  Tampa @ Amalfi  20-38
+ 5  Carolina @ Newark Bay  31-19
+ 5  DC @ Satriale  30-14
+ 5  Vico @ Kigali  33-22
+ 5  LBI @ Tinton Falls  27-9 
+ 5  Fur Peace @ Crimson  31-14
+
+ 6  Carolina @ Old Bridge  27-7 
+ 6  DC @ Las Vegas  31-3 
+ 6  Tinton Falls @ LE  45-21
+ 6  Kigali @ Tetbury  32-35
+ 6  LBI @ Amalfi  24-45
+ 6  Fur Peace @ Satriale  34-6 
+
+ 7  Old Bridge @ DC  17-35
+ 7  Tampa @ Urban  30-39
+ 7  Las Vegas @ Carolina  7-36 
+ 7  LE @ Kigali  3-30 
+ 7  Crimson @ London  40-21
+ 7  Tetbury @ Tinton Falls  13-20
+ 7  Amalfi @ Fur Peace  39-46
+ 7  Vico @ Newark Bay  17-31
+ 7  Satriale @ LBI  18-31
+
+ 8  Urban @ Carolina  17-31
+ 8  Las Vegas @ Tampa  6-23 
+ 8  London @ Tinton Falls  20-50
+ 8  Tetbury @ Crimson  34-22
+ 8  Newark Bay @ LBI  25-36
+ 8  Satriale @ Vico  20-23
+
+ 9  Fur Peace @ Urban  31-49
+ 9  LBI @ Las Vegas  23-10
+ 9  Tampa @ LE  24-14
+ 9  DC @ London  34-24
+ 9  Carolina @ Tetbury  34-28
+ 9  Crimson @ Amalfi  10-34
+ 9  Vico @ Old Bridge  36-3 
+ 9  Kigali @ Newark Bay  18-41
+ 9  Tinton Falls @ Satriale  30-17
+
+ 10  Old Bridge @ Tampa  16-38
+ 10  Urban @ DC  13-26
+ 10  LE @ Crimson  24-19
+ 10  London @ Kigali  28-41
+ 10  Amalfi @ Vico  27-12
+ 10  Newark Bay @ Fur Peace  6-27 
+
+ 11  Old Bridge @ LBI  6-39 
+ 11  Urban @ Vico  34-21
+ 11  Las Vegas @ Fur Peace  9-31 
+ 11  LE @ Carolina  14-38
+ 11  London @ Tampa  14-36
+ 11  Tetbury @ DC  27-34
+ 11  Amalfi @ Tinton Falls  23-34
+ 11  Newark Bay @ Crimson  24-37
+ 11  Satriale @ Kigali  28-35
+
+ 12  Fur Peace @ Old Bridge  45-13
+ 12  LBI @ Urban  35-28
+ 12  Vico @ Las Vegas  19-20
+ 12  DC @ LE  42-21
+ 12  Carolina @ London  36-24
+ 12  Tampa @ Tetbury  31-27
+ 12  Kigali @ Amalfi  17-34
+ 12  Tinton Falls @ Newark Bay  34-27
+ 12  Crimson @ Satriale  6-23 
+
+ 13  Old Bridge @ Kigali  18-16
+ 13  Urban @ Tinton Falls  38-52
+ 13  Las Vegas @ Crimson  14-31
+ 13  LE @ Amalfi  35-40
+ 13  London @ Newark Bay  24-62
+ 13  Tetbury @ Satriale  44-20
+ 13  DC @ Fur Peace  25-32
+ 13  Carolina @ LBI  28-33
+ 13  Tampa @ Vico  42-24
+
+ 14  Old Bridge @ Tetbury  17-40
+ 14  Urban @ London  27-44
+ 14  Las Vegas @ LE  34-6 
+ 14  Amalfi @ Tampa  45-31
+ 14  Newark Bay @ Carolina  23-24
+ 14  Satriale @ DC  10-27
+ 14  Kigali @ Vico  23-21
+ 14  Tinton Falls @ LBI  31-19
+ 14  Crimson @ Fur Peace  7-38 
+
+ 15  London @ Old Bridge  40-20
+ 15  LE @ Urban  7-33 
+ 15  Tetbury @ Las Vegas  28-16
+ 15  Carolina @ Amalfi  10-46
+ 15  DC @ Newark Bay  20-29
+ 15  Tampa @ Satriale  23-3 
+ 15  LBI @ Kigali  37-15
+ 15  Fur Peace @ Tinton Falls  24-21
+ 15  Vico @ Crimson  9-23 
+
+ 16  Old Bridge @ LE  21-13
+ 16  Urban @ Las Vegas  20-9 
+ 16  London @ Tetbury  17-31
+ 16  Amalfi @ DC  28-45
+ 16  Newark Bay @ Satriale  29-7 
+ 16  Carolina @ Tampa  26-41
+ 16  Kigali @ Fur Peace  31-41
+ 16  Tinton Falls @ Crimson  40-3 
+ 16  LBI @ Vico  29-31
+
+ 17  Old Bridge @ Urban  27-17
+ 17  Las Vegas @ London  25-7 
+ 17  LE @ Tetbury  18-34
+ 17  Amalfi @ Newark Bay  24-20
+ 17  Satriale @ Carolina  6-34 
+ 17  DC @ Tampa  24-27
+ 17  Kigali @ Tinton Falls  27-20
+ 17  Crimson @ LBI  7-29 
+ 17  Fur Peace @ Vico  26-22
+
+ 18  Las Vegas @ Old Bridge  33-17
+ 18  Tetbury @ Urban  9-20 
+ 18  London @ LE  17-27
+ 18  Satriale @ Amalfi  3-30 
+ 18  Tampa @ Newark Bay  19-13
+ 18  Carolina @ DC  17-34
+ 18  Crimson @ Kigali  16-24
+ 18  Vico @ Tinton Falls  17-26
+ 18  LBI @ Fur Peace  47-16
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

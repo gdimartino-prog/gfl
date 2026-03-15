@@ -2,13 +2,32 @@ import { put, list } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { updateCoachSync } from '@/lib/config';
 import { auth } from "@/auth";
+import { getLeagueId } from '@/lib/getLeagueId';
+import { db } from '@/lib/db';
+import { teams } from '@/schema';
+import { eq } from 'drizzle-orm';
 
-// 1. GET: Fetches the list of all .COA files for the Opponent Intelligence hub
+// 1. GET: Fetches the list of .COA files for the current league's teams only
 export async function GET() {
   try {
+    const leagueId = await getLeagueId();
+
+    // Get team names for this league to filter blobs
+    const leagueTeams = await db
+      .select({ name: teams.name })
+      .from(teams)
+      .where(eq(teams.leagueId, leagueId));
+
+    const leagueFileNames = new Set(
+      leagueTeams.map(t => t.name.replace(/\s+/g, '_').toUpperCase() + '.COA')
+    );
+
     const { blobs } = await list();
-    // Defensive filter: only show .COA files (case-insensitive)
-    const coachFiles = blobs.filter(f => f.pathname.toLowerCase().endsWith('.coa'));
+    const coachFiles = blobs.filter(f => {
+      const fileName = f.pathname.split('/').pop() || '';
+      return fileName.toLowerCase().endsWith('.coa') && leagueFileNames.has(fileName.toUpperCase());
+    });
+
     return NextResponse.json(coachFiles);
   } catch {
     return NextResponse.json({ error: "Failed to list files" }, { status: 500 });

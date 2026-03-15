@@ -1,0 +1,314 @@
+import { db } from './db';
+import { players, teams, schedule, standings, rules, draftPicks } from '@/schema';
+import { eq, and } from 'drizzle-orm';
+import Papa from "papaparse";
+import { revalidateTag } from 'next/cache';
+import { buildPlayerIdentity } from './sheetsPlayers';
+
+type TeamRow = { id: number; name: string; teamshort: string | null };
+
+function findTeam(allTeams: TeamRow[], nameStr: string): TeamRow | null {
+  const upper = nameStr.trim().toUpperCase();
+  // Exact teamshort match
+  const byShort = allTeams.find(t => t.teamshort?.toUpperCase() === upper);
+  if (byShort) return byShort;
+  // Team name starts with the search string
+  const byStart = allTeams.find(t => t.name.toUpperCase().startsWith(upper));
+  if (byStart) return byStart;
+  // Search string starts with team name
+  const byPrefix = allTeams.find(t => upper.startsWith(t.name.toUpperCase()));
+  return byPrefix ?? null;
+}
+
+export async function processPlayersFile(fileContent: string, leagueId: number = 1) {
+  const parseResult = Papa.parse(fileContent, { header: true, skipEmptyLines: true });
+  const rows = parseResult.data as Record<string, string>[];
+
+  // Filter out rows where all position columns are blank
+  const validRows = rows.filter(row => {
+    const off = (row['offense'] || row['Offense'] || '').trim();
+    const def = (row['defense'] || row['Defense'] || '').trim();
+    const spec = (row['special'] || row['Special'] || '').trim();
+    return off || def || spec;
+  });
+
+  if (validRows.length === 0) {
+    return { success: false, message: "No valid player data found in file." };
+  }
+
+  const allTeams = await db.select({ id: teams.id, name: teams.name, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId));
+
+  const scoutingWhitelist = [
+    'uniform', 'run block', 'pass block', 'run defense', 'pass defense',
+    'pass rush', 'total defense', 'breakaway', 'short yardage', 'audible',
+    'pressure', 'receiving', 'durability', 'salary', 'years', 'games',
+    'rush attempts', 'rush yards', 'rush long', 'rush TD', 'receptions',
+    'receiving yards', 'receiving TD', 'receiving long', 'pass attempts',
+    'completions', 'pass yards', 'pass interceptions', 'pass TD',
+    'interceptions', 'tackles', 'sacks', 'stuffs',
+  ];
+
+  const ol_positions = ['C', 'G', 'OT', 'OG', 'OC'];
+
+  const playerValues = validRows.map(row => {
+    const v = (key: string) => (row[key] || row[key.charAt(0).toUpperCase() + key.slice(1)] || '').trim();
+
+    const first = v('first');
+    const last = v('last');
+    const name = `${first} ${last}`.trim();
+    if (!name) return null;
+
+    const age = parseInt(v('age'), 10) || 0;
+    const off = v('offense');
+    const def = v('defense');
+    const spec = v('special');
+    const position = [off, def, spec].filter(x => x && x !== '0').join('/') || null;
+
+    const teamCode = v('team');
+    const team = teamCode ? findTeam(allTeams, teamCode) : null;
+
+    // Overall rating (matches parsePlayers logic)
+    const parseNum = (k: string) => Number(v(k)) || 0;
+    const parseSalary = (k: string) => Number(String(v(k) || '0').replace(/[$,]/g, '')) || 0;
+    let overallRating = 0;
+    if (def) overallRating = parseNum('total defense');
+    else if (off && ol_positions.includes(off.toUpperCase())) overallRating = parseNum('run block') + parseNum('pass block');
+    else overallRating = parseSalary('salary');
+
+    const scouting: Record<string, string> = {};
+    for (const key of scoutingWhitelist) {
+      scouting[key] = v(key);
+    }
+
+    return {
+      name,
+      first,
+      last,
+      age: age || null,
+      position,
+      offense: off || null,
+      defense: def || null,
+      special: spec || null,
+      identity: buildPlayerIdentity({ first, last, age, offense: off, defense: def, special: spec }),
+      isIR: teamCode.toUpperCase().includes('-IR'),
+      overall: String(overallRating) || null,
+      runBlock: v('run block') || null,
+      passBlock: v('pass block') || null,
+      rushYards: v('rush yards') || null,
+      interceptionsVal: v('interceptions') || null,
+      sacksVal: v('sacks') || null,
+      durability: v('durability') || null,
+      scouting,
+      leagueId,
+      teamId: team?.id ?? null,
+      touch_id: 'maintenance',
+    };
+  }).filter((p): p is NonNullable<typeof p> => p !== null);
+
+  // Full replace: null out draftPick player refs, delete all, re-insert
+  await db.update(draftPicks).set({ playerId: null }).where(eq(draftPicks.leagueId, leagueId));
+  await db.delete(players).where(eq(players.leagueId, leagueId));
+
+  if (playerValues.length > 0) {
+    await db.insert(players).values(playerValues);
+  }
+
+  // Update player_sync timestamp in rules table
+  const now = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    timeZone: 'America/New_York',
+  }).format(new Date());
+
+  await db.update(rules)
+    .set({ value: now, touch_id: 'maintenance' })
+    .where(and(eq(rules.rule, 'player_sync'), eq(rules.leagueId, leagueId)));
+
+  revalidateTag('players', 'max');
+
+  return { success: true, message: `Successfully synced ${playerValues.length} players.` };
+}
+
+export async function processScheduleFile(fileContent: string, leagueId: number = 1) {
+  const lines = fileContent.split(/\r?\n/);
+  const firstLine = lines[0] || "";
+
+  if (!firstLine.toUpperCase().includes("SCHEDULE")) {
+    return { success: false, message: "Invalid file format: Not a schedule file." };
+  }
+
+  const yearMatch = firstLine.match(/\d{4}/);
+  let year: number | null = yearMatch ? parseInt(yearMatch[0], 10) : null;
+
+  // Fall back to cuts_year rule if year not in header
+  if (!year) {
+    const rulesRow = await db.select({ value: rules.value })
+      .from(rules)
+      .where(and(eq(rules.rule, 'cuts_year'), eq(rules.leagueId, leagueId)))
+      .limit(1);
+    year = rulesRow[0]?.value ? parseInt(rulesRow[0].value, 10) || null : null;
+  }
+
+  const allTeams = await db.select({ id: teams.id, name: teams.name, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId));
+
+  let updateCount = 0;
+  let insertCount = 0;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || !trimmed.includes("@")) continue;
+
+    const match = trimmed.match(/^(\d+)\s+(.+?)\s+@\s+(.+?)(?:\s+(\d+-\d+))?$/);
+    if (!match) continue;
+
+    try {
+      const week = parseInt(match[1], 10);
+      const visitorName = match[2].trim();
+      const homeName = match[3].trim();
+      const scorePart = match[4];
+
+      const homeTeam = findTeam(allTeams, homeName);
+      const awayTeam = findTeam(allTeams, visitorName);
+
+      if (!homeTeam || !awayTeam) {
+        console.warn(`Could not match teams: "${visitorName}" @ "${homeName}"`);
+        continue;
+      }
+
+      let homeScore: number | null = null;
+      let awayScore: number | null = null;
+
+      if (scorePart) {
+        const scores = scorePart.split("-");
+        awayScore = parseInt(scores[0], 10);
+        homeScore = parseInt(scores[1], 10);
+      }
+
+      const existingConditions = [
+        eq(schedule.leagueId, leagueId),
+        eq(schedule.week, week),
+        eq(schedule.homeTeamId, homeTeam.id),
+        eq(schedule.awayTeamId, awayTeam.id),
+        ...(year !== null ? [eq(schedule.year, year)] : []),
+      ];
+      const existing = await db.select()
+        .from(schedule)
+        .where(and(...existingConditions))
+        .limit(1);
+
+      if (existing.length > 0) {
+        const game = existing[0];
+        // Already has scores (Final) — skip
+        if (game.home_score !== null) continue;
+        // Update with scores if provided
+        if (homeScore !== null) {
+          await db.update(schedule)
+            .set({ home_score: homeScore, away_score: awayScore, touch_id: 'maintenance' })
+            .where(eq(schedule.id, game.id));
+          updateCount++;
+        }
+      } else {
+        await db.insert(schedule).values({
+          leagueId,
+          year,
+          week,
+          homeTeamId: homeTeam.id,
+          awayTeamId: awayTeam.id,
+          home_score: homeScore,
+          away_score: awayScore,
+          is_bye: false,
+          touch_id: 'maintenance',
+        });
+        insertCount++;
+      }
+    } catch (e) {
+      console.error(`Failed to parse line: "${trimmed}"`, e);
+    }
+  }
+
+  revalidateTag('schedule', 'max');
+
+  return { success: true, message: `Import Complete. Updated: ${updateCount}, Inserted: ${insertCount}` };
+}
+
+export async function processStandingsFile(fileContent: string, leagueId: number = 1) {
+  const lines = fileContent.split('\n');
+  const firstLine = lines[0] || "";
+
+  if (!firstLine.toUpperCase().includes("STANDING")) {
+    return { success: false, message: "Invalid file format: Not a standings file." };
+  }
+
+  const yearMatch = firstLine.match(/\d{4}/);
+  const year = yearMatch ? parseInt(yearMatch[0], 10) : new Date().getFullYear();
+
+  const allTeams = await db.select({ id: teams.id, name: teams.name, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId));
+
+  const rowsToInsert: { leagueId: number; teamId: number; year: number; wins: number; losses: number; ties: number; division: string | null; touch_id: string }[] = [];
+  const unmatchedTeams: string[] = [];
+  let currentDivision: string | null = null;
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const upper = trimmed.toUpperCase();
+
+    if (/W\s+L\s+T/.test(upper)) {
+      // Match division name as everything before "W  L  T" header
+      const divMatch = trimmed.match(/^(.+?)\s+W\s+L\s+T\b/i);
+      const divName = divMatch?.[1]?.trim();
+      if (divName) currentDivision = divName;
+      continue;
+    }
+
+    if (
+      upper.includes("GFL") ||
+      upper.includes("STANDINGS") ||
+      upper.includes("AVERAGE") ||
+      upper.includes("TOTAL") ||
+      upper.includes("INJURIES")
+    ) continue;
+
+    const parts = trimmed.split(/\s+/);
+    const firstDigitIndex = parts.findIndex((p, i) => i > 0 && /^-?\d+/.test(p));
+    if (firstDigitIndex === -1) continue;
+
+    const rawTeamCity = parts.slice(0, firstDigitIndex).join(" ");
+    // Strip playoff clinch prefixes (x-, y-, z-) used in standings exports
+    const teamCity = rawTeamCity.replace(/^[xyz]-/i, '').trim();
+    const stats = parts.slice(firstDigitIndex);
+    if (stats.length < 3) continue;
+
+    const team = findTeam(allTeams, teamCity);
+    if (!team) {
+      unmatchedTeams.push(teamCity);
+      continue;
+    }
+
+    rowsToInsert.push({
+      leagueId,
+      teamId: team.id,
+      year,
+      wins: parseInt(stats[0], 10) || 0,
+      losses: parseInt(stats[1], 10) || 0,
+      ties: parseInt(stats[2], 10) || 0,
+      division: currentDivision,
+      touch_id: 'maintenance',
+    });
+  }
+
+  if (rowsToInsert.length === 0) {
+    const dbTeamNames = allTeams.map(t => t.teamshort || t.name).join(', ');
+    const failedNames = unmatchedTeams.join(', ') || 'none parsed';
+    return { success: false, message: `No valid standings data found. Teams in DB (leagueId=${leagueId}): [${dbTeamNames}]. Teams from file that failed to match: [${failedNames}].` };
+  }
+
+  // Delete existing standings for this year and league, then re-insert
+  await db.delete(standings).where(and(eq(standings.leagueId, leagueId), eq(standings.year, year)));
+  await db.insert(standings).values(rowsToInsert);
+
+  revalidateTag('standings', 'max');
+
+  return { success: true, message: `Successfully synced ${rowsToInsert.length} teams for ${year}.` };
+}

@@ -14,6 +14,7 @@ export default function DirectoryPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [seasonYear, setSeasonYear] = useState('2026');
+  const [leagueName, setLeagueName] = useState('League');
 
   useEffect(() => {
     Promise.all([
@@ -25,6 +26,8 @@ export default function DirectoryPage() {
         
         const year = rulesData.find((r: { setting: string; value: string }) => r.setting === 'cuts_year')?.value;
         if (year) setSeasonYear(year);
+        const lName = rulesData.find((r: { setting: string; value: string }) => r.setting === 'leauge_name')?.value;
+        if (lName) setLeagueName(lName);
         
         setLoading(false);
       })
@@ -57,7 +60,7 @@ export default function DirectoryPage() {
           League <span className="text-blue-600">Directory</span>
         </h1>
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-3 flex items-center gap-2">
-          <UserCircle size={14} className="text-blue-500" /> Official GFL Coach Registry • Season {seasonYear}
+          <UserCircle size={14} className="text-blue-500" /> Official {leagueName} Coach Registry • Season {seasonYear}
         </p>
       </header>
 

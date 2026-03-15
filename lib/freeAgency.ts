@@ -1,5 +1,5 @@
 import { getSheetsClient } from './google-cloud';
-import { parsePlayers } from './players';
+import { parsePlayers } from './sheetsPlayers';
 import { findPlayerRowIndex } from './playerLookup';
 
 /**

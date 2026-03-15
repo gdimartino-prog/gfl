@@ -2,8 +2,8 @@ import { getSchedule } from '@/lib/getSchedule';
 import Link from 'next/link';
 import { ScheduleGame } from '@/types';
 
-export default async function WeeklyScheduleWidget() {
-  const allGames: ScheduleGame[] = await getSchedule();
+export default async function WeeklyScheduleWidget({ leagueId = 1 }: { leagueId?: number }) {
+  const allGames: ScheduleGame[] = await getSchedule(leagueId);
   
   const currentWeekGame = allGames.find(g => !g.vScore || g.vScore === '');
   const displayWeek = currentWeekGame ? currentWeekGame.week : allGames[allGames.length - 1]?.week;

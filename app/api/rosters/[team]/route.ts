@@ -1,5 +1,6 @@
 import { getPlayers } from '@/lib/players';
 import { getAllDraftPicks } from '@/lib/draftPicks';
+import { getLeagueId } from '@/lib/getLeagueId';
 import { NextResponse } from 'next/server';
 
 type RouteContext = {
@@ -11,28 +12,36 @@ export async function GET(_req: Request, { params }: RouteContext) {
     const resolvedParams = await params;
     const teamShort = resolvedParams.team.toUpperCase();
 
-    // 1. Fetch both datasets using centralized utilities (handles caching internally)
+    const leagueId = await getLeagueId();
     const [allPlayers, allPicks] = await Promise.all([
-      getPlayers(),
-      getAllDraftPicks()
+      getPlayers(leagueId),
+      getAllDraftPicks(leagueId)
     ]);
 
-    // 2. Process Roster
     const roster = allPlayers
       .filter(p => p.team?.toUpperCase() === teamShort)
       .map(p => ({
         identity: p.identity,
-        name: `${p.first} ${p.last}`.trim(),
-        age: p.age.toString(),
+        name: `${p.first} ${p.last}`.trim() || p.name,
+        first: p.first,
+        last: p.last,
+        age: p.age?.toString() ?? '',
         offensePos: p.offense,
         defensePos: p.defense,
         specialPos: p.special,
-        // Logic for unit grouping
+        position: p.position,
+        pos: (p.position ?? '??').toUpperCase(),
         group: p.offense ? 'OFF' : p.defense ? 'DEF' : 'SPEC',
-        pos: p.position.toUpperCase() || '??'
+        overall: p.overall,
+        isIR: p.isIR,
+        run: p.run,
+        pass: p.pass,
+        rush: p.rush,
+        int: p.int,
+        sack: p.sack,
+        dur: p.dur,
       }));
-    
-    // 3. Process Draft Picks
+
     const picks = allPicks
       .filter(p => p.currentOwner?.toUpperCase() === teamShort)
       .map(p => ({

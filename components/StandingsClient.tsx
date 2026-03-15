@@ -9,13 +9,19 @@ interface DraftOrderTeam extends StandingRow {
   sos: number;
 }
 
-const divisions = ["East", "Central", "West"];
-
 export default function StandingsClient({ allData, allGames, currentYear, totalGames, playoffTeams }: { allData: StandingRow[], allGames: ScheduleGame[], currentYear: string, totalGames: number, playoffTeams: number }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [historySearch, setHistorySearch] = useState('');
   const [historyYear, setHistoryYear] = useState('All');
   const [showPlayoff, setShowPlayoff] = useState(true);
+
+  const divisions = useMemo(() => {
+    const divSet = new Set<string>();
+    allData
+      .filter(r => r.year?.toString() === currentYear?.toString() && r.division)
+      .forEach(r => divSet.add(r.division as string));
+    return Array.from(divSet).sort();
+  }, [allData, currentYear]);
 
   // 1. Current Season Filter
   const currentSeasonRaw = allData.filter(r => 
@@ -163,7 +169,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
     });
 
     return map;
-  }, [allData, allGames, currentYear]);
+  }, [allData, allGames, currentYear, divisions]);
 
   // 🚀 PLAYOFF PICTURE: Extract teams currently in a qualifying spot
   const playoffPicture = useMemo(() => {

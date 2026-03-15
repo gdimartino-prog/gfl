@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSheetsClient } from '@/lib/google-cloud';
-import { parsePlayers } from '@/lib/players';
+import { parsePlayers } from '@/lib/sheetsPlayers';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

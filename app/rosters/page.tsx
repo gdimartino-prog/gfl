@@ -7,7 +7,7 @@ import TeamSelector from '@/components/TeamSelector';
 import { useTeam } from '@/context/TeamContext';
 import { useSession } from "next-auth/react";
 import { useSearchParams } from 'next/navigation';
-import { Search, ChevronRight, Star, Activity, GraduationCap, ShieldCheck, Mail, Phone, Users } from 'lucide-react';
+import { Search, ChevronRight, Star, Activity, GraduationCap, ShieldCheck, Mail, Phone, Users, Loader2, X, ShoppingCart } from 'lucide-react';
 import { getNormalizedCategories, positionWeights, formatPhone } from '@/lib/utils';
 import { Player, DraftPick, Team, StandingRow, ScheduleGame } from '../../types';
 
@@ -34,7 +34,7 @@ export default function RosterPage() {
 
 function RosterContent() {
   const { data: session, status } = useSession();
-  const { selectedTeam, setSelectedTeam } = useTeam(); 
+  const { selectedTeam, setSelectedTeam, initTeam } = useTeam();
   const searchParams = useSearchParams();
   const [data, setData] = useState<{ 
     roster: RosterPlayer[], 
@@ -50,19 +50,52 @@ function RosterContent() {
   const [activeTab, setActiveTab] = useState<'ROSTER' | 'HISTORY'>('ROSTER');
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  
+  const [tradeBlock, setTradeBlock] = useState<Set<string>>(new Set());
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [tradeBlockForm, setTradeBlockForm] = useState<{ player: Player; asking: string } | null>(null);
+  const [removeConfirm, setRemoveConfirm] = useState<Player | null>(null);
+  const [detailLoading, setDetailLoading] = useState<string | null>(null);
+
   const lastPlayedRef = useRef<HTMLDivElement>(null);
   const hasSynced = useRef(false);
+
+  const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  }, []);
+
+  const fetchTradeBlockStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/trade-block');
+      if (res.ok) {
+        const players: { playerId: string }[] = await res.json();
+        setTradeBlock(new Set(players.map(p => p.playerId)));
+      }
+    } catch (error) {
+      console.error("Failed to fetch trade block status:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTradeBlockStatus();
+  }, [fetchTradeBlockStatus]);
 
   // 🚀 HELPER: Normalize names for bulletproof matching
   const normalize = useCallback((s: string | number | null | undefined) => (s || "").toString().replace(/^[xXyY*][- ]+/g, '').replace(/[^a-z0-9 ]/gi, '').trim().toUpperCase(), []);
 
   useEffect(() => {
     if (status === "authenticated" && (session?.user as { id?: string })?.id && !hasSynced.current) {
-      setSelectedTeam((session.user as { id?: string }).id || '');
       hasSynced.current = true;
+      const sessionId = (session.user as { id?: string }).id || '';
+      const saved = localStorage.getItem('gfl-selected-team');
+      if (!saved || saved === sessionId) {
+        // No saved preference, or localStorage was poisoned by a previous auto-select —
+        // clear it and default to the user's own team without persisting
+        localStorage.removeItem('gfl-selected-team');
+        initTeam(sessionId);
+      }
     }
-  }, [status, session, setSelectedTeam]);
+  }, [status, session, initTeam]);
 
   // --- HANDLE INCOMING TEAM LINK ---
   useEffect(() => {
@@ -186,10 +219,69 @@ function RosterContent() {
   }, [selectedTeam, normalize]);
 
   const handlePlayerDetails = useCallback((p: Player) => {
+    setDetailLoading(p.identity);
     fetch(`/api/players/details/${encodeURIComponent(p.identity)}`)
       .then(r => r.json())
-      .then(setViewingPlayer);
+      .then(data => { setViewingPlayer(data); setDetailLoading(null); })
+      .catch(() => setDetailLoading(null));
   }, []);
+
+  const handleToggleTradeBlock = useCallback((player: Player) => {
+    if (tradeBlock.has(player.identity)) {
+      setRemoveConfirm(player);
+    } else {
+      setTradeBlockForm({ player, asking: '' });
+    }
+  }, [tradeBlock]);
+
+  const handleConfirmRemove = useCallback(async (player: Player) => {
+    try {
+      const response = await fetch(`/api/trade-block?playerId=${player.identity}`, { method: 'DELETE' });
+      if (response.ok) {
+        showToast(`${player.name} removed from the trade block.`);
+        fetchTradeBlockStatus();
+      } else {
+        showToast('Failed to remove player from trade block.', 'error');
+      }
+    } catch {
+      showToast('Error removing player from trade block.', 'error');
+    } finally {
+      setRemoveConfirm(null);
+    }
+  }, [fetchTradeBlockStatus, showToast]);
+
+  const handleConfirmAdd = useCallback(async (player: Player, asking: string) => {
+    try {
+      const response = await fetch('/api/trade-block', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playerId: player.identity,
+          playerName: player.name,
+          team: selectedTeam,
+          position: player.pos,
+          asking,
+        }),
+      });
+      if (response.ok) {
+        showToast(`${player.name} added to the trade block.`);
+        fetchTradeBlockStatus();
+      } else {
+        const errorData = await response.json();
+        showToast(`Failed: ${errorData.message}`, 'error');
+      }
+    } catch {
+      showToast('Error posting to trade block.', 'error');
+    } finally {
+      setTradeBlockForm(null);
+    }
+  }, [selectedTeam, fetchTradeBlockStatus, showToast]);
+
+  const canEdit = useMemo(() => {
+    if (status !== 'authenticated' || !data?.coachContact || !session?.user) return false;
+    const sessionUserId = (session.user as { id?: string })?.id;
+    return sessionUserId === data.coachContact.short || sessionUserId === data.coachContact.teamshort;
+  }, [status, session, data?.coachContact]);
 
   useEffect(() => {
     if (data?.schedule && !loading) {
@@ -204,8 +296,8 @@ function RosterContent() {
 
   const recentForm = useMemo(() => {
     if (!data?.schedule || !data?.stats?.currentYear || !data?.coachContact) return [];
-    const teamShort = data.coachContact.short.toUpperCase();
-    const teamName = data.coachContact.name.toUpperCase();
+    const teamShort = normalize(data.coachContact.short);
+    const teamName = normalize(data.coachContact.name);
 
     return data.schedule
       .filter((g: ScheduleGame) => {
@@ -333,6 +425,23 @@ function RosterContent() {
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10 bg-gray-50 min-h-screen text-slate-900 text-left">
       {viewingPlayer && <PlayerCard data={viewingPlayer} onClose={() => setViewingPlayer(null)} />}
+      <Toast data={toast} />
+      {tradeBlockForm && (
+        <TradeBlockFormModal
+          player={tradeBlockForm.player}
+          asking={tradeBlockForm.asking}
+          onAskingChange={(v) => setTradeBlockForm(prev => prev ? { ...prev, asking: v } : null)}
+          onConfirm={() => handleConfirmAdd(tradeBlockForm.player, tradeBlockForm.asking)}
+          onClose={() => setTradeBlockForm(null)}
+        />
+      )}
+      {removeConfirm && (
+        <RemoveConfirmModal
+          player={removeConfirm}
+          onConfirm={() => handleConfirmRemove(removeConfirm)}
+          onClose={() => setRemoveConfirm(null)}
+        />
+      )}
 
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-200 pb-8">
         <div>
@@ -484,8 +593,8 @@ function RosterContent() {
       {data && activeTab === 'ROSTER' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-20">
           <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-             <RosterSection title="Offense" players={sortedGroups.OFF} accent="bg-slate-800" color="text-blue-600 bg-blue-50" onDetails={handlePlayerDetails} />
-             <RosterSection title="Defense" players={sortedGroups.DEF} accent="bg-red-900" color="text-red-600 bg-red-50" onDetails={handlePlayerDetails} />
+             <RosterSection title="Offense" players={sortedGroups.OFF} accent="bg-slate-800" color="text-blue-600 bg-blue-50" onDetails={handlePlayerDetails} onToggleTradeBlock={handleToggleTradeBlock} canEdit={canEdit} tradeBlock={tradeBlock} detailLoading={detailLoading} />
+             <RosterSection title="Defense" players={sortedGroups.DEF} accent="bg-red-900" color="text-red-600 bg-red-50" onDetails={handlePlayerDetails} onToggleTradeBlock={handleToggleTradeBlock} canEdit={canEdit} tradeBlock={tradeBlock} detailLoading={detailLoading} />
           </div>
 
           <div className="lg:col-span-4 space-y-10">
@@ -523,7 +632,7 @@ function RosterContent() {
               </div>
             </div>
 
-            <RosterSection title="Special Teams" players={sortedGroups.SPEC} accent="bg-emerald-900" color="text-emerald-600 bg-emerald-50" onDetails={handlePlayerDetails} />
+            <RosterSection title="Special Teams" players={sortedGroups.SPEC} accent="bg-emerald-900" color="text-emerald-600 bg-emerald-50" onDetails={handlePlayerDetails} onToggleTradeBlock={handleToggleTradeBlock} canEdit={canEdit} tradeBlock={tradeBlock} detailLoading={detailLoading} />
           </div>
 
           {/* TACTICAL DEPTH CHART (Full Width Bottom) */}
@@ -631,7 +740,7 @@ function RosterContent() {
   );
 }
 
-function RosterSection({ title, players, accent, color, onDetails }: { title: string, players: RosterPlayer[], accent: string, color: string, onDetails: (p: Player) => void }) {
+function RosterSection({ title, players, accent, color, onDetails, onToggleTradeBlock, canEdit, tradeBlock, detailLoading }: { title: string, players: RosterPlayer[], accent: string, color: string, onDetails: (p: Player) => void, onToggleTradeBlock: (p: Player) => void, canEdit: boolean, tradeBlock: Set<string>, detailLoading?: string | null }) {
   const avgAge = useMemo(() => {
     const playersWithAge = players.filter(p => p.core?.age || p.age);
     if (playersWithAge.length === 0) return 0;
@@ -651,18 +760,99 @@ function RosterSection({ title, players, accent, color, onDetails }: { title: st
         </div>
       </div>
       <div className="divide-y divide-slate-50">
-        {players.map((p: Player, i: number) => (
-          <div key={i} className="group flex items-center justify-between p-5 hover:bg-slate-50 transition-all">
-            <div className="flex items-center gap-4 min-w-0">
-              <span className={`shrink-0 font-mono text-[9px] font-black ${color} w-10 h-10 flex items-center justify-center rounded-xl uppercase italic shadow-inner`}>{p.pos}</span>
-              <div className="min-w-0">
-                <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name || '')}`} target="_blank" rel="noopener noreferrer" className="text-sm font-black text-slate-900 uppercase italic tracking-tighter leading-none hover:text-blue-600 truncate block">{p.name}</a>
-                <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-1">Age {p.core?.age || p.age || '??'}</p>
+        {players.map((p: Player, i: number) => {
+          const isOnBlock = tradeBlock.has(p.identity);
+          return (
+            <div key={i} className="group flex items-center justify-between p-5 hover:bg-slate-50 transition-all">
+              <div className="flex items-center gap-4 min-w-0">
+                <span className={`shrink-0 font-mono text-[9px] font-black ${color} w-10 h-10 flex items-center justify-center rounded-xl uppercase italic shadow-inner`}>{p.pos}</span>
+                <div className="min-w-0">
+                  <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name || '')}`} target="_blank" rel="noopener noreferrer" className="text-sm font-black text-slate-900 uppercase italic tracking-tighter leading-none hover:text-blue-600 truncate block">{p.name}</a>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Age {p.core?.age || p.age || '??'}</span>
+                    {p.overall && <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">OVR {p.overall}</span>}
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center">
+                {canEdit && (
+                  <button
+                    onClick={() => onToggleTradeBlock(p)}
+                    className={`flex-shrink-0 ml-4 flex items-center justify-center w-12 h-12 rounded-xl active:scale-95 transition-all shadow-sm font-black text-xs ${
+                      isOnBlock
+                        ? 'bg-green-600 text-white'
+                        : 'bg-slate-100 text-slate-400 group-hover:bg-green-600 group-hover:text-white'
+                    }`}
+                    title={isOnBlock ? "Remove from Trade Block" : "Post to Trade Block"}
+                  >
+                    TB
+                  </button>
+                )}
+                <button onClick={() => onDetails(p)} disabled={detailLoading === p.identity} className="flex-shrink-0 ml-4 flex items-center justify-center w-12 h-12 rounded-xl bg-slate-100 text-slate-400 group-hover:bg-blue-600 group-hover:text-white active:scale-95 transition-all shadow-sm disabled:opacity-60">
+                  {detailLoading === p.identity ? <Loader2 size={18} className="animate-spin" /> : <ChevronRight size={20} />}
+                </button>
               </div>
             </div>
-            <button onClick={() => onDetails(p)} className="flex-shrink-0 ml-4 flex items-center justify-center w-12 h-12 rounded-xl bg-slate-100 text-slate-400 group-hover:bg-blue-600 group-hover:text-white active:scale-95 transition-all shadow-sm"><ChevronRight size={20} /></button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function Toast({ data }: { data: { message: string; type: 'success' | 'error' } | null }) {
+  if (!data) return null;
+  return (
+    <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[300] px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-300 whitespace-nowrap ${data.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'}`}>
+      {data.message}
+    </div>
+  );
+}
+
+function TradeBlockFormModal({ player, asking, onAskingChange, onConfirm, onClose }: {
+  player: Player; asking: string; onAskingChange: (v: string) => void; onConfirm: () => void; onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm p-8 space-y-6">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="text-2xl font-black uppercase italic tracking-tighter">Post to Trade Block</h3>
+            <p className="text-[11px] font-black text-blue-600 uppercase tracking-widest mt-1">{player.name}</p>
           </div>
-        ))}
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-900 transition-colors"><X size={24} /></button>
+        </div>
+        <div className="space-y-2">
+          <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Asking Terms (optional)</label>
+          <input autoFocus type="text" placeholder="e.g. 1st round pick, WR..." value={asking}
+            onChange={(e) => onAskingChange(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && onConfirm()}
+            className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none" />
+        </div>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 py-4 rounded-2xl bg-slate-100 text-slate-500 font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all">Cancel</button>
+          <button onClick={onConfirm} className="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2">
+            <ShoppingCart size={14} /> Post
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RemoveConfirmModal({ player, onConfirm, onClose }: { player: Player; onConfirm: () => void; onClose: () => void; }) {
+  return (
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm p-8 space-y-6 text-center">
+        <div>
+          <p className="text-xl font-black uppercase italic tracking-tight">Remove from Trade Block?</p>
+          <p className="text-[11px] font-black text-blue-600 uppercase tracking-widest mt-2">{player.name}</p>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 py-4 rounded-2xl bg-slate-100 text-slate-500 font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all">Cancel</button>
+          <button onClick={onConfirm} className="flex-1 py-4 rounded-2xl bg-red-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-500/30">Remove</button>
+        </div>
       </div>
     </div>
   );

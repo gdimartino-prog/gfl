@@ -1,46 +1,52 @@
 import { NextResponse } from 'next/server';
-import { getSheetsClient } from '@/lib/google-cloud';
-import { transferDraftPick } from '@/lib/draftPicks';
+import { getAllDraftPicks, transferDraftPick, findDraftPick } from '@/lib/draftPicks';
+import { getLeagueId } from '@/lib/getLeagueId';
+import { db } from '@/lib/db';
+import { teams } from '@/schema';
+import { and, eq } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET() {
   try {
-    const sheets = getSheetsClient();
-    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+    const leagueId = await getLeagueId();
+    const picks = await getAllDraftPicks(leagueId);
 
-    // UPDATED: Extended range to A:J to capture Columns I and J
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'DraftPicks!A:K', 
+    // Sort by overall pick number then find the first undrafted pick (on the clock)
+    const sorted = [...picks].sort((a, b) => (a.pick ?? 0) - (b.pick ?? 0));
+    let onClockSet = false;
+
+    const formattedPicks = sorted.map(p => {
+      const isDrafted = !!p.selectedPlayer;
+      let status: string;
+      if (isDrafted) {
+        status = 'Drafted';
+      } else if (!onClockSet) {
+        status = 'Active';
+        onClockSet = true;
+      } else {
+        status = 'Available';
+      }
+      return {
+        id: p.id,
+        year: String(p.year ?? ''),
+        round: String(p.round ?? ''),
+        overall: String(p.pick ?? ''),
+        originalTeam: p.originalTeam ?? '',
+        currentOwner: p.currentOwner ?? '',
+        status,
+        draftedPlayer: p.selectedPlayer ?? '',
+        timestamp: '',
+        processedBy: '',
+        history: '',
+      };
     });
-
-    const rows = response.data.values;
-    if (!rows || rows.length === 0) return NextResponse.json([]);
-
-    // Map the rows to objects including the new G, H, and J columns
-    const formattedPicks = rows.slice(1).map((p: string[]) => ({
-      year: p[0] || '',
-      round: p[1] || '',
-      overall: p[2] || '',
-      originalTeam: p[3] || '',
-      currentOwner: p[4] || '',
-      status: p[5] || '',
-      draftedPlayer: p[6] || '', // Column G
-      timestamp: p[7] || '',     // Column H
-      // p[8] is Column I (Notes/Skipped Logic)
-      processedBy: p[9] || '',    // Column J: The Coach's Name
-      history: p[10] || ''       // Column K: The History Column
-    }));
 
     return NextResponse.json(formattedPicks);
   } catch (error) {
     console.error('API /draft-picks GET failed:', error);
-    return NextResponse.json(
-      { error: 'Failed to load draft picks' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to load draft picks' }, { status: 500 });
   }
 }
 
@@ -57,17 +63,31 @@ export async function POST(req: Request) {
       );
     }
 
-    // Call the helper from @/lib/draftPicks
-    // IMPORTANT: Ensure transferDraftPick in lib/draftPicks.ts 
-    // is updated to accept 'coachName' as the 6th argument.
-    await transferDraftPick(
-      fromTeam,
-      toTeam,
+    const leagueId = await getLeagueId();
+
+    // Resolve team short codes to DB IDs
+    const [fromTeamRows, toTeamRows] = await Promise.all([
+      db.select({ id: teams.id }).from(teams).where(and(eq(teams.teamshort, fromTeam), eq(teams.leagueId, leagueId))).limit(1),
+      db.select({ id: teams.id }).from(teams).where(and(eq(teams.teamshort, toTeam), eq(teams.leagueId, leagueId))).limit(1),
+    ]);
+
+    if (!fromTeamRows[0] || !toTeamRows[0]) {
+      return NextResponse.json({ error: 'Team not found' }, { status: 404 });
+    }
+
+    // Find the specific pick by current owner, year, round
+    const pick = await findDraftPick(
+      fromTeamRows[0].id,
       Number(year),
       Number(round),
-      overall ? Number(overall) : undefined,
-      coachName // Passing the coach name to be saved in Column J
+      overall ? Number(overall) : undefined
     );
+
+    if (!pick) {
+      return NextResponse.json({ error: 'Draft pick not found' }, { status: 404 });
+    }
+
+    await transferDraftPick(pick.id, toTeamRows[0].id, coachName);
 
     return NextResponse.json({ success: true });
   } catch (error) {

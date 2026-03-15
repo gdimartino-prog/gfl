@@ -1,13 +1,32 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { Suspense } from 'react';
 import WeeklyScheduleWidget from '@/components/WeeklyScheduleWidget';
-import { auth } from "@/auth"; 
-import LogoutButton from '@/components/LogoutButton'; 
+import { auth } from "@/auth";
+import LogoutButton from '@/components/LogoutButton';
+import { db } from '@/lib/db';
+import { leagues } from '@/schema';
+import { getLeagueId } from '@/lib/getLeagueId';
+import { eq } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const session = await auth(); 
+  const session = await auth();
+
+  let leagueName = 'Football League';
+  let leagueSlug = '';
+  let legacyUrl: string | null = null;
+  let leagueId = 1;
+  if (session) {
+    try {
+      leagueId = await getLeagueId();
+      const rows = await db.select({ name: leagues.name, slug: leagues.slug, legacyUrl: leagues.legacyUrl }).from(leagues).where(eq(leagues.id, leagueId)).limit(1);
+      if (rows[0]?.name) leagueName = rows[0].name;
+      if (rows[0]?.slug) leagueSlug = rows[0].slug.toUpperCase();
+      legacyUrl = rows[0]?.legacyUrl ?? null;
+    } catch {}
+  }
 
   const cards = [
     {
@@ -75,15 +94,16 @@ export default async function HomePage() {
       isExternal: true,
       protected: false
     },
-    {
-      title: 'Classic GFL Site',
-      desc: 'Access legacy records, old standings, and historical data.',
-      href: 'https://sites.google.com/view/gfl1/home',
+    ...(session ? [{
+      title: `Classic ${leagueSlug ? leagueSlug + ' ' : ''}Site`,
+      desc: legacyUrl ? 'Access legacy records, old standings, and historical data.' : 'Classic site not configured — set the URL in Commissioner settings.',
+      href: legacyUrl ?? '#',
       icon: '🏛️',
-      color: 'border-slate-500',
-      isExternal: true,
-      protected: false
-    },
+      color: legacyUrl ? 'border-slate-500' : 'border-slate-300',
+      isExternal: !!legacyUrl,
+      protected: false,
+      disabled: !legacyUrl,
+    }] : []),
     {
       title: 'Franchise Settings',
       desc: 'Update your coach profile and perform security password resets.',
@@ -91,6 +111,22 @@ export default async function HomePage() {
       icon: '⚙️',
       color: 'border-slate-600',
       protected: true
+    },
+    {
+      title: 'Commissioner',
+      desc: 'Approve coaches, manage league settings, and import data files.',
+      href: '/maintenance',
+      icon: '🛠️',
+      color: 'border-red-500',
+      protected: true
+    },
+    {
+      title: 'User Manual',
+      desc: 'Step-by-step guide covering every feature of the Front Office.',
+      href: '/manual',
+      icon: '📖',
+      color: 'border-sky-500',
+      protected: false
     }
   ];
 
@@ -101,7 +137,7 @@ export default async function HomePage() {
           <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-100">
               <Image 
               src="/icon.png" 
-              alt="GFL Logo" 
+              alt={`${leagueName} Logo`}
               className="h-20 w-auto object-contain"
                 width={80}
                 height={80}
@@ -113,7 +149,7 @@ export default async function HomePage() {
               Front <span className="text-blue-600">Office</span>
             </h1>
             <p className="text-gray-500 font-bold uppercase text-[10px] tracking-[0.3em] mt-3">
-                GFL Manager Dashboard
+                {leagueName} Manager Dashboard
             </p>
           </div>
         </div>
@@ -135,8 +171,9 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {cards.map((card) => {
               const isLocked = card.protected && !session;
-              const cardClasses = `block p-6 bg-white border-t-4 ${card.color} rounded-2xl shadow-sm hover:shadow-xl transition-all hover:-translate-y-1 group text-left h-full ${isLocked ? 'opacity-75 grayscale-[0.5]' : ''}`;
-              
+              const isDisabled = (card as { disabled?: boolean }).disabled;
+              const cardClasses = `block p-6 bg-white border-t-4 ${card.color} rounded-2xl shadow-sm transition-all text-left h-full ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-xl hover:-translate-y-1 group'} ${isLocked ? 'opacity-75 grayscale-[0.5]' : ''}`;
+
               const innerContent = (
                 <>
                   <div className="flex justify-between items-start">
@@ -148,6 +185,11 @@ export default async function HomePage() {
                         Login Required
                       </span>
                     )}
+                    {isDisabled && (
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded">
+                        Not Configured
+                      </span>
+                    )}
                   </div>
                   <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight leading-tight">
                     {card.title}
@@ -155,11 +197,17 @@ export default async function HomePage() {
                   <p className="text-gray-500 mt-2 text-sm leading-relaxed font-medium">
                     {card.desc}
                   </p>
-                  <div className={`mt-4 text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest ${card.color.replace('border-', 'text-')}`}>
-                    {isLocked ? 'Unlock via Login →' : (card.isExternal ? 'External Link ↗' : 'Launch Tool →')}
-                  </div>
+                  {!isDisabled && (
+                    <div className={`mt-4 text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest ${card.color.replace('border-', 'text-')}`}>
+                      {isLocked ? 'Unlock via Login →' : (card.isExternal ? 'External Link ↗' : 'Launch Tool →')}
+                    </div>
+                  )}
                 </>
               );
+
+              if (isDisabled) {
+                return <div key={card.title} className={cardClasses}>{innerContent}</div>;
+              }
 
               return card.isExternal ? (
                 <a key={card.title} href={card.href} target="_blank" rel="noopener noreferrer" className={cardClasses}>
@@ -186,7 +234,9 @@ export default async function HomePage() {
 
         {/* RIGHT COLUMN: Live Sidebar */}
         <div className="lg:col-span-4">
-            <WeeklyScheduleWidget />
+          <Suspense fallback={<div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 text-slate-400 text-sm">Loading schedule...</div>}>
+            <WeeklyScheduleWidget leagueId={leagueId} />
+          </Suspense>
         </div>
 
       </div>

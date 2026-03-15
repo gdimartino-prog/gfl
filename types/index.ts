@@ -1,11 +1,13 @@
 export interface ScheduleGame {
-  year?: string | number;
+  id?: number;
+  year?: string | number | null;
   status?: string;
-  home?: string;
-  visitor?: string;
-  hScore?: string | number;
-  vScore?: string | number;
+  home?: string | null;
+  visitor?: string | null;
+  hScore?: string | number | null;
+  vScore?: string | number | null;
   week?: string | number;
+  isBye?: boolean | null;
 }
 
 export interface Team {

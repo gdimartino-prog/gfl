@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPlayers } from '@/lib/players';
+import { getLeagueId } from '@/lib/getLeagueId';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +10,8 @@ export async function GET(req: NextRequest) {
 
   try {
     // 1. Fetch parsed players from the centralized utility
-    const players = await getPlayers();
+    const leagueId = await getLeagueId();
+    const players = await getPlayers(leagueId);
     
     // 2. Map to ensure compatibility and STRIP heavy scouting data for the list view
     // This keeps the JSON response small and fast.

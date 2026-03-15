@@ -1,31 +1,53 @@
-import { getSheetsClient } from './google-cloud';
+
+import { db } from './db';
+import { resources } from '@/schema';
+import { eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
+
+export type Resource = {
+  id: number;
+  group: string;
+  title: string;
+  url: string;
+  touch_id?: string | null;
+};
 
 export async function getResources() {
   return unstable_cache(
     async () => {
-      const sheets = getSheetsClient();
-      const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-
       try {
-        const response = await sheets.spreadsheets.values.get({
-          spreadsheetId: SHEET_ID,
-          range: 'Resources!A2:C100', 
-        });
-
-        const rows = response.data.values || [];
-        
-        return rows.reduce((acc: Record<string, { name: string; url: string }[]>, [group, name, url]) => {
-          if (!acc[group]) acc[group] = [];
-          acc[group].push({ name, url });
+        const allResources = await db.select().from(resources);
+        return allResources.reduce((acc: Record<string, { title: string; url: string }[]>, resource) => {
+          if (!acc[resource.group]) {
+            acc[resource.group] = [];
+          }
+          acc[resource.group].push({ title: resource.title, url: resource.url });
           return acc;
         }, {});
       } catch (error) {
-        console.error("❌ Google Sheets Resources Error:", error);
+        console.error("❌ Database Resources Error:", error);
         return {};
       }
     },
     ['resources-data'],
     { revalidate: 60, tags: ['resources'] }
   )();
+}
+
+export async function addResource(resource: Omit<Resource, 'id'>, coachName: string) {
+    await db.insert(resources).values({
+        ...resource,
+        touch_id: coachName,
+    });
+}
+
+export async function updateResource(id: number, resource: Partial<Omit<Resource, 'id'>>, coachName: string) {
+    await db.update(resources).set({
+        ...resource,
+        touch_id: coachName,
+    }).where(eq(resources.id, id));
+}
+
+export async function deleteResource(id: number) {
+    await db.delete(resources).where(eq(resources.id, id));
 }

@@ -36,8 +36,8 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
     return weeksInYear.find(weekNum => {
       const gamesInWeek = gamesInYear.filter(g => String(g.week || "") === weekNum);
       return gamesInWeek.some(g => {
-        const vStr = (g.vScore || "").toString().trim();
-        const hStr = (g.hScore || "").toString().trim();
+        const vStr = (g.vScore ?? "").toString().trim();
+        const hStr = (g.hScore ?? "").toString().trim();
         return vStr === "" || vStr === "00" || hStr === "" || hStr === "00";
       });
     });
@@ -72,8 +72,8 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
     
     const newIncomplete = newWeeks.find(w => {
       return newYearGames.filter(g => String(g.week || "") === w).some(g => {
-        const v = (g.vScore || "").toString().trim();
-        const h = (g.hScore || "").toString().trim();
+        const v = (g.vScore ?? "").toString().trim();
+        const h = (g.hScore ?? "").toString().trim();
         return v === "" || v === "00" || h === "" || h === "00";
       });
     });
@@ -140,8 +140,8 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
       {/* GAMES GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-20">
         {filteredGames.map((game, i) => {
-          const vRaw = (game.vScore || "").toString().trim();
-          const hRaw = (game.hScore || "").toString().trim();
+          const vRaw = (game.vScore ?? "").toString().trim();
+          const hRaw = (game.hScore ?? "").toString().trim();
           const isFinal = vRaw !== "" && vRaw !== "00" && hRaw !== "" && hRaw !== "00";
           const isPlayoff = String(game.week || "").includes('-');
           const roundName = isPlayoff ? String(game.week || "").split('-')[1] : null;
