@@ -1,3 +1,9 @@
 {
-    "search.useIgnoreFiles": true
+    "search.useIgnoreFiles": true,
+    "chat.tools.terminal.autoApprove": {
+        "/^node -r dotenv/config -e \"console\\.log\\('POSTGRES_URL:', process\\.env\\.POSTGRES_URL \\? 'SET' : 'NOT SET'\\); console\\.log\\('GOOGLE_SHEET_ID:', process\\.env\\.GOOGLE_SHEET_ID \\? 'SET' : 'NOT SET'\\); console\\.log\\('GOOGLE_CLIENT_EMAIL:', process\\.env\\.GOOGLE_CLIENT_EMAIL \\? 'SET' : 'NOT SET'\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
 }

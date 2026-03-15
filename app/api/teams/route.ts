@@ -6,10 +6,7 @@ import { logSystemEvent } from '@/lib/db-helpers';
 
 export async function GET() {
   try {
-    // 🔒 Verify authentication before returning sensitive contact data
     const session = await auth();
-    if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
     const leagueId = await getLeagueId();
     const allCoaches = await getCoaches(leagueId);
     const activeTeams = allCoaches
@@ -23,8 +20,8 @@ export async function GET() {
         coach: c.coach,
         commissioner: c.isCommissioner,
         lastSync: c.lastSync,
-        mobile: c.mobile,
-        email: c.email
+        // Sensitive fields only for authenticated users
+        ...(session?.user ? { mobile: c.mobile, email: c.email } : {}),
       }));
 
     return NextResponse.json(activeTeams);
