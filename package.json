@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-install": "npm install --legacy-peer-deps",
     "start": "next start",
     "lint": "cross-env NODE_OPTIONS=--max-old-space-size=4096 eslint app components lib --ext .ts,.tsx",
     "prepare": "husky",
