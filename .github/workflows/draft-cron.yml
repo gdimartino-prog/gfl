@@ -1,0 +1,15 @@
+name: Draft Cron
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Every 5 minutes
+
+jobs:
+  check-draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check draft picks
+        run: |
+          curl -s -X GET "https://gfl-alpha.vercel.app/api/cron/draft" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            | cat
