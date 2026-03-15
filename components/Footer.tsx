@@ -1,22 +1,8 @@
-import { sheets, SHEET_ID } from '@/lib/googleSheets';
-import { unstable_cache } from 'next/cache';
 import { db } from '@/lib/db';
-import { leagues } from '@/schema';
-import { eq } from 'drizzle-orm';
+import { leagues, rules } from '@/schema';
+import { eq, and } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { getLeagueId } from '@/lib/getLeagueId';
-
-const getCachedSyncTime = unstable_cache(
-  async () => {
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SHEET_ID,
-      range: 'Rules!A:B',
-    });
-    return response.data.values || [];
-  },
-  ['footer-player-sync-time'],
-  { revalidate: 300, tags: ['rules'] }
-);
 
 const APP_BUILD_TIME = new Date().toLocaleString('en-US', {
   month: 'short',
@@ -34,18 +20,22 @@ export default async function Footer() {
   let syncTime: string | null = null;
 
   if (session) {
-    const [syncRows, leagueId] = await Promise.all([
-      getCachedSyncTime().catch(() => []),
-      getLeagueId(),
+    const leagueId = await getLeagueId();
+    const [syncRows, leagueRows] = await Promise.all([
+      db.select({ value: rules.value })
+        .from(rules)
+        .where(and(eq(rules.rule, 'player_sync'), eq(rules.leagueId, leagueId)))
+        .limit(1),
+      db.select({ name: leagues.name })
+        .from(leagues)
+        .where(eq(leagues.id, leagueId))
+        .limit(1),
     ]);
-    const syncRow = (syncRows as string[][]).find(r => r[0] === 'player_sync');
-    syncTime = syncRow ? syncRow[1] : null;
-
-    const leagueRows = await db.select({ name: leagues.name }).from(leagues).where(eq(leagues.id, leagueId)).limit(1);
+    syncTime = syncRows[0]?.value || null;
     if (leagueRows[0]?.name) leagueName = leagueRows[0].name;
   }
 
-  const displayDate = syncTime ? syncTime.toUpperCase() : "Player Synced date unavailable";
+  const displayDate = syncTime ? syncTime.toUpperCase() : 'Player Synced date unavailable';
 
   return (
     <footer className="w-full py-10 border-t border-slate-200 bg-white">

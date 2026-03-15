@@ -1,47 +1,63 @@
-import { getSheetsClient } from './google-cloud';
+import { db } from './db';
+import { standings, teams } from '@/schema';
+import { eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 import { StandingRow } from '@/types';
 
+const _getHistory = unstable_cache(
+  async (): Promise<StandingRow[]> => {
+    try {
+      const rows = await db.select({
+        teamName: teams.name,
+        year: standings.year,
+        wins: standings.wins,
+        losses: standings.losses,
+        ties: standings.ties,
+        offPts: standings.offPts,
+        defPts: standings.defPts,
+        division: standings.division,
+        isDivWinner: standings.isDivWinner,
+        isPlayoff: standings.isPlayoff,
+        isSuperBowl: standings.isSuperBowl,
+        isChampion: standings.isChampion,
+        oldTeamName: standings.oldTeamName,
+      })
+      .from(standings)
+      .leftJoin(teams, eq(standings.teamId, teams.id))
+      .orderBy(standings.year);
+
+      return rows.map(r => {
+        const total = r.wins + r.losses + r.ties;
+        return {
+          team: r.oldTeamName || r.teamName || '',
+          year: r.year,
+          won: r.wins,
+          lost: r.losses,
+          tie: r.ties,
+          pct: total > 0 ? r.wins / total : 0,
+          offPts: r.offPts ?? 0,
+          defPts: r.defPts ?? 0,
+          diff: (r.offPts ?? 0) - (r.defPts ?? 0),
+          isDivWinner: r.isDivWinner ?? false,
+          isPlayoff: r.isPlayoff ?? false,
+          isSuperBowl: r.isSuperBowl ?? false,
+          isChampion: r.isChampion ?? false,
+          oldTeamName: r.oldTeamName || null,
+          gm: 'N/A',
+          division: r.division || 'N/A',
+        };
+      });
+    } catch (error) {
+      console.error('getHistory failed:', error);
+      return [];
+    }
+  },
+  ['history-data'],
+  { revalidate: 60, tags: ['history'] }
+);
+
 export async function getHistory(): Promise<StandingRow[]> {
-  return unstable_cache(
-    async () => {
-      const sheets = getSheetsClient();
-      const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-
-      try {
-        const response = await sheets.spreadsheets.values.get({
-          spreadsheetId: SHEET_ID,
-          range: 'Standings!A2:R1000', // FIXED: Changed Q to R
-        });
-
-        const rows = response.data.values || [];
-        
-        return rows.map((row) => ({
-          team: row[0],
-          year: row[1],
-          won: row[2],
-          lost: row[3],
-          tie: row[4],
-          pct: row[5],
-          offPts: row[6],
-          defPts: row[8],
-          diff: row[10],
-          isDivWinner: row[11] === '1',
-          isPlayoff: row[12] === '1',
-          isSuperBowl: row[13] === '1',
-          isChampion: row[14] === '1',
-          oldTeamName: row[15] || null, 
-          gm: row[16] || "N/A",
-          division: row[17] || "N/A" // Now index 17 (Column R) is available
-        }));
-      } catch (error) {
-        console.error("❌ Error fetching league history:", error);
-        return [];
-      }
-    },
-    ['history-data'],
-    { revalidate: 60, tags: ['history'] }
-  )();
+  return _getHistory();
 }
 
 export async function getTeamSummary() {
@@ -69,18 +85,11 @@ export async function getTeamSummary() {
         if (!summaryMap[teamKey]) {
           summaryMap[teamKey] = {
             team: teamKey,
-            seasons: 0,
-            wins: 0,
-            losses: 0,
-            ties: 0,
-            pointsFor: 0,
-            pointsAgainst: 0,
-            playoffs: 0,
-            superBowls: 0,
-            championships: 0,
+            seasons: 0, wins: 0, losses: 0, ties: 0,
+            pointsFor: 0, pointsAgainst: 0,
+            playoffs: 0, superBowls: 0, championships: 0,
           };
         }
-
         const t = summaryMap[teamKey];
         t.seasons += 1;
         t.wins += Number(row.won || 0);
@@ -93,7 +102,6 @@ export async function getTeamSummary() {
         if (row.isChampion) t.championships += 1;
       });
 
-      // Convert the object back into an array and sort by Titles, then Wins
       return Object.values(summaryMap).sort((a, b) => {
         if (b.championships !== a.championships) return b.championships - a.championships;
         return b.wins - a.wins;

@@ -3,7 +3,7 @@ import { players, teams, schedule, standings, rules, draftPicks } from '@/schema
 import { eq, and } from 'drizzle-orm';
 import Papa from "papaparse";
 import { revalidateTag } from 'next/cache';
-import { buildPlayerIdentity } from './sheetsPlayers';
+import { buildPlayerIdentity } from './playerUtils';
 
 type TeamRow = { id: number; name: string; teamshort: string | null };
 

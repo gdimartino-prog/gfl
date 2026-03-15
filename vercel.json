@@ -1,0 +1,20 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/nfl-week",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/schedule-reminder",
+      "schedule": "0 14 * * 1"
+    },
+    {
+      "path": "/api/cron/cuts-alert",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/draft",
+      "schedule": "* * * * *"
+    }
+  ]
+}

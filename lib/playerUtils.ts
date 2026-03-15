@@ -1,4 +1,17 @@
 /**
+ * Builds a stable identity hash for a player based on key fields.
+ * Format: first|last|age|offense|defense|special (all lowercase)
+ */
+export function buildPlayerIdentity(p: {
+  first?: string; last?: string; age?: number | string | null;
+  offense?: string | null; defense?: string | null; special?: string | null;
+}): string {
+  return [p.first, p.last, p.age, p.offense, p.defense, p.special]
+    .map(v => String(v || '').trim().toLowerCase())
+    .join('|');
+}
+
+/**
  * Compact stats for player option labels in transaction dropdowns.
  *
  * Format per position (matching the stats sheet columns):

@@ -7,7 +7,9 @@ import { Analytics } from '@vercel/analytics/react';
 import { TeamProvider } from "@/context/TeamContext";
 import { LeagueProvider } from "@/context/LeagueContext";
 import { SessionProvider } from "next-auth/react";
-import { getSettings } from '@/lib/getSettings';
+import { db } from '@/lib/db';
+import { rules } from '@/schema';
+import { eq, and } from 'drizzle-orm';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,12 +22,19 @@ const geistMono = Geist_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getSettings();
-  const leagueName = settings.leauge_name || 'GFL';
-  return {
-    title: `${leagueName} League Manager`,
-    description: `Manage rosters, trades, and more for the ${leagueName}.`,
-  };
+  try {
+    const row = await db.select({ value: rules.value })
+      .from(rules)
+      .where(and(eq(rules.rule, 'league_name'), eq(rules.leagueId, 1)))
+      .limit(1);
+    const leagueName = row[0]?.value || 'GFL';
+    return {
+      title: `${leagueName} League Manager`,
+      description: `Manage rosters, trades, and more for the ${leagueName}.`,
+    };
+  } catch {
+    return { title: 'GFL League Manager', description: 'Football League Manager' };
+  }
 }
 
 export default function RootLayout({

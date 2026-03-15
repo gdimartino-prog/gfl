@@ -1,69 +1,48 @@
-import { getSheetsClient } from './google-cloud';
-import { parsePlayers } from './sheetsPlayers';
-import { findPlayerRowIndex } from './playerLookup';
+import { db } from './db';
+import { players, teams } from '@/schema';
+import { eq, and } from 'drizzle-orm';
 
 /**
  * Execute a free agent pickup + waive transaction
  */
 export async function executeFreeAgentMove(
-  team: string,
+  teamshort: string,
   addIdentity: string,
-  dropIdentity: string
+  dropIdentity: string,
+  leagueId: number = 1,
 ) {
-  // 1. Load players
-  const sheets = getSheetsClient();
-  const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+  // Find the team record
+  const teamRow = await db.select({ id: teams.id })
+    .from(teams)
+    .where(and(eq(teams.teamshort, teamshort), eq(teams.leagueId, leagueId)))
+    .limit(1);
 
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID,
-    range: 'Players',
-  });
+  if (!teamRow[0]) throw new Error(`Team not found: ${teamshort}`);
+  const teamId = teamRow[0].id;
 
-  const rows = res.data.values || [];
-  const players = parsePlayers(rows);
+  // Find the player to add (must be FA = no teamId)
+  const addPlayer = await db.select({ id: players.id, teamId: players.teamId })
+    .from(players)
+    .where(and(eq(players.identity, addIdentity), eq(players.leagueId, leagueId)))
+    .limit(1);
 
-  const addPlayer = players.find(p => p.identity === addIdentity);
-  const dropPlayer = players.find(p => p.identity === dropIdentity);
+  if (!addPlayer[0]) throw new Error('Free agent not found');
+  if (addPlayer[0].teamId !== null) throw new Error('Selected player is not a free agent');
 
-  if (!addPlayer) {
-    throw new Error('Free agent not found');
-  }
+  // Find the player to drop (must belong to this team)
+  const dropPlayer = await db.select({ id: players.id, teamId: players.teamId })
+    .from(players)
+    .where(and(eq(players.identity, dropIdentity), eq(players.leagueId, leagueId)))
+    .limit(1);
 
-  if (!dropPlayer) {
-    throw new Error('Player to waive not found');
-  }
+  if (!dropPlayer[0]) throw new Error('Player to waive not found');
+  if (dropPlayer[0].teamId !== teamId) throw new Error('Player to waive does not belong to this team');
 
-  // 2. Validation
-  if (addPlayer.team !== 'FA') {
-    throw new Error('Selected player is not a free agent');
-  }
-
-  if (dropPlayer.team !== team) {
-    throw new Error('Player to waive does not belong to this team');
-  }
-
-  // 3. Find row indexes in sheet
-  // Using the dynamic utility ensures we find the correct row even if columns move
-  const addSheetRow = findPlayerRowIndex(rows, { identity: addIdentity });
-  const dropSheetRow = findPlayerRowIndex(rows, { identity: dropIdentity });
-
-  // 4. Execute updates
-  await sheets.spreadsheets.values.batchUpdate({
-    spreadsheetId: SHEET_ID,
-    requestBody: {
-      valueInputOption: 'RAW',
-      data: [
-        {
-          range: `Players!A${addSheetRow}`,
-          values: [[team]],
-        },
-        {
-          range: `Players!A${dropSheetRow}`,
-          values: [['FA']],
-        },
-      ],
-    },
-  });
+  // Execute both updates
+  await Promise.all([
+    db.update(players).set({ teamId, touch_id: teamshort }).where(eq(players.id, addPlayer[0].id)),
+    db.update(players).set({ teamId: null, touch_id: 'FA' }).where(eq(players.id, dropPlayer[0].id)),
+  ]);
 
   return { success: true };
 }

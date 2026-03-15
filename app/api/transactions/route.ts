@@ -1,10 +1,11 @@
-import { getSheetsClient } from '@/lib/google-cloud';
-import { parsePlayers } from '@/lib/sheetsPlayers';
-import { findPlayerRowIndex } from '@/lib/playerLookup';
+import { db } from '@/lib/db';
+import { players, teams } from '@/schema';
+import { eq, and } from 'drizzle-orm';
 import { logTransaction, getTransactions, updateTransactionStatus } from '@/lib/transactions';
 import { getCoaches } from '@/lib/config';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
+import { notifyTransaction } from '@/lib/notify';
 import { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -64,40 +65,63 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { type, identity, toTeam, details, fromTeam } = body;
 
-    const sheets = getSheetsClient();
-    const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+    const leagueId = await getLeagueId();
 
-    const [res, coaches] = await Promise.all([
-      sheets.spreadsheets.values.get({ spreadsheetId: SHEET_ID, range: 'Players!A:CV' }),
-      getCoaches()
-    ]);
+    // Find player by identity
+    const playerRows = await db.select({
+      id: players.id,
+      teamId: players.teamId,
+      teamshort: teams.teamshort,
+      teamName: teams.name,
+    })
+    .from(players)
+    .leftJoin(teams, eq(players.teamId, teams.id))
+    .where(and(eq(players.identity, identity), eq(players.leagueId, leagueId)))
+    .limit(1);
 
-    const rows = res.data.values || [];
-    const teamMap = new Map(coaches.map(c => [c.team.toLowerCase(), c.teamshort]));
+    if (!playerRows[0]) return Response.json({ error: 'Player not found' }, { status: 404 });
+    const player = playerRows[0];
 
-    const player = parsePlayers(rows).find(p => p.identity.trim().toLowerCase() === identity.trim().toLowerCase());
-    if (!player) return Response.json({ error: 'Player not found' }, { status: 404 });
-
-    const rowIndex = findPlayerRowIndex(rows, player);
-    let newTeamValue = player.team;
+    // Resolve new team ownership
+    let newTeamId: number | null = player.teamId ?? null;
+    const resolvedFromTeam = fromTeam || player.teamName || player.teamshort || '';
 
     if (type === 'ADD' || type === 'INJURY PICKUP') {
-      const lookup = toTeam.trim().toLowerCase();
-      newTeamValue = teamMap.get(lookup) || toTeam;
+      const toTeamRow = await db.select({ id: teams.id })
+        .from(teams)
+        .where(and(eq(teams.leagueId, leagueId), eq(teams.name, toTeam)))
+        .limit(1);
+      // Also try by teamshort if name didn't match
+      if (!toTeamRow[0]) {
+        const byShort = await db.select({ id: teams.id })
+          .from(teams)
+          .where(and(eq(teams.leagueId, leagueId), eq(teams.teamshort, toTeam)))
+          .limit(1);
+        newTeamId = byShort[0]?.id ?? null;
+      } else {
+        newTeamId = toTeamRow[0].id;
+      }
     } else if (type === 'DROP' || type === 'WAIVE') {
-      newTeamValue = 'FA';
+      newTeamId = null; // FA
     } else if (type === 'IR' || type === 'IR MOVE') {
-      newTeamValue = `${player.team}-IR`;
+      newTeamId = player.teamId ?? null; // stays on same team, isIR flag would be set
+      await db.update(players).set({ isIR: true, touch_id: 'transaction' }).where(eq(players.id, player.id));
     }
 
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SHEET_ID,
-      range: `Players!A${rowIndex}`,
-      valueInputOption: 'RAW',
-      requestBody: { values: [[newTeamValue]] },
-    });
+    if (type !== 'IR' && type !== 'IR MOVE') {
+      await db.update(players)
+        .set({ teamId: newTeamId, touch_id: 'transaction' })
+        .where(eq(players.id, player.id));
+    }
 
-    await logTransaction({ ...body, fromTeam: fromTeam || player.team, details });
+    await logTransaction({ ...body, fromTeam: resolvedFromTeam, details, leagueId });
+
+    // Send notification
+    const directionKey = `${resolvedFromTeam} ➔ ${toTeam || 'Free Agent'}`;
+    notifyTransaction({
+      type,
+      directions: { [directionKey]: [details || identity] },
+    }).catch(e => console.error('Notify failed:', e));
 
     return Response.json({ success: true });
   } catch (err: unknown) {
