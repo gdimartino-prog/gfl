@@ -35,7 +35,7 @@ export default function FreeAgentPanel({
 
   const activeCode = useMemo(() => resolveCode(team), [team]);
 
-  const OL_POS = new Set(['OL','OT','OG','OC','C','C-G','C-T','G','G-T','T','FB']);
+  const OL_POS = useMemo(() => new Set(['OL','OT','OG','OC','C','C-G','C-T','G','G-T','T','FB']), []);
 
   const filteredFreeAgents = useMemo(() => {
     const search = faSearch.toLowerCase();
@@ -56,7 +56,7 @@ export default function FreeAgentPanel({
         }
       })
       .sort((a, b) => (a.last || '').localeCompare(b.last || ''));
-  }, [freeAgents, faSearch, faPosFilter]);
+  }, [freeAgents, faSearch, faPosFilter, OL_POS]);
 
   const loadData = useCallback(async () => {
     try {

@@ -67,7 +67,7 @@ const DB_SET  = new Set(['DB', 'CB', 'S', 'FS', 'SS', 'SAF']);
 export function playerOptionStats(p: PlayerLabelInput): string {
   const off  = (p.offense || '').toUpperCase().trim();
   const def  = (p.defense || '').toUpperCase().trim();
-  const spec = (p.special  || '').toUpperCase().trim();
+
   const pos  = (p.position || p.pos || '').toUpperCase().trim();
   const posParts = pos ? pos.split('/') : [];
 

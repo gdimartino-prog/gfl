@@ -94,7 +94,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
       setScheduleYear(cutsYear ?? String(new Date().getFullYear()));
       setAwardsYear(cutsYear ?? String(new Date().getFullYear())); // also init awards year
     }
-  }, [rulesData]);
+  }, [rulesData, scheduleYear]);
 
   const fetchTeams = async () => {
     setTeamsLoading(true);
