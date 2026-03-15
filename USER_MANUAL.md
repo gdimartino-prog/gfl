@@ -17,7 +17,7 @@ To get started, you'll need to log in to your account.
 3.  Enter your **Password**.
 4.  Click the **Enter Front Office** button.
 
-![AFL Front Office Login Page](public/manual-screenshots/login.png)
+![AFL Front Office Login Page](/manual-screenshots/login.png)
 
 > **Pro Tip:** Keep the "Keep Me Logged In" box checked, and you'll stay logged in for 30 days!
 
@@ -37,7 +37,7 @@ If you're a new coach, you'll need to create an account.
     *   **Password:** Choose a secure password (at least 6 characters).
 3.  Click **Submit Registration**.
 
-![AFL Front Office Registration Page](public/manual-screenshots/signup.png)
+![AFL Front Office Registration Page](/manual-screenshots/signup.png)
 
 After you register, your account will be **pending approval** from the league commissioner. They'll let you know when your account is active and ready to use.
 
@@ -55,7 +55,7 @@ It happens to the best of us. If you forget your password:
 
 The home page is your command center. From here, you can access all the major features of the AFL Front Office.
 
-![AFL Front Office Home Page](public/manual-screenshots/home.png)
+![AFL Front Office Home Page](/manual-screenshots/home.png)
 
 ### Feature Cards
 
@@ -83,7 +83,7 @@ On the right side of the page, you'll find the **Weekly Schedule Widget**. This 
 
 The **Team Rosters** page is where you can see the full roster for every team in the league.
 
-![Team Rosters Page](public/manual-screenshots/rosters.png)
+![Team Rosters Page](/manual-screenshots/rosters.png)
 
 ### Browsing Rosters
 
@@ -107,7 +107,7 @@ The dark panel at the top shows the team's coach name, contact info, win/loss re
 
 The **League Standings** page shows you the current league standings, as well as historical data.
 
-![League Standings Page](public/manual-screenshots/standings.png)
+![League Standings Page](/manual-screenshots/standings.png)
 
 ### Yearly View
 
@@ -128,7 +128,7 @@ Click on the **"All-Time Leaderboard"** tab to see career statistics for every f
 
 The **League Schedule** page shows the full season schedule, week by week. You can see upcoming matchups and the scores of completed games.
 
-![League Schedule Page](public/manual-screenshots/schedule.png)
+![League Schedule Page](/manual-screenshots/schedule.png)
 
 *   Use the **season tabs** (2025 Season, 2024 Season, etc.) to view different years.
 *   Use the **week buttons** to jump to a specific week.
@@ -140,7 +140,7 @@ The **League Schedule** page shows the full season schedule, week by week. You c
 
 The **Draft Board** is the central hub for all draft activity.
 
-![Draft Board Page](public/manual-screenshots/draft.png)
+![Draft Board Page](/manual-screenshots/draft.png)
 
 ### On the Clock
 
@@ -169,7 +169,7 @@ Click the **"Scout Free Agents"** button (top right) to open the scouting panel 
 
 The **Transactions** page is where you can add, drop, IR, and trade players.
 
-![Transactions Page](public/manual-screenshots/transactions.png)
+![Transactions Page](/manual-screenshots/transactions.png)
 
 ### Operation Tabs
 
@@ -197,7 +197,7 @@ Every transaction automatically sends an **email and WhatsApp alert** to the lea
 
 The **Roster Cuts** page is where you'll make decisions about which players to keep for next season.
 
-![Roster Cuts Page](public/manual-screenshots/cuts.png)
+![Roster Cuts Page](/manual-screenshots/cuts.png)
 
 ### League Compliance Monitor
 
@@ -224,7 +224,7 @@ Select your team from the dropdown, then use the **Protect**, **Pullback**, or *
 
 The **Trade Block** is a public marketplace where coaches can list players they are willing to trade.
 
-![Trade Block Page](public/manual-screenshots/trade-block.png)
+![Trade Block Page](/manual-screenshots/trade-block.png)
 
 *   **View the Block:** See all players currently listed, along with what the coach is asking for in return.
 *   **Post a Player:** Contact your commissioner to have a player added to the trade block.
@@ -236,7 +236,7 @@ The **Trade Block** is a public marketplace where coaches can list players they 
 
 The **Coaching Hub** is where you'll upload your `.COA` file for each gameday. This file contains your team's strategy and play calls.
 
-![Coaching Hub Page](public/manual-screenshots/coaching.png)
+![Coaching Hub Page](/manual-screenshots/coaching.png)
 
 *   **Upload:** Click the upload area to select your `.COA` file. The file is saved automatically with the correct name for Action! PC Football.
 *   **Opponent Intelligence:** The right panel shows all coaches' COA files available for download, with their last sync timestamp.
@@ -264,7 +264,7 @@ The **League Resources** page is a central repository for all league files and d
 
 The **League Directory** lists the contact information for all the coaches in the league.
 
-![League Directory Page](public/manual-screenshots/directory.png)
+![League Directory Page](/manual-screenshots/directory.png)
 
 *   **Search:** Use the search bar at the top to filter by coach name, team name, or shortcode.
 *   **Contact:** Click any email address to compose a message, or a phone number to dial on mobile.
@@ -282,7 +282,7 @@ The **Constitution & Rules** page contains the full text of the league constitut
 
 The **Franchise Settings** page is where you can manage your coach profile and account security.
 
-![Franchise Settings Page](public/manual-screenshots/settings.png)
+![Franchise Settings Page](/manual-screenshots/settings.png)
 
 *   **Update Directory Info:** Change your coach name, team nickname, team name, email, and mobile number. Click **"Update Directory Info"** to save — changes are reflected in the League Directory immediately.
 *   **Change Your Password:** Enter and confirm a new password, then click **"Save Security Settings"**.
@@ -294,7 +294,7 @@ The **Franchise Settings** page is where you can manage your coach profile and a
 
 The **Commissioner Panel** is a special area for the league commissioner to manage the league. This page is not accessible to regular coaches.
 
-![Commissioner Panel Page](public/manual-screenshots/maintenance.png)
+![Commissioner Panel Page](/manual-screenshots/maintenance.png)
 
 ### Features for the Commissioner:
 
