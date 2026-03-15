@@ -2,7 +2,6 @@ import { getSchedule } from '@/lib/getSchedule';
 import { getStandings } from '@/lib/getStandings'; // Using your lib as a lookup
 import { getLeagueId } from '@/lib/getLeagueId';
 import { NextRequest, NextResponse } from 'next/server';
-import { Team } from '@/types';
 
 interface Game {
   year: number | null;
