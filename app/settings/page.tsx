@@ -73,6 +73,7 @@ export default function SettingsPage() {
     try {
       const res = await fetch('/api/teams', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, mobile, coach, nickname, team }),
       });
       const result = await res.json();

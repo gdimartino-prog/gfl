@@ -77,6 +77,19 @@ export async function DELETE(req: NextRequest) {
 
   try {
     const leagueId = await getLeagueId();
+    const teamCode = (session.user as { id?: string }).id || '';
+    const isAdminUser = (session.user as { role?: string }).role === 'admin' || (session.user as { role?: string }).role === 'superuser';
+
+    // Verify ownership unless admin
+    if (!isAdminUser) {
+      const existing = await db.select({ team: tradeBlock.team }).from(tradeBlock)
+        .where(and(eq(tradeBlock.playerId, playerId), eq(tradeBlock.leagueId, leagueId)))
+        .limit(1);
+      if (!existing[0] || existing[0].team?.toUpperCase() !== teamCode.toUpperCase()) {
+        return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+      }
+    }
+
     await db.delete(tradeBlock).where(
       and(eq(tradeBlock.playerId, playerId), eq(tradeBlock.leagueId, leagueId))
     );

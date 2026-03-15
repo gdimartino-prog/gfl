@@ -4,6 +4,7 @@ import { rules } from '@/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
+import { isAdmin } from '@/lib/auth';
 
 const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
 
@@ -21,6 +22,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   try {
     const { rule, value, year, desc } = await req.json();
     if (!rule || value === undefined) {
@@ -45,6 +47,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   try {
     const { rule, value, year } = await req.json();
     if (!rule || value === undefined) {
@@ -68,6 +71,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
   try {
     const { rule, year } = await req.json();
     if (!rule) return NextResponse.json({ error: 'rule is required' }, { status: 400 });

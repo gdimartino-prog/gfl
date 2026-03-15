@@ -4,6 +4,7 @@ import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
 import { teams } from '@/schema';
 import { and, eq } from 'drizzle-orm';
+import { auth } from '@/auth';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -37,7 +38,7 @@ export async function GET() {
         currentOwner: p.currentOwner ?? '',
         status,
         draftedPlayer: p.selectedPlayer ?? '',
-        timestamp: '',
+        timestamp: p.pickedAt ? p.pickedAt.toISOString() : '',
         processedBy: '',
         history: '',
       };
@@ -51,6 +52,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
     const body = await req.json();
     const { fromTeam, toTeam, year, round, overall, coachName } = body;

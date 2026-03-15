@@ -26,15 +26,16 @@ export async function POST(request: Request) {
     let result: { success: boolean; message: string; fileName: string };
 
     try {
-      if (fileName.toLowerCase().includes("standings") || fileContent.toUpperCase().includes("STANDING")) {
+      const lowerName = fileName.toLowerCase();
+      if (lowerName.includes("standings")) {
         const processResult = await processStandingsFile(fileContent, leagueId);
         result = { ...processResult, fileName };
         if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_STANDINGS', `Imported standings: ${fileName}`);
-      } else if (fileContent.toUpperCase().includes("SCHEDULE")) {
+      } else if (lowerName.includes("schedule")) {
         const processResult = await processScheduleFile(fileContent, leagueId);
         result = { ...processResult, fileName };
         if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_SCHEDULE', `Imported schedule: ${fileName}`);
-      } else if (fileName.toLowerCase().endsWith(".csv")) {
+      } else if (lowerName.endsWith(".csv")) {
         const processResult = await processPlayersFile(fileContent, leagueId);
         result = { ...processResult, fileName };
         if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_PLAYERS', `Imported players: ${fileName}`);

@@ -136,7 +136,9 @@ export default function TradePanel({
   }, [draftPicks, partnerCode]);
 
   const handleTrade = async () => {
-    if (!toTeam || (fromPlayers.length === 0 && fromDraftPicks.length === 0 && toPlayers.length === 0 && toDraftPicks.length === 0)) {
+    const fromHasAssets = fromPlayers.length > 0 || fromDraftPicks.length > 0;
+    const toHasAssets = toPlayers.length > 0 || toDraftPicks.length > 0;
+    if (!toTeam || !fromHasAssets || !toHasAssets) {
       setStatus('⚠️ Please select assets for both sides.');
       return;
     }

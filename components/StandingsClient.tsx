@@ -175,7 +175,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
   const playoffPicture = useMemo(() => {
     return allData
       .filter(r => r.year?.toString() === currentYear?.toString() && seedMap[r.team]?.seed <= playoffTeams)
-      .sort((a, b) => seedMap[a.team].seed - seedMap[b.team].seed);
+      .sort((a, b) => (seedMap[a.team]?.seed ?? 99) - (seedMap[b.team]?.seed ?? 99));
   }, [allData, currentYear, seedMap, playoffTeams]);
 
   // 🚀 BUBBLE WATCH: Extract teams just outside the qualifying spots (Seeds 9 & 10)
@@ -257,17 +257,17 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
     // 3. Playoff Teams (Reverse Seeding: Lower seeds pick earlier)
     const playoff = fullCurrentSeason
       .filter(r => seedMap[r.team]?.seed <= playoffTeams)
-      .sort((a, b) => seedMap[b.team].seed - seedMap[a.team].seed);
+      .sort((a, b) => (seedMap[b.team]?.seed ?? 0) - (seedMap[a.team]?.seed ?? 0));
 
     const combined = [...nonPlayoff, ...playoff];
 
     return combined.map((team, idx): DraftOrderTeam => {
       const pickNum = idx + 1;
-      const isPlayoffTeam = seedMap[team.team].seed <= playoffTeams;
+      const isPlayoffTeam = (seedMap[team.team]?.seed ?? 99) <= playoffTeams;
       let reason = `Pick #${pickNum}: ${isPlayoffTeam ? 'Playoff Team' : 'Non-Playoff Team'}`;
 
       if (isPlayoffTeam) {
-        reason += ` • Reverse Seeding (Seed #${seedMap[team.team].seed})`;
+        reason += ` • Reverse Seeding (Seed #${seedMap[team.team]?.seed ?? '?'})`;
       } else {
         const prev = idx > 0 ? combined[idx - 1] : null;
         const next = idx < combined.length - 1 ? combined[idx + 1] : null;

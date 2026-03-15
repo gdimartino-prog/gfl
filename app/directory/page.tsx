@@ -26,7 +26,7 @@ export default function DirectoryPage() {
         
         const year = rulesData.find((r: { setting: string; value: string }) => r.setting === 'cuts_year')?.value;
         if (year) setSeasonYear(year);
-        const lName = rulesData.find((r: { setting: string; value: string }) => r.setting === 'leauge_name')?.value;
+        const lName = rulesData.find((r: { setting: string; value: string }) => r.setting === 'league_name')?.value;
         if (lName) setLeagueName(lName);
         
         setLoading(false);

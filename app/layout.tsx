@@ -10,6 +10,7 @@ import { SessionProvider } from "next-auth/react";
 import { db } from '@/lib/db';
 import { rules } from '@/schema';
 import { eq, and } from 'drizzle-orm';
+import { getLeagueId } from '@/lib/getLeagueId';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,9 +24,10 @@ const geistMono = Geist_Mono({
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
+    const leagueId = await getLeagueId();
     const row = await db.select({ value: rules.value })
       .from(rules)
-      .where(and(eq(rules.rule, 'league_name'), eq(rules.leagueId, 1)))
+      .where(and(eq(rules.rule, 'league_name'), eq(rules.leagueId, leagueId)))
       .limit(1);
     const leagueName = row[0]?.value || 'GFL';
     return {

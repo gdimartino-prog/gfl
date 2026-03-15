@@ -7,8 +7,9 @@ export default async function WeeklyScheduleWidget({ leagueId = 1 }: { leagueId?
   
   const currentWeekGame = allGames.find(g => !g.vScore || g.vScore === '');
   const displayWeek = currentWeekGame ? currentWeekGame.week : allGames[allGames.length - 1]?.week;
+  const displayYear = currentWeekGame ? currentWeekGame.year : allGames[allGames.length - 1]?.year;
 
-  const weeklyGames = allGames.filter(g => g.week === displayWeek);
+  const weeklyGames = allGames.filter(g => g.week === displayWeek && g.year === displayYear);
 
   return (
     <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">

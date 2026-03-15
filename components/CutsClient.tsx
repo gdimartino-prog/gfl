@@ -98,7 +98,8 @@ export default function CutsClient() {
   const hasSynced = useRef(false);
   const rosterHeaderRef = useRef<HTMLDivElement>(null);
 
-  const isCommissioner = (session?.user as { role?: string })?.role === "admin";
+  const userRole = (session?.user as { role?: string })?.role;
+  const isCommissioner = userRole === "admin" || userRole === "superuser";
   const userTeamId = (session?.user as { id?: string })?.id;
   const canEdit = isCommissioner || (selectedTeam === userTeamId);
 

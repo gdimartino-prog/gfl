@@ -63,6 +63,8 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function POST(req: Request) {
+  const session = await auth();
+  if (!session?.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
   try {
     const body = await req.json();
     const { type, identity, toTeam, details, fromTeam } = body;
