@@ -27,3 +27,5 @@ next-env.d.ts
 response.txt
 AGENTmd.txt
 .claude/settings.local.json
+
+.vercel

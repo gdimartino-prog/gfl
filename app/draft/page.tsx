@@ -147,16 +147,15 @@ function DraftBoardContent() {
 
   useEffect(() => {
     if (!onClockPick) return;
-    const timerInterval = setInterval(() => {
-      const now = new Date().getTime();
-      const startTimeStr = previousPick?.timestamp;
-      const parsedStart = startTimeStr ? new Date(startTimeStr).getTime() : NaN;
-      const startRef = !isNaN(parsedStart) ? parsedStart : new Date().getTime();
-      const roundNum = Number(onClockPick.round);
-      const limitMs = (roundNum <= 2 ? 24 : 12) * 60 * 60 * 1000;
-      const expiryTime = startRef + limitMs;
-      const diff = expiryTime - now;
+    const roundNum = Number(onClockPick.round);
+    const limitMs = (roundNum <= 2 ? 24 : 12) * 60 * 60 * 1000;
+    const startTimeStr = previousPick?.timestamp;
+    const parsedStart = startTimeStr ? new Date(startTimeStr).getTime() : NaN;
+    const startRef = !isNaN(parsedStart) ? parsedStart : new Date().getTime();
+    const expiryTime = startRef + limitMs;
 
+    const timerInterval = setInterval(() => {
+      const diff = expiryTime - new Date().getTime();
       if (diff <= 0) {
         setTimeLeft("EXPIRED");
         setProgress(0);

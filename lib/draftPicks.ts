@@ -25,6 +25,7 @@ export type DraftPickRow = {
   originalTeam: string | null;
   currentOwner: string | null;
   selectedPlayer: string | null;
+  pickedAt: Date | null;
 };
 
 const _getAllDraftPicks = cache(async (leagueId: number) => {
@@ -40,6 +41,7 @@ const _getAllDraftPicks = cache(async (leagueId: number) => {
       originalTeam: originalTeams.teamshort,
       currentOwner: currentTeams.teamshort,
       selectedPlayer: players.name,
+      pickedAt: draftPicks.pickedAt,
     })
     .from(draftPicks)
     .leftJoin(originalTeams, eq(draftPicks.originalTeamId, originalTeams.id))
