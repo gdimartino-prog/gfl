@@ -3,6 +3,7 @@ name: Draft Cron
 on:
   schedule:
     - cron: '*/5 * * * *'  # Every 5 minutes
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
   check-draft:

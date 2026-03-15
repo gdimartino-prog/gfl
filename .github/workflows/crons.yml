@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: '0 12 * * *'    # Daily at noon UTC
     - cron: '0 14 * * 1'    # Mondays at 2pm UTC
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
   nfl-week:
