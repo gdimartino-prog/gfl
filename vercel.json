@@ -12,10 +12,6 @@
     {
       "path": "/api/cron/cuts-alert",
       "schedule": "0 12 * * *"
-    },
-    {
-      "path": "/api/cron/draft",
-      "schedule": "0 12 * * *"
     }
   ]
 }
