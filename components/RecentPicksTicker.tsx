@@ -62,7 +62,7 @@ export default function RecentPicksTicker({ picks, teams }: TickerProps) {
       <div className="w-full bg-slate-900 border-y border-white/10 py-4 overflow-hidden relative">
         <div className="flex items-center justify-center gap-4 text-slate-500 font-black uppercase text-[10px] tracking-[0.3em]">
           <Zap size={14} className="opacity-20" />
-          <span>Waiting for 2026 Draft Data...</span>
+          <span>Season {new Date().getFullYear()} Draft — No Picks Yet</span>
           <Zap size={14} className="opacity-20" />
         </div>
       </div>

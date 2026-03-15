@@ -47,11 +47,16 @@ Check changed files for:
 **This is mandatory on every QA run.** Use Playwright MCP to navigate the live app at `https://gfl-alpha.vercel.app` and click through every interactive element on every page like a human user would. Do not skip UI testing. Do not just load pages — actually interact with them.
 
 ### Test Accounts
-| Role          | Username | Password |
-|---------------|----------|----------|
-| Superuser     | admin    | gfl2020  |
-| Admin coach   | vico     | gfl2222  |
-| Regular coach | LBI      | Claws1   |
+| Role          | Username | Password | Notes |
+|---------------|----------|----------|-------|
+| Superuser     | admin    | gfl2020  | Env var superuser — always works |
+| Admin coach   | vico     | gfl2222  | Team name "Vico", teamshort "VV" |
+
+**Auth rules:** Login username must match `teams.name` (case-insensitive), NOT `teamshort`.
+- ✅ `vico` works because the team name is "Vico"
+- ❌ `LBI` does not work if the team name in DB is something else (e.g. "Long Beach Island")
+- To add a test coach account: look up the team's `name` field in the `teams` table and use that as the username
+- Email addresses also work as usernames (resolved to team name via DB lookup)
 
 ### Playwright Rules
 - Always `browser_navigate` then `browser_snapshot` to read the page structure before clicking

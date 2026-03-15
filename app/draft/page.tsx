@@ -154,7 +154,7 @@ function DraftBoardContent() {
     const startRef = !isNaN(parsedStart) ? parsedStart : new Date().getTime();
     const expiryTime = startRef + limitMs;
 
-    const timerInterval = setInterval(() => {
+    const computeAndSet = () => {
       const diff = expiryTime - new Date().getTime();
       if (diff <= 0) {
         setTimeLeft("EXPIRED");
@@ -166,7 +166,10 @@ function DraftBoardContent() {
         setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
         setProgress((diff / limitMs) * 100);
       }
-    }, 1000);
+    };
+
+    computeAndSet(); // set immediately so no 1-second blank flash
+    const timerInterval = setInterval(computeAndSet, 1000);
     return () => clearInterval(timerInterval);
   }, [onClockPick, previousPick]);
 
