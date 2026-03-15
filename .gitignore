@@ -23,6 +23,9 @@ next-env.d.ts
 *.png
 *.jpeg
 
+# Allow manual screenshots in public/
+!public/manual-screenshots/*.png
+
 # Misc
 response.txt
 AGENTmd.txt
