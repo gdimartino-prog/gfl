@@ -1,37 +1,44 @@
 import fs from 'fs';
 import path from 'path';
-import { remark } from 'remark';
-import html from 'remark-html';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
+import remarkRehype from 'remark-rehype';
+import rehypeSlug from 'rehype-slug';
+import rehypeStringify from 'rehype-stringify';
 import { BookOpen } from 'lucide-react';
 
 export default async function ManualPage() {
   const fullPath = path.resolve(process.cwd(), 'USER_MANUAL.md');
   const fileContents = fs.readFileSync(fullPath, 'utf8');
 
-  const processedContent = await remark()
-    .use(html, { sanitize: false })
+  const processedContent = await unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeSlug)
+    .use(rehypeStringify, { allowDangerousHtml: true })
     .process(fileContents);
 
   const contentHtml = processedContent.toString();
 
   const navItems = [
-    { href: '#getting-started', label: '1. Getting Started' },
-    { href: '#home-page', label: '2. Home Page' },
-    { href: '#rosters', label: '3. Team Rosters' },
-    { href: '#standings', label: '4. League Standings' },
-    { href: '#schedule', label: '5. League Schedule' },
-    { href: '#draft-board', label: '6. Draft Board' },
-    { href: '#transactions', label: '7. Transactions' },
-    { href: '#cuts', label: '8. Roster Cuts' },
-    { href: '#trade-block', label: '9. Trade Block' },
-    { href: '#coaching-hub', label: '10. Coaching Hub' },
-    { href: '#press-box', label: '11. Press Box' },
-    { href: '#resources', label: '12. League Resources' },
-    { href: '#directory', label: '13. League Directory' },
-    { href: '#constitution', label: '14. Constitution & Rules' },
-    { href: '#settings', label: '15. Franchise Settings' },
-    { href: '#commissioner', label: '16. Commissioner Panel' },
-    { href: '#league-switcher', label: '17. League Switcher' },
+    { href: '#1-getting-started-your-first-steps', label: '1. Getting Started' },
+    { href: '#2-the-home-page-your-central-hub', label: '2. Home Page' },
+    { href: '#3-team-rosters-know-your-squad-and-your-rivals', label: '3. Team Rosters' },
+    { href: '#4-league-standings-see-whos-on-top', label: '4. League Standings' },
+    { href: '#5-league-schedule-plan-your-season', label: '5. League Schedule' },
+    { href: '#6-the-draft-board-where-champions-are-made', label: '6. Draft Board' },
+    { href: '#7-transactions-making-roster-moves', label: '7. Transactions' },
+    { href: '#8-roster-cuts-preparing-for-the-new-season', label: '8. Roster Cuts' },
+    { href: '#9-the-trade-block-make-a-deal', label: '9. Trade Block' },
+    { href: '#10-coaching-hub-upload-your-coa-file', label: '10. Coaching Hub' },
+    { href: '#11-the-press-box-game-summaries-and-analysis', label: '11. Press Box' },
+    { href: '#12-league-resources-files-and-documents', label: '12. League Resources' },
+    { href: '#13-league-directory-find-your-fellow-coaches', label: '13. League Directory' },
+    { href: '#14-constitution--rules-know-the-law', label: '14. Constitution & Rules' },
+    { href: '#15-franchise-settings-your-profile-and-password', label: '15. Franchise Settings' },
+    { href: '#16-commissioner-panel-league-management', label: '16. Commissioner Panel' },
   ];
 
   return (
@@ -73,7 +80,7 @@ export default async function ManualPage() {
           </div>
 
           <article
-            className="prose prose-slate max-w-none prose-headings:scroll-mt-24 prose-h2:text-2xl prose-h2:font-black prose-h2:uppercase prose-h2:tracking-tight prose-h3:font-black prose-h3:text-blue-900 prose-table:text-sm prose-td:py-2 prose-th:py-2 prose-code:text-blue-700 prose-code:bg-blue-50 prose-code:px-1.5 prose-code:rounded prose-code:font-mono prose-code:text-xs prose-blockquote:border-blue-300 prose-blockquote:text-slate-600 prose-strong:text-slate-900"
+            className="prose prose-slate max-w-none prose-headings:scroll-mt-24 prose-h2:text-2xl prose-h2:font-black prose-h2:uppercase prose-h2:tracking-tight prose-h3:font-black prose-h3:text-blue-900 prose-table:text-sm prose-td:py-2 prose-th:py-2 prose-code:text-blue-700 prose-code:bg-blue-50 prose-code:px-1.5 prose-code:rounded prose-code:font-mono prose-code:text-xs prose-blockquote:border-blue-300 prose-blockquote:text-slate-600 prose-strong:text-slate-900 prose-img:rounded-xl prose-img:shadow-md prose-img:border prose-img:border-slate-200"
             dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
         </main>
