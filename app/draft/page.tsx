@@ -151,7 +151,7 @@ function DraftBoardContent() {
       const now = new Date().getTime();
       const startTimeStr = previousPick?.timestamp;
       const parsedStart = startTimeStr ? new Date(startTimeStr).getTime() : NaN;
-      const startRef = !isNaN(parsedStart) ? parsedStart : new Date().getTime() - (1000 * 60); 
+      const startRef = !isNaN(parsedStart) ? parsedStart : new Date().getTime();
       const roundNum = Number(onClockPick.round);
       const limitMs = (roundNum <= 2 ? 24 : 12) * 60 * 60 * 1000;
       const expiryTime = startRef + limitMs;
