@@ -51,7 +51,7 @@ export async function GET(_req: Request, { params }: RouteContext) {
         originalTeam: p.originalTeam,
         currentOwner: p.currentOwner
       }))
-      .sort((a, b) => a.year - b.year || a.overall - b.overall);
+      .sort((a, b) => (a.year ?? 0) - (b.year ?? 0) || (a.overall ?? 0) - (b.overall ?? 0));
 
     return NextResponse.json({ roster, picks });
   } catch (error: unknown) {

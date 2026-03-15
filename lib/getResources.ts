@@ -18,10 +18,11 @@ export async function getResources() {
       try {
         const allResources = await db.select().from(resources);
         return allResources.reduce((acc: Record<string, { title: string; url: string }[]>, resource) => {
-          if (!acc[resource.group]) {
-            acc[resource.group] = [];
+          const group = resource.group ?? 'General';
+          if (!acc[group]) {
+            acc[group] = [];
           }
-          acc[resource.group].push({ title: resource.title, url: resource.url });
+          acc[group].push({ title: resource.title, url: resource.url ?? '' });
           return acc;
         }, {});
       } catch (error) {

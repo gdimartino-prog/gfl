@@ -9,7 +9,6 @@ export async function logSystemEvent(coach: string, team: string, action: string
       team,
       action,
       details,
-      touch_id: coach,
     });
   } catch (error) {
     console.error("Audit Log Failure:", error);

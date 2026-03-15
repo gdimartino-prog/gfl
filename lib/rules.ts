@@ -5,8 +5,11 @@ import { eq } from 'drizzle-orm';
 
 export type Rule = {
   id: number;
-  title: string;
-  content: string;
+  leagueId?: number | null;
+  year?: number | null;
+  rule: string;
+  value: string;
+  desc?: string | null;
   touch_id?: string | null;
 };
 

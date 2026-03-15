@@ -7,10 +7,10 @@ import { Team } from '@/types';
 interface Game {
   year: number | null;
   week: string;
-  visitor: string;
-  home: string;
-  vScore: string | null;
-  hScore: string | null;
+  visitor: string | null;
+  home: string | null;
+  vScore: string | number | null;
+  hScore: string | number | null;
   status: string;
 }
 
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     // 2. Look up the City Name (Column A) using the Short Code (Column B)
     // Example: Find "Vico" where teamshort is "VV"
     const teamEntry = allTeams.find(
-      (t: Team) => t.teamshort?.toUpperCase() === teamCode.toUpperCase()
+      (t) => t.teamshort?.toUpperCase() === teamCode.toUpperCase()
     );
 
     // 3. If no match found in Coaches sheet, fallback to the code itself

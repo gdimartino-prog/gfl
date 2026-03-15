@@ -184,16 +184,15 @@ export async function processScheduleFile(fileContent: string, leagueId: number 
         homeScore = parseInt(scores[1], 10);
       }
 
-      const existingConditions = [
-        eq(schedule.leagueId, leagueId),
-        eq(schedule.week, week),
-        eq(schedule.homeTeamId, homeTeam.id),
-        eq(schedule.awayTeamId, awayTeam.id),
-        ...(year !== null ? [eq(schedule.year, year)] : []),
-      ];
       const existing = await db.select()
         .from(schedule)
-        .where(and(...existingConditions))
+        .where(and(
+          eq(schedule.leagueId, leagueId),
+          eq(schedule.week, String(week)),
+          eq(schedule.homeTeamId, homeTeam.id),
+          eq(schedule.awayTeamId, awayTeam.id),
+          year !== null ? eq(schedule.year, year) : undefined,
+        ))
         .limit(1);
 
       if (existing.length > 0) {
@@ -208,17 +207,17 @@ export async function processScheduleFile(fileContent: string, leagueId: number 
           updateCount++;
         }
       } else {
-        await db.insert(schedule).values({
+        await db.insert(schedule).values([{
           leagueId,
           year,
-          week,
+          week: String(week),
           homeTeamId: homeTeam.id,
           awayTeamId: awayTeam.id,
           home_score: homeScore,
           away_score: awayScore,
           is_bye: false,
           touch_id: 'maintenance',
-        });
+        }]);
         insertCount++;
       }
     } catch (e) {

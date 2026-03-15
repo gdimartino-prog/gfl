@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllDraftPicks, transferDraftPick, findDraftPick } from '@/lib/draftPicks';
+import { getAllDraftPicks, transferDraftPick, findDraftPick, DraftPickRow } from '@/lib/draftPicks';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
 import { teams } from '@/schema';
@@ -14,7 +14,7 @@ export async function GET() {
     const picks = await getAllDraftPicks(leagueId);
 
     // Sort by overall pick number then find the first undrafted pick (on the clock)
-    const sorted = [...picks].sort((a, b) => (a.pick ?? 0) - (b.pick ?? 0));
+    const sorted = [...picks as DraftPickRow[]].sort((a, b) => (a.pick ?? 0) - (b.pick ?? 0));
     let onClockSet = false;
 
     const formattedPicks = sorted.map(p => {

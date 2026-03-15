@@ -56,7 +56,8 @@ const _getPlayers = cache(async (leagueId: number) => {
     }));
 });
 
-export async function getPlayers(leagueId: number = 1): Promise<unknown[]> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getPlayers(leagueId: number = 1): Promise<any[]> {
   try {
     return await _getPlayers(leagueId);
   } catch (err) {

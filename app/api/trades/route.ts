@@ -68,7 +68,6 @@ export async function POST(req: Request) {
     if (proposerAssets) {
       await logTransaction({
         type: 'TRADE',
-        identity: proposerAssets,
         details: `Traded to ${toFull}: ${proposerAssets}`,
         fromTeam: fromFull,
         toTeam: toFull,
@@ -80,7 +79,6 @@ export async function POST(req: Request) {
     if (partnerAssets) {
       await logTransaction({
         type: 'TRADE',
-        identity: partnerAssets,
         details: `Traded to ${fromFull}: ${partnerAssets}`,
         fromTeam: toFull,
         toTeam: fromFull,

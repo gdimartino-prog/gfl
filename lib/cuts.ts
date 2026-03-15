@@ -1,11 +1,10 @@
 
 import { db } from './db';
-import { cuts, players, teams } from '@/schema';
+import { cuts, teams } from '@/schema';
 import { eq } from 'drizzle-orm';
 
 export type Cut = {
   id: number;
-  playerId: number;
   teamId: number;
   touch_id?: string | null;
 };
@@ -13,14 +12,15 @@ export type Cut = {
 /**
  * Fetches all cuts from the database.
  */
-export async function getCuts(): Promise<unknown[]> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getCuts(): Promise<any[]> {
     return await db.select({
         id: cuts.id,
-        playerName: players.name,
+        firstName: cuts.firstName,
+        lastName: cuts.lastName,
         teamName: teams.name,
     })
     .from(cuts)
-    .leftJoin(players, eq(cuts.playerId, players.id))
     .leftJoin(teams, eq(cuts.teamId, teams.id));
 }
 

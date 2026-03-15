@@ -16,6 +16,17 @@ export type DraftPick = {
   touch_id?: string | null;
 };
 
+export type DraftPickRow = {
+  id: number;
+  year: number | null;
+  round: number;
+  pick: number;
+  overall?: number;
+  originalTeam: string | null;
+  currentOwner: string | null;
+  selectedPlayer: string | null;
+};
+
 const _getAllDraftPicks = cache(async (leagueId: number) => {
   try {
     const originalTeams = alias(teams, 'originalTeams');
@@ -44,7 +55,7 @@ const _getAllDraftPicks = cache(async (leagueId: number) => {
 /**
  * Get all draft picks with full details for a given league
  */
-export async function getAllDraftPicks(leagueId: number = 1): Promise<unknown[]> {
+export async function getAllDraftPicks(leagueId: number = 1): Promise<DraftPickRow[]> {
   return _getAllDraftPicks(leagueId);
 }
 
