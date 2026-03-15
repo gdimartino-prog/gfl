@@ -37,8 +37,8 @@ const _getAllDraftPicks = cache(async (leagueId: number) => {
       year: draftPicks.year,
       round: draftPicks.round,
       pick: draftPicks.pick,
-      originalTeam: originalTeams.name,
-      currentOwner: currentTeams.name,
+      originalTeam: originalTeams.teamshort,
+      currentOwner: currentTeams.teamshort,
       selectedPlayer: players.name,
     })
     .from(draftPicks)

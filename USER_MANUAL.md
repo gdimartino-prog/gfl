@@ -1,7 +1,7 @@
-# GFL Front Office — User Manual
+# AFL Front Office — User Manual
 
 **Version:** 2026 Season
-**Application:** GFL League Manager (Front Office)
+**Application:** AFL League Manager (Front Office)
 
 ---
 
@@ -147,7 +147,7 @@ The home page is your central hub. It displays a grid of feature cards linking t
 | Draft Board | View picks and make draft selections | No (view) |
 | Standings | Season records and historical data | No |
 | Training | External training facilities link | No |
-| Classic GFL Site | Link to legacy league website | No |
+| Classic League Site | Link to legacy league website | No |
 | Franchise Settings | Update your contact info and password | Yes |
 | Commissioner | League management panel | Commissioner only |
 
