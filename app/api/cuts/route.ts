@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { cuts, teams } from '@/schema';
 import { eq, and } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
+import { logSystemEvent } from '@/lib/db-helpers';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -114,6 +115,10 @@ export async function POST(req: NextRequest) {
       });
       await db.insert(cuts).values(rows);
     }
+
+    const protCount = selections?.filter((s: { status: string }) => s.status === 'protected').length ?? 0;
+    const pullCount = selections?.filter((s: { status: string }) => s.status === 'pullback').length ?? 0;
+    logSystemEvent(team, team, 'CUTS_SUBMITTED', `Year ${year}: ${protCount} protected, ${pullCount} pullback`);
 
     return NextResponse.json({ success: true });
   } catch (err: unknown) {

@@ -2,6 +2,7 @@ import { put, list } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { updateCoachSync } from '@/lib/config';
 import { auth } from "@/auth";
+import { logSystemEvent } from '@/lib/db-helpers';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
 import { teams } from '@/schema';
@@ -68,6 +69,7 @@ export async function POST(request: Request) {
     if (teamCode) {
       await updateCoachSync(teamCode);
     }
+    logSystemEvent(session?.user?.name || teamCode, teamCode, 'COA_UPLOAD', `Uploaded ${filename}`);
 
     return NextResponse.json(blob);
   } catch (error: unknown) {

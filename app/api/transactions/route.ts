@@ -6,6 +6,7 @@ import { getCoaches } from '@/lib/config';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
 import { notifyTransaction } from '@/lib/notify';
+import { logSystemEvent } from '@/lib/db-helpers';
 import { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -54,6 +55,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     await updateTransactionStatus(Number(id), status);
+    logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_STATUS', `Transaction #${id} marked ${status}`);
     return Response.json({ success: true });
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
@@ -115,6 +117,7 @@ export async function POST(req: Request) {
     }
 
     await logTransaction({ ...body, fromTeam: resolvedFromTeam, details, leagueId });
+    logSystemEvent(body.owner || 'Unknown', toTeam || resolvedFromTeam, type, details || identity);
 
     // Send notification
     const directionKey = `${resolvedFromTeam} ➔ ${toTeam || 'Free Agent'}`;

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/auth";
 import { processStandingsFile, processScheduleFile, processPlayersFile } from "@/lib/maintenance";
 import { getLeagueId } from "@/lib/getLeagueId";
+import { logSystemEvent } from "@/lib/db-helpers";
 
 export async function POST(request: Request) {
   const admin = await isAdmin();
@@ -28,12 +29,15 @@ export async function POST(request: Request) {
       if (fileName.toLowerCase().includes("standings") || fileContent.toUpperCase().includes("STANDING")) {
         const processResult = await processStandingsFile(fileContent, leagueId);
         result = { ...processResult, fileName };
+        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_STANDINGS', `Imported standings: ${fileName}`);
       } else if (fileContent.toUpperCase().includes("SCHEDULE")) {
         const processResult = await processScheduleFile(fileContent, leagueId);
         result = { ...processResult, fileName };
+        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_SCHEDULE', `Imported schedule: ${fileName}`);
       } else if (fileName.toLowerCase().endsWith(".csv")) {
         const processResult = await processPlayersFile(fileContent, leagueId);
         result = { ...processResult, fileName };
+        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_PLAYERS', `Imported players: ${fileName}`);
       } else {
         result = { success: false, message: "Unsupported file type", fileName };
       }

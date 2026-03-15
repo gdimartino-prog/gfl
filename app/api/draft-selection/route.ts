@@ -4,6 +4,7 @@ import { draftPicks, players, teams } from '@/schema';
 import { eq, and, asc } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyDraftPick } from '@/lib/notify';
+import { logSystemEvent } from '@/lib/db-helpers';
 import { alias } from 'drizzle-orm/pg-core';
 
 export async function POST(req: NextRequest) {
@@ -111,6 +112,8 @@ export async function POST(req: NextRequest) {
       .slice(currentIdx + 1, currentIdx + 4)
       .filter(p => !p.playerId)
       .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '' }));
+
+    logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`);
 
     // Fire-and-forget notification
     notifyDraftPick({
