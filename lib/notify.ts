@@ -1,29 +1,42 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-let _resend: Resend | null = null;
-function getResend() {
-  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY || 'placeholder');
-  return _resend;
-}
-
-const GROUP_EMAIL = process.env.NOTIFY_GROUP_EMAIL || 'gfl1@googlegroups.com';
 const MY_EMAIL = process.env.NOTIFY_MY_EMAIL || 'gdimartino@gmail.com';
+const GROUP_EMAIL = process.env.NOTIFY_GROUP_EMAIL || MY_EMAIL;
 const SEND_WHATSAPP = process.env.SEND_WHATSAPP !== 'false';
 export const GFL_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://gfl-zeta.vercel.app';
-const FROM_EMAIL = process.env.NOTIFY_FROM_EMAIL || 'GFL <noreply@gfl-zeta.vercel.app>';
+const FROM_EMAIL = process.env.NOTIFY_FROM_EMAIL || `GFL <${MY_EMAIL}>`;
+
+let _transporter: nodemailer.Transporter | null = null;
+function getTransporter() {
+  if (!_transporter) {
+    _transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER || MY_EMAIL,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    });
+  }
+  return _transporter;
+}
 
 export async function sendEmail({ subject, html, text }: {
   subject: string;
   html?: string;
   text?: string;
 }) {
+  if (!process.env.GMAIL_APP_PASSWORD) {
+    console.warn('GMAIL_APP_PASSWORD not set — skipping email');
+    return;
+  }
   try {
-    await getResend().emails.send({
+    await getTransporter().sendMail({
       from: FROM_EMAIL,
-      to: [GROUP_EMAIL],
-      cc: [MY_EMAIL],
+      to: GROUP_EMAIL,
+      cc: MY_EMAIL,
       subject,
       html: html || `<pre>${text}</pre>`,
+      text,
     });
   } catch (e) {
     console.error('Email send failed:', e);
