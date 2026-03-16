@@ -60,11 +60,12 @@ Check changed files for:
 
 ### Playwright Rules
 - Always `browser_navigate` then `browser_snapshot` to read the page structure before clicking
-- Use `browser_take_screenshot` to capture state at each major step
+- Use `browser_take_screenshot` to capture state at each major step — save all screenshots to `C:/Users/George/AppData/Local/Temp/` (never to the project root)
 - Click every button, link, tab, filter, and dropdown visible on the page
 - Fill in and submit every form — test both valid and invalid inputs
 - Check `browser_console_messages` after each page for JS errors
 - Report every FAIL with: page, action taken, expected result, actual result
+- After testing, delete any snapshot or temp files created during the session
 
 ---
 
