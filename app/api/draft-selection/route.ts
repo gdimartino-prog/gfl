@@ -126,6 +126,7 @@ export async function POST(req: NextRequest) {
       recentPicks,
       onDeck,
       type: 'PICK',
+      leagueId,
     }).catch(e => console.error('Draft notify failed:', e));
 
     return NextResponse.json({ success: true });

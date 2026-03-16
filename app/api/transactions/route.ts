@@ -126,6 +126,7 @@ export async function POST(req: Request) {
     notifyTransaction({
       type,
       directions: { [directionKey]: [details || identity] },
+      leagueId,
     }).catch(e => console.error('Notify failed:', e));
 
     return Response.json({ success: true });

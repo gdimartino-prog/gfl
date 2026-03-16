@@ -67,7 +67,7 @@ export async function sendWhatsApp(message: string) {
 
 export async function notifyDraftPick({
   round, overallPick, currentOwner, originalOwner, playerName,
-  timeTakenMs, recentPicks, onDeck, type,
+  timeTakenMs, recentPicks, onDeck, type, leagueId,
 }: {
   round: number;
   overallPick: number;
@@ -78,6 +78,7 @@ export async function notifyDraftPick({
   recentPicks: { round: number; pick: number; player: string; owner: string }[];
   onDeck: { round: number; pick: number; owner: string }[];
   type: 'PICK' | 'WARNING' | 'EXPIRATION';
+  leagueId?: number;
 }) {
   const tradeSuffix = originalOwner && originalOwner !== currentOwner
     ? ` (via ${originalOwner})` : '';
@@ -120,15 +121,18 @@ export async function notifyDraftPick({
 
   await sendEmail({ subject, text: body });
 
-  const waMessage = `${waHeader}\n----------\n*Round ${round} | Pick #${overallPick}*\n\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}${nextOwner ? `\n\n👉 *NEXT UP:* ${nextOwner.toUpperCase()} 👈` : `\n\n🌐 *GFL Website:* ${GFL_URL}`}`;
-  await sendWhatsApp(waMessage);
+  if (leagueId === 1 || leagueId === undefined) {
+    const waMessage = `${waHeader}\n----------\n*Round ${round} | Pick #${overallPick}*\n\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}${nextOwner ? `\n\n👉 *NEXT UP:* ${nextOwner.toUpperCase()} 👈` : `\n\n🌐 *GFL Website:* ${GFL_URL}`}`;
+    await sendWhatsApp(waMessage);
+  }
 }
 
 export async function notifyTransaction({
-  type, directions,
+  type, directions, leagueId,
 }: {
   type: string;
   directions: Record<string, string[]>; // "From ➔ To" => asset list
+  leagueId?: number;
 }) {
   let emailSectionsHtml = '';
   let waSectionsText = '';
@@ -157,5 +161,7 @@ export async function notifyTransaction({
     </div>`;
 
   await sendEmail({ subject: `GFL Activity: ${type}`, html });
-  await sendWhatsApp(`📝 *GFL TRANSACTION: ${type}*\n----------------------------\n${waSectionsText}🌐 ${GFL_URL}`);
+  if (leagueId === 1 || leagueId === undefined) {
+    await sendWhatsApp(`📝 *GFL TRANSACTION: ${type}*\n----------------------------\n${waSectionsText}🌐 ${GFL_URL}`);
+  }
 }
