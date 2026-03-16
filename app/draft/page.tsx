@@ -57,8 +57,9 @@ function DraftBoardContent() {
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
   const [progress, setProgress] = useState(100);
 
-  // Admin/undo state
-  const isAdminUser = (session?.user as { role?: string })?.role === 'admin' || (session?.user as { role?: string })?.role === 'superuser';
+  // Admin/undo state — 'admin' covers league commissioners, 'superuser' covers the env-var superuser
+  const userRole = (session?.user as { role?: string })?.role;
+  const isAdminUser = userRole === 'admin' || userRole === 'superuser';
   const myTeamCode = (session?.user as { id?: string })?.id || '';
 
   const handleDeletePick = async (pickId: number) => {
