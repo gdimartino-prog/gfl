@@ -4,6 +4,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { X, Search, UserPlus } from 'lucide-react';
 import { Player, DraftPick } from '../types';
 
+const POSITIONS = ['All', 'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'];
+
 interface SelectionModalProps {
   pick: DraftPick;
   coach: string;
@@ -16,6 +18,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [posFilter, setPosFilter] = useState('All');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -31,9 +34,12 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
   const filteredPlayers = useMemo(() => {
     return players.filter(p => {
       const name = (p.name || `${p.first} ${p.last}`).toLowerCase();
-      return name.includes(searchTerm.toLowerCase());
+      const matchesSearch = name.includes(searchTerm.toLowerCase());
+      const rawPos = (p.pos || p.position || p.offense || p.defense || p.special || '').toUpperCase();
+      const matchesPos = posFilter === 'All' || rawPos.includes(posFilter);
+      return matchesSearch && matchesPos;
     }).slice(0, 50);
-  }, [players, searchTerm]);
+  }, [players, searchTerm, posFilter]);
 
   const handleSelect = async (player: Player) => {
     if (!confirm(`Draft ${player.name || player.last} to ${pick.currentOwner}?`)) return;
@@ -99,18 +105,29 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
           </button>
         </div>
 
-        {/* Search */}
-        <div className="p-6">
+        {/* Search + Position Filter */}
+        <div className="p-6 space-y-3">
           <div className="relative">
             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-            <input 
+            <input
               autoFocus
-              type="text" 
-              placeholder="Search Free Agents..." 
+              type="text"
+              placeholder="Search Free Agents..."
               className="w-full p-6 pl-16 bg-slate-50 border-none rounded-3xl font-bold text-slate-900 focus:ring-2 focus:ring-blue-500/20 transition-all text-lg"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+            {POSITIONS.map(pos => (
+              <button
+                key={pos}
+                onClick={() => setPosFilter(pos)}
+                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase shrink-0 transition-all ${posFilter === pos ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+              >
+                {pos}
+              </button>
+            ))}
           </div>
         </div>
 

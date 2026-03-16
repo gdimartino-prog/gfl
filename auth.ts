@@ -35,6 +35,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             rawInput.toLowerCase() === demoUsername.toLowerCase() &&
             password === demoPassword
           ) {
+            logSystemEvent('Demo Commissioner', 'VV', 'LOGIN', 'Demo user accessed Front Office', 1);
             return { id: 'VV', name: 'Demo Commissioner', team: 'Vico', role: 'demo' };
           }
 
@@ -56,6 +57,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
 
           // DB lookup — teams with bcrypt password (status = active)
+          // Accepts full team name OR team short code (case-insensitive)
           const dbTeam = await db
             .select({
               teamshort: teams.teamshort,
@@ -63,16 +65,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               name: teams.name,
               isCommissioner: teams.isCommissioner,
               password: teams.password,
+              leagueId: teams.leagueId,
             })
             .from(teams)
             .where(and(
-              drizzleSql`lower(${teams.name}) = ${lookupName}`,
+              drizzleSql`(lower(${teams.name}) = ${lookupName} OR lower(${teams.teamshort}) = ${lookupName})`,
               eq(teams.status, 'active')
             ))
+            .orderBy(drizzleSql`${teams.password} IS NOT NULL DESC`)
             .limit(1);
+
+          console.log('[auth] lookupName:', lookupName, '| found:', dbTeam[0]?.name, '| hasPassword:', !!dbTeam[0]?.password);
 
           if (dbTeam[0]?.password) {
             const passwordMatch = await bcrypt.compare(password, dbTeam[0].password);
+            console.log('[auth] passwordMatch:', passwordMatch);
             if (passwordMatch) {
               const user = {
                 id: dbTeam[0].teamshort!,
@@ -80,7 +87,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 team: dbTeam[0].name,
                 role: dbTeam[0].isCommissioner ? 'admin' : 'coach',
               };
-              logSystemEvent(user.name, user.team, 'LOGIN', 'Coach entered Front Office');
+              logSystemEvent(user.name, user.team, 'LOGIN', 'Coach entered Front Office', dbTeam[0].leagueId ?? undefined);
               return user;
             }
           }

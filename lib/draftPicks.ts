@@ -1,7 +1,7 @@
 
 import { db } from './db';
 import { draftPicks, teams, players } from '@/schema';
-import { and, eq, isNotNull, asc } from 'drizzle-orm';
+import { and, eq, isNotNull, asc, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { cache } from 'react';
 
@@ -112,13 +112,24 @@ export async function updateDraftPick(
  * Clear a single pick selection (commissioner or coach undo)
  */
 export async function clearPickSelection(pickId: number, clearedBy: string) {
-  const pick = await db.select({ playerId: draftPicks.playerId })
-    .from(draftPicks).where(eq(draftPicks.id, pickId)).limit(1);
+  const pick = await db.select({
+    playerId: draftPicks.playerId,
+    selectedPlayerName: draftPicks.selectedPlayerName,
+  }).from(draftPicks).where(eq(draftPicks.id, pickId)).limit(1);
+
+  console.log('[clearPickSelection] pickId:', pickId, '| playerId:', pick[0]?.playerId, '| playerName:', pick[0]?.selectedPlayerName);
 
   if (pick[0]?.playerId) {
-    await db.update(players)
-      .set({ teamId: null, touch_id: clearedBy })
-      .where(eq(players.id, pick[0].playerId));
+    try {
+      await db.update(players)
+        .set({ teamId: sql`NULL`, touch_id: clearedBy })
+        .where(eq(players.id, pick[0].playerId));
+      console.log('[clearPickSelection] player teamId cleared for playerId:', pick[0].playerId);
+    } catch (err) {
+      console.error('[clearPickSelection] ERROR clearing player teamId:', err);
+    }
+  } else {
+    console.warn('[clearPickSelection] No playerId on pick — player teamId not cleared. selectedPlayerName:', pick[0]?.selectedPlayerName);
   }
 
   await db.update(draftPicks)
@@ -137,7 +148,7 @@ export async function clearAllPickSelections(leagueId: number, year: number, cle
   for (const p of made) {
     if (p.playerId) {
       await db.update(players)
-        .set({ teamId: null, touch_id: clearedBy })
+        .set({ teamId: sql`NULL`, touch_id: clearedBy })
         .where(eq(players.id, p.playerId));
     }
   }

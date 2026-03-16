@@ -46,6 +46,10 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const [teamForm, setTeamForm] = useState<TeamForm>({ name: '', teamshort: '', coach: '', email: '', mobile: '', nickname: '', isCommissioner: false, status: 'active' });
   const [teamSaving, setTeamSaving] = useState(false);
   const [teamMsg, setTeamMsg] = useState<{ success: boolean; text: string } | null>(null);
+  const [resetPasswordTeamId, setResetPasswordTeamId] = useState<number | null>(null);
+  const [resetPasswordValue, setResetPasswordValue] = useState('');
+  const [resetPasswordMsg, setResetPasswordMsg] = useState<{ success: boolean; text: string } | null>(null);
+  const [resetPasswordSaving, setResetPasswordSaving] = useState(false);
 
   // Schedule manager state
   const [scheduleOpen, setScheduleOpen] = useState(false);
@@ -255,6 +259,31 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
       setTeamMsg({ success: false, text: 'Error saving team.' });
     } finally {
       setTeamSaving(false);
+    }
+  };
+
+  const handleResetPassword = async (teamId: number) => {
+    if (!resetPasswordValue.trim()) { setResetPasswordMsg({ success: false, text: 'Enter a new password.' }); return; }
+    setResetPasswordSaving(true);
+    setResetPasswordMsg(null);
+    try {
+      const res = await fetch('/api/admin/teams', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: teamId, newPassword: resetPasswordValue.trim() }),
+      });
+      if (res.ok) {
+        setResetPasswordMsg({ success: true, text: 'Password updated.' });
+        setResetPasswordValue('');
+        setTimeout(() => { setResetPasswordTeamId(null); setResetPasswordMsg(null); }, 1500);
+      } else {
+        const d = await res.json();
+        setResetPasswordMsg({ success: false, text: d.error || 'Failed.' });
+      }
+    } catch {
+      setResetPasswordMsg({ success: false, text: 'Error.' });
+    } finally {
+      setResetPasswordSaving(false);
     }
   };
 
@@ -677,19 +706,45 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-4 px-8 py-4 hover:bg-slate-50 transition-colors">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="bg-slate-100 text-slate-500 font-mono text-[10px] px-2 py-1 rounded font-black">{team.teamshort}</span>
-                        <p className="font-black text-slate-900 uppercase italic tracking-tight">{team.name}</p>
-                        {team.isCommissioner && <span className="text-[9px] font-black uppercase tracking-widest bg-blue-100 text-blue-600 px-2 py-0.5 rounded">Commissioner</span>}
-                        <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${team.status === 'active' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>{team.status}</span>
+                  <div className="flex flex-col px-8 py-4 hover:bg-slate-50 transition-colors gap-2">
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-slate-100 text-slate-500 font-mono text-[10px] px-2 py-1 rounded font-black">{team.teamshort}</span>
+                          <p className="font-black text-slate-900 uppercase italic tracking-tight">{team.name}</p>
+                          {team.isCommissioner && <span className="text-[9px] font-black uppercase tracking-widest bg-blue-100 text-blue-600 px-2 py-0.5 rounded">Commissioner</span>}
+                          <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${team.status === 'active' ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>{team.status}</span>
+                        </div>
+                        <p className="text-xs font-bold text-slate-400 mt-0.5">{team.coach || '—'}{team.email ? ` • ${team.email}` : ''}{team.mobile ? ` • ${team.mobile}` : ''}</p>
                       </div>
-                      <p className="text-xs font-bold text-slate-400 mt-0.5">{team.coach || '—'}{team.email ? ` • ${team.email}` : ''}{team.mobile ? ` • ${team.mobile}` : ''}</p>
+                      <button onClick={() => startEdit(team)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all shrink-0">
+                        <Pencil size={13} /> Edit
+                      </button>
+                      <button
+                        onClick={() => { setResetPasswordTeamId(resetPasswordTeamId === team.id ? null : team.id); setResetPasswordValue(''); setResetPasswordMsg(null); }}
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-100 text-amber-700 font-black text-[10px] uppercase tracking-widest hover:bg-amber-200 transition-all shrink-0"
+                      >
+                        Reset PW
+                      </button>
                     </div>
-                    <button onClick={() => startEdit(team)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all shrink-0">
-                      <Pencil size={13} /> Edit
-                    </button>
+                    {resetPasswordTeamId === team.id && (
+                      <div className="flex items-center gap-3 pl-2 pb-1">
+                        <input
+                          type="password"
+                          placeholder="New password"
+                          value={resetPasswordValue}
+                          onChange={e => setResetPasswordValue(e.target.value)}
+                          className="px-3 py-2 rounded-xl border-2 border-amber-300 bg-white text-sm font-bold text-slate-800 outline-none focus:border-amber-500 transition-all w-48"
+                        />
+                        <button onClick={() => handleResetPassword(team.id)} disabled={resetPasswordSaving} className="px-4 py-2 rounded-xl bg-amber-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-amber-700 disabled:opacity-50 transition-all">
+                          {resetPasswordSaving ? 'Saving...' : 'Set Password'}
+                        </button>
+                        <button onClick={() => { setResetPasswordTeamId(null); setResetPasswordValue(''); setResetPasswordMsg(null); }} className="px-4 py-2 rounded-xl bg-slate-200 text-slate-600 font-black text-[10px] uppercase tracking-widest hover:bg-slate-300 transition-all">
+                          Cancel
+                        </button>
+                        {resetPasswordMsg && <span className={`text-[10px] font-black uppercase tracking-widest ${resetPasswordMsg.success ? 'text-emerald-600' : 'text-red-600'}`}>{resetPasswordMsg.text}</span>}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

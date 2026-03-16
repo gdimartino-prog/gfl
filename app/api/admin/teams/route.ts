@@ -4,6 +4,9 @@ import { db } from '@/lib/db';
 import { teams } from '@/schema';
 import { eq, and } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
+import { logSystemEvent } from '@/lib/db-helpers';
+import { auth } from '@/auth';
+import bcrypt from 'bcrypt';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,9 +53,28 @@ export async function PATCH(req: Request) {
 
   const leagueId = await getLeagueId();
   const body = await req.json();
-  const { id, name, teamshort, coach, email, mobile, nickname, isCommissioner, status } = body;
+  const { id, name, teamshort, coach, email, mobile, nickname, isCommissioner, status, newPassword } = body;
 
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+
+  const session = await auth();
+  const actor = session?.user?.name || 'admin';
+
+  // Password-only reset
+  if (newPassword !== undefined) {
+    if (!newPassword || newPassword.length < 4) {
+      return NextResponse.json({ error: 'Password must be at least 4 characters.' }, { status: 400 });
+    }
+    const hashed = await bcrypt.hash(newPassword, 10);
+    const target = await db.select({ teamshort: teams.teamshort })
+      .from(teams).where(and(eq(teams.id, id), eq(teams.leagueId, leagueId))).limit(1);
+    if (!target[0]) return NextResponse.json({ error: 'Team not found.' }, { status: 404 });
+
+    await db.update(teams).set({ password: hashed, touch_id: actor })
+      .where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
+    logSystemEvent(actor, 'admin', 'RESET_PASSWORD', `Reset password for team ${target[0].teamshort}`);
+    return NextResponse.json({ success: true });
+  }
 
   await db.update(teams).set({
     name: name?.trim(),
@@ -63,8 +85,9 @@ export async function PATCH(req: Request) {
     nickname: nickname?.trim() || null,
     isCommissioner: isCommissioner ?? false,
     status: status || 'active',
-    touch_id: 'admin',
+    touch_id: actor,
   }).where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
 
+  logSystemEvent(actor, 'admin', 'UPDATE_TEAM', `Updated team id ${id}`);
   return NextResponse.json({ success: true });
 }
