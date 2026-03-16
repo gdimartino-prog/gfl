@@ -6,7 +6,7 @@ import PlayerCard from '@/components/PlayerCard';
 import { getPositionStats } from '@/lib/playerStats'; 
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, RotateCw, X, Zap, ChevronRight, ChevronUp, Star } from 'lucide-react';
+import { Search, RotateCw, X, Zap, ChevronRight, ChevronUp, Star, Trash2, RotateCcw } from 'lucide-react';
 import { getNormalizedCategories } from '@/lib/utils';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
 import { Team, Player, DraftPick } from '../../types';
@@ -56,6 +56,50 @@ function DraftBoardContent() {
   // Timer States
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
   const [progress, setProgress] = useState(100);
+
+  // Admin/undo state
+  const isAdminUser = (session?.user as { role?: string })?.role === 'admin' || (session?.user as { role?: string })?.role === 'superuser';
+  const myTeamCode = (session?.user as { id?: string })?.id || '';
+
+  const myLastPick = picks
+    .filter(p => p.status === 'Drafted' && p.currentOwner?.toUpperCase() === myTeamCode.toUpperCase())
+    .at(-1);
+
+  const canUndoMyPick = !!myLastPick && !!onClockPick &&
+    Number(onClockPick.overall) === Number(myLastPick.overall) + 1;
+
+  const handleDeletePick = async (pickId: string) => {
+    if (!confirm('Delete this pick? The player will be returned to free agency.')) return;
+    setIsRefreshing(true);
+    await fetch('/api/draft-picks', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pickId: Number(pickId) }),
+    });
+    loadData(true);
+  };
+
+  const handleClearAll = async () => {
+    if (!confirm(`Clear ALL picks for the ${yearFilter} draft? This cannot be undone.`)) return;
+    setIsRefreshing(true);
+    await fetch('/api/draft-picks', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clearAll: true, year: yearFilter }),
+    });
+    loadData(true);
+  };
+
+  const handleUndoMyPick = async () => {
+    if (!confirm('Undo your last pick? The player will be returned to free agency.')) return;
+    setIsRefreshing(true);
+    const res = await fetch('/api/draft-picks/undo', { method: 'POST' });
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || 'Could not undo pick.');
+    }
+    loadData(true);
+  };
 
   // --- DATA LOADING ---
   const loadData = useCallback(async (showRefreshState = false) => {
@@ -326,18 +370,37 @@ function DraftBoardContent() {
             Season {yearFilter} Live Entry Console
           </p>
         </div>
-        <div className="flex gap-3">
-          <button 
+        <div className="flex gap-3 flex-wrap justify-end">
+          {canUndoMyPick && !isAdminUser && (
+            <button
+              onClick={handleUndoMyPick}
+              disabled={isRefreshing}
+              className="bg-amber-500 text-white px-6 py-4 rounded-2xl shadow-xl font-black uppercase text-[10px] tracking-widest hover:bg-amber-600 transition-all active:scale-95 flex items-center gap-2"
+              title="Undo your last pick (only available before next team picks)"
+            >
+              <RotateCcw size={14} /> Undo My Pick
+            </button>
+          )}
+          {isAdminUser && (
+            <button
+              onClick={handleClearAll}
+              disabled={isRefreshing}
+              className="bg-red-600 text-white px-6 py-4 rounded-2xl shadow-xl font-black uppercase text-[10px] tracking-widest hover:bg-red-700 transition-all active:scale-95 flex items-center gap-2"
+            >
+              <Trash2 size={14} /> Clear Draft
+            </button>
+          )}
+          <button
             type="button"
-            onClick={() => { 
-              setFaLoading(true); 
-              setShowFA(true); 
-              fetch(`/api/players?t=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()).then(res => { 
+            onClick={() => {
+              setFaLoading(true);
+              setShowFA(true);
+              fetch(`/api/players?t=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()).then(res => {
                 const faOnly = Array.isArray(res) ? res.filter((p: Player) => p.team?.trim().toUpperCase() === 'FA') : [];
-                setFaPlayers(faOnly); 
-                setFaLoading(false); 
-              }); 
-            }} 
+                setFaPlayers(faOnly);
+                setFaLoading(false);
+              });
+            }}
             className="bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-3"
           >
             <Search size={14} /> Scout Free Agents
@@ -494,7 +557,19 @@ function DraftBoardContent() {
 
                       <td className="px-10 py-4 text-right pr-16">
                         {isDrafted ? (
-                          <span className="text-emerald-500 font-black text-[10px] uppercase border border-emerald-100 bg-emerald-50 px-4 py-2 rounded-full tracking-widest">Finalized</span>
+                          <div className="flex items-center justify-end gap-3">
+                            <span className="text-emerald-500 font-black text-[10px] uppercase border border-emerald-100 bg-emerald-50 px-4 py-2 rounded-full tracking-widest">Finalized</span>
+                            {isAdminUser && (
+                              <button
+                                onClick={() => handleDeletePick(pick.id)}
+                                disabled={isRefreshing}
+                                className="text-red-400 hover:text-red-600 transition-colors p-1 rounded"
+                                title="Delete this pick"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </div>
                         ) : isSkipped && session ? (
                           <button 
                             disabled={isRefreshing}

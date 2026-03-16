@@ -105,6 +105,7 @@ export interface Player {
 }
 
 export interface DraftPick {
+  id: number;
   year: number;
   round: number;
   overall: number;

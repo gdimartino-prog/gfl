@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
-import { getAllDraftPicks, transferDraftPick, findDraftPick, DraftPickRow } from '@/lib/draftPicks';
+import { getAllDraftPicks, transferDraftPick, findDraftPick, clearPickSelection, clearAllPickSelections, DraftPickRow } from '@/lib/draftPicks';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
 import { teams } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
+import { isAdmin } from '@/lib/auth';
+import { logSystemEvent } from '@/lib/db-helpers';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -99,5 +101,32 @@ export async function POST(req: Request) {
       { error: 'Draft pick transfer failed' },
       { status: 500 }
     );
+  }
+}
+
+export async function DELETE(req: Request) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!await isAdmin()) return NextResponse.json({ error: 'Commissioner access required' }, { status: 403 });
+
+  try {
+    const { pickId, clearAll, year } = await req.json();
+    const leagueId = await getLeagueId();
+    const actor = session.user.name || 'Commissioner';
+
+    if (clearAll) {
+      if (!year) return NextResponse.json({ error: 'year required for clearAll' }, { status: 400 });
+      await clearAllPickSelections(leagueId, Number(year), actor);
+      logSystemEvent(actor, 'admin', 'DRAFT_CLEAR_ALL', `Cleared all picks for ${year} (leagueId ${leagueId})`);
+      return NextResponse.json({ success: true });
+    }
+
+    if (!pickId) return NextResponse.json({ error: 'pickId required' }, { status: 400 });
+    await clearPickSelection(Number(pickId), actor);
+    logSystemEvent(actor, 'admin', 'DRAFT_DELETE_PICK', `Deleted pick #${pickId}`);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('API /draft-picks DELETE failed:', error);
+    return NextResponse.json({ error: 'Failed to delete pick' }, { status: 500 });
   }
 }

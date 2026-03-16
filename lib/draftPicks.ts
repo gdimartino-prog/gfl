@@ -1,7 +1,7 @@
 
 import { db } from './db';
 import { draftPicks, teams, players } from '@/schema';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNotNull, asc } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { cache } from 'react';
 
@@ -106,4 +106,77 @@ export async function updateDraftPick(
         playerId: playerId,
         touch_id: coachName,
     }).where(eq(draftPicks.id, pickId));
+}
+
+/**
+ * Clear a single pick selection (commissioner or coach undo)
+ */
+export async function clearPickSelection(pickId: number, clearedBy: string) {
+  const pick = await db.select({ playerId: draftPicks.playerId })
+    .from(draftPicks).where(eq(draftPicks.id, pickId)).limit(1);
+
+  if (pick[0]?.playerId) {
+    await db.update(players)
+      .set({ teamId: null, touch_id: clearedBy })
+      .where(eq(players.id, pick[0].playerId));
+  }
+
+  await db.update(draftPicks)
+    .set({ playerId: null, selectedPlayerName: null, pickedAt: null, touch_id: clearedBy })
+    .where(eq(draftPicks.id, pickId));
+}
+
+/**
+ * Clear all pick selections for a league/year (commissioner reset)
+ */
+export async function clearAllPickSelections(leagueId: number, year: number, clearedBy: string) {
+  const made = await db.select({ id: draftPicks.id, playerId: draftPicks.playerId })
+    .from(draftPicks)
+    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), isNotNull(draftPicks.playerId)));
+
+  for (const p of made) {
+    if (p.playerId) {
+      await db.update(players)
+        .set({ teamId: null, touch_id: clearedBy })
+        .where(eq(players.id, p.playerId));
+    }
+  }
+
+  await db.update(draftPicks)
+    .set({ playerId: null, selectedPlayerName: null, pickedAt: null, touch_id: clearedBy })
+    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), isNotNull(draftPicks.playerId)));
+}
+
+/**
+ * Get the last finalized pick for a specific team in the current draft
+ */
+export async function getLastPickForTeam(teamId: number, leagueId: number, year: number) {
+  const rows = await db.select()
+    .from(draftPicks)
+    .where(and(
+      eq(draftPicks.leagueId, leagueId),
+      eq(draftPicks.year, year),
+      eq(draftPicks.currentTeamId, teamId),
+      isNotNull(draftPicks.playerId),
+    ))
+    .orderBy(asc(draftPicks.pick));
+
+  return rows.length > 0 ? rows[rows.length - 1] : null;
+}
+
+/**
+ * Get the team ID currently on the clock (first unpicked slot)
+ */
+export async function getNextOnClockTeamId(leagueId: number, year: number) {
+  const row = await db.select({ currentTeamId: draftPicks.currentTeamId })
+    .from(draftPicks)
+    .where(and(
+      eq(draftPicks.leagueId, leagueId),
+      eq(draftPicks.year, year),
+      eq(draftPicks.playerId, null as unknown as number),
+    ))
+    .orderBy(asc(draftPicks.pick))
+    .limit(1);
+
+  return row[0]?.currentTeamId ?? null;
 }
