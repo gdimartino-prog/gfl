@@ -61,20 +61,13 @@ function DraftBoardContent() {
   const isAdminUser = (session?.user as { role?: string })?.role === 'admin' || (session?.user as { role?: string })?.role === 'superuser';
   const myTeamCode = (session?.user as { id?: string })?.id || '';
 
-  const myLastPick = picks
-    .filter(p => p.status === 'Drafted' && p.currentOwner?.toUpperCase() === myTeamCode.toUpperCase())
-    .at(-1);
-
-  const canUndoMyPick = !!myLastPick && !!onClockPick &&
-    Number(onClockPick.overall) === Number(myLastPick.overall) + 1;
-
-  const handleDeletePick = async (pickId: string) => {
+  const handleDeletePick = async (pickId: number) => {
     if (!confirm('Delete this pick? The player will be returned to free agency.')) return;
     setIsRefreshing(true);
     await fetch('/api/draft-picks', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pickId: Number(pickId) }),
+      body: JSON.stringify({ pickId }),
     });
     loadData(true);
   };
@@ -188,6 +181,13 @@ function DraftBoardContent() {
       previousPick: currentIndex > 0 ? picks[currentIndex - 1] : null
     };
   }, [picks]);
+
+  const myLastPick = picks
+    .filter(p => p.status === 'Drafted' && p.currentOwner?.toUpperCase() === myTeamCode.toUpperCase())
+    .at(-1);
+
+  const canUndoMyPick = !!myLastPick && !!onClockPick &&
+    Number(onClockPick.overall) === Number(myLastPick.overall) + 1;
 
   useEffect(() => {
     if (!onClockPick) return;
