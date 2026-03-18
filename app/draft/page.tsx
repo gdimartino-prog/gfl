@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
 import { getPositionStats } from '@/lib/playerStats'; 
@@ -56,6 +56,7 @@ function DraftBoardContent() {
   // Timer States
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
   const [progress, setProgress] = useState(100);
+  const hasCalledExpireRef = useRef(false);
 
   // Admin/undo state — 'admin' covers league commissioners, 'superuser' covers the env-var superuser
   const userRole = (session?.user as { role?: string })?.role;
@@ -190,6 +191,11 @@ function DraftBoardContent() {
   const canUndoMyPick = !!myLastPick && !!onClockPick &&
     Number(onClockPick.overall) === Number(myLastPick.overall) + 1;
 
+  // Reset expire ref whenever the on-clock pick changes (new pick, new timer)
+  useEffect(() => {
+    hasCalledExpireRef.current = false;
+  }, [onClockPick?.overall]);
+
   useEffect(() => {
     if (!onClockPick) return;
     const roundNum = Number(onClockPick.round);
@@ -204,6 +210,12 @@ function DraftBoardContent() {
       if (diff <= 0) {
         setTimeLeft("EXPIRED");
         setProgress(0);
+        if (!hasCalledExpireRef.current) {
+          hasCalledExpireRef.current = true;
+          fetch('/api/draft-picks/expire', { method: 'POST' })
+            .then(() => loadData(true))
+            .catch(() => loadData(true));
+        }
       } else {
         const h = Math.floor(diff / (1000 * 60 * 60));
         const m = Math.floor((diff / (1000 * 60)) % 60);
@@ -216,7 +228,7 @@ function DraftBoardContent() {
     computeAndSet(); // set immediately so no 1-second blank flash
     const timerInterval = setInterval(computeAndSet, 1000);
     return () => clearInterval(timerInterval);
-  }, [onClockPick, previousPick]);
+  }, [onClockPick, previousPick, loadData]);
 
   const resolveCode = (str: string) => {
     if (!str) return "";
