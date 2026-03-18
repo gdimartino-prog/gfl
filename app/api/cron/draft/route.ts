@@ -46,8 +46,9 @@ export async function GET(req: Request) {
     .where(and(eq(draftPicks.leagueId, 1), eq(draftPicks.year, draftYear)))
     .orderBy(asc(draftPicks.pick));
 
-    // Find the active pick (first undrafted)
-    const activeIdx = allPicks.findIndex(p => !p.playerId);
+    // Find the active pick (first pick with no player AND no pickedAt)
+    // Picks with pickedAt but no playerId are auto-skipped — don't re-process them
+    const activeIdx = allPicks.findIndex(p => !p.playerId && !p.pickedAt);
     if (activeIdx === -1) return NextResponse.json({ skipped: 'draft complete' });
 
     const activePick = allPicks[activeIdx];

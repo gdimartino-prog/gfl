@@ -21,9 +21,12 @@ export async function GET() {
     let onClockSet = false;
 
     const formattedPicks = sorted.map(p => {
-      const isDrafted = !!p.selectedPlayer;
+      const isSkipped = !p.selectedPlayer && !!p.pickedAt; // auto-expired, no player
+      const isDrafted = !!p.selectedPlayer || isSkipped;
       let status: string;
-      if (isDrafted) {
+      if (isSkipped) {
+        status = 'Skipped';
+      } else if (isDrafted) {
         status = 'Drafted';
       } else if (!onClockSet) {
         status = 'Active';
@@ -39,7 +42,7 @@ export async function GET() {
         originalTeam: p.originalTeam ?? '',
         currentOwner: p.currentOwner ?? '',
         status,
-        draftedPlayer: p.selectedPlayer ?? '',
+        draftedPlayer: p.selectedPlayer ?? p.selectedPlayerName ?? '',
         timestamp: p.pickedAt ? p.pickedAt.toISOString() : '',
         processedBy: '',
         history: '',

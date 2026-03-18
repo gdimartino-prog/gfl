@@ -25,6 +25,7 @@ export type DraftPickRow = {
   originalTeam: string | null;
   currentOwner: string | null;
   selectedPlayer: string | null;
+  selectedPlayerName: string | null;
   pickedAt: Date | null;
 };
 
@@ -41,6 +42,7 @@ const _getAllDraftPicks = cache(async (leagueId: number) => {
       originalTeam: originalTeams.teamshort,
       currentOwner: currentTeams.teamshort,
       selectedPlayer: players.name,
+      selectedPlayerName: draftPicks.selectedPlayerName,
       pickedAt: draftPicks.pickedAt,
     })
     .from(draftPicks)
