@@ -212,14 +212,44 @@ function DraftBoardContent() {
     hasCalledExpireRef.current = false;
   }, [onClockPick?.overall]);
 
+  const scheduledAtMs = onClockPick?.scheduledAt ? new Date(onClockPick.scheduledAt).getTime() : null;
+  const isScheduledFuture = scheduledAtMs !== null && scheduledAtMs > Date.now();
+
   useEffect(() => {
     if (!onClockPick) return;
+
+    // If pick has a future scheduled start, count down to that instead
+    if (scheduledAtMs !== null && scheduledAtMs > Date.now()) {
+      const computeCountdown = () => {
+        const diff = scheduledAtMs - Date.now();
+        if (diff <= 0) {
+          setTimeLeft("STARTING");
+          setProgress(100);
+          loadData(true);
+        } else {
+          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+          const m = Math.floor((diff / (1000 * 60)) % 60);
+          const s = Math.floor((diff / 1000) % 60);
+          setTimeLeft(d > 0
+            ? `${d}d ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+            : `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+          );
+          setProgress(100); // full bar while waiting for schedule
+        }
+      };
+      computeCountdown();
+      const timerInterval = setInterval(computeCountdown, 1000);
+      return () => clearInterval(timerInterval);
+    }
+
     const clockMins = (onClockPick as { clockMinutes?: number | null }).clockMinutes ?? 1440;
     const limitMs = clockMins * 60 * 1000;
-    const startTimeStr = previousPick?.timestamp;
-    const parsedStart = startTimeStr ? new Date(startTimeStr).getTime() : NaN;
-    const startRef = !isNaN(parsedStart) ? parsedStart : new Date().getTime();
-    const expiryTime = startRef + limitMs;
+    // Clock starts from: scheduledAt (if set and past) > previous pick's timestamp > now
+    const clockStartMs = scheduledAtMs && scheduledAtMs <= Date.now()
+      ? scheduledAtMs
+      : previousPick?.timestamp ? new Date(previousPick.timestamp).getTime() : Date.now();
+    const expiryTime = clockStartMs + limitMs;
 
     const computeAndSet = () => {
       const diff = expiryTime - new Date().getTime();
@@ -244,7 +274,7 @@ function DraftBoardContent() {
     computeAndSet(); // set immediately so no 1-second blank flash
     const timerInterval = setInterval(computeAndSet, 1000);
     return () => clearInterval(timerInterval);
-  }, [onClockPick, previousPick, loadData]);
+  }, [onClockPick, scheduledAtMs, previousPick, loadData]);
 
   const resolveCode = (str: string) => {
     if (!str) return "";
@@ -476,7 +506,7 @@ function DraftBoardContent() {
                 {timeLeft}
               </p>
               <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-widest">
-                Remaining Selection Time
+                {isScheduledFuture ? 'Starts In' : 'Remaining Selection Time'}
               </p>
 
               {/* Visual Progress Bar */}
@@ -587,9 +617,16 @@ function DraftBoardContent() {
                             <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
                           </div>
                         ) : (
-                          <span className={`text-[11px] font-black uppercase tracking-widest ${isOnClock ? 'text-blue-500 animate-pulse' : 'text-slate-200'}`}>
-                            {isOnClock ? 'On the Clock' : 'Awaiting Turn'}
-                          </span>
+                          <div className="flex flex-col gap-0.5">
+                            <span className={`text-[11px] font-black uppercase tracking-widest ${isOnClock ? 'text-blue-500 animate-pulse' : 'text-slate-200'}`}>
+                              {isOnClock ? 'On the Clock' : 'Awaiting Turn'}
+                            </span>
+                            {!isOnClock && pick.scheduledAt && (
+                              <span className="text-[9px] font-black text-slate-300 uppercase tracking-wide">
+                                {new Date(pick.scheduledAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
+                              </span>
+                            )}
+                          </div>
                         )}
                       </td>
 

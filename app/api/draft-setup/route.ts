@@ -27,13 +27,15 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { year, draftType, rounds, order, salaries, confirmed } = body as {
+    const { year, draftType, rounds, order, salaries, confirmed, startAt, hoursPerPick } = body as {
       year: number;
       draftType: string;
       rounds: number;
       order: DraftOrderEntry[];
       salaries?: Record<number, number | string>;
       confirmed?: boolean;
+      startAt?: string;
+      hoursPerPick?: number;
     };
 
     if (!year || !draftType || !rounds || !order?.length) {
@@ -55,7 +57,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Generate and insert picks
-    const rows = generateDraftPickRows({ leagueId, year, draftType, rounds, order, touchId: actor });
+    const rows = generateDraftPickRows({
+      leagueId, year, draftType, rounds, order, touchId: actor,
+      startAt: startAt ? new Date(startAt) : undefined,
+      hoursPerPick: hoursPerPick || undefined,
+    });
     await db.insert(draftPicks).values(rows);
 
     // Upsert salary rules if provided

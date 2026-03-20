@@ -31,6 +31,9 @@ export default function DraftSetupClient() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [draftType, setDraftType] = useState<'free_agent' | 'rookie'>('free_agent');
   const [rounds, setRounds] = useState(10);
+  const [draftStartDate, setDraftStartDate] = useState('');
+  const [draftStartTime, setDraftStartTime] = useState('');
+  const [hoursPerPick, setHoursPerPick] = useState<string>('');
 
   // Step 2 order
   const [teams, setTeams] = useState<OrderEntry[]>([]);
@@ -126,6 +129,10 @@ export default function DraftSetupClient() {
         if (v) salariesPayload[Number(k)] = Number(v);
       }
 
+      const startAt = draftStartDate && draftStartTime
+        ? new Date(`${draftStartDate}T${draftStartTime}`).toISOString()
+        : undefined;
+
       const res = await fetch('/api/draft-setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,6 +143,8 @@ export default function DraftSetupClient() {
           order,
           salaries: Object.keys(salariesPayload).length ? salariesPayload : undefined,
           confirmed: conflict ? confirmed : undefined,
+          startAt,
+          hoursPerPick: hoursPerPick ? Number(hoursPerPick) : undefined,
         }),
       });
 
@@ -251,6 +260,45 @@ export default function DraftSetupClient() {
                   onChange={e => setRounds(Math.max(1, Number(e.target.value)))}
                   className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-xl font-black outline-none focus:border-blue-400"
                 />
+              </div>
+            </div>
+
+            {/* Pick Schedule (optional) */}
+            <div className="border-t border-slate-100 pt-8 space-y-3">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Pick Schedule <span className="font-normal normal-case text-slate-400 tracking-normal">(optional)</span></p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Set a start date/time and cadence so each pick has a fixed scheduled slot.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Pick 1 Date</label>
+                  <input
+                    type="date"
+                    value={draftStartDate}
+                    onChange={e => setDraftStartDate(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm font-bold outline-none focus:border-blue-400"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Pick 1 Time</label>
+                  <input
+                    type="time"
+                    value={draftStartTime}
+                    onChange={e => setDraftStartTime(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm font-bold outline-none focus:border-blue-400"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Hours per Pick</label>
+                  <input
+                    type="number"
+                    min={1}
+                    placeholder="e.g. 24"
+                    value={hoursPerPick}
+                    onChange={e => setHoursPerPick(e.target.value)}
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-xl font-black outline-none focus:border-blue-400"
+                  />
+                </div>
               </div>
             </div>
 

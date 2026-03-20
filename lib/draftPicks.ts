@@ -27,6 +27,7 @@ export type DraftPickRow = {
   currentOwner: string | null;
   selectedPlayer: string | null;
   selectedPlayerName: string | null;
+  scheduledAt: Date | null;
   pickedAt: Date | null;
   passed: boolean;
 };
@@ -46,6 +47,7 @@ const _getAllDraftPicks = cache(async (leagueId: number) => {
       currentOwner: currentTeams.teamshort,
       selectedPlayer: players.name,
       selectedPlayerName: draftPicks.selectedPlayerName,
+      scheduledAt: draftPicks.scheduledAt,
       pickedAt: draftPicks.pickedAt,
       passed: draftPicks.passed,
     })
@@ -272,8 +274,10 @@ export function generateDraftPickRows(params: {
   rounds: number;
   order: DraftOrderEntry[];
   touchId: string;
+  startAt?: Date;
+  hoursPerPick?: number;
 }): Array<typeof draftPicks.$inferInsert> {
-  const { leagueId, year, draftType, rounds, order, touchId } = params;
+  const { leagueId, year, draftType, rounds, order, touchId, startAt, hoursPerPick } = params;
 
   // Build alt group index: groupId → sorted array of entries (sorted by r1Position)
   const altGroups: Record<string, DraftOrderEntry[]> = {};
@@ -303,6 +307,9 @@ export function generateDraftPickRows(params: {
     // Sort the order for this round by effective weight
     const sorted = [...order].sort((a, b) => getWeight(a, round) - getWeight(b, round));
     for (const entry of sorted) {
+      const scheduledAt = (startAt && hoursPerPick)
+        ? new Date(startAt.getTime() + (overall - 1) * hoursPerPick * 3600000)
+        : undefined;
       rows.push({
         leagueId,
         year,
@@ -311,6 +318,7 @@ export function generateDraftPickRows(params: {
         draftType,
         originalTeamId: entry.teamId,
         currentTeamId: entry.teamId,
+        scheduledAt,
         touch_id: touchId,
       });
       overall++;

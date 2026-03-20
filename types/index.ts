@@ -115,6 +115,7 @@ export interface DraftPick {
   status: string;
   draftedPlayer: string;
   timestamp: string;
+  scheduledAt?: string | null;
   via: string | null;
   history?: string;
 }

@@ -59,6 +59,7 @@ export async function GET(req: NextRequest) {
         draftedPlayer: p.selectedPlayer ?? p.selectedPlayerName ?? '',
         timestamp: p.pickedAt ? p.pickedAt.toISOString() : '',
         clockMinutes: status === 'Active' ? clockMinutes : null,
+        scheduledAt: p.scheduledAt ? p.scheduledAt.toISOString() : null,
         processedBy: '',
         history: '',
       };

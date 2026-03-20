@@ -41,6 +41,7 @@ export async function GET(req: Request) {
         playerId: draftPicks.playerId,
         passed: draftPicks.passed,
         selectedPlayerName: draftPicks.selectedPlayerName,
+        scheduledAt: draftPicks.scheduledAt,
         pickedAt: draftPicks.pickedAt,
         warningSent: draftPicks.warningSent,
         currentOwner: currentTeams.name,
@@ -62,7 +63,13 @@ export async function GET(req: Request) {
       const activePick = allPicks[activeIdx];
       const prevPick = activeIdx > 0 ? allPicks[activeIdx - 1] : null;
 
-      const clockStart = prevPick?.pickedAt ? new Date(prevPick.pickedAt) : null;
+      // If the pick has a scheduled start time that hasn't arrived yet, skip
+      if (activePick.scheduledAt && activePick.scheduledAt > new Date()) {
+        results.push({ leagueId, skipped: 'pick not yet scheduled', scheduledAt: activePick.scheduledAt });
+        continue;
+      }
+
+      const clockStart = prevPick?.pickedAt ? new Date(prevPick.pickedAt) : activePick.scheduledAt ? new Date(activePick.scheduledAt) : null;
       if (!clockStart) {
         results.push({ leagueId, skipped: 'no clock start time' });
         continue;
