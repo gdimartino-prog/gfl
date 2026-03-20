@@ -95,6 +95,7 @@ export const draftPicks = pgTable("draft_picks", {
   currentTeamId: integer("current_team_id").references(() => teams.id),
   playerId: integer("player_id").references(() => players.id),
   pickedAt: timestamp("picked_at"),
+  passed: boolean("passed").default(false).notNull(),
   warningSent: boolean("warning_sent").default(false).notNull(),
   selectedPlayerName: varchar("selected_player_name", { length: 256 }),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),

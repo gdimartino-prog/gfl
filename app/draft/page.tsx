@@ -63,6 +63,17 @@ function DraftBoardContent() {
   const isAdminUser = userRole === 'admin' || userRole === 'superuser';
   const myTeamCode = (session?.user as { id?: string })?.id || '';
 
+  const handlePass = async (overall: string) => {
+    if (!confirm('Pass this pick? The draft will advance and you can still make a late selection later.')) return;
+    setIsRefreshing(true);
+    await fetch('/api/draft-pass', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ overallPick: overall, coachName: myTeamCode }),
+    });
+    loadData(true);
+  };
+
   const handleDeletePick = async (pickId: number) => {
     if (!confirm('Delete this pick? The player will be returned to free agency.')) return;
     setIsRefreshing(true);
@@ -513,6 +524,7 @@ function DraftBoardContent() {
                 {filteredPicks.map((pick, index) => {
                   const isDrafted = !!pick.draftedPlayer && !pick.draftedPlayer.includes("SKIPPED") && pick.draftedPlayer.trim() !== "";
                   const isSkipped = !!pick.draftedPlayer && pick.draftedPlayer.includes("SKIPPED");
+                  const isPassed = pick.status === 'Passed';
                   const isOnClock = onClockPick && pick.overall === onClockPick.overall;
                   const isNewRound = index === 0 || filteredPicks[index - 1].round !== pick.round;
 
@@ -549,6 +561,7 @@ function DraftBoardContent() {
                         ) : isSkipped ? (
                           <div className="flex flex-col text-orange-500 uppercase">
                             <span className="font-black text-[11px]">Expired (Skipped)</span>
+                            <span className="text-[10px] font-black text-slate-400 italic mt-1">{pick.timestamp ? new Date(pick.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : ''}</span>
                             <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
                           </div>
                         ) : (
@@ -583,30 +596,54 @@ function DraftBoardContent() {
                               </button>
                             )}
                           </div>
+                        ) : isPassed && session ? (
+                          <div className="flex items-center justify-end gap-3">
+                            <span className="text-amber-600 font-black text-[10px] uppercase border border-amber-200 bg-amber-50 px-4 py-2 rounded-full tracking-widest">Passed</span>
+                            <button
+                              disabled={isRefreshing}
+                              onClick={() => {
+                                setModalSessionId(Date.now());
+                                setSelectedPick(pick);
+                                setShowSelectionModal(true);
+                              }}
+                              className="bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-amber-600 transition-all active:scale-95"
+                            >
+                              Late Selection
+                            </button>
+                          </div>
                         ) : isSkipped && session ? (
-                          <button 
+                          <button
                             disabled={isRefreshing}
-                            onClick={() => { 
-                              setModalSessionId(Date.now()); 
-                              setSelectedPick(pick); 
-                              setShowSelectionModal(true); 
-                            }} 
+                            onClick={() => {
+                              setModalSessionId(Date.now());
+                              setSelectedPick(pick);
+                              setShowSelectionModal(true);
+                            }}
                             className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-orange-600 transition-all active:scale-95"
                           >
                             Late Selection
                           </button>
                         ) : isOnClock && session ? (
-                          <button 
-                            disabled={isRefreshing}
-                            onClick={() => { 
-                              setModalSessionId(Date.now()); 
-                              setSelectedPick(pick); 
-                              setShowSelectionModal(true); 
-                            }} 
-                            className="bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-blue-700 transition-all active:scale-95"
-                          >
-                            Enter Selection
-                          </button>
+                          <div className="flex items-center justify-end gap-3">
+                            <button
+                              disabled={isRefreshing}
+                              onClick={() => handlePass(pick.overall)}
+                              className="bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-amber-100 hover:text-amber-700 transition-all active:scale-95"
+                            >
+                              Pass
+                            </button>
+                            <button
+                              disabled={isRefreshing}
+                              onClick={() => {
+                                setModalSessionId(Date.now());
+                                setSelectedPick(pick);
+                                setShowSelectionModal(true);
+                              }}
+                              className="bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-blue-700 transition-all active:scale-95"
+                            >
+                              Enter Selection
+                            </button>
+                          </div>
                         ) : (
                           <span className="text-slate-200 font-black text-[10px] uppercase tracking-widest">Locked</span>
                         )}
