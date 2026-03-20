@@ -36,6 +36,7 @@ function DraftBoardContent() {
   const [yearFilter, setYearFilter] = useState('All');
   const [teamFilter, setTeamFilter] = useState('All Teams');
   const [roundFilter, setRoundFilter] = useState('All');
+  const [draftTypeFilter, setDraftTypeFilter] = useState<'free_agent' | 'rookie' | 'all'>('free_agent');
   
   // Free Agent States
   const [showFA, setShowFA] = useState(false);
@@ -88,12 +89,13 @@ function DraftBoardContent() {
   const handleClearAll = async () => {
     const draftYear = yearFilter !== 'All' ? yearFilter : (onClockPick?.year ?? picks[0]?.year ?? '');
     if (!draftYear) return alert('Could not determine draft year.');
-    if (!confirm(`Clear ALL picks for the ${draftYear} draft? This cannot be undone.`)) return;
+    const typeLabel = draftTypeFilter === 'all' ? '' : ` ${draftTypeFilter === 'free_agent' ? 'Free Agent' : 'Rookie'}`;
+    if (!confirm(`Clear ALL picks for the ${draftYear}${typeLabel} draft? This cannot be undone.`)) return;
     setIsRefreshing(true);
     await fetch('/api/draft-picks', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clearAll: true, year: draftYear }),
+      body: JSON.stringify({ clearAll: true, year: draftYear, draftType: draftTypeFilter !== 'all' ? draftTypeFilter : undefined }),
     });
     loadData(true);
   };
@@ -113,8 +115,9 @@ function DraftBoardContent() {
   const loadData = useCallback(async (showRefreshState = false) => {
     if (showRefreshState) setIsRefreshing(true);
     try {
+      const typeParam = draftTypeFilter !== 'all' ? `&type=${draftTypeFilter}` : '';
       const [pRes, tRes, rRes] = await Promise.all([
-        fetch(`/api/draft-picks?t=${Date.now()}`, { cache: 'no-store' }).then(res => res.json()),
+        fetch(`/api/draft-picks?t=${Date.now()}${typeParam}`, { cache: 'no-store' }).then(res => res.json()),
         fetch(`/api/teams?t=${Date.now()}`, { cache: 'no-store' }).then(res => res.json()),
         fetch(`/api/rules?t=${Date.now()}`, { cache: 'no-store' }).then(res => res.json()) 
       ]);
@@ -147,7 +150,7 @@ function DraftBoardContent() {
       setLoading(false); 
       setIsRefreshing(false);
     }
-  }, []);
+  }, [draftTypeFilter]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -489,6 +492,17 @@ function DraftBoardContent() {
           </div>
         )}
 
+        {/* DRAFT TYPE TABS */}
+        <div className="flex gap-2">
+          {([['free_agent', 'Free Agent'], ['rookie', 'Rookie'], ['all', 'All Types']] as const).map(([val, label]) => (
+            <button key={val} onClick={() => setDraftTypeFilter(val)}
+              className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all
+                ${draftTypeFilter === val ? 'bg-slate-900 text-white shadow-lg' : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-400'}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+
         {/* FILTER BAR */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
           <FilterSelect label="Season" value={yearFilter} onChange={setYearFilter} options={Array.from(new Set(picks.map(p => p.year))).sort()} />
@@ -498,12 +512,12 @@ function DraftBoardContent() {
             <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest ml-2">Find Player</label>
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="w-full p-3.5 pl-10 bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 transition-all" 
-                value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)} 
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full p-3.5 pl-10 bg-slate-50 border-none rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>

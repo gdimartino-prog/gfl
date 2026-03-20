@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy } from "lucide-react";
+import Link from "next/link";
+import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList } from "lucide-react";
 
 type RuleRow = { setting: string; value: string; desc: string | null; year: number | null };
 const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
@@ -644,6 +645,22 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
             ))}
           </div>
         )}
+      </div>
+
+      {/* Draft Setup Section */}
+      <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
+        <div className="px-8 py-5 bg-slate-900 flex items-center justify-between">
+          <div className="text-left">
+            <h3 className="text-white font-black uppercase italic tracking-tighter text-lg flex items-center gap-2">
+              <ClipboardList size={18} className="text-blue-400" /> Draft Setup
+            </h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Generate draft pick order for a new season</p>
+          </div>
+          <Link href="/draft/setup"
+            className="px-6 py-2.5 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all">
+            Open Setup Wizard →
+          </Link>
+        </div>
       </div>
 
       {/* Team Manager Section */}

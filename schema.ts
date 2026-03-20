@@ -91,6 +91,7 @@ export const draftPicks = pgTable("draft_picks", {
   year: integer("year").notNull(),
   round: integer("round").notNull(),
   pick: integer("pick").notNull(),
+  draftType: varchar("draft_type", { length: 20 }).notNull().default("free_agent"),
   originalTeamId: integer("original_team_id").references(() => teams.id),
   currentTeamId: integer("current_team_id").references(() => teams.id),
   playerId: integer("player_id").references(() => players.id),

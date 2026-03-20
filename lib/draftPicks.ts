@@ -1,7 +1,7 @@
 
 import { db } from './db';
 import { draftPicks, teams, players } from '@/schema';
-import { and, eq, isNotNull, asc, sql } from 'drizzle-orm';
+import { and, eq, isNotNull, asc, sql, or } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { cache } from 'react';
 
@@ -21,6 +21,7 @@ export type DraftPickRow = {
   year: number | null;
   round: number;
   pick: number;
+  draftType: string;
   overall?: number;
   originalTeam: string | null;
   currentOwner: string | null;
@@ -40,6 +41,7 @@ const _getAllDraftPicks = cache(async (leagueId: number) => {
       year: draftPicks.year,
       round: draftPicks.round,
       pick: draftPicks.pick,
+      draftType: draftPicks.draftType,
       originalTeam: originalTeams.teamshort,
       currentOwner: currentTeams.teamshort,
       selectedPlayer: players.name,
@@ -142,13 +144,18 @@ export async function clearPickSelection(pickId: number, clearedBy: string) {
 }
 
 /**
- * Clear all pick selections for a league/year (commissioner reset)
+ * Clear all pick selections for a league/year (commissioner reset).
+ * Optionally scope to a specific draftType.
  */
-export async function clearAllPickSelections(leagueId: number, year: number, clearedBy: string) {
+export async function clearAllPickSelections(leagueId: number, year: number, clearedBy: string, draftType?: string) {
+  const baseWhere = draftType
+    ? and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), eq(draftPicks.draftType, draftType))
+    : and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year));
+
   // First free up any rostered players from these picks
   const made = await db.select({ id: draftPicks.id, playerId: draftPicks.playerId })
     .from(draftPicks)
-    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), isNotNull(draftPicks.playerId)));
+    .where(and(baseWhere, isNotNull(draftPicks.playerId)));
 
   for (const p of made) {
     if (p.playerId) {
@@ -161,7 +168,7 @@ export async function clearAllPickSelections(leagueId: number, year: number, cle
   // Reset ALL picks for the year — including passed and skipped (pickedAt set, no playerId)
   await db.update(draftPicks)
     .set({ playerId: null, selectedPlayerName: null, pickedAt: null, passed: false, touch_id: clearedBy })
-    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year)));
+    .where(baseWhere);
 }
 
 /**
@@ -196,4 +203,119 @@ export async function getNextOnClockTeamId(leagueId: number, year: number) {
     .limit(1);
 
   return row[0]?.currentTeamId ?? null;
+}
+
+/**
+ * Check if any picks exist for a given league/year/draftType
+ */
+export async function getDraftPicksExist(leagueId: number, year: number, draftType: string): Promise<boolean> {
+  const row = await db.select({ id: draftPicks.id })
+    .from(draftPicks)
+    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), eq(draftPicks.draftType, draftType)))
+    .limit(1);
+  return row.length > 0;
+}
+
+/**
+ * Check if the draft has started (any pick has been made or passed)
+ */
+export async function hasDraftStarted(leagueId: number, year: number, draftType: string): Promise<boolean> {
+  const row = await db.select({ id: draftPicks.id })
+    .from(draftPicks)
+    .where(and(
+      eq(draftPicks.leagueId, leagueId),
+      eq(draftPicks.year, year),
+      eq(draftPicks.draftType, draftType),
+      or(isNotNull(draftPicks.pickedAt), eq(draftPicks.passed, true)),
+    ))
+    .limit(1);
+  return row.length > 0;
+}
+
+/**
+ * Delete ALL pick rows (not just selections) for a league/year/draftType
+ */
+export async function deleteDraftPicksByYearAndType(leagueId: number, year: number, draftType: string, deletedBy: string): Promise<void> {
+  // First free up any rostered players
+  const made = await db.select({ playerId: draftPicks.playerId })
+    .from(draftPicks)
+    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), eq(draftPicks.draftType, draftType), isNotNull(draftPicks.playerId)));
+
+  for (const p of made) {
+    if (p.playerId) {
+      await db.update(players).set({ teamId: sql`NULL`, touch_id: deletedBy }).where(eq(players.id, p.playerId));
+    }
+  }
+
+  await db.delete(draftPicks).where(and(
+    eq(draftPicks.leagueId, leagueId),
+    eq(draftPicks.year, year),
+    eq(draftPicks.draftType, draftType),
+  ));
+}
+
+export type DraftOrderEntry = {
+  teamId: number;
+  teamshort: string;
+  r1Position: number; // 0-based index in round 1 order
+  altGroup?: string;  // e.g. "A", "B", "C" — teams in the same group rotate
+};
+
+/**
+ * Generate draft pick rows using the alt-group rotation algorithm.
+ * Returns insert-ready objects (no DB writes — caller decides).
+ */
+export function generateDraftPickRows(params: {
+  leagueId: number;
+  year: number;
+  draftType: string;
+  rounds: number;
+  order: DraftOrderEntry[];
+  touchId: string;
+}): Array<typeof draftPicks.$inferInsert> {
+  const { leagueId, year, draftType, rounds, order, touchId } = params;
+
+  // Build alt group index: groupId → sorted array of entries (sorted by r1Position)
+  const altGroups: Record<string, DraftOrderEntry[]> = {};
+  for (const entry of order) {
+    if (entry.altGroup) {
+      if (!altGroups[entry.altGroup]) altGroups[entry.altGroup] = [];
+      altGroups[entry.altGroup].push(entry);
+    }
+  }
+  // Sort each group by r1Position so idxInGroup is deterministic
+  for (const g of Object.values(altGroups)) {
+    g.sort((a, b) => a.r1Position - b.r1Position);
+  }
+
+  const getWeight = (entry: DraftOrderEntry, round: number): number => {
+    if (!entry.altGroup) return entry.r1Position;
+    const group = altGroups[entry.altGroup];
+    const idxInGroup = group.findIndex(e => e.teamId === entry.teamId);
+    const rotatedIdx = (idxInGroup + (round - 1)) % group.length;
+    return group[rotatedIdx].r1Position;
+  };
+
+  const rows: Array<typeof draftPicks.$inferInsert> = [];
+  let overall = 1;
+
+  for (let round = 1; round <= rounds; round++) {
+    // Sort the order for this round by effective weight
+    const sorted = [...order].sort((a, b) => getWeight(a, round) - getWeight(b, round));
+    for (const entry of sorted) {
+      rows.push({
+        leagueId,
+        year,
+        round,
+        pick: overall,
+        draftType,
+        originalTeamId: entry.teamId,
+        currentTeamId: entry.teamId,
+        touch_id: touchId,
+      });
+      overall++;
+    }
+  }
+
+  return rows;
 }

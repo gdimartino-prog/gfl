@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAllDraftPicks, transferDraftPick, findDraftPick, clearPickSelection, clearAllPickSelections, DraftPickRow } from '@/lib/draftPicks';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
@@ -12,13 +12,15 @@ import { getDraftClockMinutes } from '@/lib/draftClock';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const leagueId = await getLeagueId();
-    const picks = await getAllDraftPicks(leagueId);
+    const typeFilter = req.nextUrl.searchParams.get('type'); // 'rookie' | 'free_agent' | null = all
+    const allPicks = await getAllDraftPicks(leagueId);
+    const filtered = typeFilter ? (allPicks as DraftPickRow[]).filter(p => p.draftType === typeFilter) : allPicks as DraftPickRow[];
 
     // Sort by overall pick number then find the first undrafted pick (on the clock)
-    const sorted = [...picks as DraftPickRow[]].sort((a, b) => (a.pick ?? 0) - (b.pick ?? 0));
+    const sorted = [...filtered].sort((a, b) => (a.pick ?? 0) - (b.pick ?? 0));
     let onClockSet = false;
     let activeRound: number | null = null;
     for (const p of sorted) {
@@ -50,6 +52,7 @@ export async function GET() {
         year: String(p.year ?? ''),
         round: String(p.round ?? ''),
         overall: String(p.pick ?? ''),
+        draftType: p.draftType ?? 'free_agent',
         originalTeam: p.originalTeam ?? '',
         currentOwner: p.currentOwner ?? '',
         status,
@@ -126,14 +129,14 @@ export async function DELETE(req: Request) {
   if (!authorized) return NextResponse.json({ error: 'Commissioner access required' }, { status: 403 });
 
   try {
-    const { pickId, clearAll, year } = await req.json();
+    const { pickId, clearAll, year, draftType } = await req.json();
     const leagueId = await getLeagueId();
     const actor = session.user.name || 'Commissioner';
 
     if (clearAll) {
       if (!year) return NextResponse.json({ error: 'year required for clearAll' }, { status: 400 });
-      await clearAllPickSelections(leagueId, Number(year), actor);
-      logSystemEvent(actor, 'admin', 'DRAFT_CLEAR_ALL', `Cleared all picks for ${year} (leagueId ${leagueId})`);
+      await clearAllPickSelections(leagueId, Number(year), actor, draftType);
+      logSystemEvent(actor, 'admin', 'DRAFT_CLEAR_ALL', `Cleared all picks for ${year}${draftType ? ` (${draftType})` : ''} (leagueId ${leagueId})`);
       return NextResponse.json({ success: true });
     }
 
