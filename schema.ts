@@ -104,8 +104,8 @@ export const draftPicks = pgTable("draft_picks", {
   touch_id: varchar("touch_id", { length: 256 }),
 });
 
-// Pick Transfers table — persistent record of traded pick ownership (survives draft regeneration)
-export const pickTransfers = pgTable("pick_transfers", {
+// Draft Pick Transfers table — persistent record of traded pick ownership (survives draft regeneration)
+export const pickTransfers = pgTable("draft_pick_transfers", {
   id: serial("id").primaryKey(),
   leagueId: integer("league_id").references(() => leagues.id),
   year: integer("year").notNull(),
@@ -116,7 +116,7 @@ export const pickTransfers = pgTable("pick_transfers", {
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
 }, (table) => [
-  unique('pick_transfers_unique_owner').on(table.leagueId, table.year, table.draftType, table.round, table.originalTeamId),
+  unique('draft_pick_transfers_unique_owner').on(table.leagueId, table.year, table.draftType, table.round, table.originalTeamId),
 ]);
 
 // Cuts table
