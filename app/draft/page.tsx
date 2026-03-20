@@ -558,6 +558,12 @@ function DraftBoardContent() {
                             </a>
                             <span className="text-[10px] font-black text-slate-400 uppercase italic mt-1">{pick.timestamp ? new Date(pick.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : ''}</span>
                           </div>
+                        ) : isPassed ? (
+                          <div className="flex flex-col text-amber-600 uppercase">
+                            <span className="font-black text-[11px]">Passed</span>
+                            <span className="text-[10px] font-black text-slate-400 italic mt-1">{pick.timestamp ? new Date(pick.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : ''}</span>
+                            <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
+                          </div>
                         ) : isSkipped ? (
                           <div className="flex flex-col text-orange-500 uppercase">
                             <span className="font-black text-[11px]">Expired (Skipped)</span>
