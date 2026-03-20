@@ -1050,7 +1050,9 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                         return;
                       }
                       const selected = rulesData.find(r => r.year == null && r.setting === e.target.value);
-                      setNewRule(r => ({ ...r, setting: e.target.value, desc: selected?.desc ?? '' }));
+                      const draftClockMatch = e.target.value.match(/^draft_clock_round_(\d+)$/);
+                      const autoDesc = draftClockMatch ? `Draft clock duration for round ${draftClockMatch[1]}+ (minutes). Rounds without their own rule inherit the nearest lower configured round.` : '';
+                      setNewRule(r => ({ ...r, setting: e.target.value, desc: selected?.desc ?? autoDesc }));
                     }}
                     className="px-3 py-2 rounded-xl border-2 border-slate-200 text-sm font-bold w-48 outline-none focus:border-emerald-400 bg-white"
                   >
@@ -1058,6 +1060,16 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                     {rulesData.filter(r => r.year == null).map(r => (
                       <option key={r.setting} value={r.setting}>{r.setting}</option>
                     ))}
+                    {(() => {
+                      const existing = new Set(rulesData.filter(r => r.year == null).map(r => r.setting));
+                      const presets = Array.from({ length: 10 }, (_, i) => `draft_clock_round_${i + 1}`).filter(k => !existing.has(k));
+                      return presets.length > 0 ? (
+                        <>
+                          <option disabled>— Draft Clock Presets —</option>
+                          {presets.map(k => <option key={k} value={k}>{k}</option>)}
+                        </>
+                      ) : null;
+                    })()}
                     <option value="__manual__">— Type manually —</option>
                   </select>
                 )}

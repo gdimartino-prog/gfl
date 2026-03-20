@@ -137,7 +137,7 @@ export async function clearPickSelection(pickId: number, clearedBy: string) {
   }
 
   await db.update(draftPicks)
-    .set({ playerId: null, selectedPlayerName: null, pickedAt: null, touch_id: clearedBy })
+    .set({ playerId: null, selectedPlayerName: null, pickedAt: null, passed: false, touch_id: clearedBy })
     .where(eq(draftPicks.id, pickId));
 }
 
@@ -145,6 +145,7 @@ export async function clearPickSelection(pickId: number, clearedBy: string) {
  * Clear all pick selections for a league/year (commissioner reset)
  */
 export async function clearAllPickSelections(leagueId: number, year: number, clearedBy: string) {
+  // First free up any rostered players from these picks
   const made = await db.select({ id: draftPicks.id, playerId: draftPicks.playerId })
     .from(draftPicks)
     .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), isNotNull(draftPicks.playerId)));
@@ -157,9 +158,10 @@ export async function clearAllPickSelections(leagueId: number, year: number, cle
     }
   }
 
+  // Reset ALL picks for the year — including passed and skipped (pickedAt set, no playerId)
   await db.update(draftPicks)
-    .set({ playerId: null, selectedPlayerName: null, pickedAt: null, touch_id: clearedBy })
-    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), isNotNull(draftPicks.playerId)));
+    .set({ playerId: null, selectedPlayerName: null, pickedAt: null, passed: false, touch_id: clearedBy })
+    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year)));
 }
 
 /**
