@@ -633,7 +633,7 @@ function DraftBoardContent() {
                           <div className="flex items-center justify-end gap-3">
                             <button
                               disabled={isRefreshing}
-                              onClick={() => handlePass(pick.overall)}
+                              onClick={() => handlePass(String(pick.overall))}
                               className="bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-amber-100 hover:text-amber-700 transition-all active:scale-95"
                             >
                               Pass
