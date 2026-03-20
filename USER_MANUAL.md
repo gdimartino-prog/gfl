@@ -142,6 +142,12 @@ The **Draft Board** is the central hub for all draft activity.
 
 ![Draft Board Page](/manual-screenshots/draft.png)
 
+### Draft Type Tabs
+
+At the top of the board, use the **Free Agent / Rookie / All Types** tabs to switch between drafts. Each league can run multiple drafts per season (e.g., a Free Agent Draft and a Rookie Draft) — the tabs keep them separate.
+
+![Draft Type Tabs](/manual-screenshots/draft-type-tabs.png)
+
 ### On the Clock
 
 The dark "On the Clock" panel shows:
@@ -152,7 +158,17 @@ The dark "On the Clock" panel shows:
 
 ### Making a Pick
 
-When it's your turn to pick, an **"Enter Selection"** button appears on your pick row. Click it to search for and select your player. If your timer expires, your pick shows "Late Selection" status — you can still submit at any time.
+When it's your turn to pick, an **"Enter Selection"** button appears on your pick row. Click it to search for and select your player.
+
+### Passing a Pick
+
+If you need to skip your turn, click the **"Pass"** button next to "Enter Selection". The draft advances to the next team and your pick is marked **Passed**. A **"Late Selection"** button remains available so you can fill the pick any time before the draft closes.
+
+![Pass Pick](/manual-screenshots/draft-pass.png)
+
+### Expired Picks (Auto-Skip)
+
+If the clock runs out before a pick is made, the pick is automatically **Skipped** by the system. Like a passed pick, a "Late Selection" button allows the team to still submit their choice after the fact.
 
 ### Scouting Free Agents
 
@@ -162,6 +178,76 @@ Click the **"Scout Free Agents"** button (top right) to open the scouting panel 
 *   Filter by position
 *   Sort by overall rating, age, or name
 *   Add players to your watchlist (star icon)
+
+### Commissioner Controls
+
+Commissioners see two additional controls:
+
+*   **Clear Draft** (red button, top right) — resets all selections for the current draft type. Requires confirmation. Use with caution.
+*   **Delete icon** (next to any finalized pick) — removes a single pick and returns the player to free agency.
+
+---
+
+## 6a. Draft Setup: Creating a New Draft (Commissioner Only)
+
+The **Draft Setup Wizard** is how commissioners generate the draft pick order for a new season. Access it from **Commissioner Panel → Draft Setup → Open Setup Wizard**, or directly at `/draft/setup`.
+
+![Draft Setup Wizard — Step 1](/manual-screenshots/draft-setup-step1.png)
+
+### Step 1 — Configure the Draft
+
+Set the basic parameters:
+
+*   **Season Year** — the year this draft applies to
+*   **Draft Type** — **Free Agent** (default) or **Rookie**
+*   **Number of Rounds** — how many rounds the draft will have (can be changed later by regenerating)
+
+Click **"Next: Set Round 1 Order →"** to continue.
+
+### Step 2 — Round 1 Order & Alternate Groups
+
+This is where you define the pick order.
+
+![Draft Setup Wizard — Step 2](/manual-screenshots/draft-setup-step2.png)
+
+*   **Drag teams** up or down to set the Round 1 pick order. The number on the left updates as you drag.
+*   **Assign Alt Groups** (A–E) to teams that have the same record and should alternate positions in subsequent rounds. Teams in the same group rotate each round using modular rotation — for example, if LES and SG are both Group A:
+    *   Round 1: LES picks 1st, SG picks 2nd
+    *   Round 2: SG picks 1st, LES picks 2nd
+    *   Round 3: LES picks 1st again, and so on
+
+    Groups of 3 or more also rotate in sequence (D picks cycle through all members).
+
+*   Click **"Preview All Rounds"** to see the full computed pick order for every round before committing.
+
+![Draft Setup — Preview All Rounds](/manual-screenshots/draft-setup-preview.png)
+
+Click **"Next: Salaries →"** when satisfied.
+
+### Step 3 — Salary Per Round (Optional)
+
+Enter an optional salary cap value for each round. This is stored as a league rule and displayed on the draft board next to each round header, so coaches know the salary attached to each pick.
+
+Leave fields blank to skip salary rules for that round.
+
+![Draft Setup Wizard — Step 3](/manual-screenshots/draft-setup-step3.png)
+
+Review the summary (year, type, total picks), then click **"Generate Draft"** to create all pick rows.
+
+### Regenerating a Draft
+
+If picks already exist for the selected year and type, a **warning banner** appears before generating:
+
+*   **Yellow warning** — picks exist but the draft has not started yet. Safe to regenerate.
+*   **Red warning** — the draft has already started (picks have been made). Regenerating will permanently delete all existing picks and selections.
+
+Check the confirmation box and click **"Delete & Regenerate"** to proceed.
+
+![Draft Setup — Conflict Warning](/manual-screenshots/draft-setup-conflict.png)
+
+### After Generation
+
+You'll see a confirmation screen showing how many picks were created. From there, click **"Go to Draft Board"** to view the new order, or **"New Draft"** to set up another draft type for the same season.
 
 ---
 
@@ -300,7 +386,8 @@ The **Commissioner Panel** is a special area for the league commissioner to mana
 
 *   **Upload League Files:** Drag and drop files (players CSV, schedule, standings) to import data. Click **"Synchronize Files"** to process.
 *   **Pending Signups:** Review new coach applications and click **Approve** or **Reject**.
+*   **Draft Setup:** Open the wizard to generate a new draft pick order. See [Section 6a](#6a-draft-setup-creating-a-new-draft-commissioner-only) for full details.
 *   **Team Manager:** Add or edit teams in the league.
 *   **Schedule Manager:** Add or edit games for any season.
 *   **Season Awards:** Set playoffs, division winners, and champions per season.
-*   **League Settings:** Edit rules and configuration values like `cuts_year`, `draft_year`, roster limits, and deadlines.
+*   **League Settings:** Edit rules and configuration values like `cuts_year`, `draft_year`, roster limits, and deadlines. Draft clock durations per round are also configured here (`draft_clock_round_1`, `draft_clock_round_3`, etc.).

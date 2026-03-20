@@ -31,8 +31,5 @@ response.txt
 AGENTmd.txt
 .claude/settings.local.json
 
-.vercel
-*.png
-and *
 *-current.md
 *-after-*.md
