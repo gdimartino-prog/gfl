@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { draftPicks, teams, rules } from '@/schema';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, isNull } from 'drizzle-orm';
 import { notifyDraftPick } from '@/lib/notify';
 import { alias } from 'drizzle-orm/pg-core';
+import { getDraftClockMinutes, getWarningThresholdMinutes } from '@/lib/draftClock';
 
-// Vercel sets CRON_SECRET automatically
 function isAuthorized(req: Request) {
   const auth = req.headers.get('authorization');
   return auth === `Bearer ${process.env.CRON_SECRET}`;
@@ -17,100 +17,117 @@ export async function GET(req: Request) {
   }
 
   try {
-    // Check if draft is active (any undrafted picks exist in draft_year)
-    const draftYearRow = await db.select({ value: rules.value })
+    // Get all leagues that have a draft_year configured
+    const draftYearRules = await db
+      .select({ leagueId: rules.leagueId, value: rules.value })
       .from(rules)
-      .where(and(eq(rules.rule, 'draft_year'), eq(rules.leagueId, 1)))
-      .limit(1);
+      .where(and(eq(rules.rule, 'draft_year'), isNull(rules.year)));
 
-    const draftYear = parseInt(draftYearRow[0]?.value || '0');
-    if (!draftYear) return NextResponse.json({ skipped: 'no draft_year configured' });
+    const results = [];
 
-    const originalTeams = alias(teams, 'originalTeams');
-    const currentTeams = alias(teams, 'currentTeams');
+    for (const draftYearRule of draftYearRules) {
+      const leagueId = draftYearRule.leagueId;
+      if (!leagueId) continue;
+      const draftYear = parseInt(draftYearRule.value || '0');
+      if (!draftYear) continue;
 
-    const allPicks = await db.select({
-      id: draftPicks.id,
-      round: draftPicks.round,
-      pick: draftPicks.pick,
-      playerId: draftPicks.playerId,
-      selectedPlayerName: draftPicks.selectedPlayerName,
-      pickedAt: draftPicks.pickedAt,
-      warningSent: draftPicks.warningSent,
-      currentOwner: currentTeams.name,
-      originalTeam: originalTeams.name,
-    })
-    .from(draftPicks)
-    .leftJoin(originalTeams, eq(draftPicks.originalTeamId, originalTeams.id))
-    .leftJoin(currentTeams, eq(draftPicks.currentTeamId, currentTeams.id))
-    .where(and(eq(draftPicks.leagueId, 1), eq(draftPicks.year, draftYear)))
-    .orderBy(asc(draftPicks.pick));
+      const originalTeams = alias(teams, 'originalTeams');
+      const currentTeams = alias(teams, 'currentTeams');
 
-    // Find the active pick (first pick with no player AND no pickedAt)
-    // Picks with pickedAt but no playerId are auto-skipped — don't re-process them
-    const activeIdx = allPicks.findIndex(p => !p.playerId && !p.pickedAt);
-    if (activeIdx === -1) return NextResponse.json({ skipped: 'draft complete' });
+      const allPicks = await db.select({
+        id: draftPicks.id,
+        round: draftPicks.round,
+        pick: draftPicks.pick,
+        playerId: draftPicks.playerId,
+        passed: draftPicks.passed,
+        selectedPlayerName: draftPicks.selectedPlayerName,
+        pickedAt: draftPicks.pickedAt,
+        warningSent: draftPicks.warningSent,
+        currentOwner: currentTeams.name,
+        originalTeam: originalTeams.name,
+      })
+      .from(draftPicks)
+      .leftJoin(originalTeams, eq(draftPicks.originalTeamId, originalTeams.id))
+      .leftJoin(currentTeams, eq(draftPicks.currentTeamId, currentTeams.id))
+      .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, draftYear)))
+      .orderBy(asc(draftPicks.pick));
 
-    const activePick = allPicks[activeIdx];
-    const prevPick = activeIdx > 0 ? allPicks[activeIdx - 1] : null;
+      // Active pick: first pick with no player, no pickedAt, and not passed
+      const activeIdx = allPicks.findIndex(p => !p.playerId && !p.pickedAt && !p.passed);
+      if (activeIdx === -1) {
+        results.push({ leagueId, skipped: 'draft complete or not started' });
+        continue;
+      }
 
-    // Clock starts when previous pick was made
-    const clockStart = prevPick?.pickedAt ? new Date(prevPick.pickedAt) : null;
-    if (!clockStart) return NextResponse.json({ skipped: 'no clock start time' });
+      const activePick = allPicks[activeIdx];
+      const prevPick = activeIdx > 0 ? allPicks[activeIdx - 1] : null;
 
-    const now = new Date();
-    const limitHours = activePick.round <= 2 ? 24 : 12;
-    const expiryTime = new Date(clockStart.getTime() + limitHours * 60 * 60 * 1000);
-    const diffMs = expiryTime.getTime() - now.getTime();
-    const diffHours = diffMs / (1000 * 60 * 60);
+      const clockStart = prevPick?.pickedAt ? new Date(prevPick.pickedAt) : null;
+      if (!clockStart) {
+        results.push({ leagueId, skipped: 'no clock start time' });
+        continue;
+      }
 
-    const recentPicks = allPicks
-      .slice(Math.max(0, activeIdx - 5), activeIdx)
-      .reverse()
-      .map(p => ({ round: p.round, pick: p.pick, player: p.selectedPlayerName || 'Skipped', owner: p.currentOwner || '' }));
+      const clockMinutes = await getDraftClockMinutes(leagueId, activePick.round);
+      const warningMinutes = getWarningThresholdMinutes(clockMinutes);
 
-    const onDeck = allPicks
-      .slice(activeIdx + 1, activeIdx + 4)
-      .filter(p => !p.playerId)
-      .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '' }));
+      const now = new Date();
+      const expiryTime = new Date(clockStart.getTime() + clockMinutes * 60 * 1000);
+      const diffMs = expiryTime.getTime() - now.getTime();
+      const diffMinutes = diffMs / (1000 * 60);
 
-    if (diffMs <= 0) {
-      // Auto-skip: mark as expired
-      await db.update(draftPicks)
-        .set({ selectedPlayerName: 'SKIPPED (Time Expired)', pickedAt: now, touch_id: 'cron-auto-skip' })
-        .where(eq(draftPicks.id, activePick.id));
+      const recentPicks = allPicks
+        .slice(Math.max(0, activeIdx - 5), activeIdx)
+        .reverse()
+        .map(p => ({ round: p.round, pick: p.pick, player: p.selectedPlayerName || 'Skipped', owner: p.currentOwner || '' }));
 
-      await notifyDraftPick({
-        round: activePick.round,
-        overallPick: activePick.pick,
-        currentOwner: activePick.currentOwner || '',
-        originalOwner: activePick.originalTeam || '',
-        recentPicks, onDeck,
-        type: 'EXPIRATION',
-      });
+      const onDeck = allPicks
+        .slice(activeIdx + 1, activeIdx + 4)
+        .filter(p => !p.playerId && !p.passed)
+        .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '' }));
 
-      return NextResponse.json({ action: 'expired', pick: activePick.pick });
+      if (diffMs <= 0) {
+        await db.update(draftPicks)
+          .set({ selectedPlayerName: 'SKIPPED (Time Expired)', pickedAt: now, touch_id: 'cron-auto-skip' })
+          .where(eq(draftPicks.id, activePick.id));
+
+        await notifyDraftPick({
+          round: activePick.round,
+          overallPick: activePick.pick,
+          currentOwner: activePick.currentOwner || '',
+          originalOwner: activePick.originalTeam || '',
+          recentPicks, onDeck,
+          type: 'EXPIRATION',
+          leagueId,
+        });
+
+        results.push({ leagueId, action: 'expired', pick: activePick.pick });
+        continue;
+      }
+
+      if (diffMinutes <= warningMinutes && !activePick.warningSent) {
+        await db.update(draftPicks)
+          .set({ warningSent: true })
+          .where(eq(draftPicks.id, activePick.id));
+
+        await notifyDraftPick({
+          round: activePick.round,
+          overallPick: activePick.pick,
+          currentOwner: activePick.currentOwner || '',
+          originalOwner: activePick.originalTeam || '',
+          recentPicks, onDeck,
+          type: 'WARNING',
+          leagueId,
+        });
+
+        results.push({ leagueId, action: 'warning', pick: activePick.pick, minutesRemaining: diffMinutes.toFixed(1) });
+        continue;
+      }
+
+      results.push({ leagueId, action: 'none', minutesRemaining: diffMinutes.toFixed(1) });
     }
 
-    if (diffHours <= 1 && !activePick.warningSent) {
-      // 1-hour warning
-      await db.update(draftPicks)
-        .set({ warningSent: true })
-        .where(eq(draftPicks.id, activePick.id));
-
-      await notifyDraftPick({
-        round: activePick.round,
-        overallPick: activePick.pick,
-        currentOwner: activePick.currentOwner || '',
-        originalOwner: activePick.originalTeam || '',
-        recentPicks, onDeck,
-        type: 'WARNING',
-      });
-
-      return NextResponse.json({ action: 'warning', pick: activePick.pick });
-    }
-
-    return NextResponse.json({ action: 'none', hoursRemaining: diffHours.toFixed(1) });
+    return NextResponse.json({ results });
   } catch (error: unknown) {
     console.error('Draft cron error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

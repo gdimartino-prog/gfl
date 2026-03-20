@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: '0 12 * * *'    # Daily at noon UTC
     - cron: '0 14 * * 1'    # Mondays at 2pm UTC
+    - cron: '*/5 * * * *'   # Every 5 minutes (draft clock)
   workflow_dispatch:  # Allow manual trigger
 
 jobs:
@@ -34,5 +35,15 @@ jobs:
       - name: Send schedule reminder
         run: |
           curl -s -X GET "https://gfl-alpha.vercel.app/api/cron/schedule-reminder" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            | cat
+
+  draft-clock:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '*/5 * * * *' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Check draft clock and auto-skip expired picks
+        run: |
+          curl -s -X GET "https://gfl-alpha.vercel.app/api/cron/draft" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | cat

@@ -86,12 +86,14 @@ function DraftBoardContent() {
   };
 
   const handleClearAll = async () => {
-    if (!confirm(`Clear ALL picks for the ${yearFilter} draft? This cannot be undone.`)) return;
+    const draftYear = yearFilter !== 'All' ? yearFilter : (onClockPick?.year ?? picks[0]?.year ?? '');
+    if (!draftYear) return alert('Could not determine draft year.');
+    if (!confirm(`Clear ALL picks for the ${draftYear} draft? This cannot be undone.`)) return;
     setIsRefreshing(true);
     await fetch('/api/draft-picks', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clearAll: true, year: yearFilter }),
+      body: JSON.stringify({ clearAll: true, year: draftYear }),
     });
     loadData(true);
   };
@@ -209,8 +211,8 @@ function DraftBoardContent() {
 
   useEffect(() => {
     if (!onClockPick) return;
-    const roundNum = Number(onClockPick.round);
-    const limitMs = (roundNum <= 2 ? 24 : 12) * 60 * 60 * 1000;
+    const clockMins = (onClockPick as { clockMinutes?: number | null }).clockMinutes ?? 1440;
+    const limitMs = clockMins * 60 * 1000;
     const startTimeStr = previousPick?.timestamp;
     const parsedStart = startTimeStr ? new Date(startTimeStr).getTime() : NaN;
     const startRef = !isNaN(parsedStart) ? parsedStart : new Date().getTime();

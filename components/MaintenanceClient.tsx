@@ -5,6 +5,7 @@ import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Cl
 
 type RuleRow = { setting: string; value: string; desc: string | null; year: number | null };
 const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
+const isGlobalOnlyRule = (r: string) => GLOBAL_ONLY_RULES.has(r) || r.startsWith('draft_clock_');
 type PendingSignup = { id: number; name: string; teamshort: string; coach: string; email: string | null; mobile: string | null; leagueId: number | null; touch_dt: string };
 type TeamRow = { id: number; name: string; teamshort: string | null; coach: string | null; email: string | null; mobile: string | null; nickname: string | null; isCommissioner: boolean | null; status: string | null };
 type TeamForm = { name: string; teamshort: string; coach: string; email: string; mobile: string; nickname: string; isCommissioner: boolean; status: string };
@@ -1069,7 +1070,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Year</label>
-                {GLOBAL_ONLY_RULES.has(newRule.setting) ? (
+                {isGlobalOnlyRule(newRule.setting) ? (
                   <span className="px-3 py-2 rounded-xl border-2 border-slate-100 bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest w-28 text-center">Global Only</span>
                 ) : (
                   <input type="number" placeholder="e.g. 2023" value={newRule.year}
@@ -1084,7 +1085,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                 </div>
               )}
               <button onClick={handleAddRule}
-                disabled={!newRule.setting.trim() || !newRule.value.trim() || (!newRule.year && !manualRuleEntry && !GLOBAL_ONLY_RULES.has(newRule.setting))}
+                disabled={!newRule.setting.trim() || !newRule.value.trim() || (!newRule.year && !manualRuleEntry && !isGlobalOnlyRule(newRule.setting))}
                 className="px-5 py-2 rounded-xl bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 disabled:opacity-40 transition-all flex items-center gap-1.5">
                 <Save size={13} /> Save
               </button>

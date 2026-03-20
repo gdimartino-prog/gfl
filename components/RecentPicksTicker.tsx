@@ -47,9 +47,9 @@ export default function RecentPicksTicker({ picks, teams }: TickerProps) {
   const completedPicks = useMemo(() => {
     if (!picks || !Array.isArray(picks)) return [];
     return [...picks]
-      .filter(p => p.status === 'Completed' || (p.draftedPlayer && p.draftedPlayer.trim() !== ''))
+      .filter(p => ['Drafted', 'Skipped', 'Passed'].includes(p.status) || (p.draftedPlayer && p.draftedPlayer.trim() !== ''))
       .sort((a, b) => Number(b.overall) - Number(a.overall))
-      .slice(0, 10); 
+      .slice(0, 10);
   }, [picks]);
 
   // If not mounted yet, return null (prevents invisible flash in production)
@@ -78,8 +78,8 @@ export default function RecentPicksTicker({ picks, teams }: TickerProps) {
              <span className="text-xl font-black text-white italic leading-none">#{p.overall}</span>
           </div>
           <div className="flex flex-col pr-10">
-            <span className="text-white font-black uppercase italic text-base tracking-tight leading-none">
-              {p.draftedPlayer}
+            <span className={`font-black uppercase italic text-base tracking-tight leading-none ${p.status === 'Passed' ? 'text-amber-400' : p.status === 'Skipped' ? 'text-orange-400' : 'text-white'}`}>
+              {p.draftedPlayer || (p.status === 'Passed' ? 'PASSED' : 'SKIPPED')}
             </span>
             <span className="text-yellow-400 font-bold uppercase text-[10px] tracking-widest mt-1">
               {getFullTeamName(p.currentOwner)}

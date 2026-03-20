@@ -7,6 +7,7 @@ import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { isAdmin, isCommissioner } from '@/lib/auth';
 import { logSystemEvent } from '@/lib/db-helpers';
+import { getDraftClockMinutes } from '@/lib/draftClock';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -19,6 +20,13 @@ export async function GET() {
     // Sort by overall pick number then find the first undrafted pick (on the clock)
     const sorted = [...picks as DraftPickRow[]].sort((a, b) => (a.pick ?? 0) - (b.pick ?? 0));
     let onClockSet = false;
+    let activeRound: number | null = null;
+    for (const p of sorted) {
+      const isSkipped = !p.selectedPlayer && !!p.pickedAt && !p.passed;
+      const isDrafted = !!p.selectedPlayer || isSkipped;
+      if (!isDrafted && !p.passed) { activeRound = p.round; break; }
+    }
+    const clockMinutes = activeRound !== null ? await getDraftClockMinutes(leagueId, activeRound) : null;
 
     const formattedPicks = sorted.map(p => {
       const isSkipped = !p.selectedPlayer && !!p.pickedAt && !p.passed; // auto-expired, no player
@@ -47,6 +55,7 @@ export async function GET() {
         status,
         draftedPlayer: p.selectedPlayer ?? p.selectedPlayerName ?? '',
         timestamp: p.pickedAt ? p.pickedAt.toISOString() : '',
+        clockMinutes: status === 'Active' ? clockMinutes : null,
         processedBy: '',
         history: '',
       };

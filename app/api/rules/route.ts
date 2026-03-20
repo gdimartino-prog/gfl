@@ -7,6 +7,7 @@ import { logSystemEvent } from '@/lib/db-helpers';
 import { isAdmin } from '@/lib/auth';
 
 const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
+const isGlobalOnlyRule = (r: string) => GLOBAL_ONLY_RULES.has(r) || r.startsWith('draft_clock_');
 
 export async function GET() {
   try {
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'rule and value are required' }, { status: 400 });
     }
     const leagueId = await getLeagueId();
-    const yearVal = GLOBAL_ONLY_RULES.has(String(rule).trim()) ? null : (year != null && year !== '' ? Number(year) : null);
+    const yearVal = isGlobalOnlyRule(String(rule).trim()) ? null : (year != null && year !== '' ? Number(year) : null);
     await db.insert(rules).values({
       leagueId,
       year: yearVal,
