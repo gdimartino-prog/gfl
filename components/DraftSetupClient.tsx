@@ -46,7 +46,7 @@ export default function DraftSetupClient() {
   const [submitting, setSubmitting] = useState(false);
   const [conflict, setConflict] = useState<{ started: boolean } | null>(null);
   const [confirmed, setConfirmed] = useState(false);
-  const [result, setResult] = useState<{ inserted: number } | null>(null);
+  const [result, setResult] = useState<{ inserted: number; transferred: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Preview toggle
@@ -163,7 +163,7 @@ export default function DraftSetupClient() {
       }
 
       const data = await res.json();
-      setResult({ inserted: data.inserted });
+      setResult({ inserted: data.inserted, transferred: data.transferred ?? 0 });
     } catch {
       setError('Network error — please try again');
     }
@@ -181,6 +181,7 @@ export default function DraftSetupClient() {
             <span className="text-emerald-600 text-2xl font-black">{result.inserted}</span> picks created for the{' '}
             <span className="font-black text-slate-900">{year} {draftType === 'free_agent' ? 'Free Agent' : 'Rookie'} Draft</span>
           </p>
+          {result.transferred > 0 && <p className="text-blue-600 font-bold">{result.transferred} pick transfers re-applied from trade history.</p>}
           <div className="flex gap-4 justify-center">
             <Link href="/draft" className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-700 transition-all">
               Go to Draft Board

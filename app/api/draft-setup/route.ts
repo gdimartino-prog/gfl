@@ -11,6 +11,7 @@ import {
   hasDraftStarted,
   deleteDraftPicksByYearAndType,
   generateDraftPickRows,
+  applyPickTransfers,
   DraftOrderEntry,
 } from '@/lib/draftPicks';
 import { draftPicks } from '@/schema';
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
       hoursPerPick: hoursPerPick || undefined,
     });
     await db.insert(draftPicks).values(rows);
+    const transferred = await applyPickTransfers(leagueId, year, draftType);
 
     // Upsert salary rules if provided
     if (salaries) {
@@ -86,7 +88,7 @@ export async function POST(req: NextRequest) {
     logSystemEvent(actor, 'admin', 'DRAFT_SETUP_GENERATED',
       `Generated ${rows.length} picks for ${year} ${draftType} draft (${rounds} rounds, leagueId ${leagueId})`);
 
-    return NextResponse.json({ success: true, inserted: rows.length });
+    return NextResponse.json({ success: true, inserted: rows.length, transferred });
   } catch (error) {
     console.error('POST /api/draft-setup failed:', error);
     return NextResponse.json({ error: 'Failed to generate draft' }, { status: 500 });

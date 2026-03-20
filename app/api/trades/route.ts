@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { players, draftPicks, teams } from '@/schema';
 import { eq, and } from 'drizzle-orm';
 import { logTransaction } from '@/lib/transactions';
+import { upsertPickTransfer } from '@/lib/draftPicks';
 import { notifyTransaction } from '@/lib/notify';
 import { auth } from '@/auth';
 import { getLeagueId } from '@/lib/getLeagueId';
@@ -83,6 +84,32 @@ export async function POST(req: Request) {
     }
 
     await Promise.all(updates);
+
+    // Record pick transfers so ownership survives draft regeneration
+    const transferUpserts: Promise<void>[] = [];
+    if (rawPicksFrom?.length && fromTeamId && toTeamId) {
+      for (const overall of rawPicksFrom as string[]) {
+        transferUpserts.push(upsertPickTransfer({
+          leagueId,
+          pickOverall: parseInt(overall),
+          fromTeamId,
+          toTeamId,
+          touchId: submittedBy || 'trade',
+        }));
+      }
+    }
+    if (rawPicksTo?.length && fromTeamId && toTeamId) {
+      for (const overall of rawPicksTo as string[]) {
+        transferUpserts.push(upsertPickTransfer({
+          leagueId,
+          pickOverall: parseInt(overall),
+          fromTeamId: toTeamId,
+          toTeamId: fromTeamId,
+          touchId: submittedBy || 'trade',
+        }));
+      }
+    }
+    await Promise.all(transferUpserts);
 
     // Log transactions
     const proposerAssets = [...(playersFrom || []), ...(draftPicksFrom || [])].join(', ');

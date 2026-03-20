@@ -1,6 +1,6 @@
 
 import { db } from './db';
-import { draftPicks, teams, players } from '@/schema';
+import { draftPicks, pickTransfers, teams, players } from '@/schema';
 import { and, eq, isNotNull, asc, sql, or } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { cache } from 'react';
@@ -326,4 +326,80 @@ export function generateDraftPickRows(params: {
   }
 
   return rows;
+}
+
+/**
+ * Record or update the current owner of a traded pick in pickTransfers.
+ * Looks up stable pick identity (year, round, draftType, originalTeamId) from draftPicks.
+ * If the pick cannot be found in draftPicks, logs a warning and returns early.
+ */
+export async function upsertPickTransfer(params: {
+  leagueId: number;
+  pickOverall: number;
+  fromTeamId: number;
+  toTeamId: number;
+  touchId: string;
+}): Promise<void> {
+  const { leagueId, pickOverall, toTeamId, touchId } = params;
+
+  const existing = await db.select({
+    year: draftPicks.year,
+    round: draftPicks.round,
+    draftType: draftPicks.draftType,
+    originalTeamId: draftPicks.originalTeamId,
+  })
+    .from(draftPicks)
+    .where(and(eq(draftPicks.pick, pickOverall), eq(draftPicks.leagueId, leagueId)))
+    .limit(1);
+
+  if (!existing[0]) {
+    console.warn(`[upsertPickTransfer] Pick overall=${pickOverall} not found in draftPicks for leagueId=${leagueId} — transfer not recorded`);
+    return;
+  }
+
+  const { year, round, draftType, originalTeamId } = existing[0];
+
+  if (!originalTeamId) {
+    console.warn(`[upsertPickTransfer] Pick overall=${pickOverall} has no originalTeamId — transfer not recorded`);
+    return;
+  }
+
+  await db.insert(pickTransfers)
+    .values({ leagueId, year, draftType, round, originalTeamId, currentTeamId: toTeamId, touch_id: touchId })
+    .onConflictDoUpdate({
+      target: [pickTransfers.leagueId, pickTransfers.year, pickTransfers.draftType, pickTransfers.round, pickTransfers.originalTeamId],
+      set: { currentTeamId: toTeamId, touch_id: touchId, touch_dt: sql`now()` },
+    });
+}
+
+/**
+ * Re-apply all recorded pick transfers for a given league/year/draftType.
+ * Called after draft picks are regenerated so traded pick ownership is restored.
+ * Returns the count of picks successfully updated.
+ */
+export async function applyPickTransfers(leagueId: number, year: number, draftType: string): Promise<number> {
+  const transfers = await db.select()
+    .from(pickTransfers)
+    .where(and(
+      eq(pickTransfers.leagueId, leagueId),
+      eq(pickTransfers.year, year),
+      eq(pickTransfers.draftType, draftType),
+    ));
+
+  let count = 0;
+  for (const transfer of transfers) {
+    if (!transfer.originalTeamId || !transfer.currentTeamId) continue;
+    const result = await db.update(draftPicks)
+      .set({ currentTeamId: transfer.currentTeamId })
+      .where(and(
+        eq(draftPicks.leagueId, leagueId),
+        eq(draftPicks.year, year),
+        eq(draftPicks.draftType, draftType),
+        eq(draftPicks.round, transfer.round),
+        eq(draftPicks.originalTeamId, transfer.originalTeamId),
+      ));
+    if ((result as unknown as { rowCount?: number }).rowCount) count++;
+  }
+
+  return count;
 }

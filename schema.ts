@@ -104,6 +104,21 @@ export const draftPicks = pgTable("draft_picks", {
   touch_id: varchar("touch_id", { length: 256 }),
 });
 
+// Pick Transfers table — persistent record of traded pick ownership (survives draft regeneration)
+export const pickTransfers = pgTable("pick_transfers", {
+  id: serial("id").primaryKey(),
+  leagueId: integer("league_id").references(() => leagues.id),
+  year: integer("year").notNull(),
+  draftType: varchar("draft_type", { length: 20 }).notNull().default("free_agent"),
+  round: integer("round").notNull(),
+  originalTeamId: integer("original_team_id").references(() => teams.id),
+  currentTeamId: integer("current_team_id").references(() => teams.id),
+  touch_dt: timestamp("touch_dt").defaultNow().notNull(),
+  touch_id: varchar("touch_id", { length: 256 }),
+}, (table) => [
+  unique('pick_transfers_unique_owner').on(table.leagueId, table.year, table.draftType, table.round, table.originalTeamId),
+]);
+
 // Cuts table
 export const cuts = pgTable("cuts", {
   id: serial("id").primaryKey(),
@@ -220,6 +235,7 @@ export const leaguesRelations = relations(leagues, ({ many }) => ({
   players: many(players),
   transactions: many(transactions),
   draftPicks: many(draftPicks),
+  pickTransfers: many(pickTransfers),
   cuts: many(cuts),
   rules: many(rules),
   resources: many(resources),
@@ -244,6 +260,23 @@ export const playersRelations = relations(players, ({ one }) => ({
   team: one(teams, {
     fields: [players.teamId],
     references: [teams.id],
+  }),
+}));
+
+export const pickTransfersRelations = relations(pickTransfers, ({ one }) => ({
+  league: one(leagues, {
+    fields: [pickTransfers.leagueId],
+    references: [leagues.id],
+  }),
+  originalTeam: one(teams, {
+    fields: [pickTransfers.originalTeamId],
+    references: [teams.id],
+    relationName: "pt_original_team",
+  }),
+  currentTeam: one(teams, {
+    fields: [pickTransfers.currentTeamId],
+    references: [teams.id],
+    relationName: "pt_current_team",
   }),
 }));
 
