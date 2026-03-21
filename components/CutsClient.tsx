@@ -88,6 +88,7 @@ export default function CutsClient() {
   const [orphanedPlayers, setOrphanedPlayers] = useState<OrphanedPlayer[]>([]);
   const [summary, setSummary] = useState<Record<string, TeamSummary>>({});
   const [config, setConfig] = useState<Config>({ cuts_year: '', draft_year: '', protected: 30, pullback: 8, cuts_due_date: '' });
+  const [viewYear, setViewYear] = useState<string>('');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'protected' | 'pullback' | 'cut'>('all');
@@ -101,12 +102,23 @@ export default function CutsClient() {
   const userRole = (session?.user as { role?: string })?.role;
   const isCommissioner = userRole === "admin" || userRole === "superuser";
   const userTeamId = (session?.user as { id?: string })?.id;
-  const canEdit = isCommissioner || (selectedTeam === userTeamId);
+
+  const isCurrentYear = viewYear === config.cuts_year;
+  const canEdit = isCurrentYear && (isCommissioner || (selectedTeam === userTeamId));
 
   const isExpired = useMemo(() => {
-    if (!config?.cuts_due_date) return false;
+    if (!isCurrentYear || !config?.cuts_due_date) return false;
     return new Date().getTime() > new Date(config.cuts_due_date).getTime();
-  }, [config?.cuts_due_date]);
+  }, [isCurrentYear, config?.cuts_due_date]);
+
+  // Available years for selector: from 2020 up to current cuts_year
+  const availableYears = useMemo(() => {
+    if (!config.cuts_year) return [];
+    const currentYr = parseInt(config.cuts_year);
+    const years: string[] = [];
+    for (let y = currentYr; y >= 2020; y--) years.push(String(y));
+    return years;
+  }, [config.cuts_year]);
 
   useEffect(() => {
     if (status === "authenticated" && userTeamId && !hasSynced.current) {
@@ -134,49 +146,100 @@ export default function CutsClient() {
           });
         }
         setConfig(newCfg);
+        setViewYear(newCfg.cuts_year || newCfg.draft_year || '');
 
-        const [tRes, sRes] = await Promise.all([
-          fetch(`/api/teams?ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
-          fetch(`/api/cuts?year=${newCfg.cuts_year || newCfg.draft_year}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json())
-        ]);
+        const tRes = await fetch(`/api/teams?ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json());
         setTeams([...tRes].sort((a: Team, b: Team) => (a.name || '').localeCompare(b.name || '')));
-        setSummary(sRes.summary || {});
       } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     init();
   }, []);
 
+  // Fetch summary whenever viewYear changes
   useEffect(() => {
-    if (!selectedTeam || !config?.cuts_year) return;
+    if (!viewYear) return;
+    fetch(`/api/cuts?year=${viewYear}&ts=${Date.now()}`, { cache: 'no-store' })
+      .then(r => r.json())
+      .then(d => setSummary(d.summary || {}))
+      .catch(console.error);
+  }, [viewYear]);
+
+  useEffect(() => {
+    if (!selectedTeam || !viewYear) return;
     async function loadTeam() {
       try {
-        const [pRes, cRes] = await Promise.all([
-          fetch(`/api/players?team=${selectedTeam}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
-          fetch(`/api/cuts?team=${selectedTeam}&year=${config.cuts_year}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json())
-        ]);
+        if (isCurrentYear) {
+          // Current year: load live roster + apply cuts with age-change fallback
+          const [pRes, cRes] = await Promise.all([
+            fetch(`/api/players?team=${selectedTeam}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
+            fetch(`/api/cuts?team=${selectedTeam}&year=${viewYear}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json())
+          ]);
 
-        const processedRoster = pRes.map((p: Player) => ({
-          ...p,
-          identity: [p.first, p.last, p.age, p.offense, p.defense, p.special].map(v => String(v || '').trim().toLowerCase()).join('|')
-        }));
+          const processedRoster = pRes.map((p: Player) => ({
+            ...p,
+            identity: [p.first, p.last, p.age, p.offense, p.defense, p.special].map(v => String(v || '').trim().toLowerCase()).join('|')
+          }));
 
-        const currentRosterIdentities = new Set(processedRoster.map((p: Player) => p.identity));
-        const cutsData = cRes.selections || {};
-        const orphaned = Object.entries(cutsData)
-          .filter(([id, s]) => s !== 'cut' && !currentRosterIdentities.has(id))
-          .map(([id, s]): OrphanedPlayer => {
+          const currentRosterIdentities = new Set(processedRoster.map((p: Player) => p.identity));
+          const cutsData = cRes.selections || {};
+
+          // Age-change fallback: if exact identity not found, match by first|last|offense|defense|special
+          const partialKey = (first: string, last: string, off: string, def: string, spec: string) =>
+            [first, last, off, def, spec].map(v => String(v || '').trim().toLowerCase()).join('|');
+          const cutsByPartial: Record<string, string> = {};
+          for (const [id, st] of Object.entries(cutsData)) {
             const parts = id.split('|');
-            return { id, status: String(s), name: `${parts[0]} ${parts[1]}`.toUpperCase() };
+            if (parts.length >= 6) {
+              const pk = partialKey(parts[0], parts[1], parts[3], parts[4], parts[5]);
+              if (!(pk in cutsByPartial)) cutsByPartial[pk] = st as string;
+            }
+          }
+          const mergedCuts: Record<string, string> = { ...cutsData };
+          for (const p of processedRoster) {
+            if (!(p.identity in mergedCuts)) {
+              const pk = partialKey(p.first || '', p.last || '', p.offense || '', p.defense || '', p.special || '');
+              if (pk in cutsByPartial) mergedCuts[p.identity] = cutsByPartial[pk];
+            }
+          }
+          const orphaned = Object.entries(cutsData)
+            .filter(([id, s]) => s !== 'cut' && !currentRosterIdentities.has(id))
+            .map(([id, s]): OrphanedPlayer => {
+              const parts = id.split('|');
+              return { id, status: String(s), name: `${parts[0]} ${parts[1]}`.toUpperCase() };
+            });
+
+          setInitialSelections(mergedCuts);
+          setOrphanedPlayers(orphaned);
+          setRoster(processedRoster.sort((a: Player, b: Player) => (a.last || '').localeCompare(b.last || '')));
+          setSelections(mergedCuts);
+        } else {
+          // Past year: reconstruct read-only roster from cuts table entries
+          const cRes = await fetch(`/api/cuts?team=${selectedTeam}&year=${viewYear}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json());
+          const cutsData: Record<string, string> = cRes.selections || {};
+
+          // Build pseudo-roster from cuts identity keys
+          const pseudoRoster: Player[] = Object.entries(cutsData).map(([id]) => {
+            const parts = id.split('|');
+            return {
+              identity: id,
+              first: parts[0] ? parts[0].charAt(0).toUpperCase() + parts[0].slice(1) : '',
+              last: parts[1] ? parts[1].charAt(0).toUpperCase() + parts[1].slice(1) : '',
+              age: parts[2] ? parseInt(parts[2]) || null : null,
+              offense: parts[3] ? parts[3].toUpperCase() : null,
+              defense: parts[4] ? parts[4].toUpperCase() : null,
+              special: parts[5] ? parts[5].toUpperCase() : null,
+            } as Player;
           });
 
-        setInitialSelections(cutsData);
-        setOrphanedPlayers(orphaned);
-        setRoster(processedRoster.sort((a: Player, b: Player) => (a.last || '').localeCompare(b.last || '')));
-        setSelections(cutsData);
+          setOrphanedPlayers([]);
+          setInitialSelections(cutsData);
+          setSelections(cutsData);
+          setRoster(pseudoRoster.sort((a, b) => (a.last || '').localeCompare(b.last || '')));
+        }
       } catch (e) { console.error(e); }
     }
     loadTeam();
-  }, [selectedTeam, config?.cuts_year]);
+  }, [selectedTeam, viewYear, isCurrentYear]);
 
   const stats = useMemo(() => {
     const getStats = (type: string): GroupStats => {
@@ -281,11 +344,28 @@ export default function CutsClient() {
           <div>
             <h2 className="text-blue-500 text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-3">
               <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]"></span>
-              League Compliance Monitor — {config?.cuts_year}
+              League Compliance Monitor — {viewYear}
+              {!isCurrentYear && <span className="ml-2 bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full text-[8px]">HISTORICAL</span>}
             </h2>
             <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2">Active Roster Verification</p>
           </div>
-          {config?.cuts_due_date && <CountdownTimer dueDate={config.cuts_due_date} />}
+          <div className="flex items-center gap-4">
+            {availableYears.length > 1 && (
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Season</span>
+                <select
+                  value={viewYear}
+                  onChange={e => { setViewYear(e.target.value); setRoster([]); setSelections({}); }}
+                  className="bg-slate-800 border border-slate-700 text-white text-[10px] font-black rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-blue-500 uppercase"
+                >
+                  {availableYears.map(y => (
+                    <option key={y} value={y}>{y}{y === config.cuts_year ? ' (Current)' : ''}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {isCurrentYear && config?.cuts_due_date && <CountdownTimer dueDate={config.cuts_due_date} />}
+          </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {teams.map(t => {
@@ -319,7 +399,9 @@ export default function CutsClient() {
             Roster <span className="text-blue-600">Cuts</span>
           </h1>
           <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] italic mt-2 flex items-center gap-2">
-            <Scissors size={14} className="text-red-500" /> Authorized Personnel Only • Submission Portal{config?.cuts_year ? ` • Season ${config.cuts_year}` : ''}
+            <Scissors size={14} className="text-red-500" />
+            {isCurrentYear ? 'Authorized Personnel Only • Submission Portal' : 'Historical Record • Read Only'}
+            {viewYear ? ` • Season ${viewYear}` : ''}
           </p>
         </div>
         <div className="w-full md:w-96">
@@ -387,7 +469,7 @@ export default function CutsClient() {
               disabled={saving || isExpired || !canEdit}
               className={`px-12 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-xl active:scale-95 ${ (isExpired || !canEdit) ? 'bg-slate-800 text-slate-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500 text-white'}`}
             >
-              {!canEdit ? 'Scouting Access Only' : isExpired ? 'Deadline Passed' : saving ? 'Syncing...' : 'Submit Roster Cut List'}
+              {!isCurrentYear ? `${viewYear} Archive` : !canEdit ? 'Scouting Access Only' : isExpired ? 'Deadline Passed' : saving ? 'Syncing...' : 'Submit Roster Cut List'}
             </button>
           </div>
 
