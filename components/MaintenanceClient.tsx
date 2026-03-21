@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useConfirm } from "@/components/ConfirmDialog";
 import Link from "next/link";
 import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList } from "lucide-react";
 
@@ -15,6 +16,7 @@ type GameForm = { year: string; week: string; homeTeamId: string; awayTeamId: st
 type AwardsRow = { id: number; teamId: number; teamName: string | null; teamshort: string | null; nickname: string | null; wins: number; losses: number; ties: number; division: string | null; offPts: number | null; defPts: number | null; isDivWinner: boolean | null; isPlayoff: boolean | null; isSuperBowl: boolean | null; isChampion: boolean | null };
 
 const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) => {
+  const [confirm, ConfirmDialog] = useConfirm();
   const [files, setFiles] = useState<File[]>([]);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -194,7 +196,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   };
 
   const handleDeleteGame = async (id: number) => {
-    if (!confirm('Delete this game?')) return;
+    if (!await confirm('Delete this game?', { confirmLabel: 'Delete', destructive: true })) return;
     setGameDeletingId(id);
     try {
       const res = await fetch('/api/admin/schedule', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
@@ -460,7 +462,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
 
   const handleDeleteRule = async (row: RuleRow) => {
     const label = row.year ? `${row.setting} (${row.year})` : `${row.setting} (Global)`;
-    if (!window.confirm(`Delete rule "${label}"? This cannot be undone.`)) return;
+    if (!await confirm(`Delete rule "${label}"? This cannot be undone.`, { confirmLabel: 'Delete', destructive: true })) return;
     const key = ruleKey(row.setting, row.year);
     setDeletingRuleKey(key);
     try {
@@ -526,6 +528,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
 
   return (
     <div className="space-y-10">
+      <ConfirmDialog />
       {/* File Upload Section */}
       <form onSubmit={handleSubmit}>
         <label

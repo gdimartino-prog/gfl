@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { X, Search, UserPlus } from 'lucide-react';
+import { useConfirm } from '@/components/ConfirmDialog';
 import { Player, DraftPick } from '../types';
 
 const POSITIONS = ['All', 'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'];
@@ -20,6 +21,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
   const [searchTerm, setSearchTerm] = useState('');
   const [posFilter, setPosFilter] = useState('All');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirm, ConfirmDialog] = useConfirm();
 
   useEffect(() => {
     setLoading(true);
@@ -42,7 +44,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
   }, [players, searchTerm, posFilter]);
 
   const handleSelect = async (player: Player) => {
-    if (!confirm(`Draft ${player.name || player.last} to ${pick.currentOwner}?`)) return;
+    if (!await confirm(`Draft ${player.name || player.last} to ${pick.currentOwner}?`, { confirmLabel: 'Draft' })) return;
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/draft-selection', {
@@ -77,10 +79,12 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
 
 
   return (
+    <>
+    <ConfirmDialog />
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6">
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
         
         {/* 🚀 HEADER: Restored Round # and enlarged Team Name */}
         <div className="p-8 bg-blue-600 text-white flex justify-between items-start">
@@ -181,5 +185,6 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -27,6 +27,7 @@ export type DraftPickRow = {
   currentOwner: string | null;
   selectedPlayer: string | null;
   selectedPlayerName: string | null;
+  selectedPlayerPosition: string | null;
   scheduledAt: Date | null;
   pickedAt: Date | null;
   passed: boolean;
@@ -47,6 +48,7 @@ const _getAllDraftPicks = cache(async (leagueId: number) => {
       currentOwner: currentTeams.teamshort,
       selectedPlayer: players.name,
       selectedPlayerName: draftPicks.selectedPlayerName,
+      selectedPlayerPosition: players.position,
       scheduledAt: draftPicks.scheduledAt,
       pickedAt: draftPicks.pickedAt,
       passed: draftPicks.passed,

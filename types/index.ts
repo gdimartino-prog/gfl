@@ -114,6 +114,7 @@ export interface DraftPick {
   currentOwnerCode?: string;
   status: string;
   draftedPlayer: string;
+  draftedPlayerPosition?: string;
   timestamp: string;
   scheduledAt?: string | null;
   via: string | null;

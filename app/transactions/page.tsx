@@ -18,6 +18,7 @@ import DropPlayer from './components/DropPlayer';
 import IRPanel from './components/IRPanel';
 import TradePanel from './components/TradePanel';
 import TeamSelector from '@/components/TeamSelector';
+import { useConfirm } from '@/components/ConfirmDialog';
 import { useTeam } from '@/context/TeamContext';
 import { Team } from '@/types';
 
@@ -45,6 +46,7 @@ export default function TransactionsPage() {
   const [savingStatus, setSavingStatus] = useState<string | null>(null);
 
   const hasSynced = useRef(false);
+  const [confirm, ConfirmDialog] = useConfirm();
 
   // 1. SESSION SYNC
   useEffect(() => {
@@ -98,7 +100,7 @@ export default function TransactionsPage() {
   }, [status, session, teams]);
 
   const handleDelete = useCallback(async (logId: string) => {
-    if (!confirm('Delete this transaction? This cannot be undone.')) return;
+    if (!await confirm('This cannot be undone.', { title: 'Delete this transaction?', confirmLabel: 'Delete', destructive: true })) return;
     await fetch('/api/transactions', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: logId }) });
     setLogs(prev => prev.filter(l => l.id !== logId));
   }, []);
@@ -150,7 +152,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8 bg-gray-50 min-h-screen text-slate-900">
-
+      <ConfirmDialog />
       {/* HEADER SECTION */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-200 pb-8">
         <div className="text-left">

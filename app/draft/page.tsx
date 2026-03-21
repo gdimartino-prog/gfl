@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, RotateCw, X, Zap, ChevronRight, ChevronUp, Star, Trash2, RotateCcw } from 'lucide-react';
 import { getNormalizedCategories } from '@/lib/utils';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
+import { useConfirm } from '@/components/ConfirmDialog';
 import { Team, Player, DraftPick } from '../../types';
 
 export const dynamic = 'force-dynamic';
@@ -58,6 +59,7 @@ function DraftBoardContent() {
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
   const [progress, setProgress] = useState(100);
   const hasCalledExpireRef = useRef(false);
+  const [confirm, ConfirmDialog] = useConfirm();
 
   // Admin/undo state — 'admin' covers league commissioners, 'superuser' covers the env-var superuser
   const userRole = (session?.user as { role?: string })?.role;
@@ -65,7 +67,7 @@ function DraftBoardContent() {
   const myTeamCode = (session?.user as { id?: string })?.id || '';
 
   const handlePass = async (overall: string) => {
-    if (!confirm('Pass this pick? The draft will advance and you can still make a late selection later.')) return;
+    if (!await confirm('The draft will advance and you can still make a late selection later.', { title: 'Pass this pick?', confirmLabel: 'Pass' })) return;
     setIsRefreshing(true);
     await fetch('/api/draft-pass', {
       method: 'POST',
@@ -76,7 +78,7 @@ function DraftBoardContent() {
   };
 
   const handleDeletePick = async (pickId: number) => {
-    if (!confirm('Delete this pick? The player will be returned to free agency.')) return;
+    if (!await confirm('The player will be returned to free agency.', { title: 'Delete this pick?', confirmLabel: 'Delete', destructive: true })) return;
     setIsRefreshing(true);
     await fetch('/api/draft-picks', {
       method: 'DELETE',
@@ -90,7 +92,7 @@ function DraftBoardContent() {
     const draftYear = yearFilter !== 'All' ? yearFilter : (onClockPick?.year ?? picks[0]?.year ?? '');
     if (!draftYear) return alert('Could not determine draft year.');
     const typeLabel = draftTypeFilter === 'all' ? '' : ` ${draftTypeFilter === 'free_agent' ? 'Free Agent' : 'Rookie'}`;
-    if (!confirm(`Clear ALL picks for the ${draftYear}${typeLabel} draft? This cannot be undone.`)) return;
+    if (!await confirm(`Clear ALL picks for the ${draftYear}${typeLabel} draft? This cannot be undone.`, { title: 'Clear Draft', confirmLabel: 'Clear All', destructive: true })) return;
     setIsRefreshing(true);
     await fetch('/api/draft-picks', {
       method: 'DELETE',
@@ -101,7 +103,7 @@ function DraftBoardContent() {
   };
 
   const handleUndoMyPick = async () => {
-    if (!confirm('Undo your last pick? The player will be returned to free agency.')) return;
+    if (!await confirm('The player will be returned to free agency.', { title: 'Undo your last pick?', confirmLabel: 'Undo', destructive: true })) return;
     setIsRefreshing(true);
     const res = await fetch('/api/draft-picks/undo', { method: 'POST' });
     if (!res.ok) {
@@ -417,7 +419,7 @@ function DraftBoardContent() {
 
   return (
     <div className="bg-gray-50 min-h-screen text-slate-900">
-      
+      <ConfirmDialog />
       {/* HEADER SECTION */}
       <header className="max-w-7xl mx-auto p-4 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
@@ -599,9 +601,14 @@ function DraftBoardContent() {
                       <td className="px-10 py-4">
                         {isDrafted ? (
                           <div className="flex flex-col">
-                            <a href={`https://www.google.com/search?q=${encodeURIComponent(pick.draftedPlayer.split(' - ').pop() || pick.draftedPlayer)}`} target="_blank" rel="noopener noreferrer" className="text-base font-black uppercase text-slate-900 hover:text-blue-600 transition-all">
-                              {pick.draftedPlayer}
-                            </a>
+                            <div className="flex items-center gap-2">
+                              {pick.draftedPlayerPosition && (
+                                <span className="bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded uppercase shrink-0">{pick.draftedPlayerPosition}</span>
+                              )}
+                              <a href={`https://www.google.com/search?q=${encodeURIComponent(pick.draftedPlayer.split(' - ').pop() || pick.draftedPlayer)}`} target="_blank" rel="noopener noreferrer" className="text-base font-black uppercase text-slate-900 hover:text-blue-600 transition-all">
+                                {pick.draftedPlayer}
+                              </a>
+                            </div>
                             <span className="text-[10px] font-black text-slate-400 uppercase italic mt-1">{pick.timestamp ? new Date(pick.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : ''}</span>
                           </div>
                         ) : isPassed ? (

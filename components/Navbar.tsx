@@ -93,7 +93,7 @@ export default function Navbar() {
                   }`}
                 >
                   <span className="relative z-10">
-                    {item.name === 'Draft Board' ? `${draftYear} Draft` : item.name}
+                    {item.name}
                   </span>
 
                   {isActive && (
@@ -192,7 +192,7 @@ export default function Navbar() {
                   pathname === item.href ? 'text-blue-400' : 'text-slate-300'
                 }`}
               >
-                {item.name === 'Draft Board' ? `${draftYear} Draft` : item.name}
+                {item.name}
               </Link>
             ))}
 

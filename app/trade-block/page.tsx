@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { Trash2, ShoppingCart, ChevronRight } from 'lucide-react';
 import PlayerCard from '@/components/PlayerCard';
+import { useConfirm } from '@/components/ConfirmDialog';
 import { Player } from '../../types';
 
 interface TradeBlockPlayer {
@@ -19,6 +20,7 @@ export default function TradeBlockPage() {
   const [players, setPlayers] = useState<TradeBlockPlayer[]>([]);
   const [loading, setLoading] = useState(true);
   const [teamNameMap, setTeamNameMap] = useState<Record<string, string>>({});
+  const [confirm, ConfirmDialog] = useConfirm();
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
   const [season, setSeason] = useState('');
 
@@ -76,9 +78,7 @@ export default function TradeBlockPage() {
   }, []);
 
   const handleRemoveFromBlock = async (playerId: string) => {
-    if (!confirm("Are you sure you want to remove this player from the trade block?")) {
-      return;
-    }
+    if (!await confirm("Remove this player from the trade block?", { confirmLabel: 'Remove', destructive: true })) return;
 
     try {
       const response = await fetch(`/api/trade-block?playerId=${playerId}`, {
@@ -112,6 +112,7 @@ export default function TradeBlockPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-10 bg-gray-50 min-h-screen text-slate-900 text-left">
+      <ConfirmDialog />
       {viewingPlayer && <PlayerCard data={viewingPlayer} onClose={() => setViewingPlayer(null)} />}
 
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-200 pb-8">

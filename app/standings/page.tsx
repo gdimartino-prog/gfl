@@ -3,7 +3,7 @@ import { getSchedule } from '@/lib/getSchedule';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
 import { rules, leagues } from '@/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, and } from 'drizzle-orm';
 import StandingsClient from '@/components/StandingsClient';
 import Link from 'next/link';
 import { BarChart3 } from 'lucide-react';
@@ -27,7 +27,7 @@ export default async function StandingsPage() {
       getSchedule(leagueId),
       db.select({ rule: rules.rule, value: rules.value })
         .from(rules)
-        .where(inArray(rules.rule, ['season_games', 'playoff_teams', 'cuts_year']))
+        .where(and(inArray(rules.rule, ['season_games', 'playoff_teams', 'cuts_year']), eq(rules.leagueId, leagueId)))
         .then(rs => Object.fromEntries(rs.map(r => [r.rule, r.value]))),
       db.select({ name: leagues.name }).from(leagues).where(eq(leagues.id, leagueId)).limit(1),
     ]);

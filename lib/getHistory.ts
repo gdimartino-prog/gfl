@@ -9,6 +9,7 @@ const _getHistory = unstable_cache(
     try {
       const rows = await db.select({
         teamName: teams.name,
+        coach: teams.coach,
         year: standings.year,
         wins: standings.wins,
         losses: standings.losses,
@@ -44,7 +45,7 @@ const _getHistory = unstable_cache(
           isSuperBowl: r.isSuperBowl ?? false,
           isChampion: r.isChampion ?? false,
           oldTeamName: r.oldTeamName || null,
-          gm: 'N/A',
+          gm: r.coach || 'N/A',
           division: r.division || 'N/A',
         };
       });

@@ -58,6 +58,7 @@ export async function GET(req: NextRequest) {
         via: (p.originalTeam && p.currentOwner && p.originalTeam !== p.currentOwner) ? p.originalTeam : null,
         status,
         draftedPlayer: p.selectedPlayer ?? p.selectedPlayerName ?? '',
+        draftedPlayerPosition: p.selectedPlayerPosition ?? '',
         timestamp: p.pickedAt ? p.pickedAt.toISOString() : '',
         clockMinutes: status === 'Active' ? clockMinutes : null,
         scheduledAt: p.scheduledAt ? p.scheduledAt.toISOString() : null,
