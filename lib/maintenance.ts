@@ -1,6 +1,6 @@
 import { db } from './db';
 import { players, teams, schedule, standings, rules, draftPicks } from '@/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, inArray, isNotNull } from 'drizzle-orm';
 import Papa from "papaparse";
 import { revalidateTag } from 'next/cache';
 import { buildPlayerIdentity } from './playerUtils';
@@ -105,12 +105,41 @@ export async function processPlayersFile(fileContent: string, leagueId: number =
     };
   }).filter((p): p is NonNullable<typeof p> => p !== null);
 
-  // Full replace: null out draftPick player refs, delete all, re-insert
-  await db.update(draftPicks).set({ playerId: null }).where(eq(draftPicks.leagueId, leagueId));
-  await db.delete(players).where(eq(players.leagueId, leagueId));
+  // Upsert by identity so draft pick playerId refs remain valid across re-syncs.
+  // 1. Fetch existing players
+  const existingPlayers = await db
+    .select({ id: players.id, identity: players.identity })
+    .from(players)
+    .where(eq(players.leagueId, leagueId));
+  const existingByIdentity = new Map(
+    existingPlayers.filter(p => p.identity).map(p => [p.identity!, p.id])
+  );
 
-  if (playerValues.length > 0) {
-    await db.insert(players).values(playerValues);
+  // 2. Fetch player IDs currently referenced by draft picks (already drafted)
+  const draftedRows = await db
+    .select({ playerId: draftPicks.playerId })
+    .from(draftPicks)
+    .where(and(eq(draftPicks.leagueId, leagueId), isNotNull(draftPicks.playerId)));
+  const draftedPlayerIds = new Set(draftedRows.map(r => r.playerId!));
+
+  // 3. Upsert each player from the file
+  const fileIdentities = new Set<string>();
+  for (const p of playerValues) {
+    if (p.identity) fileIdentities.add(p.identity);
+    const existingId = p.identity ? existingByIdentity.get(p.identity) : undefined;
+    if (existingId) {
+      await db.update(players).set(p).where(eq(players.id, existingId));
+    } else {
+      await db.insert(players).values(p);
+    }
+  }
+
+  // 4. Remove players no longer in file, but only if not referenced by a draft pick
+  const toRemove = existingPlayers
+    .filter(p => p.identity && !fileIdentities.has(p.identity) && !draftedPlayerIds.has(p.id))
+    .map(p => p.id);
+  if (toRemove.length > 0) {
+    await db.delete(players).where(inArray(players.id, toRemove));
   }
 
   // Update player_sync timestamp in rules table
