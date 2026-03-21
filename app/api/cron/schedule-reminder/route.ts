@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { schedule, standings, teams, rules } from '@/schema';
+import { schedule, standings, teams, rules, leagues } from '@/schema';
 import { eq, and } from 'drizzle-orm';
 import { sendEmail, sendWhatsApp } from '@/lib/notify';
 import { alias } from 'drizzle-orm/pg-core';
@@ -15,8 +15,10 @@ export async function GET(req: Request) {
   }
 
   try {
-    const leagueId = 1;
+    const allLeagues = await db.select({ id: leagues.id }).from(leagues);
+    const results = [];
 
+    for (const { id: leagueId } of allLeagues) {
     // Get config from rules
     const rulesRows = await db.select({ rule: rules.rule, value: rules.value })
       .from(rules).where(eq(rules.leagueId, leagueId));
@@ -65,7 +67,8 @@ export async function GET(req: Request) {
     }
 
     if (weeksToShow.size === 0) {
-      return NextResponse.json({ skipped: 'all games final' });
+      results.push({ leagueId, skipped: 'all games final' });
+      continue;
     }
 
     const sortedWeeks = Array.from(weeksToShow).sort((a, b) => {
@@ -145,8 +148,10 @@ export async function GET(req: Request) {
 
     await sendEmail({ subject: `GFL Update: ${currentSeasonYear} Week ${displayWeek}`, html });
     await sendWhatsApp(waMessage);
+    results.push({ leagueId, sent: true, week: displayWeek });
+    } // end league loop
 
-    return NextResponse.json({ sent: true, week: displayWeek });
+    return NextResponse.json({ results });
   } catch (error: unknown) {
     console.error('Schedule reminder cron error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

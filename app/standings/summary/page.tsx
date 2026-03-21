@@ -1,5 +1,4 @@
 import { getHistory } from '@/lib/getHistory';
-import { getStandings } from '@/lib/getStandings';
 import SummaryTable from '@/components/SummaryTable';
 import Link from 'next/link';
 import { Trophy } from 'lucide-react';
@@ -13,7 +12,7 @@ export const revalidate = 3600;
 export default async function SummaryReportPage() {
   const leagueId = await getLeagueId();
   const [allData, leagueRows, seasonRows] = await Promise.all([
-    leagueId === 1 ? getHistory() : getStandings(leagueId),
+    getHistory(leagueId),
     db.select({ name: leagues.name }).from(leagues).where(eq(leagues.id, leagueId)).limit(1),
     db.select({ value: rules.value }).from(rules).where(and(eq(rules.rule, 'cuts_year'), eq(rules.leagueId, leagueId))).limit(1),
   ]);

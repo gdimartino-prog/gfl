@@ -5,7 +5,7 @@ import { unstable_cache } from 'next/cache';
 import { StandingRow } from '@/types';
 
 const _getHistory = unstable_cache(
-  async (): Promise<StandingRow[]> => {
+  async (leagueId: number): Promise<StandingRow[]> => {
     try {
       const rows = await db.select({
         teamName: teams.name,
@@ -24,6 +24,7 @@ const _getHistory = unstable_cache(
       })
       .from(standings)
       .leftJoin(teams, eq(standings.teamId, teams.id))
+      .where(eq(standings.leagueId, leagueId))
       .orderBy(standings.year);
 
       return rows.map(r => {
@@ -56,8 +57,8 @@ const _getHistory = unstable_cache(
   { revalidate: 60, tags: ['history'] }
 );
 
-export async function getHistory(): Promise<StandingRow[]> {
-  return _getHistory();
+export async function getHistory(leagueId: number = 1): Promise<StandingRow[]> {
+  return _getHistory(leagueId);
 }
 
 export async function getTeamSummary() {

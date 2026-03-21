@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { rules } from '@/schema';
+import { rules, leagues } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 
 function isAuthorized(req: Request) {
@@ -24,8 +24,9 @@ export async function GET(req: Request) {
       currentWeek = REGULAR_SEASON_WEEKS + currentWeek;
     }
 
-    // Update both leagues
-    for (const leagueId of [1, 2]) {
+    // Update all leagues
+    const allLeagues = await db.select({ id: leagues.id }).from(leagues);
+    for (const { id: leagueId } of allLeagues) {
       const existing = await db.select({ id: rules.id })
         .from(rules)
         .where(and(eq(rules.rule, 'current_nfl_week'), eq(rules.leagueId, leagueId)))

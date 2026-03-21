@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { cuts, teams, rules } from '@/schema';
+import { cuts, teams, rules, leagues } from '@/schema';
 import { eq, and } from 'drizzle-orm';
 import { sendEmail, sendWhatsApp, GFL_URL } from '@/lib/notify';
 
@@ -14,8 +14,10 @@ export async function GET(req: Request) {
   }
 
   try {
-    const leagueId = 1;
+    const allLeagues = await db.select({ id: leagues.id }).from(leagues);
+    const results = [];
 
+    for (const { id: leagueId } of allLeagues) {
     const rulesRows = await db.select({ rule: rules.rule, value: rules.value })
       .from(rules).where(eq(rules.leagueId, leagueId));
     const cfg: Record<string, string> = {};
@@ -27,7 +29,8 @@ export async function GET(req: Request) {
     const limitPullback = parseInt(cfg.limit_pullback || '8');
 
     if (!cutsDueDate || new Date() > cutsDueDate) {
-      return NextResponse.json({ skipped: 'deadline passed or not configured' });
+      results.push({ leagueId, skipped: 'deadline passed or not configured' });
+      continue;
     }
 
     // Get active teams
@@ -63,7 +66,8 @@ export async function GET(req: Request) {
       }));
 
     if (pendingTeams.length === 0) {
-      return NextResponse.json({ skipped: 'all teams complete' });
+      results.push({ leagueId, skipped: 'all teams complete' });
+      continue;
     }
 
     // Time remaining
@@ -100,8 +104,10 @@ export async function GET(req: Request) {
     await sendEmail({ subject: `URGENT: GFL Roster Requirements (${countdownText})`, html });
     const names = pendingTeams.map(t => t.fullName).join(', ');
     await sendWhatsApp(`🚨 *GFL ROSTER ALERT*\nTime Left: ${countdownText}\n\n*Pending:* ${names}\n\n🔗 ${GFL_URL}/cuts`);
+    results.push({ leagueId, sent: true, pending: pendingTeams.length });
+    } // end league loop
 
-    return NextResponse.json({ sent: true, pending: pendingTeams.length });
+    return NextResponse.json({ results });
   } catch (error: unknown) {
     console.error('Cuts alert cron error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
