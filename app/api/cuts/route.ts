@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { cuts, teams } from '@/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, asc } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { auth } from '@/auth';
@@ -13,9 +13,21 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const team = searchParams.get('team');
   const yearParam = searchParams.get('year');
+  const yearsOnly = searchParams.get('yearsOnly') === 'true';
 
   try {
     const leagueId = await getLeagueId();
+
+    if (yearsOnly) {
+      const rows = await db
+        .selectDistinct({ year: cuts.year })
+        .from(cuts)
+        .where(eq(cuts.leagueId, leagueId))
+        .orderBy(asc(cuts.year));
+      const years = rows.map(r => String(r.year)).filter(Boolean);
+      return NextResponse.json({ years });
+    }
+
     const year = yearParam ? parseInt(yearParam) : null;
     if (!year) return NextResponse.json({ summary: {}, selections: {}, lastUpdated: '' });
 

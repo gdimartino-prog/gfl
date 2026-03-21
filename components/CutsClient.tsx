@@ -89,6 +89,7 @@ export default function CutsClient() {
   const [summary, setSummary] = useState<Record<string, TeamSummary>>({});
   const [config, setConfig] = useState<Config>({ cuts_year: '', draft_year: '', protected: 30, pullback: 8, cuts_due_date: '' });
   const [viewYear, setViewYear] = useState<string>('');
+  const [availableYears, setAvailableYears] = useState<string[]>([]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'protected' | 'pullback' | 'cut'>('all');
@@ -111,14 +112,6 @@ export default function CutsClient() {
     return new Date().getTime() > new Date(config.cuts_due_date).getTime();
   }, [isCurrentYear, config?.cuts_due_date]);
 
-  // Available years for selector: from 2020 up to current cuts_year
-  const availableYears = useMemo(() => {
-    if (!config.cuts_year) return [];
-    const currentYr = parseInt(config.cuts_year);
-    const years: string[] = [];
-    for (let y = currentYr; y >= 2020; y--) years.push(String(y));
-    return years;
-  }, [config.cuts_year]);
 
   useEffect(() => {
     if (status === "authenticated" && userTeamId && !hasSynced.current) {
@@ -146,10 +139,18 @@ export default function CutsClient() {
           });
         }
         setConfig(newCfg);
-        setViewYear(newCfg.cuts_year || newCfg.draft_year || '');
+        const currentYear = newCfg.cuts_year || newCfg.draft_year || '';
+        setViewYear(currentYear);
 
-        const tRes = await fetch(`/api/teams?ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json());
+        const [tRes, yRes] = await Promise.all([
+          fetch(`/api/teams?ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
+          fetch(`/api/cuts?yearsOnly=true&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
+        ]);
         setTeams([...tRes].sort((a: Team, b: Team) => (a.name || '').localeCompare(b.name || '')));
+        // Always include current year even if no cuts submitted yet; sort descending
+        const fetchedYears: string[] = yRes.years || [];
+        if (currentYear && !fetchedYears.includes(currentYear)) fetchedYears.push(currentYear);
+        setAvailableYears(fetchedYears.sort((a, b) => parseInt(b) - parseInt(a)));
       } catch (e) { console.error(e); } finally { setLoading(false); }
     }
     init();
