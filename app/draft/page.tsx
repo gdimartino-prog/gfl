@@ -737,7 +737,7 @@ function DraftBoardContent() {
                   <input type="text" placeholder="Filter by name..." className="w-full p-4 pl-12 bg-slate-50 border-none rounded-2xl text-slate-900 font-bold text-sm" value={faSearch} onChange={(e) => setFaSearch(e.target.value)} />
                 </div>
                 <select className="flex-1 p-2 bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase text-slate-900" value={faSortKey} onChange={(e) => setFaSortKey(e.target.value)}>
-                  <option value="overall">Sort: OVR</option>
+                  <option value="overall">Sort: OVR/Salary</option>
                   <option value="age">Sort: AGE</option>
                   <option value="alpha">Sort: A-Z</option>
                 </select>
