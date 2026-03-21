@@ -55,6 +55,7 @@ export async function GET(req: NextRequest) {
         draftType: p.draftType ?? 'free_agent',
         originalTeam: p.originalTeam ?? '',
         currentOwner: p.currentOwner ?? '',
+        via: (p.originalTeam && p.currentOwner && p.originalTeam !== p.currentOwner) ? p.originalTeam : null,
         status,
         draftedPlayer: p.selectedPlayer ?? p.selectedPlayerName ?? '',
         timestamp: p.pickedAt ? p.pickedAt.toISOString() : '',

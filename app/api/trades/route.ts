@@ -92,7 +92,6 @@ export async function POST(req: Request) {
         transferUpserts.push(upsertPickTransfer({
           leagueId,
           pickOverall: parseInt(overall),
-          fromTeamId,
           toTeamId,
           touchId: submittedBy || 'trade',
         }));
@@ -103,7 +102,6 @@ export async function POST(req: Request) {
         transferUpserts.push(upsertPickTransfer({
           leagueId,
           pickOverall: parseInt(overall),
-          fromTeamId: toTeamId,
           toTeamId: fromTeamId,
           touchId: submittedBy || 'trade',
         }));

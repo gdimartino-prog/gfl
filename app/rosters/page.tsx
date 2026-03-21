@@ -55,6 +55,7 @@ function RosterContent() {
   const [tradeBlockForm, setTradeBlockForm] = useState<{ player: Player; asking: string } | null>(null);
   const [removeConfirm, setRemoveConfirm] = useState<Player | null>(null);
   const [detailLoading, setDetailLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const lastPlayedRef = useRef<HTMLDivElement>(null);
   const hasSynced = useRef(false);
@@ -125,7 +126,7 @@ function RosterContent() {
         const requirements: Record<string, number> = {};
         rulesData.forEach((r: { setting: string; value: string }) => {
           if (r.setting?.startsWith('min_')) {
-            requirements[r.setting.replace('min_', '').toUpperCase()] = parseInt(r.value);
+            requirements[r.setting.replace('min_', '').toUpperCase()] = Number(r.value);
           }
         });
         setRules(requirements);
@@ -169,7 +170,7 @@ function RosterContent() {
         const scheduleData = await scheduleRes.json();
 
         const limitRule = rulesData.find((r: { setting: string; value: string }) => r.setting === 'limit_roster');
-        const rosterLimit = limitRule ? parseInt(limitRule.value) : 53;
+        const rosterLimit = limitRule ? Number(limitRule.value) : 53;
 
         let pf = 0; let pa = 0;
         // 🚀 ACCURATE DIFF: Calculate PF/PA using normalized identity
@@ -180,8 +181,8 @@ function RosterContent() {
             const isHome = cleanHome === targetShort || cleanHome === targetName;
             const isVisitor = cleanVisitor === targetShort || cleanVisitor === targetName;
             
-            if (isHome) { pf += parseInt(String(game.hScore || '0')); pa += parseInt(String(game.vScore || '0')); }
-            else if (isVisitor) { pf += parseInt(String(game.vScore || '0')); pa += parseInt(String(game.hScore || '0')); }
+            if (isHome) { pf += Number(game.hScore || 0); pa += Number(game.vScore || 0); }
+            else if (isVisitor) { pf += Number(game.vScore || 0); pa += Number(game.hScore || 0); }
         });
 
         // Filter for history: Match by team code in parentheses or full string
@@ -213,7 +214,12 @@ function RosterContent() {
           },
           coachContact
         });
-      } catch (err) { console.error(err); } finally { setLoading(false); }
+      } catch (err) { 
+        console.error(err); 
+        setError('Failed to load franchise data. Please try refreshing the page.');
+      } finally { 
+        setLoading(false); 
+      }
     };
     loadFranchiseData();
   }, [selectedTeam, normalize]);
@@ -309,12 +315,12 @@ function RosterContent() {
                          cleanVisitor === teamShort || cleanVisitor === teamName;
         return matchesYear && isFinal && isMyTeam;
       })
-      .sort((a, b) => parseInt(String(a.week || '0')) - parseInt(String(b.week || '0')))
+      .sort((a, b) => Number(a.week || 0) - Number(b.week || 0))
       .slice(-5)
       .map(game => {
         const cleanHome = normalize(game.home);
         const isHome = cleanHome === teamShort || cleanHome === teamName;
-        return isHome ? (parseInt(String(game.hScore || '0')) > parseInt(String(game.vScore || '0'))) : (parseInt(String(game.vScore || '0')) > parseInt(String(game.hScore || '0')));
+        return isHome ? (Number(game.hScore || 0) > Number(game.vScore || 0)) : (Number(game.vScore || 0) > Number(game.hScore || 0));
       });
   }, [data, normalize]);
 
@@ -450,6 +456,16 @@ function RosterContent() {
         </div>
         <div className="w-full md:w-80"><TeamSelector /></div>
       </header>
+
+      {/* ERROR MESSAGE */}
+      {error && !loading && (
+        <div className="bg-red-50 border-2 border-red-100 rounded-[2rem] p-8 flex items-center justify-center gap-6">
+          <div className="text-center">
+            <h3 className="text-lg font-black uppercase italic text-red-900 tracking-tight">Error</h3>
+            <p className="text-sm text-red-700 font-bold mt-1">{error}</p>
+          </div>
+        </div>
+      )}
 
       {/* TEAM STATS STRIP (dots and record restored) */}
       {data?.stats && (

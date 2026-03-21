@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { players, teams } from '@/schema';
+import { players, teams, transactions } from '@/schema';
 import { eq, and } from 'drizzle-orm';
 import { logTransaction, getTransactions, updateTransactionStatus } from '@/lib/transactions';
 import { getCoaches } from '@/lib/config';
@@ -56,6 +56,35 @@ export async function PATCH(req: NextRequest) {
 
     await updateTransactionStatus(Number(id), status);
     logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_STATUS', `Transaction #${id} marked ${status}`);
+    return Response.json({ success: true });
+  } catch (error: unknown) {
+    return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const teamshort = (session.user as { id?: string }).id || '';
+    const role = (session.user as { role?: string }).role || '';
+    const leagueId = await getLeagueId();
+
+    // Allow superuser or commissioner
+    if (role !== 'superuser') {
+      const coaches = await getCoaches(leagueId);
+      const coach = coaches.find(c => c.teamshort === teamshort);
+      if (!coach?.isCommissioner) {
+        return Response.json({ error: 'Commissioner access required' }, { status: 403 });
+      }
+    }
+
+    const { id } = await req.json();
+    if (!id) return Response.json({ error: 'id required' }, { status: 400 });
+
+    await db.delete(transactions).where(eq(transactions.id, Number(id)));
+    logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted`);
     return Response.json({ success: true });
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });

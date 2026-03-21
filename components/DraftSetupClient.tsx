@@ -144,7 +144,7 @@ export default function DraftSetupClient() {
           salaries: Object.keys(salariesPayload).length ? salariesPayload : undefined,
           confirmed: conflict ? confirmed : undefined,
           startAt,
-          hoursPerPick: hoursPerPick ? Number(hoursPerPick) : undefined,
+          hoursPerPick: hoursPerPick ? Number(hoursPerPick) / 60 : undefined,
         }),
       });
 
@@ -290,11 +290,11 @@ export default function DraftSetupClient() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Hours per Pick</label>
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Minutes per Pick</label>
                   <input
                     type="number"
                     min={1}
-                    placeholder="e.g. 24"
+                    placeholder="e.g. 60"
                     value={hoursPerPick}
                     onChange={e => setHoursPerPick(e.target.value)}
                     className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-xl font-black outline-none focus:border-blue-400"

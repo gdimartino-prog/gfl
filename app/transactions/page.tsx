@@ -10,7 +10,8 @@ import {
   Zap,
   ShieldCheck,
   RotateCw,
-  Activity
+  Activity,
+  Trash2
 } from 'lucide-react';
 import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
@@ -89,10 +90,18 @@ export default function TransactionsPage() {
 
   const isCommissioner = useMemo(() => {
     if (status !== 'authenticated' || !session?.user) return false;
+    const role = (session.user as { role?: string })?.role;
+    if (role === 'superuser' || role === 'admin') return true;
     const sessionId = (session.user as { id?: string })?.id;
     const myTeam = teams.find(t => t.teamshort === sessionId || t.short === sessionId);
     return (myTeam as Team & { commissioner?: boolean })?.commissioner || false;
   }, [status, session, teams]);
+
+  const handleDelete = useCallback(async (logId: string) => {
+    if (!confirm('Delete this transaction? This cannot be undone.')) return;
+    await fetch('/api/transactions', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: logId }) });
+    setLogs(prev => prev.filter(l => l.id !== logId));
+  }, []);
 
   const handleStatusChange = useCallback(async (logId: string, newStatus: string) => {
     setSavingStatus(logId);
@@ -309,13 +318,14 @@ export default function TransactionsPage() {
                   <th className="px-6 py-5">To</th>
                   <th className="px-6 py-5 text-center">Week</th>
                   <th className="px-6 py-5 text-center">Status</th>
+                  {isCommissioner && <th className="px-6 py-5 text-center"></th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {loadingLogs ? (
-                  <tr><td colSpan={7} className="p-24 text-center text-slate-300 font-black uppercase animate-pulse italic">Synchronizing Records...</td></tr>
+                  <tr><td colSpan={isCommissioner ? 8 : 7} className="p-24 text-center text-slate-300 font-black uppercase animate-pulse italic">Synchronizing Records...</td></tr>
                 ) : filteredLogs.length === 0 ? (
-                  <tr><td colSpan={7} className="p-24 text-center text-slate-300 italic font-black uppercase">No Recent Records</td></tr>
+                  <tr><td colSpan={isCommissioner ? 8 : 7} className="p-24 text-center text-slate-300 italic font-black uppercase">No Recent Records</td></tr>
                 ) : filteredLogs.map((log, i) => (
                   <tr key={i} className={`text-[11px] hover:bg-slate-50 transition-colors ${log.coach === session?.user?.name ? 'bg-blue-50/30' : ''}`}>
                     <td className="px-6 py-5 font-mono text-slate-400 tabular-nums whitespace-nowrap">{log.timestamp}</td>
@@ -364,6 +374,17 @@ export default function TransactionsPage() {
                         )
                       )}
                     </td>
+                    {isCommissioner && (
+                      <td className="px-4 py-5 text-center">
+                        <button
+                          onClick={() => handleDelete(log.id)}
+                          className="text-slate-300 hover:text-red-500 transition-colors"
+                          title="Delete transaction"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

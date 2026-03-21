@@ -50,6 +50,7 @@ export default function Navbar() {
     { name: 'Trade Block', href: '/trade-block' },
     { name: 'COA Hub', href: '/coaching' },
     { name: 'Draft Board', href: '/draft' },
+    { name: 'Traded Picks', href: '/draft/trades' },
     { name: 'Cuts', href: '/cuts' },
     { name: 'Press Box', href: '/press-box' },
     { name: 'Resources', href: '/resources' },

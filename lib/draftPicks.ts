@@ -336,7 +336,6 @@ export function generateDraftPickRows(params: {
 export async function upsertPickTransfer(params: {
   leagueId: number;
   pickOverall: number;
-  fromTeamId: number;
   toTeamId: number;
   touchId: string;
 }): Promise<void> {
@@ -402,4 +401,61 @@ export async function applyPickTransfers(leagueId: number, year: number, draftTy
   }
 
   return count;
+}
+
+export type PickTransferRow = {
+  year: number;
+  draftType: string;
+  round: number;
+  originalTeam: string;
+  originalTeamName: string;
+  currentTeam: string;
+  currentTeamName: string;
+  isDrafted: boolean;
+  draftedPlayer: string | null;
+};
+
+/**
+ * Get all traded picks (where original owner ≠ current owner) for a league.
+ */
+export async function getPickTransferHistory(leagueId: number = 1): Promise<PickTransferRow[]> {
+  const originalTeams = alias(teams, 'originalTeams');
+  const currentTeams = alias(teams, 'currentTeams');
+
+  const rows = await db.select({
+    year: pickTransfers.year,
+    draftType: pickTransfers.draftType,
+    round: pickTransfers.round,
+    originalTeam: originalTeams.teamshort,
+    originalTeamName: originalTeams.name,
+    currentTeam: currentTeams.teamshort,
+    currentTeamName: currentTeams.name,
+    draftedPlayer: players.name,
+    selectedPlayerName: draftPicks.selectedPlayerName,
+  })
+    .from(pickTransfers)
+    .innerJoin(originalTeams, eq(pickTransfers.originalTeamId, originalTeams.id))
+    .innerJoin(currentTeams, eq(pickTransfers.currentTeamId, currentTeams.id))
+    .leftJoin(draftPicks, and(
+      eq(draftPicks.leagueId, pickTransfers.leagueId),
+      eq(draftPicks.year, pickTransfers.year),
+      eq(draftPicks.draftType, pickTransfers.draftType),
+      eq(draftPicks.round, pickTransfers.round),
+      eq(draftPicks.originalTeamId, pickTransfers.originalTeamId),
+    ))
+    .leftJoin(players, eq(draftPicks.playerId, players.id))
+    .where(eq(pickTransfers.leagueId, leagueId))
+    .orderBy(asc(pickTransfers.year), asc(pickTransfers.draftType), asc(pickTransfers.round));
+
+  return rows.map(r => ({
+    year: r.year,
+    draftType: r.draftType,
+    round: r.round,
+    originalTeam: r.originalTeam ?? '',
+    originalTeamName: r.originalTeamName ?? '',
+    currentTeam: r.currentTeam ?? '',
+    currentTeamName: r.currentTeamName ?? '',
+    isDrafted: !!(r.draftedPlayer || r.selectedPlayerName),
+    draftedPlayer: r.draftedPlayer || r.selectedPlayerName || null,
+  }));
 }
