@@ -29,6 +29,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
 
   // Section collapse state
   const [teamsOpen, setTeamsOpen] = useState(false);
+  const [teamStatusFilter, setTeamStatusFilter] = useState<'active' | 'inactive'>('active');
   const [rulesOpen, setRulesOpen] = useState(false);
   const [leaguesOpen, setLeaguesOpen] = useState(false);
 
@@ -735,13 +736,28 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
         </button>
 
         {teamsOpen && (<>
-        <div className="px-8 py-4 bg-slate-800 flex justify-end gap-2 border-b border-slate-700">
-          <button onClick={startAdd} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600/80 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all">
-            <Plus size={14} /> Add Team
-          </button>
-          <button onClick={fetchTeams} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all">
-            <RefreshCw size={14} /> Refresh
-          </button>
+        <div className="px-8 py-4 bg-slate-800 flex items-center justify-between gap-4 border-b border-slate-700">
+          <div className="flex gap-1">
+            {(['active', 'inactive'] as const).map(s => (
+              <button
+                key={s}
+                onClick={() => setTeamStatusFilter(s)}
+                className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${
+                  teamStatusFilter === s
+                    ? s === 'active' ? 'bg-emerald-500 text-white' : 'bg-slate-400 text-white'
+                    : 'bg-white/10 text-slate-400 hover:text-white'
+                }`}
+              >{s}</button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <button onClick={startAdd} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600/80 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all">
+              <Plus size={14} /> Add Team
+            </button>
+            <button onClick={fetchTeams} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all">
+              <RefreshCw size={14} /> Refresh
+            </button>
+          </div>
         </div>
 
         {/* Add Team Form */}
@@ -765,7 +781,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
           <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest">No teams found.</div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {teamsData.map(team => (
+            {teamsData.filter(t => t.status === teamStatusFilter).map(team => (
               <div key={team.id}>
                 {editingTeamId === team.id ? (
                   <div className="px-8 py-6 bg-amber-50">
