@@ -152,7 +152,7 @@ export async function POST(req: Request) {
 
     // Send notification
     const directionKey = `${resolvedFromTeam} ➔ ${toTeam || 'Free Agent'}`;
-    notifyTransaction({
+    await notifyTransaction({
       type,
       directions: { [directionKey]: [details || identity] },
       leagueId,

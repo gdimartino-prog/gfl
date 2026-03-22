@@ -71,7 +71,7 @@ export async function POST() {
       .filter(p => !p.playerId)
       .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '' }));
 
-    notifyDraftPick({
+    await notifyDraftPick({
       round: activePick.round,
       overallPick: activePick.pick,
       currentOwner: activePick.currentOwner || '',

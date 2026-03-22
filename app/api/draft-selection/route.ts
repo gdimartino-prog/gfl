@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { draftPicks, players, teams } from '@/schema';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, sql } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyDraftPick } from '@/lib/notify';
 import { logSystemEvent } from '@/lib/db-helpers';
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     // 3. Find new owner team ID
     const newTeamRow = await db.select({ id: teams.id })
       .from(teams)
-      .where(and(eq(teams.leagueId, leagueId), eq(teams.teamshort, newOwnerCode)))
+      .where(and(eq(teams.leagueId, leagueId), sql`lower(${teams.teamshort}) = ${newOwnerCode.toLowerCase()}`))
       .limit(1);
 
     if (!newTeamRow[0]) {
@@ -115,9 +115,8 @@ export async function POST(req: NextRequest) {
 
     logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`);
 
-    // Fire-and-forget notification
     console.log('[draft-selection] notifying pick, leagueId:', leagueId);
-    notifyDraftPick({
+    await notifyDraftPick({
       round: pickRow.round,
       overallPick: parseInt(String(overallPick)),
       currentOwner: pickRow.currentOwner || newOwnerCode,

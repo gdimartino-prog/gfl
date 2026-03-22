@@ -137,7 +137,7 @@ export async function POST(req: Request) {
     if (proposerAssets) directions[`${fromFull} ➔ ${toFull}`] = (playersFrom || []).concat(draftPicksFrom || []);
     if (partnerAssets) directions[`${toFull} ➔ ${fromFull}`] = (playersTo || []).concat(draftPicksTo || []);
     if (Object.keys(directions).length > 0) {
-      notifyTransaction({ type: 'TRADE', directions }).catch(e => console.error('Notify failed:', e));
+      await notifyTransaction({ type: 'TRADE', directions }).catch(e => console.error('Notify failed:', e));
     }
 
     return Response.json({ success: true });
