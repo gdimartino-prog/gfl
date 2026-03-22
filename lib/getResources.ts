@@ -1,7 +1,7 @@
 
 import { db } from './db';
 import { resources } from '@/schema';
-import { eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 
 export type Resource = {
@@ -12,27 +12,29 @@ export type Resource = {
   touch_id?: string | null;
 };
 
-export async function getResources() {
-  return unstable_cache(
-    async () => {
-      try {
-        const allResources = await db.select().from(resources);
-        return allResources.reduce((acc: Record<string, { title: string; url: string }[]>, resource) => {
-          const group = resource.group ?? 'General';
-          if (!acc[group]) {
-            acc[group] = [];
-          }
-          acc[group].push({ title: resource.title, url: resource.url ?? '' });
-          return acc;
-        }, {});
-      } catch (error) {
-        console.error("❌ Database Resources Error:", error);
-        return {};
-      }
-    },
-    ['resources-data'],
-    { revalidate: 60, tags: ['resources'] }
-  )();
+const _getResources = unstable_cache(
+  async (leagueId: number) => {
+    try {
+      const allResources = await db.select().from(resources)
+        .where(eq(resources.leagueId, leagueId))
+        .orderBy(asc(resources.sortOrder), resources.group, resources.title);
+      return allResources.reduce((acc: Record<string, { title: string; url: string }[]>, resource) => {
+        const group = resource.group ?? 'General';
+        if (!acc[group]) acc[group] = [];
+        acc[group].push({ title: resource.title, url: resource.url ?? '' });
+        return acc;
+      }, {});
+    } catch (error) {
+      console.error("❌ Database Resources Error:", error);
+      return {};
+    }
+  },
+  ['resources-data'],
+  { revalidate: 60, tags: ['resources'] }
+);
+
+export async function getResources(leagueId = 1) {
+  return _getResources(leagueId);
 }
 
 export async function addResource(resource: Omit<Resource, 'id'>, coachName: string) {

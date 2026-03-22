@@ -1,8 +1,10 @@
 export const revalidate = 60;
 import { getResources } from '@/lib/getResources';
+import { getLeagueId } from '@/lib/getLeagueId';
 
 export default async function ResourcesPage() {
-  const categories = await getResources();
+  const leagueId = await getLeagueId();
+  const categories = await getResources(leagueId);
 
   return (
     <div className="max-w-5xl mx-auto p-8">

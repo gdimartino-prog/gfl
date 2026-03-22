@@ -103,7 +103,7 @@ export default function TransactionsPage() {
     if (!await confirm('This cannot be undone.', { title: 'Delete this transaction?', confirmLabel: 'Delete', destructive: true })) return;
     await fetch('/api/transactions', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: logId }) });
     setLogs(prev => prev.filter(l => l.id !== logId));
-  }, []);
+  }, [confirm]);
 
   const handleStatusChange = useCallback(async (logId: string, newStatus: string) => {
     setSavingStatus(logId);
