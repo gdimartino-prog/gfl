@@ -34,15 +34,33 @@ export async function GET(req: NextRequest) {
     const result = await db.select({ id: leagues.id, name: leagues.name, slug: leagues.slug, legacyUrl: leagues.legacyUrl }).from(leagues).where(eq(leagues.id, 2));
     rows = result;
   } else if (teamshort) {
-    // Only return leagues where this teamshort has a password set — meaning they are
-    // a registered user in that league. Same teamshort in another league = different person.
-    const result = await db
-      .selectDistinct({ id: leagues.id, name: leagues.name, slug: leagues.slug, legacyUrl: leagues.legacyUrl })
-      .from(leagues)
-      .innerJoin(teams, eq(teams.leagueId, leagues.id))
-      .where(and(eq(teams.teamshort, teamshort.toUpperCase()), sql`${teams.password} IS NOT NULL`))
-      .orderBy(leagues.name);
-    rows = result;
+    // Look up this user's email from the DB (using their teamshort + leagueId from session)
+    const sessionLeagueId = (session.user as { leagueId?: number }).leagueId ?? 1;
+    const emailRow = await db
+      .select({ email: teams.email })
+      .from(teams)
+      .where(and(eq(teams.teamshort, teamshort.toUpperCase()), eq(teams.leagueId, sessionLeagueId)))
+      .limit(1);
+    const userEmail = emailRow[0]?.email;
+
+    if (userEmail) {
+      // Return all leagues where a team with this email exists and has credentials —
+      // same email = same person, so they can access all those leagues
+      const result = await db
+        .selectDistinct({ id: leagues.id, name: leagues.name, slug: leagues.slug, legacyUrl: leagues.legacyUrl })
+        .from(leagues)
+        .innerJoin(teams, eq(teams.leagueId, leagues.id))
+        .where(and(sql`lower(${teams.email}) = ${userEmail.toLowerCase()}`, sql`${teams.password} IS NOT NULL`))
+        .orderBy(leagues.name);
+      rows = result;
+    } else {
+      // No email on file — only return their current league
+      const result = await db
+        .select({ id: leagues.id, name: leagues.name, slug: leagues.slug, legacyUrl: leagues.legacyUrl })
+        .from(leagues)
+        .where(eq(leagues.id, sessionLeagueId));
+      rows = result;
+    }
   }
 
   return NextResponse.json(rows);
