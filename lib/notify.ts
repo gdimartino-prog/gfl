@@ -64,7 +64,10 @@ export async function sendWhatsApp(message: string) {
         body: JSON.stringify({ chatId: groupId, message }),
       }
     );
-    if (!res.ok) console.error('WhatsApp send failed:', res.status);
+    if (!res.ok) {
+      const body = await res.text();
+      console.error('WhatsApp send failed:', res.status, body);
+    }
   } catch (e) {
     console.error('WhatsApp error:', e);
   }
