@@ -14,11 +14,16 @@ export default function LoginForm() {
   const [leagueId, setLeagueId] = useState<string>('');
 
   useEffect(() => {
+    // Read previously selected league from cookie
+    const savedLeagueId = document.cookie.split('; ').find(r => r.startsWith('gfl-league-id='))?.split('=')[1] ?? '';
     fetch('/api/leagues?public=true')
       .then(r => r.json())
       .then((data: LeagueOption[]) => {
         setLeagues(data);
-        if (data.length > 0) setLeagueId(String(data[0].id));
+        // Pre-select saved league if it exists in the list, otherwise leave blank
+        if (savedLeagueId && data.some((l: LeagueOption) => String(l.id) === savedLeagueId)) {
+          setLeagueId(savedLeagueId);
+        }
       })
       .catch(() => {});
   }, []);
@@ -27,6 +32,12 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (!leagueId) {
+      setError("Please select a league.");
+      setLoading(false);
+      return;
+    }
 
     const formData = new FormData(event.currentTarget);
     const data = Object.fromEntries(formData);
@@ -142,8 +153,10 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
               <select
                 value={leagueId}
                 onChange={e => setLeagueId(e.target.value)}
+                required
                 className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 text-sm font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900 appearance-none cursor-pointer"
               >
+                <option value="">Select league...</option>
                 {leagues.map(l => (
                   <option key={l.id} value={String(l.id)}>{l.name}</option>
                 ))}
