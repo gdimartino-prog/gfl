@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { leagues, teams } from '@/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,11 +34,13 @@ export async function GET(req: NextRequest) {
     const result = await db.select({ id: leagues.id, name: leagues.name, slug: leagues.slug, legacyUrl: leagues.legacyUrl }).from(leagues).where(eq(leagues.id, 2));
     rows = result;
   } else if (teamshort) {
+    // Only return leagues where this teamshort has a password set — meaning they are
+    // a registered user in that league. Same teamshort in another league = different person.
     const result = await db
       .selectDistinct({ id: leagues.id, name: leagues.name, slug: leagues.slug, legacyUrl: leagues.legacyUrl })
       .from(leagues)
       .innerJoin(teams, eq(teams.leagueId, leagues.id))
-      .where(eq(teams.teamshort, teamshort.toUpperCase()))
+      .where(and(eq(teams.teamshort, teamshort.toUpperCase()), sql`${teams.password} IS NOT NULL`))
       .orderBy(leagues.name);
     rows = result;
   }
