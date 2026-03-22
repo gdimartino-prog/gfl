@@ -130,7 +130,7 @@ export async function notifyDraftPick({
   await sendEmail({ subject, text: body });
 
   if (leagueId === 1 || leagueId === undefined) {
-    const waMessage = `${waHeader}\n----------\n*Round ${round} | Pick #${overallPick}*\n\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}${nextOwner ? `\n\n👉 *NEXT UP:* ${nextOwner.toUpperCase()} 👈` : `\n\n🌐 *GFL Website:* ${GFL_URL}`}`;
+    const waMessage = `${waHeader}\n----------\n*Round ${round} | Pick #${overallPick}*\n🌐 ${GFL_URL}\n\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}${nextOwner ? `\n\n👉 *NEXT UP:* ${nextOwner.toUpperCase()} 👈` : ''}`;
     await sendWhatsApp(waMessage);
   } else {
     console.log('[notify] skipping WhatsApp for leagueId:', leagueId);

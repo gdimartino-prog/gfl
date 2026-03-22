@@ -12,7 +12,6 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [leagueOpen, setLeagueOpen] = useState(false);
-  const [draftYear, setDraftYear] = useState<string>('2026');
   const [currentSeason, setCurrentSeason] = useState<string>('2025');
   const { currentLeague, availableLeagues, setLeague } = useLeague();
   const leagueName = currentLeague?.slug.toUpperCase() ?? 'Football League';
@@ -23,9 +22,7 @@ export default function Navbar() {
         const rulesRes = await fetch('/api/rules', { cache: 'no-store' });
         const rules = await rulesRes.json();
         if (Array.isArray(rules)) {
-          const dYear = rules.find(r => r.setting === 'draft_year');
           const cYear = rules.find(r => r.setting === 'cuts_year');
-          if (dYear?.value) setDraftYear(dYear.value);
           if (cYear?.value) setCurrentSeason(cYear.value);
         }
       } catch (err) {
