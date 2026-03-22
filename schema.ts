@@ -158,6 +158,7 @@ export const resources = pgTable("resources", {
   group: varchar("group", { length: 256 }),
   title: varchar("title", { length: 256 }).notNull(),
   url: varchar("url", { length: 1024 }),
+  sortOrder: integer("sort_order").default(0).notNull(),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
 });
