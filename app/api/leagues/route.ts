@@ -6,7 +6,15 @@ import { eq } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+
+  // Public endpoint — returns id+name for all leagues (used on login page)
+  if (searchParams.get('public') === 'true') {
+    const rows = await db.select({ id: leagues.id, name: leagues.name }).from(leagues).orderBy(leagues.name);
+    return NextResponse.json(rows);
+  }
+
   const session = await auth();
   if (!session?.user) {
     return NextResponse.json([], { status: 401 });

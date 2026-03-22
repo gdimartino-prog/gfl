@@ -1,13 +1,27 @@
 "use client";
 
 import { signIn, SignInResponse } from "next-auth/react";
-import { useState } from "react";
-import { User, Lock, HelpCircle, X, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { User, Lock, HelpCircle, X, AlertCircle, Shield } from "lucide-react";
+
+interface LeagueOption { id: number; name: string; }
 
 export default function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [leagues, setLeagues] = useState<LeagueOption[]>([]);
+  const [leagueId, setLeagueId] = useState<string>('');
+
+  useEffect(() => {
+    fetch('/api/leagues?public=true')
+      .then(r => r.json())
+      .then((data: LeagueOption[]) => {
+        setLeagues(data);
+        if (data.length > 0) setLeagueId(String(data[0].id));
+      })
+      .catch(() => {});
+  }, []);
 
 async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -21,14 +35,18 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
       const result = (await signIn("credentials", {
         username: data.username as string,
         password: data.password as string,
-        redirect: false, // Set to false so we can handle the error ourselves
+        leagueId,
+        redirect: false,
       })) as SignInResponse;
 
       if (result?.error) {
         setError("Invalid credentials. Please check your team name, email, or password.");
         setLoading(false);
       } else {
-        // If no error, manually redirect to the home page
+        // Set the active league cookie so all pages load the correct league
+        if (leagueId) {
+          document.cookie = `gfl-league-id=${leagueId}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+        }
         window.location.href = "/";
       }
     } catch {
@@ -113,7 +131,27 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
             </p>
           </div>
         )}
-        
+
+        {leagues.length > 1 && (
+          <div className="space-y-2 text-left">
+            <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">
+              League
+            </label>
+            <div className="relative">
+              <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+              <select
+                value={leagueId}
+                onChange={e => setLeagueId(e.target.value)}
+                className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl py-4 pl-12 pr-6 text-sm font-bold outline-none focus:border-blue-500 focus:bg-white transition-all text-slate-900 appearance-none cursor-pointer"
+              >
+                {leagues.map(l => (
+                  <option key={l.id} value={String(l.id)}>{l.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2 text-left">
           <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">
             Team Name or Email

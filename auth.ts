@@ -9,6 +9,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         username: { label: "Team Name", type: "text" },
         password: { label: "Password", type: "password" },
+        leagueId: { label: "League", type: "text" },
       },
       async authorize(credentials) {
         try {
@@ -44,6 +45,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const { sql: drizzleSql, eq, and, or } = await import('drizzle-orm');
           const { default: bcrypt } = await import('bcrypt');
 
+          const selectedLeagueId = credentials.leagueId ? parseInt(String(credentials.leagueId)) : null;
           let lookupName = rawInput.toLowerCase();
 
           // If input looks like an email, resolve to team name via DB
@@ -57,7 +59,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
 
           // DB lookup — teams with bcrypt password (status = active)
-          // Accepts full team name OR team short code (case-insensitive)
+          // Scoped by leagueId when provided; accepts full team name OR team short code
+          const leagueFilter = selectedLeagueId ? eq(teams.leagueId, selectedLeagueId) : drizzleSql`1=1`;
           const dbTeam = await db
             .select({
               teamshort: teams.teamshort,
@@ -70,7 +73,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             .from(teams)
             .where(and(
               drizzleSql`(lower(${teams.name}) = ${lookupName} OR lower(${teams.teamshort}) = ${lookupName})`,
-              eq(teams.status, 'active')
+              eq(teams.status, 'active'),
+              leagueFilter,
             ))
             .orderBy(drizzleSql`${teams.password} IS NOT NULL DESC`)
             .limit(1);
@@ -86,6 +90,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 name: dbTeam[0].coach!,
                 team: dbTeam[0].name,
                 role: dbTeam[0].isCommissioner ? 'admin' : 'coach',
+                leagueId: dbTeam[0].leagueId ?? 1,
               };
               logSystemEvent(user.name, user.team, 'LOGIN', 'Coach entered Front Office', dbTeam[0].leagueId ?? undefined);
               return user;
@@ -114,6 +119,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.role = user.role;
         token.team = user.team;
+        token.leagueId = (user as { leagueId?: number }).leagueId ?? 1;
       }
       return token;
     },
@@ -122,6 +128,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.team = token.team as string;
+        (session.user as { leagueId?: number }).leagueId = token.leagueId as number ?? 1;
       }
       return session;
     },
