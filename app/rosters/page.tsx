@@ -16,6 +16,7 @@ interface RosterPlayer extends Player {
   offensePos?: string;
   defensePos?: string;
   specialPos?: string;
+  isIR?: boolean;
 }
 
 export const dynamic = 'force-dynamic';
@@ -327,8 +328,8 @@ function RosterContent() {
   const rosterStatus = useMemo(() => {
     if (!data?.roster) return { active: 0, ir: 0 };
     return {
-      active: data.roster.filter(p => !p.team?.toUpperCase().endsWith('-IR')).length,
-      ir: data.roster.filter(p => p.team?.toUpperCase().endsWith('-IR')).length
+      active: data.roster.filter(p => !p.isIR).length,
+      ir: data.roster.filter(p => p.isIR).length
     };
   }, [data?.roster]);
 
@@ -336,15 +337,15 @@ function RosterContent() {
     if (!data?.roster || Object.keys(rules).length === 0) return [];
     const counts: Record<string, number> = {};
     data?.roster?.forEach(p => {
-      // Process each position slot individually to handle multi-position players (e.g. WR/RET)
+      // Only count player in their first position category (prevent double-counting multi-position players)
       const slots = [p.offensePos, p.defensePos, p.specialPos].filter((s): s is string => Boolean(s));
-      const uniqueCats = new Set<string>();
-      slots.forEach(slot => {
-        getNormalizedCategories(slot).forEach(cat => uniqueCats.add(cat));
-      });
-      uniqueCats.forEach(cat => {
-        counts[cat] = (counts[cat] || 0) + 1;
-      });
+      for (const slot of slots) {
+        const cats = getNormalizedCategories(slot);
+        if (cats.length > 0) {
+          counts[cats[0]] = (counts[cats[0]] || 0) + 1;
+          break;
+        }
+      }
     });
     return Object.entries(rules).map(([pos, min]) => {
       const current = counts[pos] || 0;
@@ -392,19 +393,19 @@ function RosterContent() {
   const depthGroups = useMemo(() => {
     if (!data?.roster) return {} as Record<string, Player[]>;
     const groups = data?.roster?.reduce((acc, p) => {
-      // Process each position slot individually to handle multi-position players (e.g. WR/RET)
+      // Only place player in their first position category (prevent double-counting multi-position players)
       const slots = [p.offensePos, p.defensePos, p.specialPos].filter((s): s is string => Boolean(s));
-      const uniqueCats = new Set<string>();
-      slots.forEach(slot => {
-        getNormalizedCategories(slot).forEach(cat => uniqueCats.add(cat));
-      });
-
-      uniqueCats.forEach(cat => {
-        if (!acc[cat]) acc[cat] = [];
-        if (!acc[cat].find(existing => existing.identity === p.identity)) {
-          acc[cat].push(p);
+      for (const slot of slots) {
+        const cats = getNormalizedCategories(slot);
+        if (cats.length > 0) {
+          const cat = cats[0];
+          if (!acc[cat]) acc[cat] = [];
+          if (!acc[cat].find(existing => existing.identity === p.identity)) {
+            acc[cat].push(p);
+          }
+          break;
         }
-      });
+      }
       return acc;
     }, {} as Record<string, Player[]>);
 
