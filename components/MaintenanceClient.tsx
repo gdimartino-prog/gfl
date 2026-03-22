@@ -75,6 +75,18 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const [awardsSaving, setAwardsSaving] = useState<number | null>(null);
   const [awardsMsg, setAwardsMsg] = useState<{ success: boolean; text: string } | null>(null);
 
+  // Resources manager state
+  const [resourcesOpen, setResourcesOpen] = useState(false);
+  type ResourceRow = { id: number; group: string | null; title: string; url: string | null; sortOrder: number };
+  const [resourcesData, setResourcesData] = useState<ResourceRow[]>([]);
+  const [resourcesLoading, setResourcesLoading] = useState(false);
+  const [editingResourceId, setEditingResourceId] = useState<number | null>(null);
+  const [addingResource, setAddingResource] = useState(false);
+  const [resourceForm, setResourceForm] = useState({ title: '', url: '', group: 'General', sortOrder: '0' });
+  const [resourceSaving, setResourceSaving] = useState(false);
+  const [resourceMsg, setResourceMsg] = useState<{ success: boolean; text: string } | null>(null);
+  const [deletingResourceId, setDeletingResourceId] = useState<number | null>(null);
+
   // Rules editor state
   const [rulesData, setRulesData] = useState<RuleRow[]>([]);
   const [rulesLoading, setRulesLoading] = useState(true);
@@ -240,6 +252,47 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
     } finally {
       setAwardsSaving(null);
     }
+  };
+
+  const fetchResources = async () => {
+    setResourcesLoading(true);
+    try {
+      const res = await fetch('/api/admin/resources');
+      if (res.ok) setResourcesData(await res.json());
+    } catch {}
+    finally { setResourcesLoading(false); }
+  };
+
+  const handleSaveResource = async () => {
+    if (!resourceForm.title.trim()) { setResourceMsg({ success: false, text: 'Title is required.' }); return; }
+    setResourceSaving(true);
+    setResourceMsg(null);
+    try {
+      const method = addingResource ? 'POST' : 'PATCH';
+      const body = addingResource ? resourceForm : { id: editingResourceId, ...resourceForm };
+      const res = await fetch('/api/admin/resources', { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (res.ok) {
+        setResourceMsg({ success: true, text: addingResource ? 'Resource added.' : 'Resource updated.' });
+        await fetchResources();
+        setEditingResourceId(null);
+        setAddingResource(false);
+      } else {
+        const d = await res.json();
+        setResourceMsg({ success: false, text: d.error || 'Failed to save.' });
+      }
+    } catch {
+      setResourceMsg({ success: false, text: 'Error saving resource.' });
+    } finally { setResourceSaving(false); }
+  };
+
+  const handleDeleteResource = async (id: number) => {
+    if (!await confirm('Delete this resource?', { confirmLabel: 'Delete', destructive: true })) return;
+    setDeletingResourceId(id);
+    try {
+      const res = await fetch('/api/admin/resources', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+      if (res.ok) setResourcesData(prev => prev.filter(r => r.id !== id));
+    } catch {}
+    finally { setDeletingResourceId(null); }
   };
 
   const handleSaveTeam = async () => {
@@ -980,6 +1033,79 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
             </table>
           </div>
         )}
+        </>)}
+      </div>
+
+      {/* Resources Manager Section */}
+      <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
+        <button
+          onClick={() => { const opening = !resourcesOpen; setResourcesOpen(opening); if (opening && resourcesData.length === 0) fetchResources(); }}
+          className="w-full px-8 py-5 bg-slate-900 flex items-center justify-between hover:bg-slate-800 transition-colors"
+        >
+          <div className="text-left">
+            <h3 className="text-white font-black uppercase italic tracking-tighter text-lg">Resources</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Links &amp; Documents</p>
+          </div>
+          {resourcesOpen ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
+        </button>
+        {resourcesOpen && (<>
+          <div className="px-8 py-4 border-b border-slate-100 flex items-center justify-between">
+            {resourceMsg && <p className={`text-xs font-bold ${resourceMsg.success ? 'text-emerald-600' : 'text-red-500'}`}>{resourceMsg.text}</p>}
+            {!addingResource && !editingResourceId && (
+              <button onClick={() => { setAddingResource(true); setEditingResourceId(null); setResourceMsg(null); setResourceForm({ title: '', url: '', group: 'General', sortOrder: '' }); }} className="ml-auto flex items-center gap-2 bg-slate-900 text-white text-[10px] font-black uppercase px-4 py-2 rounded-xl hover:bg-blue-600 transition-colors">
+                <Plus size={14} /> Add Resource
+              </button>
+            )}
+          </div>
+
+          {(addingResource || editingResourceId !== null) && (
+            <div className="px-8 py-4 bg-slate-50 border-b border-slate-100 grid grid-cols-1 md:grid-cols-4 gap-3">
+              <input placeholder="Title *" value={resourceForm.title} onChange={e => setResourceForm(f => ({ ...f, title: e.target.value }))} className="border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-900" />
+              <input placeholder="URL (optional)" value={resourceForm.url} onChange={e => setResourceForm(f => ({ ...f, url: e.target.value }))} className="border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-900" />
+              <input placeholder="Group (e.g. General)" value={resourceForm.group} onChange={e => setResourceForm(f => ({ ...f, group: e.target.value }))} className="border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-900" />
+              <input type="number" placeholder="Order (0, 1, 2…)" value={resourceForm.sortOrder} onChange={e => setResourceForm(f => ({ ...f, sortOrder: e.target.value }))} className="border border-slate-200 rounded-xl px-3 py-2 text-sm font-bold text-slate-900" />
+              <div className="md:col-span-3 flex gap-2 justify-end">
+                <button onClick={() => { setAddingResource(false); setEditingResourceId(null); setResourceMsg(null); }} className="text-[10px] font-black uppercase px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 transition-colors">Cancel</button>
+                <button onClick={handleSaveResource} disabled={resourceSaving} className="bg-blue-600 text-white text-[10px] font-black uppercase px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50">
+                  {resourceSaving ? 'Saving...' : addingResource ? 'Add' : 'Save'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {resourcesLoading ? (
+            <div className="px-8 py-6 text-slate-400 text-sm font-bold animate-pulse">Loading...</div>
+          ) : resourcesData.length === 0 ? (
+            <div className="px-8 py-6 text-slate-400 text-sm font-bold">No resources yet.</div>
+          ) : (
+            <table className="w-full text-left">
+              <thead><tr className="bg-slate-50 text-[9px] font-black uppercase text-slate-400 tracking-widest">
+                <th className="px-6 py-3 w-12 text-center">#</th>
+                <th className="px-6 py-3">Group</th>
+                <th className="px-6 py-3">Title</th>
+                <th className="px-6 py-3">URL</th>
+                <th className="px-6 py-3 text-right">Actions</th>
+              </tr></thead>
+              <tbody className="divide-y divide-slate-50">
+                {resourcesData.map(r => (
+                  <tr key={r.id} className="hover:bg-slate-50/50">
+                    <td className="px-6 py-3 text-xs font-black text-slate-400 text-center">{r.sortOrder}</td>
+                    <td className="px-6 py-3 text-xs font-bold text-slate-500">{r.group || 'General'}</td>
+                    <td className="px-6 py-3 text-sm font-black text-slate-900">{r.title}</td>
+                    <td className="px-6 py-3 text-xs text-blue-500 truncate max-w-xs">
+                      {r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{r.url}</a> : <span className="text-slate-300">—</span>}
+                    </td>
+                    <td className="px-6 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button onClick={() => { setEditingResourceId(r.id); setAddingResource(false); setResourceMsg(null); setResourceForm({ title: r.title, url: r.url || '', group: r.group || 'General', sortOrder: String(r.sortOrder ?? 0) }); }} className="text-slate-400 hover:text-blue-600 transition-colors"><Pencil size={14} /></button>
+                        <button onClick={() => handleDeleteResource(r.id)} disabled={deletingResourceId === r.id} className="text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </>)}
       </div>
 
