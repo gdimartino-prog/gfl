@@ -46,14 +46,14 @@ export async function sendEmail({ subject, html, text }: {
 
 export async function sendWhatsApp(message: string) {
   if (!SEND_WHATSAPP) { console.warn('[notify] SEND_WHATSAPP=false — skipping'); return; }
-  const idInstance = process.env.GREENAPI_INSTANCE_ID;
-  const apiToken = process.env.GREENAPI_API_TOKEN;
-  const groupId = process.env.GREENAPI_GROUP_ID;
+  const idInstance = process.env.GREENAPI_INSTANCE_ID?.trim();
+  const apiToken = process.env.GREENAPI_API_TOKEN?.trim();
+  const groupId = process.env.GREENAPI_GROUP_ID?.trim();
   if (!idInstance || !apiToken || !groupId) {
     console.warn('[notify] WhatsApp env vars missing — skipping (GREENAPI_INSTANCE_ID:', !!idInstance, 'GREENAPI_API_TOKEN:', !!apiToken, 'GREENAPI_GROUP_ID:', !!groupId, ')');
     return;
   }
-  console.log('[notify] sending WhatsApp message');
+  console.log('[notify] sending WhatsApp to chatId:', JSON.stringify(groupId));
 
   try {
     const res = await fetch(
