@@ -116,6 +116,7 @@ export async function POST(req: NextRequest) {
     logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`);
 
     // Fire-and-forget notification
+    console.log('[draft-selection] notifying pick, leagueId:', leagueId);
     notifyDraftPick({
       round: pickRow.round,
       overallPick: parseInt(String(overallPick)),
@@ -129,7 +130,7 @@ export async function POST(req: NextRequest) {
       leagueId,
     }).catch(e => console.error('Draft notify failed:', e));
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, notifyLeagueId: leagueId });
   } catch (error: unknown) {
     console.error('Draft selection error:', error instanceof Error ? error.message : error);
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });

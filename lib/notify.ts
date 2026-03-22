@@ -26,9 +26,10 @@ export async function sendEmail({ subject, html, text }: {
   text?: string;
 }) {
   if (!process.env.GMAIL_APP_PASSWORD) {
-    console.warn('GMAIL_APP_PASSWORD not set — skipping email');
+    console.warn('[notify] GMAIL_APP_PASSWORD not set — skipping email');
     return;
   }
+  console.log('[notify] sending email:', subject);
   try {
     await getTransporter().sendMail({
       from: FROM_EMAIL,
@@ -44,11 +45,15 @@ export async function sendEmail({ subject, html, text }: {
 }
 
 export async function sendWhatsApp(message: string) {
-  if (!SEND_WHATSAPP) return;
+  if (!SEND_WHATSAPP) { console.warn('[notify] SEND_WHATSAPP=false — skipping'); return; }
   const idInstance = process.env.GREENAPI_INSTANCE_ID;
   const apiToken = process.env.GREENAPI_API_TOKEN;
   const groupId = process.env.GREENAPI_GROUP_ID;
-  if (!idInstance || !apiToken || !groupId) return;
+  if (!idInstance || !apiToken || !groupId) {
+    console.warn('[notify] WhatsApp env vars missing — skipping (GREENAPI_INSTANCE_ID:', !!idInstance, 'GREENAPI_API_TOKEN:', !!apiToken, 'GREENAPI_GROUP_ID:', !!groupId, ')');
+    return;
+  }
+  console.log('[notify] sending WhatsApp message');
 
   try {
     const res = await fetch(
@@ -124,6 +129,8 @@ export async function notifyDraftPick({
   if (leagueId === 1 || leagueId === undefined) {
     const waMessage = `${waHeader}\n----------\n*Round ${round} | Pick #${overallPick}*\n\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}${nextOwner ? `\n\n👉 *NEXT UP:* ${nextOwner.toUpperCase()} 👈` : `\n\n🌐 *GFL Website:* ${GFL_URL}`}`;
     await sendWhatsApp(waMessage);
+  } else {
+    console.log('[notify] skipping WhatsApp for leagueId:', leagueId);
   }
 }
 
