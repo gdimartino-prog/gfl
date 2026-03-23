@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
       .set({ passed: true, pickedAt: new Date(), touch_id: coachName || 'draft' })
       .where(eq(draftPicks.id, pick.id));
 
-    logSystemEvent(coachName || '', pick.currentOwner || '', 'DRAFT_PASS', `R${pick.round} #${overallPick}: PASSED`);
+    logSystemEvent(coachName || '', pick.currentOwner || '', 'DRAFT_PASS', `R${pick.round} #${overallPick}: PASSED`, leagueId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

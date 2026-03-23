@@ -83,8 +83,8 @@ export async function notifyDraftPick({
   originalOwner: string;
   playerName?: string;
   timeTakenMs?: number;
-  recentPicks: { round: number; pick: number; player: string; owner: string }[];
-  onDeck: { round: number; pick: number; owner: string }[];
+  recentPicks: { round: number; pick: number; player: string; owner: string; originalOwner?: string }[];
+  onDeck: { round: number; pick: number; owner: string; originalOwner?: string }[];
   type: 'PICK' | 'WARNING' | 'EXPIRATION';
   leagueId?: number;
 }) {
@@ -98,13 +98,15 @@ export async function notifyDraftPick({
     timeTakenStr = `\nTime Taken: ${hrs}h ${mins}m`;
   }
 
-  const recentStr = recentPicks.map(p =>
-    `   R${p.round} #${p.pick}: ${p.player || 'Skipped'} (${p.owner})`
-  ).join('\n');
+  const recentStr = recentPicks.map(p => {
+    const via = p.originalOwner && p.originalOwner !== p.owner ? ` via ${p.originalOwner}` : '';
+    return `   R${p.round} #${p.pick}: ${p.player || 'Skipped'} (${p.owner}${via})`;
+  }).join('\n');
 
-  const onDeckStr = onDeck.map(p =>
-    `   R${p.round} #${p.pick}: ${p.owner}`
-  ).join('\n');
+  const onDeckStr = onDeck.map(p => {
+    const via = p.originalOwner && p.originalOwner !== p.owner ? ` (via ${p.originalOwner})` : '';
+    return `   R${p.round} #${p.pick}: ${p.owner}${via}`;
+  }).join('\n');
 
   const nextOwner = onDeck[0]?.owner || '';
   const pingText = nextOwner ? `>>> @ ${nextOwner.toUpperCase()}: YOU ARE ON THE CLOCK <<<\n\n` : '';

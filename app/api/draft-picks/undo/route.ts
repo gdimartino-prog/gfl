@@ -63,7 +63,7 @@ export async function POST() {
     }
 
     await clearPickSelection(lastPick.id, teamshort);
-    logSystemEvent(session.user.name || teamshort, teamshort, 'DRAFT_UNDO_PICK', `Undid pick #${lastPick.pick} (year ${year})`);
+    logSystemEvent(session.user.name || teamshort, teamshort, 'DRAFT_UNDO_PICK', `Undid pick #${lastPick.pick} (year ${year})`, leagueId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

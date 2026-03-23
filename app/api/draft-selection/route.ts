@@ -106,14 +106,15 @@ export async function POST(req: NextRequest) {
         pick: p.pick,
         player: p.selectedPlayerName || 'Skipped',
         owner: p.currentOwner || '',
+        originalOwner: p.originalTeam || '',
       }));
 
     const onDeck = allPicks
       .slice(currentIdx + 1, currentIdx + 4)
       .filter(p => !p.playerId)
-      .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '' }));
+      .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
-    logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`);
+    logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`, leagueId);
 
     console.log('[draft-selection] notifying pick, leagueId:', leagueId);
     await notifyDraftPick({

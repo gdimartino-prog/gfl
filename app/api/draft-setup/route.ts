@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     }
 
     logSystemEvent(actor, 'admin', 'DRAFT_SETUP_GENERATED',
-      `Generated ${rows.length} picks for ${year} ${draftType} draft (${rounds} rounds, leagueId ${leagueId})`);
+      `Generated ${rows.length} picks for ${year} ${draftType} draft (${rounds} rounds)`, leagueId);
 
     return NextResponse.json({ success: true, inserted: rows.length, transferred });
   } catch (error) {

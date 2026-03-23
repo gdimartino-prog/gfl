@@ -139,13 +139,13 @@ export async function DELETE(req: Request) {
     if (clearAll) {
       if (!year) return NextResponse.json({ error: 'year required for clearAll' }, { status: 400 });
       await clearAllPickSelections(leagueId, Number(year), actor, draftType);
-      logSystemEvent(actor, 'admin', 'DRAFT_CLEAR_ALL', `Cleared all picks for ${year}${draftType ? ` (${draftType})` : ''} (leagueId ${leagueId})`);
+      logSystemEvent(actor, 'admin', 'DRAFT_CLEAR_ALL', `Cleared all picks for ${year}${draftType ? ` (${draftType})` : ''}`, leagueId);
       return NextResponse.json({ success: true });
     }
 
     if (!pickId) return NextResponse.json({ error: 'pickId required' }, { status: 400 });
     await clearPickSelection(Number(pickId), actor);
-    logSystemEvent(actor, 'admin', 'DRAFT_DELETE_PICK', `Deleted pick #${pickId}`);
+    logSystemEvent(actor, 'admin', 'DRAFT_DELETE_PICK', `Deleted pick #${pickId}`, leagueId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('API /draft-picks DELETE failed:', error);
