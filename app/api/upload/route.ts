@@ -65,6 +65,8 @@ export async function POST(request: Request) {
       allowOverwrite: true,    // PERMITS REPLACING THE OLD FILE
     });
 
+    const leagueId = await getLeagueId();
+
     // 🚀 SYNC TO GOOGLE SHEETS
     if (teamCode) {
       await updateCoachSync(teamCode);
