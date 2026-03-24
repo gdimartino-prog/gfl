@@ -109,7 +109,9 @@ export async function notifyDraftPick({
   }).join('\n');
 
   const nextOwner = onDeck[0]?.owner || '';
-  const pingText = nextOwner ? `>>> @ ${nextOwner.toUpperCase()}: YOU ARE ON THE CLOCK <<<\n\n` : '';
+  const pingText = type === 'WARNING'
+    ? `>>> @ ${currentOwner.toUpperCase()}: YOUR CLOCK IS ALMOST UP <<<\n\n`
+    : nextOwner ? `>>> @ ${nextOwner.toUpperCase()}: YOU ARE ON THE CLOCK <<<\n\n` : '';
 
   let header = '', details = '', waHeader = '';
   if (type === 'WARNING') {
