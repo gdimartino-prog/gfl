@@ -59,6 +59,7 @@ function DraftBoardContent() {
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
   const [progress, setProgress] = useState(100);
   const hasCalledExpireRef = useRef(false);
+  const onClockRowRef = useRef<HTMLTableRowElement>(null);
   const [confirm, ConfirmDialog] = useConfirm();
 
   // Admin/undo state — 'admin' covers league commissioners, 'superuser' covers the env-var superuser
@@ -213,6 +214,15 @@ function DraftBoardContent() {
   useEffect(() => {
     hasCalledExpireRef.current = false;
   }, [onClockPick?.overall]);
+
+  // Scroll to on-clock pick, leaving ~3 rows visible above it
+  useEffect(() => {
+    if (!onClockRowRef.current || loading) return;
+    const el = onClockRowRef.current;
+    const rowHeight = el.offsetHeight;
+    const top = el.getBoundingClientRect().top + window.scrollY - rowHeight * 3 - 100;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }, [onClockPick?.overall, loading]);
 
   const scheduledAtMs = onClockPick?.scheduledAt ? new Date(onClockPick.scheduledAt).getTime() : null;
   const isScheduledFuture = scheduledAtMs !== null && scheduledAtMs > Date.now();
@@ -587,7 +597,7 @@ function DraftBoardContent() {
                           </td>
                         </tr>
                       )}
-                      <tr className={`transition-all ${isOnClock ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
+                      <tr ref={isOnClock ? onClockRowRef : null} className={`transition-all ${isOnClock ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
                       <td className="px-10 py-8">
                         <span className={`text-xl font-black italic tracking-tighter ${isOnClock ? 'text-blue-400' : 'text-slate-400'}`}>
                           {pick.round}
