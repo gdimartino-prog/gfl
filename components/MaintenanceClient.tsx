@@ -225,8 +225,17 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
     setAwardsMsg(null);
     try {
       const res = await fetch(`/api/admin/standings?year=${encodeURIComponent(year)}`);
-      if (res.ok) setAwardsRows(await res.json());
-    } catch {}
+      if (res.ok) {
+        const data = await res.json();
+        setAwardsRows(data);
+        if (data.length === 0) setAwardsMsg({ success: false, text: `No standings data found for ${year}. Upload standings first.` });
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setAwardsMsg({ success: false, text: err.error || `Error ${res.status}` });
+      }
+    } catch (e) {
+      setAwardsMsg({ success: false, text: 'Network error loading standings.' });
+    }
     finally { setAwardsLoading(false); }
   };
 
