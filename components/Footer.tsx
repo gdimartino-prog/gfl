@@ -49,6 +49,13 @@ export default async function Footer() {
           </p>
         </div>
 
+        <div className="text-center md:text-right">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Questions about this app?</p>
+          <a href="mailto:gddevco@gmail.com" className="text-[10px] font-black text-blue-500 hover:text-blue-700 transition-colors tracking-wide">
+            gddevco@gmail.com
+          </a>
+        </div>
+
         <div className="flex flex-col sm:flex-row items-center gap-3">
           <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
             <span className="relative flex h-2 w-2">
