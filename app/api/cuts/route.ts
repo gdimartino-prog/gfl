@@ -133,7 +133,7 @@ export async function POST(req: NextRequest) {
 
     const protCount = selections?.filter((s: { status: string }) => s.status === 'protected').length ?? 0;
     const pullCount = selections?.filter((s: { status: string }) => s.status === 'pullback').length ?? 0;
-    logSystemEvent(team, team, 'CUTS_SUBMITTED', `Year ${year}: ${protCount} protected, ${pullCount} pullback`);
+    logSystemEvent(team, team, 'CUTS_SUBMITTED', `Year ${year}: ${protCount} protected, ${pullCount} pullback`, leagueId);
 
     return NextResponse.json({ success: true });
   } catch (err: unknown) {

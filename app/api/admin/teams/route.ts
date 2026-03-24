@@ -72,7 +72,7 @@ export async function PATCH(req: Request) {
 
     await db.update(teams).set({ password: hashed, touch_id: actor })
       .where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
-    logSystemEvent(actor, 'admin', 'RESET_PASSWORD', `Reset password for team ${target[0].teamshort}`);
+    logSystemEvent(actor, 'admin', 'RESET_PASSWORD', `Reset password for team ${target[0].teamshort}`, leagueId);
     return NextResponse.json({ success: true });
   }
 
@@ -88,6 +88,6 @@ export async function PATCH(req: Request) {
     touch_id: actor,
   }).where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
 
-  logSystemEvent(actor, 'admin', 'UPDATE_TEAM', `Updated team id ${id}`);
+  logSystemEvent(actor, 'admin', 'UPDATE_TEAM', `Updated team id ${id}`, leagueId);
   return NextResponse.json({ success: true });
 }

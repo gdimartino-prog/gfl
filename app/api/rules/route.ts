@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       desc: desc ?? null,
       touch_id: 'maintenance',
     });
-    logSystemEvent('admin', 'admin', 'RULE_CREATED', `Created rule: ${rule}=${value}${yearVal != null ? ` (year ${yearVal})` : ''}`);
+    logSystemEvent('admin', 'admin', 'RULE_CREATED', `Created rule: ${rule}=${value}${yearVal != null ? ` (year ${yearVal})` : ''}`, leagueId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Rules POST Error:', error);
@@ -63,7 +63,7 @@ export async function PATCH(req: NextRequest) {
         eq(rules.leagueId, leagueId),
         yearVal != null ? eq(rules.year, yearVal) : isNull(rules.year),
       ));
-    logSystemEvent('admin', 'admin', 'RULE_UPDATED', `Updated rule: ${rule}=${value}${yearVal != null ? ` (year ${yearVal})` : ''}`);
+    logSystemEvent('admin', 'admin', 'RULE_UPDATED', `Updated rule: ${rule}=${value}${yearVal != null ? ` (year ${yearVal})` : ''}`, leagueId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Rules PATCH Error:', error);
@@ -83,7 +83,7 @@ export async function DELETE(req: NextRequest) {
       eq(rules.leagueId, leagueId),
       yearVal != null ? eq(rules.year, yearVal) : isNull(rules.year),
     ));
-    logSystemEvent('admin', 'admin', 'RULE_DELETED', `Deleted rule: ${rule}${yearVal != null ? ` (year ${yearVal})` : ''}`);
+    logSystemEvent('admin', 'admin', 'RULE_DELETED', `Deleted rule: ${rule}${yearVal != null ? ` (year ${yearVal})` : ''}`, leagueId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Rules DELETE Error:', error);

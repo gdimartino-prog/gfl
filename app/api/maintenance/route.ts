@@ -30,15 +30,15 @@ export async function POST(request: Request) {
       if (lowerName.includes("standings")) {
         const processResult = await processStandingsFile(fileContent, leagueId);
         result = { ...processResult, fileName };
-        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_STANDINGS', `Imported standings: ${fileName}`);
+        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_STANDINGS', `Imported standings: ${fileName}`, leagueId);
       } else if (lowerName.includes("schedule")) {
         const processResult = await processScheduleFile(fileContent, leagueId);
         result = { ...processResult, fileName };
-        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_SCHEDULE', `Imported schedule: ${fileName}`);
+        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_SCHEDULE', `Imported schedule: ${fileName}`, leagueId);
       } else if (lowerName.endsWith(".csv")) {
         const processResult = await processPlayersFile(fileContent, leagueId);
         result = { ...processResult, fileName };
-        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_PLAYERS', `Imported players: ${fileName}`);
+        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_PLAYERS', `Imported players: ${fileName}`, leagueId);
       } else {
         result = { success: false, message: "Unsupported file type", fileName };
       }

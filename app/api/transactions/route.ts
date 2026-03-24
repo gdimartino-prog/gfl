@@ -55,7 +55,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     await updateTransactionStatus(Number(id), status);
-    logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_STATUS', `Transaction #${id} marked ${status}`);
+    logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_STATUS', `Transaction #${id} marked ${status}`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
@@ -84,7 +84,7 @@ export async function DELETE(req: NextRequest) {
     if (!id) return Response.json({ error: 'id required' }, { status: 400 });
 
     await db.delete(transactions).where(eq(transactions.id, Number(id)));
-    logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted`);
+    logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
@@ -148,7 +148,7 @@ export async function POST(req: Request) {
     }
 
     await logTransaction({ ...body, fromTeam: resolvedFromTeam, details, leagueId });
-    logSystemEvent(body.owner || 'Unknown', toTeam || resolvedFromTeam, type, details || identity);
+    logSystemEvent(body.owner || 'Unknown', toTeam || resolvedFromTeam, type, details || identity, leagueId);
 
     // Send notification
     const directionKey = `${resolvedFromTeam} ➔ ${toTeam || 'Free Agent'}`;
