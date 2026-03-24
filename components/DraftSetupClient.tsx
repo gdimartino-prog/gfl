@@ -129,8 +129,9 @@ export default function DraftSetupClient() {
         if (v) salariesPayload[Number(k)] = Number(v);
       }
 
-      const startAt = draftStartDate && draftStartTime
-        ? new Date(`${draftStartDate}T${draftStartTime}`).toISOString()
+      const today = new Date().toISOString().split('T')[0];
+      const startAt = draftStartTime
+        ? new Date(`${today}T${draftStartTime}`).toISOString()
         : undefined;
 
       const res = await fetch('/api/draft-setup', {
@@ -270,16 +271,7 @@ export default function DraftSetupClient() {
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Pick Schedule <span className="font-normal normal-case text-slate-400 tracking-normal">(optional)</span></p>
                 <p className="text-[10px] text-slate-400 mt-0.5">Set a start date/time and cadence so each pick has a fixed scheduled slot.</p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Pick 1 Date</label>
-                  <input
-                    type="date"
-                    value={draftStartDate}
-                    onChange={e => setDraftStartDate(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 text-sm font-bold outline-none focus:border-blue-400"
-                  />
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Pick 1 Time</label>
                   <input

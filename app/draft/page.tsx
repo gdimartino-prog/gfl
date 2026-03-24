@@ -95,11 +95,15 @@ function DraftBoardContent() {
     const typeLabel = draftTypeFilter === 'all' ? '' : ` ${draftTypeFilter === 'free_agent' ? 'Free Agent' : 'Rookie'}`;
     if (!await confirm(`Clear ALL picks for the ${draftYear}${typeLabel} draft? This cannot be undone.`, { title: 'Clear Draft', confirmLabel: 'Clear All', destructive: true })) return;
     setIsRefreshing(true);
-    await fetch('/api/draft-picks', {
+    const res = await fetch('/api/draft-picks', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ clearAll: true, year: draftYear, draftType: draftTypeFilter !== 'all' ? draftTypeFilter : undefined }),
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(`Clear draft failed: ${err.error || res.status}`);
+    }
     loadData(true);
   };
 
@@ -634,26 +638,23 @@ function DraftBoardContent() {
                             <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
                           </div>
                         ) : (
-                          <div className="flex flex-col gap-0.5">
-                            <span className={`text-[11px] font-black uppercase tracking-widest ${isOnClock ? 'text-blue-500 animate-pulse' : 'text-slate-200'}`}>
-                              {isOnClock ? 'On the Clock' : 'Awaiting Turn'}
-                            </span>
-                            {!isOnClock && pick.scheduledAt && (
-                              <span className="text-[9px] font-black text-slate-300 uppercase tracking-wide">
-                                {new Date(pick.scheduledAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
-                              </span>
-                            )}
-                          </div>
+                          <span className={`text-[11px] font-black uppercase tracking-widest ${isOnClock ? 'text-blue-500 animate-pulse' : 'text-slate-200'}`}>
+                            {isOnClock ? 'On the Clock' : 'Awaiting Turn'}
+                          </span>
                         )}
                       </td>
 
                       <td className="px-10 py-4">
                         <div className="flex flex-col">
-                          {/* 1. Current Owner Full Name */}
                           <span className="text-sm font-black uppercase tracking-tight text-slate-700">
                             {getFullTeamName(pick.currentOwner)}
                           </span>
                           {renderTradeHistory(pick)}
+                          {!isDrafted && !isSkipped && !isOnClock && pick.scheduledAt && (
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-wide mt-0.5">
+                              {new Date(pick.scheduledAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                            </span>
+                          )}
                         </div>
                       </td>
 
