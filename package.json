@@ -19,7 +19,6 @@
     "db:migrate:cuts": "tsx scripts/migrate-cuts.ts"
   },
   "dependencies": {
-    "-": "^0.0.1",
     "@google/generative-ai": "^0.24.1",
     "@hello-pangea/dnd": "^18.0.1",
     "@radix-ui/react-checkbox": "^1.3.3",
@@ -60,6 +59,7 @@
     "vercel": "^32.3.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/cli": "^4.1.18",
     "@tailwindcss/postcss": "^4",
     "@types/bcrypt": "^6.0.0",
