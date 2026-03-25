@@ -7,7 +7,7 @@ import { db } from '../lib/db';
 import {
   leagues, teams, players, transactions, draftPicks, cuts,
   rules, resources, standings, schedule, tradeBlock, auditLog,
-  draftPickTransfers,
+  pickTransfers,
 } from '../schema';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -33,7 +33,7 @@ const tablesToBackup = [
   { name: 'schedule',             query: () => db.select().from(schedule) },
   { name: 'trade_block',          query: () => db.select().from(tradeBlock) },
   { name: 'audit_log',            query: () => db.select().from(auditLog) },
-  { name: 'draft_pick_transfers', query: () => db.select().from(draftPickTransfers) },
+  { name: 'draft_pick_transfers', query: () => db.select().from(pickTransfers) },
 ];
 
 async function main() {
