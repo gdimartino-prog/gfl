@@ -1,0 +1,37 @@
+name: Daily DB Backup
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # Daily at 6am UTC (2am ET)
+  workflow_dispatch:        # Allow manual trigger
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run DB backup
+        env:
+          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+        run: npx tsx scripts/backup-db.ts
+
+      - name: Commit and push backups
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backups/
+          git diff --cached --quiet || git commit -m "chore: daily DB backup $(date -u '+%Y-%m-%d')"
+          git push origin main
