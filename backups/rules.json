@@ -1,0 +1,472 @@
+[
+  {
+    "id": 44,
+    "leagueId": 2,
+    "year": null,
+    "rule": "draft_year",
+    "value": "2026",
+    "desc": "Year of the upcoming draft",
+    "touch_dt": "2026-03-05T15:32:48.052Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 46,
+    "leagueId": 2,
+    "year": null,
+    "rule": "cuts_due_date",
+    "value": "",
+    "desc": "Deadline for roster cuts submission",
+    "touch_dt": "2026-03-05T15:32:48.052Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 47,
+    "leagueId": 2,
+    "year": null,
+    "rule": "limit_protected",
+    "value": "22",
+    "desc": "Max protected players per team",
+    "touch_dt": "2026-03-05T15:32:48.052Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 22,
+    "leagueId": 1,
+    "year": null,
+    "rule": "limit_protected",
+    "value": "30",
+    "desc": "Number of Proctected players",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 23,
+    "leagueId": 1,
+    "year": null,
+    "rule": "limit_pullback",
+    "value": "8",
+    "desc": "Nubmer of Pullbacks",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 25,
+    "leagueId": 1,
+    "year": null,
+    "rule": "draft_year",
+    "value": "2026",
+    "desc": "Draft Year",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 26,
+    "leagueId": 1,
+    "year": null,
+    "rule": "cuts_due_date",
+    "value": "3/2/2026",
+    "desc": "When cuts are due",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 27,
+    "leagueId": 1,
+    "year": null,
+    "rule": "min_qb",
+    "value": "2",
+    "desc": "Minimum Quarterbacks",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 28,
+    "leagueId": 1,
+    "year": null,
+    "rule": "min_rb",
+    "value": "3",
+    "desc": "Minimum Running Backs",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 29,
+    "leagueId": 1,
+    "year": null,
+    "rule": "min_wr",
+    "value": "4",
+    "desc": "Minimum Wide Receivers",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 30,
+    "leagueId": 1,
+    "year": null,
+    "rule": "min_te",
+    "value": "2",
+    "desc": "Minimum Tight Ends",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 31,
+    "leagueId": 1,
+    "year": null,
+    "rule": "min_ol",
+    "value": "8",
+    "desc": "Grouping for LT, RT, C, G",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 32,
+    "leagueId": 1,
+    "year": null,
+    "rule": "min_dl",
+    "value": "6",
+    "desc": "Grouping for DE, DT, NT",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 33,
+    "leagueId": 1,
+    "year": null,
+    "rule": "min_lb",
+    "value": "5",
+    "desc": "Grouping for MLB, ILB, OLB",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 34,
+    "leagueId": 1,
+    "year": null,
+    "rule": "min_db",
+    "value": "7",
+    "desc": "Grouping for CB, S, FS, SS",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 35,
+    "leagueId": 1,
+    "year": null,
+    "rule": "min_k",
+    "value": "1",
+    "desc": "Minimum Kickers",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 36,
+    "leagueId": 1,
+    "year": null,
+    "rule": "min_p",
+    "value": "1",
+    "desc": "Minimum Punters",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 40,
+    "leagueId": 1,
+    "year": null,
+    "rule": "season_games",
+    "value": "17",
+    "desc": "How many games in regular season",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 42,
+    "leagueId": 1,
+    "year": null,
+    "rule": "playoff_teams",
+    "value": "8",
+    "desc": "How many teams make the playoffs",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "migration-script"
+  },
+  {
+    "id": 48,
+    "leagueId": 2,
+    "year": null,
+    "rule": "limit_pullback",
+    "value": "5",
+    "desc": "Max pullback players per team",
+    "touch_dt": "2026-03-05T15:32:48.052Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 50,
+    "leagueId": 2,
+    "year": null,
+    "rule": "leauge_name",
+    "value": "TFL",
+    "desc": "Full league name (display)",
+    "touch_dt": "2026-03-05T15:32:48.052Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 51,
+    "leagueId": 2,
+    "year": null,
+    "rule": "min_qb",
+    "value": "2",
+    "desc": "Minimum Quarterbacks",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 52,
+    "leagueId": 2,
+    "year": null,
+    "rule": "min_rb",
+    "value": "3",
+    "desc": "Minimum Running Backs",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 53,
+    "leagueId": 2,
+    "year": null,
+    "rule": "min_wr",
+    "value": "4",
+    "desc": "Minimum Wide Receivers",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 54,
+    "leagueId": 2,
+    "year": null,
+    "rule": "min_te",
+    "value": "2",
+    "desc": "Minimum Tight Ends",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 55,
+    "leagueId": 2,
+    "year": null,
+    "rule": "min_ol",
+    "value": "8",
+    "desc": "Grouping for LT, RT, C, G",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 56,
+    "leagueId": 2,
+    "year": null,
+    "rule": "min_dl",
+    "value": "6",
+    "desc": "Grouping for DE, DT, NT",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 57,
+    "leagueId": 2,
+    "year": null,
+    "rule": "min_lb",
+    "value": "5",
+    "desc": "Grouping for MLB, ILB, OLB",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 58,
+    "leagueId": 2,
+    "year": null,
+    "rule": "min_db",
+    "value": "7",
+    "desc": "Grouping for CB, S, FS, SS",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 59,
+    "leagueId": 2,
+    "year": null,
+    "rule": "min_k",
+    "value": "1",
+    "desc": "Minimum Kickers",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 60,
+    "leagueId": 2,
+    "year": null,
+    "rule": "min_p",
+    "value": "1",
+    "desc": "Minimum Punters",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 61,
+    "leagueId": 2,
+    "year": null,
+    "rule": "schedule_due",
+    "value": "5",
+    "desc": "When schedule game are due. number of weeks after NFL",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 63,
+    "leagueId": 2,
+    "year": null,
+    "rule": "season_games",
+    "value": "17",
+    "desc": "How many games in regular season",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 64,
+    "leagueId": 2,
+    "year": null,
+    "rule": "limit_roster",
+    "value": "53",
+    "desc": "Max number of players on roster",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 65,
+    "leagueId": 2,
+    "year": null,
+    "rule": "playoff_teams",
+    "value": "8",
+    "desc": "How many teams make the playoffs",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "initialize"
+  },
+  {
+    "id": 69,
+    "leagueId": 1,
+    "year": null,
+    "rule": "draft_clock_round_1",
+    "value": "1440",
+    "desc": "Draft clock for round 1 and any rounds before the next rule (minutes)",
+    "touch_dt": "2026-03-20T13:35:57.216Z",
+    "touch_id": "seed-draft-clock"
+  },
+  {
+    "id": 70,
+    "leagueId": 1,
+    "year": null,
+    "rule": "draft_clock_round_3",
+    "value": "720",
+    "desc": "Draft clock for round 3+ (minutes)",
+    "touch_dt": "2026-03-20T13:35:57.263Z",
+    "touch_id": "seed-draft-clock"
+  },
+  {
+    "id": 24,
+    "leagueId": 1,
+    "year": null,
+    "rule": "cuts_year",
+    "value": "2026",
+    "desc": "Current season, this is used for Cuts",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 66,
+    "leagueId": 1,
+    "year": 2023,
+    "rule": "season_games",
+    "value": "16",
+    "desc": null,
+    "touch_dt": "2026-03-07T13:38:00.628Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 39,
+    "leagueId": 1,
+    "year": null,
+    "rule": "player_sync",
+    "value": "03/21/2026, 08:20:21 AM",
+    "desc": "The datetime the player tab was updated",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 37,
+    "leagueId": 1,
+    "year": null,
+    "rule": "schedule_due",
+    "value": "1",
+    "desc": "When schedule game are due. number of weeks after NFL",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 67,
+    "leagueId": 1,
+    "year": null,
+    "rule": "limit_roster",
+    "value": "53",
+    "desc": null,
+    "touch_dt": "2026-03-07T14:58:47.720Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 49,
+    "leagueId": 2,
+    "year": null,
+    "rule": "player_sync",
+    "value": "03/14/2026, 02:00:45 PM",
+    "desc": "Timestamp of last player data sync",
+    "touch_dt": "2026-03-05T15:32:48.052Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 45,
+    "leagueId": 2,
+    "year": null,
+    "rule": "cuts_year",
+    "value": "2025",
+    "desc": "Current active season year",
+    "touch_dt": "2026-03-05T15:32:48.052Z",
+    "touch_id": "fix-cuts-year"
+  },
+  {
+    "id": 62,
+    "leagueId": 2,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "23",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
+    "id": 38,
+    "leagueId": 1,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "23",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
+    "id": 71,
+    "leagueId": 3,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "23",
+    "desc": null,
+    "touch_dt": "2026-03-25T12:38:20.671Z",
+    "touch_id": "cron-nfl-week"
+  }
+]

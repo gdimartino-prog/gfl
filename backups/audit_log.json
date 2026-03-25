@@ -1,0 +1,1091 @@
+[
+  {
+    "id": 107,
+    "leagueId": null,
+    "timestamp": "2026-03-24T14:21:58.000Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 112,
+    "leagueId": 3,
+    "timestamp": "2026-03-24T15:06:52.691Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (rookie)"
+  },
+  {
+    "id": 118,
+    "leagueId": 3,
+    "timestamp": "2026-03-24T18:10:32.380Z",
+    "coach": "Mark Blume",
+    "team": "Tampa Bay",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 20,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T23:14:28.935Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 23,
+    "leagueId": 1,
+    "timestamp": "2026-03-18T21:54:53.843Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 24,
+    "leagueId": 1,
+    "timestamp": "2026-03-18T21:54:55.595Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 25,
+    "leagueId": 1,
+    "timestamp": "2026-03-19T23:06:02.191Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 29,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T13:17:06.536Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 34,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T13:50:11.136Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 35,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T14:34:48.559Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 38,
+    "leagueId": 2,
+    "timestamp": "2026-03-20T17:33:32.082Z",
+    "coach": "Giovanni Rossi",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 42,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T19:19:13.076Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 43,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T19:31:38.097Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 45,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T21:23:43.319Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 48,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T00:43:47.548Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 49,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T00:44:35.436Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 50,
+    "leagueId": 2,
+    "timestamp": "2026-03-21T02:22:22.560Z",
+    "coach": "Giovanni Rossi",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 51,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T02:26:56.615Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 52,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T11:56:36.315Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 63,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T20:02:18.686Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 66,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T13:51:39.556Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 67,
+    "leagueId": 2,
+    "timestamp": "2026-03-22T13:53:04.094Z",
+    "coach": "Giovanni Rossi",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 68,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T13:55:46.877Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 69,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:00:57.112Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 72,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:08:06.350Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 73,
+    "leagueId": 2,
+    "timestamp": "2026-03-22T14:10:57.714Z",
+    "coach": "Giovanni Rossi",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 74,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:11:37.217Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 75,
+    "leagueId": 2,
+    "timestamp": "2026-03-22T14:12:05.997Z",
+    "coach": "Giovanni Rossi",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 76,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:12:45.520Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 77,
+    "leagueId": 2,
+    "timestamp": "2026-03-22T14:13:15.484Z",
+    "coach": "Giovanni Rossi",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 78,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:13:54.882Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 79,
+    "leagueId": 2,
+    "timestamp": "2026-03-22T14:14:20.922Z",
+    "coach": "Giovanni Rossi",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 108,
+    "leagueId": 3,
+    "timestamp": "2026-03-24T14:28:57.295Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_SETUP_GENERATED",
+    "details": "Generated 168 picks for 2026 rookie draft (6 rounds)"
+  },
+  {
+    "id": 113,
+    "leagueId": 3,
+    "timestamp": "2026-03-24T17:31:54.768Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (rookie)"
+  },
+  {
+    "id": 115,
+    "leagueId": 3,
+    "timestamp": "2026-03-24T17:32:50.548Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (rookie)"
+  },
+  {
+    "id": 119,
+    "leagueId": 3,
+    "timestamp": "2026-03-24T18:13:58.009Z",
+    "coach": "Mark Blume",
+    "team": "Tampa Bay",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 80,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:15:00.319Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 81,
+    "leagueId": 2,
+    "timestamp": "2026-03-22T14:15:22.732Z",
+    "coach": "Giovanni Rossi",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 82,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:16:01.491Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 109,
+    "leagueId": 3,
+    "timestamp": "2026-03-24T14:41:54.978Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026"
+  },
+  {
+    "id": 110,
+    "leagueId": 3,
+    "timestamp": "2026-03-24T14:42:17.049Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (rookie)"
+  },
+  {
+    "id": 114,
+    "leagueId": null,
+    "timestamp": "2026-03-24T17:32:29.127Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 120,
+    "leagueId": 1,
+    "timestamp": "2026-03-24T23:39:35.626Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 121,
+    "leagueId": 1,
+    "timestamp": "2026-03-24T23:40:10.942Z",
+    "coach": "George Di Martino",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R2 #19: RB - Tyrion Davis-Price"
+  },
+  {
+    "id": 90,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:51:12.560Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 91,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:52:58.554Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 96,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T20:05:01.415Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 97,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T22:47:42.174Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 98,
+    "leagueId": 1,
+    "timestamp": "2026-03-23T01:50:41.409Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 102,
+    "leagueId": 1,
+    "timestamp": "2026-03-23T03:14:38.574Z",
+    "coach": "George Di Martino",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R1 #17: DE - Marshawn Kneeland"
+  },
+  {
+    "id": 103,
+    "leagueId": 1,
+    "timestamp": "2026-03-24T00:12:18.221Z",
+    "coach": "George Di Martino",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R1 #18: OLB - Marist Liufau"
+  },
+  {
+    "id": 104,
+    "leagueId": 1,
+    "timestamp": "2026-03-24T02:49:19.291Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 105,
+    "leagueId": 1,
+    "timestamp": "2026-03-24T02:54:13.560Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1,
+    "leagueId": 1,
+    "timestamp": "2026-03-15T17:49:13.643Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 2,
+    "leagueId": 1,
+    "timestamp": "2026-03-15T18:14:19.892Z",
+    "coach": "Demo Commissioner",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R1 #1: QB - Trey Lance"
+  },
+  {
+    "id": 3,
+    "leagueId": 1,
+    "timestamp": "2026-03-15T18:21:56.951Z",
+    "coach": "Demo Commissioner",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R1 #2: C-G - T.J. Bass"
+  },
+  {
+    "id": 4,
+    "leagueId": 1,
+    "timestamp": "2026-03-15T18:40:19.794Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 5,
+    "leagueId": 1,
+    "timestamp": "2026-03-15T18:43:57.095Z",
+    "coach": "Administrator",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R1 #1: C-G - T.J. Bass"
+  },
+  {
+    "id": 6,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T17:01:13.567Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 7,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T17:14:10.312Z",
+    "coach": "Demo Commissioner",
+    "team": "admin",
+    "action": "DRAFT_DELETE_PICK",
+    "details": "Deleted pick #458"
+  },
+  {
+    "id": 8,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T17:30:39.850Z",
+    "coach": "Demo Commissioner",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R1 #2: CB - Andrew Booth Jr."
+  },
+  {
+    "id": 9,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T17:35:25.983Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 10,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T17:47:02.726Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 11,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T17:47:23.967Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team LBI"
+  },
+  {
+    "id": 12,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T19:06:34.161Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 13,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T19:07:06.471Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team LBI"
+  },
+  {
+    "id": 14,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T19:57:10.897Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 15,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T20:43:28.020Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 16,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T20:43:58.079Z",
+    "coach": "Glenn Gardner",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R1 #3: WR - Jalen Brooks"
+  },
+  {
+    "id": 17,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T20:44:59.473Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 18,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T20:46:27.413Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 19,
+    "leagueId": 1,
+    "timestamp": "2026-03-16T20:47:00.456Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 21,
+    "leagueId": 1,
+    "timestamp": "2026-03-18T02:12:49.545Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 22,
+    "leagueId": 1,
+    "timestamp": "2026-03-18T02:12:58.484Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (leagueId 2)"
+  },
+  {
+    "id": 26,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T03:22:20.444Z",
+    "coach": "OBG",
+    "team": "LES",
+    "action": "DRAFT_PASS",
+    "details": "R1 #1: PASSED"
+  },
+  {
+    "id": 27,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T13:14:41.716Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (leagueId 2)"
+  },
+  {
+    "id": 28,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T13:15:02.076Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (leagueId 2)"
+  },
+  {
+    "id": 30,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T13:17:26.793Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (leagueId 2)"
+  },
+  {
+    "id": 31,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T13:49:10.202Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (leagueId 2)"
+  },
+  {
+    "id": 32,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T13:49:32.934Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (leagueId 2)"
+  },
+  {
+    "id": 33,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T13:49:47.584Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (leagueId 2)"
+  },
+  {
+    "id": 36,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T17:32:51.680Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 37,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T17:33:15.675Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team AFL"
+  },
+  {
+    "id": 39,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T17:33:44.741Z",
+    "coach": "Giovanni Rossi",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (leagueId 2)"
+  },
+  {
+    "id": 40,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T17:38:02.552Z",
+    "coach": "Giovanni Rossi",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (leagueId 2)"
+  },
+  {
+    "id": 41,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T19:15:35.881Z",
+    "coach": "Giovanni Rossi",
+    "team": "admin",
+    "action": "DRAFT_SETUP_GENERATED",
+    "details": "Generated 540 picks for 2026 free_agent draft (30 rounds, leagueId 2)"
+  },
+  {
+    "id": 44,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T19:36:18.299Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_SETUP_GENERATED",
+    "details": "Generated 540 picks for 2026 free_agent draft (30 rounds, leagueId 1)"
+  },
+  {
+    "id": 46,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T23:57:37.743Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #50 deleted"
+  },
+  {
+    "id": 47,
+    "leagueId": 1,
+    "timestamp": "2026-03-20T23:59:49.641Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 53,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T12:06:17.103Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "RULE_UPDATED",
+    "details": "Updated rule: cuts_year=2026"
+  },
+  {
+    "id": 54,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T12:06:25.556Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "RULE_UPDATED",
+    "details": "Updated rule: season_games=17 (year 2023)"
+  },
+  {
+    "id": 55,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T12:07:12.495Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "RULE_UPDATED",
+    "details": "Updated rule: season_games=16 (year 2023)"
+  },
+  {
+    "id": 56,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T12:20:21.077Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 57,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T14:31:53.299Z",
+    "coach": "George Di Martino",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R1 #1: QB - Trey Lance"
+  },
+  {
+    "id": 58,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T16:49:13.058Z",
+    "coach": "George Di Martino",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R1 #2: TE - Luke Schoonmaker"
+  },
+  {
+    "id": 59,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T16:50:13.664Z",
+    "coach": "George Di Martino",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R1 #3: WR - Jalen Brooks"
+  },
+  {
+    "id": 60,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T16:57:36.276Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R1 #4: CB - Andrew Booth Jr."
+  },
+  {
+    "id": 61,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T17:14:29.238Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 62,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T17:15:49.008Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 64,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T20:19:12.262Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 65,
+    "leagueId": 1,
+    "timestamp": "2026-03-21T20:39:22.344Z",
+    "coach": "VV",
+    "team": "LM",
+    "action": "DRAFT_PASS",
+    "details": "R1 #5: PASSED"
+  },
+  {
+    "id": 70,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:01:16.009Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 71,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:01:51.867Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "UPDATE_TEAM",
+    "details": "Updated team id 98"
+  },
+  {
+    "id": 83,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:22:38.823Z",
+    "coach": "George Di Martino",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R1 #6: RB - Dante Miller"
+  },
+  {
+    "id": 84,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:26:35.927Z",
+    "coach": "George Di Martino",
+    "team": "LV",
+    "action": "DRAFT_PICK",
+    "details": "R1 #7: CB - Josh Butler"
+  },
+  {
+    "id": 85,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:35:24.417Z",
+    "coach": "George Di Martino",
+    "team": "LM",
+    "action": "DRAFT_PICK",
+    "details": "R1 #5: CB - Caelen Carson"
+  },
+  {
+    "id": 86,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:37:38.420Z",
+    "coach": "George Di Martino",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R1 #8: LB - Damone Clark"
+  },
+  {
+    "id": 87,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:38:29.265Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R1 #9: G-T - Chuma Edoga"
+  },
+  {
+    "id": 88,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:42:26.073Z",
+    "coach": "George Di Martino",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R1 #10: HB - Princeton Fant"
+  },
+  {
+    "id": 89,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T14:46:18.821Z",
+    "coach": "George Di Martino",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R1 #11: CB - C.J. Goodwin"
+  },
+  {
+    "id": 92,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T15:48:59.841Z",
+    "coach": "George Di Martino",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R1 #12: CB - Kemon Hall"
+  },
+  {
+    "id": 93,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T15:51:14.967Z",
+    "coach": "George Di Martino",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R1 #13: OLB - Darius Harris"
+  },
+  {
+    "id": 94,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T16:37:21.009Z",
+    "coach": "George Di Martino",
+    "team": "LM",
+    "action": "DRAFT_PICK",
+    "details": "R1 #14: C-G - Brock Hoffman"
+  },
+  {
+    "id": 95,
+    "leagueId": 1,
+    "timestamp": "2026-03-22T17:15:14.278Z",
+    "coach": "George Di Martino",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R1 #15: OLB - Buddy Johnson"
+  },
+  {
+    "id": 99,
+    "leagueId": 1,
+    "timestamp": "2026-03-23T01:51:04.763Z",
+    "coach": "George Di Martino",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R1 #16: DT - Linval Joseph"
+  },
+  {
+    "id": 100,
+    "leagueId": 1,
+    "timestamp": "2026-03-23T03:06:38.427Z",
+    "coach": "George Di Martino",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R1 #17: DE - Marshawn Kneeland"
+  },
+  {
+    "id": 101,
+    "leagueId": 1,
+    "timestamp": "2026-03-23T03:09:16.981Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_DELETE_PICK",
+    "details": "Deleted pick #1469"
+  },
+  {
+    "id": 106,
+    "leagueId": 1,
+    "timestamp": "2026-03-24T13:49:17.557Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 111,
+    "leagueId": 3,
+    "timestamp": "2026-03-24T15:06:24.007Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (rookie)"
+  },
+  {
+    "id": 116,
+    "leagueId": 3,
+    "timestamp": "2026-03-24T17:58:52.921Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "DRAFT_SETUP_GENERATED",
+    "details": "Generated 168 picks for 2026 rookie draft (6 rounds)"
+  },
+  {
+    "id": 117,
+    "leagueId": null,
+    "timestamp": "2026-03-24T18:01:18.105Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team TB"
+  }
+]
