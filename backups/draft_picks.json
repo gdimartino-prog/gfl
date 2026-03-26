@@ -11530,12 +11530,12 @@
     "currentTeamId": 48,
     "playerId": null,
     "scheduledAt": null,
-    "pickedAt": null,
+    "pickedAt": "2026-03-25T23:41:09.672Z",
     "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": null,
+    "warningSent": true,
+    "selectedPlayerName": "SKIPPED (Time Expired)",
     "touch_dt": "2026-03-20T19:36:18.252Z",
-    "touch_id": "trade-migration"
+    "touch_id": "client-expire"
   },
   {
     "id": 1473,

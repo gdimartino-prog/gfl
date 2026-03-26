@@ -1087,5 +1087,14 @@
     "team": "admin",
     "action": "RESET_PASSWORD",
     "details": "Reset password for team TB"
+  },
+  {
+    "id": 122,
+    "leagueId": 1,
+    "timestamp": "2026-03-25T19:30:27.942Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
