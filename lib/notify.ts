@@ -129,7 +129,7 @@ export async function notifyDraftPick({
   }
 
   const subject = `GFL DRAFT (R${round}): Pick #${overallPick}${type === 'PICK' ? ` (${playerName})` : ' ' + type}`;
-  const body = `${pingText}${header}:\n----------\nRound: ${round} | Pick: #${overallPick}\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}\n\nBoard: ${GFL_URL}`;
+  const body = `${pingText}${header}:\n----------\nRound: ${round} | Pick: #${overallPick}\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}\n\nBoard: ${GFL_URL}/draft`;
 
   await sendEmail({ subject, text: body });
 

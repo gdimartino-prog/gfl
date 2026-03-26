@@ -11,6 +11,6 @@ jobs:
     steps:
       - name: Check draft picks
         run: |
-          curl -s -X GET "https://gfl-alpha.vercel.app/api/cron/draft" \
+          curl -s -X GET "https://afl.gddevco.com/api/cron/draft" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | cat

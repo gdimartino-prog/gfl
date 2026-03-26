@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Update NFL week
         run: |
-          curl -s -X GET "https://gfl-alpha.vercel.app/api/cron/nfl-week" \
+          curl -s -X GET "https://afl.gddevco.com/api/cron/nfl-week" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | cat
 
@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Send cuts alert
         run: |
-          curl -s -X GET "https://gfl-alpha.vercel.app/api/cron/cuts-alert" \
+          curl -s -X GET "https://afl.gddevco.com/api/cron/cuts-alert" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | cat
 
@@ -34,7 +34,7 @@ jobs:
     steps:
       - name: Send schedule reminder
         run: |
-          curl -s -X GET "https://gfl-alpha.vercel.app/api/cron/schedule-reminder" \
+          curl -s -X GET "https://afl.gddevco.com/api/cron/schedule-reminder" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | cat
 
@@ -44,6 +44,6 @@ jobs:
     steps:
       - name: Check draft clock and auto-skip expired picks
         run: |
-          curl -s -X GET "https://gfl-alpha.vercel.app/api/cron/draft" \
+          curl -s -X GET "https://afl.gddevco.com/api/cron/draft" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | cat
