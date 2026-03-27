@@ -27,6 +27,15 @@
     "details": "Coach entered Front Office"
   },
   {
+    "id": 123,
+    "leagueId": 1,
+    "timestamp": "2026-03-26T14:25:01.435Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R2 #21: QB - Cooper Rush"
+  },
+  {
     "id": 20,
     "leagueId": 1,
     "timestamp": "2026-03-16T23:14:28.935Z",

@@ -11520,6 +11520,24 @@
     "touch_id": "trade-migration"
   },
   {
+    "id": 1473,
+    "leagueId": 1,
+    "year": 2026,
+    "round": 2,
+    "pick": 21,
+    "draftType": "free_agent",
+    "originalTeamId": 58,
+    "currentTeamId": 58,
+    "playerId": 19450,
+    "scheduledAt": null,
+    "pickedAt": "2026-03-26T14:25:01.359Z",
+    "passed": false,
+    "warningSent": false,
+    "selectedPlayerName": "QB - Cooper Rush",
+    "touch_dt": "2026-03-20T19:36:18.252Z",
+    "touch_id": "George Di Martino"
+  },
+  {
     "id": 1472,
     "leagueId": 1,
     "year": 2026,
@@ -11536,24 +11554,6 @@
     "selectedPlayerName": "SKIPPED (Time Expired)",
     "touch_dt": "2026-03-20T19:36:18.252Z",
     "touch_id": "client-expire"
-  },
-  {
-    "id": 1473,
-    "leagueId": 1,
-    "year": 2026,
-    "round": 2,
-    "pick": 21,
-    "draftType": "free_agent",
-    "originalTeamId": 58,
-    "currentTeamId": 58,
-    "playerId": null,
-    "scheduledAt": null,
-    "pickedAt": null,
-    "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": null,
-    "touch_dt": "2026-03-20T19:36:18.252Z",
-    "touch_id": "trade-migration"
   },
   {
     "id": 1474,
