@@ -3294,6 +3294,24 @@
     "touch_id": "George Di Martino"
   },
   {
+    "id": 1475,
+    "leagueId": 1,
+    "year": 2026,
+    "round": 2,
+    "pick": 23,
+    "draftType": "free_agent",
+    "originalTeamId": 43,
+    "currentTeamId": 43,
+    "playerId": null,
+    "scheduledAt": null,
+    "pickedAt": "2026-03-28T14:32:09.254Z",
+    "passed": false,
+    "warningSent": true,
+    "selectedPlayerName": "SKIPPED (Time Expired)",
+    "touch_dt": "2026-03-20T19:36:18.252Z",
+    "touch_id": "cron-auto-skip"
+  },
+  {
     "id": 1806,
     "leagueId": 1,
     "year": 2026,
@@ -11554,24 +11572,6 @@
     "selectedPlayerName": "SKIPPED (Time Expired)",
     "touch_dt": "2026-03-20T19:36:18.252Z",
     "touch_id": "client-expire"
-  },
-  {
-    "id": 1475,
-    "leagueId": 1,
-    "year": 2026,
-    "round": 2,
-    "pick": 23,
-    "draftType": "free_agent",
-    "originalTeamId": 43,
-    "currentTeamId": 43,
-    "playerId": null,
-    "scheduledAt": null,
-    "pickedAt": null,
-    "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": null,
-    "touch_dt": "2026-03-20T19:36:18.252Z",
-    "touch_id": "trade-migration"
   },
   {
     "id": 1476,
