@@ -169,8 +169,10 @@ export async function clearAllPickSelections(leagueId: number, year: number, cle
     }
   }
 
-  // Delete ALL pick rows for the year (clears the entire draft structure)
-  await db.delete(draftPicks).where(baseWhere);
+  // Reset selections only — keep the pick slot structure intact
+  await db.update(draftPicks)
+    .set({ playerId: null, selectedPlayerName: null, pickedAt: null, passed: false, touch_id: clearedBy })
+    .where(baseWhere);
 }
 
 /**

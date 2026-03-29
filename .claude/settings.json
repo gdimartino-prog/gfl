@@ -11,5 +11,20 @@
       "WebFetch",
       "mcp__playwright__*"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(node -e \"const chunks=[];process.stdin.on('data',d=>chunks.push(d));process.stdin.on('end',()=>{try{const j=JSON.parse(chunks.join(''));const cmd=j&&j.tool_input&&j.tool_input.command||'';process.stdout.write(cmd)}catch(e){}})\"); if echo \"$cmd\" | grep -qE 'git[[:space:]]+commit'; then if ! npm run lint; then echo '{\"continue\":false,\"stopReason\":\"Lint failed — fix errors before committing\"}'; exit 1; fi; fi",
+            "timeout": 60,
+            "statusMessage": "Running lint before commit..."
+          }
+        ]
+      }
+    ]
   }
 }
