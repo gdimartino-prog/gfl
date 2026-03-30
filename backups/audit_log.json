@@ -333,6 +333,24 @@
     "details": "Coach entered Front Office"
   },
   {
+    "id": 124,
+    "leagueId": 1,
+    "timestamp": "2026-03-29T12:04:16.823Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 125,
+    "leagueId": 1,
+    "timestamp": "2026-03-29T12:04:27.565Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (free_agent)"
+  },
+  {
     "id": 80,
     "leagueId": 1,
     "timestamp": "2026-03-22T14:15:00.319Z",
@@ -403,6 +421,15 @@
     "team": "SG",
     "action": "DRAFT_PICK",
     "details": "R2 #19: RB - Tyrion Davis-Price"
+  },
+  {
+    "id": 126,
+    "leagueId": 1,
+    "timestamp": "2026-03-29T12:13:17.028Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_CLEAR_ALL",
+    "details": "Cleared all picks for 2026 (free_agent)"
   },
   {
     "id": 90,
