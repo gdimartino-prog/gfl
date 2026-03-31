@@ -420,6 +420,26 @@
     "touch_id": "maintenance"
   },
   {
+    "id": 49,
+    "leagueId": 2,
+    "year": null,
+    "rule": "player_sync",
+    "value": "03/14/2026, 02:00:45 PM",
+    "desc": "Timestamp of last player data sync",
+    "touch_dt": "2026-03-05T15:32:48.052Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 45,
+    "leagueId": 2,
+    "year": null,
+    "rule": "cuts_year",
+    "value": "2025",
+    "desc": "Current active season year",
+    "touch_dt": "2026-03-05T15:32:48.052Z",
+    "touch_id": "fix-cuts-year"
+  },
+  {
     "id": 62,
     "leagueId": 2,
     "year": null,
@@ -448,25 +468,5 @@
     "desc": null,
     "touch_dt": "2026-03-25T12:38:20.671Z",
     "touch_id": "cron-nfl-week"
-  },
-  {
-    "id": 49,
-    "leagueId": 2,
-    "year": null,
-    "rule": "player_sync",
-    "value": "03/14/2026, 02:00:45 PM",
-    "desc": "Timestamp of last player data sync",
-    "touch_dt": "2026-03-05T15:32:48.052Z",
-    "touch_id": "maintenance"
-  },
-  {
-    "id": 45,
-    "leagueId": 2,
-    "year": null,
-    "rule": "cuts_year",
-    "value": "2025",
-    "desc": "Current active season year",
-    "touch_dt": "2026-03-05T15:32:48.052Z",
-    "touch_id": "fix-cuts-year"
   }
 ]
