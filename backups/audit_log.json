@@ -1132,5 +1132,14 @@
     "team": "Vico",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 127,
+    "leagueId": 1,
+    "timestamp": "2026-04-01T00:52:33.996Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
