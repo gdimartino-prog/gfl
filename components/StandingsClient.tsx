@@ -625,12 +625,38 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
           </div>
         </div>
       </div>
-        <StandingsTable data={history} isCurrent={false} totalGames={totalGames} seedMap={seedMap} playoffTeams={playoffTeams} />
-        {history.length === 0 && (
-          <div className="p-10 text-center text-slate-400 font-black uppercase italic text-sm">
-            No historical records found matching your filters.
-          </div>
-        )}
+        {(() => {
+          if (history.length === 0) {
+            return (
+              <div className="p-10 text-center text-slate-400 font-black uppercase italic text-sm">
+                No historical records found matching your filters.
+              </div>
+            );
+          }
+          // Group by division when a specific year is selected and that year has divisions
+          const hasDivisions = historyYear !== 'All' && history.some(r => r.division);
+          if (hasDivisions) {
+            const divGroups: Record<string, StandingRow[]> = {};
+            history.forEach(r => {
+              const div = r.division || 'Other';
+              if (!divGroups[div]) divGroups[div] = [];
+              divGroups[div].push(r);
+            });
+            return (
+              <div className="space-y-6">
+                {Object.entries(divGroups).sort(([a], [b]) => a.localeCompare(b)).map(([div, rows]) => (
+                  <div key={div}>
+                    <div className="px-4 py-2 mb-2 bg-slate-100 rounded-lg">
+                      <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">{div} Division</span>
+                    </div>
+                    <StandingsTable data={rows} isCurrent={false} totalGames={totalGames} seedMap={seedMap} playoffTeams={playoffTeams} />
+                  </div>
+                ))}
+              </div>
+            );
+          }
+          return <StandingsTable data={history} isCurrent={false} totalGames={totalGames} seedMap={seedMap} playoffTeams={playoffTeams} />;
+        })()}
       </div>
     </div>
   );
