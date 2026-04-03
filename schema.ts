@@ -79,6 +79,7 @@ export const transactions = pgTable("transactions", {
   owner: varchar("owner", { length: 256 }),
   status: varchar("status", { length: 50 }),
   weekBack: integer("week_back"),
+  fee: integer("fee").default(0),
   emailStatus: varchar("email_status", { length: 50 }),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
