@@ -254,20 +254,44 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
         return Number(a.diff) - Number(b.diff);
       });
 
-    // 3. Playoff Teams (Reverse Seeding: Lower seeds pick earlier)
-    const playoff = fullCurrentSeason
-      .filter(r => seedMap[r.team]?.seed <= playoffTeams)
-      .sort((a, b) => (seedMap[b.team]?.seed ?? 0) - (seedMap[a.team]?.seed ?? 0));
+    // 3. Playoff Teams — use playoff results if available, else reverse seeding
+    const playoffTeamRows = fullCurrentSeason.filter(r => seedMap[r.team]?.seed <= playoffTeams);
+    const hasPlayoffResults = playoffTeamRows.some(r =>
+      String(r.isChampion) === '1' || String(r.isChampion).toLowerCase() === 'true' ||
+      String(r.isSuperBowl) === '1' || String(r.isSuperBowl).toLowerCase() === 'true'
+    );
+
+    let playoff: StandingRow[];
+    if (hasPlayoffResults) {
+      const isChamp = (r: StandingRow) => String(r.isChampion) === '1' || String(r.isChampion).toLowerCase() === 'true';
+      const isSB = (r: StandingRow) => String(r.isSuperBowl) === '1' || String(r.isSuperBowl).toLowerCase() === 'true';
+      // Early eliminees → runner-up → champion (champion picks last)
+      const earlyOut = playoffTeamRows.filter(r => !isSB(r) && !isChamp(r))
+        .sort((a, b) => (seedMap[b.team]?.seed ?? 0) - (seedMap[a.team]?.seed ?? 0));
+      const runnerUp = playoffTeamRows.filter(r => isSB(r) && !isChamp(r));
+      const champion = playoffTeamRows.filter(r => isChamp(r));
+      playoff = [...earlyOut, ...runnerUp, ...champion];
+    } else {
+      playoff = playoffTeamRows.sort((a, b) => (seedMap[b.team]?.seed ?? 0) - (seedMap[a.team]?.seed ?? 0));
+    }
 
     const combined = [...nonPlayoff, ...playoff];
 
     return combined.map((team, idx): DraftOrderTeam => {
       const pickNum = idx + 1;
       const isPlayoffTeam = (seedMap[team.team]?.seed ?? 99) <= playoffTeams;
+      const isChamp = String(team.isChampion) === '1' || String(team.isChampion).toLowerCase() === 'true';
+      const isSB = String(team.isSuperBowl) === '1' || String(team.isSuperBowl).toLowerCase() === 'true';
       let reason = `Pick #${pickNum}: ${isPlayoffTeam ? 'Playoff Team' : 'Non-Playoff Team'}`;
 
       if (isPlayoffTeam) {
-        reason += ` • Reverse Seeding (Seed #${seedMap[team.team]?.seed ?? '?'})`;
+        if (hasPlayoffResults) {
+          if (isChamp) reason += ' • Champion (picks last)';
+          else if (isSB) reason += ' • Runner-Up';
+          else reason += ` • Eliminated in Playoffs (Seed #${seedMap[team.team]?.seed ?? '?'})`;
+        } else {
+          reason += ` • Reverse Seeding (Seed #${seedMap[team.team]?.seed ?? '?'})`;
+        }
       } else {
         const prev = idx > 0 ? combined[idx - 1] : null;
         const next = idx < combined.length - 1 ? combined[idx + 1] : null;
@@ -564,21 +588,27 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-9 gap-4">
             {draftOrder.map((team, idx) => {
               const isPlayoffTeam = seedMap[team.team].seed <= playoffTeams;
+              const isChamp = String(team.isChampion) === '1' || String(team.isChampion).toLowerCase() === 'true';
+              const isSB = String(team.isSuperBowl) === '1' || String(team.isSuperBowl).toLowerCase() === 'true';
               const cleanName = team.team.replace(/^[a-z*]-/i, '');
-              
+
+              const pickBg = isChamp ? 'bg-yellow-400 text-yellow-900' : isSB ? 'bg-slate-400 text-white' : isPlayoffTeam ? 'bg-slate-200 text-slate-500' : 'bg-orange-500 text-white';
+
               return (
                 <div key={team.team} className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-all group relative">
-                  <div 
+                  <div
                     title={team.draftReason}
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[10px] mb-3 shadow-sm cursor-help transition-transform hover:scale-110 ${isPlayoffTeam ? 'bg-slate-200 text-slate-500' : 'bg-orange-500 text-white'}`}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-[10px] mb-3 shadow-sm cursor-help transition-transform hover:scale-110 ${pickBg}`}
                   >
                     #{idx + 1}
                   </div>
                   <span className="text-[10px] font-black uppercase italic tracking-tighter text-slate-900 leading-tight truncate w-full">
                     {cleanName}
                   </span>
-                  <span className="text-[8px] font-bold text-slate-400 uppercase mt-1 flex flex-col">
+                  <span className="text-[8px] font-bold text-slate-400 uppercase mt-1 flex flex-col items-center">
                     <span>{team.won}-{team.lost}</span>
+                    {isChamp && <span className="text-yellow-500 font-black mt-0.5">Champion</span>}
+                    {isSB && !isChamp && <span className="text-slate-500 font-black mt-0.5">Runner-Up</span>}
                     {!isPlayoffTeam && (
                       <span className="text-orange-500 font-black mt-0.5">SOS: {(team.sos || 0).toFixed(3).replace(/^0/, '')}</span>
                     )}
