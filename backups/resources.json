@@ -1,15 +1,5 @@
 [
   {
-    "id": 11,
-    "leagueId": 1,
-    "group": "Season Downloads",
-    "title": "2024 Prelimiary Ratings",
-    "url": "https://docs.google.com/spreadsheets/d/1Tl2mfoBeSllUwTCErReL7K4EBepQ_pksyUVDQRLojRU/edit?usp=drive_link",
-    "sortOrder": 0,
-    "touch_dt": "2026-02-16T12:41:09.427Z",
-    "touch_id": "migration-script"
-  },
-  {
     "id": 12,
     "leagueId": 1,
     "group": "Game & Reference",
@@ -67,6 +57,16 @@
     "url": "https://drive.google.com/drive/folders/10IQPCDzy_MhNbBUT3_0kiGICptNw8Ni0?usp=sharing",
     "sortOrder": 5,
     "touch_dt": "2026-02-16T12:41:09.427Z",
+    "touch_id": "George Di Martino"
+  },
+  {
+    "id": 16,
+    "leagueId": 1,
+    "group": "Season Downloads",
+    "title": "2025 Prelimiary Ratings",
+    "url": "https://docs.google.com/spreadsheets/d/1GTA3ljkxGxl-gRMvJ5jynFLkaJcDBCo9mOaqb9gC_k8/edit?usp=sharing",
+    "sortOrder": 0,
+    "touch_dt": "2026-04-02T23:03:55.959Z",
     "touch_id": "George Di Martino"
   }
 ]

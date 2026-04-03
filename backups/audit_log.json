@@ -36,6 +36,15 @@
     "details": "R2 #21: QB - Cooper Rush"
   },
   {
+    "id": 128,
+    "leagueId": 1,
+    "timestamp": "2026-04-02T23:34:31.128Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
     "id": 20,
     "leagueId": 1,
     "timestamp": "2026-03-16T23:14:28.935Z",
@@ -349,6 +358,15 @@
     "team": "admin",
     "action": "DRAFT_CLEAR_ALL",
     "details": "Cleared all picks for 2026 (free_agent)"
+  },
+  {
+    "id": 129,
+    "leagueId": 1,
+    "timestamp": "2026-04-03T02:09:21.141Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   },
   {
     "id": 80,
