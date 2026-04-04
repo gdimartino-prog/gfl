@@ -11,7 +11,8 @@ import {
   ShieldCheck,
   RotateCw,
   Activity,
-  Trash2
+  Trash2,
+  DollarSign,
 } from 'lucide-react';
 import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
@@ -44,6 +45,10 @@ export default function TransactionsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<'FA' | 'DROP' | 'IR' | 'TRADE'>('FA');
   const [savingStatus, setSavingStatus] = useState<string | null>(null);
+  const [showSpend, setShowSpend] = useState(false);
+  const [spendSeason, setSpendSeason] = useState('');
+  const [spendFrom, setSpendFrom] = useState('');
+  const [spendTo, setSpendTo] = useState('');
 
   const hasSynced = useRef(false);
   const [confirm, ConfirmDialog] = useConfirm();
@@ -142,6 +147,38 @@ export default function TransactionsPage() {
     }
     return safeLogs;
   }, [logs, filterTeam, filterType, filterStatus]);
+
+  // Available seasons for the spend report dropdown
+  const availableSpendSeasons = useMemo(() => {
+    const seasons = new Set<string>();
+    (Array.isArray(logs) ? logs : []).forEach(l => {
+      if (l.season) seasons.add(String(l.season));
+    });
+    return Array.from(seasons).sort((a, b) => Number(b) - Number(a));
+  }, [logs]);
+
+  // FA Spend report: team totals filtered by season and/or date range
+  const spendReport = useMemo(() => {
+    const fromMs = spendFrom ? new Date(spendFrom).getTime() : null;
+    const toMs = spendTo ? new Date(spendTo + 'T23:59:59').getTime() : null;
+    const allAdd = (Array.isArray(logs) ? logs : []).filter(l => {
+      if (l.type !== 'ADD' || !(Number(l.fee) > 0)) return false;
+      if (spendSeason && String(l.season) !== spendSeason) return false;
+      if (spendFrom || spendTo) {
+        if (!l.timestamp) return false;
+        const ms = new Date(l.timestamp).getTime();
+        if (fromMs && ms < fromMs) return false;
+        if (toMs && ms > toMs) return false;
+      }
+      return true;
+    });
+    const byTeam: Record<string, number> = {};
+    allAdd.forEach(l => {
+      const team = String(l.toFull || l.fromFull || 'Unknown');
+      byTeam[team] = (byTeam[team] || 0) + Number(l.fee);
+    });
+    return Object.entries(byTeam).sort(([, a], [, b]) => b - a);
+  }, [logs, spendSeason, spendFrom, spendTo]);
 
   const tabs = [
     { id: 'FA', label: 'Add Player', icon: <UserPlus size={20} />, activeColor: 'bg-blue-600' },
@@ -319,15 +356,16 @@ export default function TransactionsPage() {
                   <th className="px-6 py-5">From</th>
                   <th className="px-6 py-5">To</th>
                   <th className="px-6 py-5 text-center">Week</th>
+                  <th className="px-6 py-5 text-center">Fee</th>
                   <th className="px-6 py-5 text-center">Status</th>
                   {isCommissioner && <th className="px-6 py-5 text-center"></th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {loadingLogs ? (
-                  <tr><td colSpan={isCommissioner ? 8 : 7} className="p-24 text-center text-slate-300 font-black uppercase animate-pulse italic">Synchronizing Records...</td></tr>
+                  <tr><td colSpan={isCommissioner ? 9 : 8} className="p-24 text-center text-slate-300 font-black uppercase animate-pulse italic">Synchronizing Records...</td></tr>
                 ) : filteredLogs.length === 0 ? (
-                  <tr><td colSpan={isCommissioner ? 8 : 7} className="p-24 text-center text-slate-300 italic font-black uppercase">No Recent Records</td></tr>
+                  <tr><td colSpan={isCommissioner ? 9 : 8} className="p-24 text-center text-slate-300 italic font-black uppercase">No Recent Records</td></tr>
                 ) : filteredLogs.map((log, i) => (
                   <tr key={i} className={`text-[11px] hover:bg-slate-50 transition-colors ${log.coach === session?.user?.name ? 'bg-blue-50/30' : ''}`}>
                     <td className="px-6 py-5 font-mono text-slate-400 tabular-nums whitespace-nowrap">{log.timestamp}</td>
@@ -350,6 +388,12 @@ export default function TransactionsPage() {
                     <td className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase whitespace-nowrap">{log.toFull || '—'}</td>
                     <td className="px-6 py-5 text-center">
                       <span className="font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl text-xs">{log.weekBack || '—'}</span>
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                      {Number(log.fee) > 0
+                        ? <span className="font-black text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl text-xs">${log.fee}</span>
+                        : <span className="text-slate-300 font-black text-[9px]">—</span>
+                      }
                     </td>
                     <td className="px-6 py-5 text-center">
                       {isCommissioner ? (
@@ -392,6 +436,70 @@ export default function TransactionsPage() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* FA SPEND REPORT */}
+        <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
+          <button
+            onClick={() => setShowSpend(s => !s)}
+            className="w-full flex items-center justify-between px-8 py-5 hover:bg-slate-50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-emerald-100 p-2 rounded-xl text-emerald-600"><DollarSign size={18} /></div>
+              <span className="text-sm font-black uppercase tracking-widest text-slate-700">FA Spend Report</span>
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{showSpend ? 'Hide' : 'Show'}</span>
+          </button>
+          {showSpend && (
+            <div className="px-8 pb-8 space-y-6">
+              {/* Filters */}
+              <div className="flex flex-wrap items-center gap-4">
+                {availableSpendSeasons.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Season</span>
+                    <select value={spendSeason} onChange={e => setSpendSeason(e.target.value)}
+                      className="bg-white border border-slate-200 rounded-lg text-xs font-bold p-2 outline-none focus:ring-2 focus:ring-emerald-400 shadow-sm cursor-pointer">
+                      <option value="">All Seasons</option>
+                      {availableSpendSeasons.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">From</span>
+                  <input type="date" value={spendFrom} onChange={e => setSpendFrom(e.target.value)}
+                    className="bg-white border border-slate-200 rounded-lg text-xs font-bold p-2 outline-none focus:ring-2 focus:ring-emerald-400 shadow-sm" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">To</span>
+                  <input type="date" value={spendTo} onChange={e => setSpendTo(e.target.value)}
+                    className="bg-white border border-slate-200 rounded-lg text-xs font-bold p-2 outline-none focus:ring-2 focus:ring-emerald-400 shadow-sm" />
+                </div>
+                {(spendSeason || spendFrom || spendTo) && (
+                  <button onClick={() => { setSpendSeason(''); setSpendFrom(''); setSpendTo(''); }}
+                    className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors">
+                    Clear
+                  </button>
+                )}
+                {spendReport.length > 0 && (
+                  <span className="ml-auto text-xs font-black text-emerald-600">
+                    League Total: ${spendReport.reduce((s, [, v]) => s + v, 0)}
+                  </span>
+                )}
+              </div>
+              {spendReport.length === 0 ? (
+                <p className="text-center text-slate-300 font-black uppercase italic text-sm py-8">No FA spend data for selected range</p>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+                  {spendReport.map(([team, amount]) => (
+                    <div key={team} className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex flex-col items-center text-center">
+                      <span className="text-[10px] font-black uppercase italic tracking-tighter text-slate-700 leading-tight mb-2">{team}</span>
+                      <span className="text-lg font-black text-emerald-600">${amount}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -13,6 +13,7 @@ export async function logTransaction(tx: {
   status?: string;
   touch_id?: string;
   leagueId?: number;
+  season?: number;
 }) {
   const leagueId = tx.leagueId ?? 1;
   let fee = 0;
@@ -37,6 +38,7 @@ export async function logTransaction(tx: {
     status: 'Pending',
     weekBack: tx.weekBack ? (parseInt(String(tx.weekBack)) || null) : null,
     fee,
+    season: tx.season ?? null,
     touch_id: tx.touch_id || tx.coach || 'transaction',
   });
 }

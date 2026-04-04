@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
-import { players, teams, transactions } from '@/schema';
-import { eq, and } from 'drizzle-orm';
+import { players, teams, transactions, rules } from '@/schema';
+import { eq, and, isNull } from 'drizzle-orm';
 import { logTransaction, getTransactions, updateTransactionStatus } from '@/lib/transactions';
 import { getCoaches } from '@/lib/config';
 import { getLeagueId } from '@/lib/getLeagueId';
@@ -27,6 +27,8 @@ export async function GET() {
       coach: t.owner || '',
       status: t.status || '',
       weekBack: t.weekBack?.toString() || '',
+      fee: t.fee ?? 0,
+      season: t.season ?? null,
     })));
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
@@ -147,7 +149,12 @@ export async function POST(req: Request) {
         .where(eq(players.id, player.id));
     }
 
-    await logTransaction({ ...body, fromTeam: resolvedFromTeam, details, leagueId });
+    // Resolve current season from rules
+    const seasonRule = await db.select({ value: rules.value }).from(rules)
+      .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'cuts_year'), isNull(rules.year))).limit(1);
+    const season = seasonRule[0] ? parseInt(seasonRule[0].value) || null : null;
+
+    await logTransaction({ ...body, fromTeam: resolvedFromTeam, details, leagueId, season });
     logSystemEvent(body.owner || 'Unknown', toTeam || resolvedFromTeam, type, details || identity, leagueId);
 
     // Send notification
