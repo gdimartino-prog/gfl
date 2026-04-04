@@ -20,26 +20,6 @@
     "touch_id": "migration-script"
   },
   {
-    "id": 15,
-    "leagueId": 1,
-    "group": "Season Downloads",
-    "title": "2026 Season with Cuts",
-    "url": "https://drive.google.com/file/d/1sdf4JPGATzzs3f-bQZbVb_r0L8rsGVki/view?usp=sharing",
-    "sortOrder": 1,
-    "touch_dt": "2026-03-21T20:47:31.713Z",
-    "touch_id": "George Di Martino"
-  },
-  {
-    "id": 8,
-    "leagueId": 1,
-    "group": "Season Downloads",
-    "title": "2025 Season",
-    "url": "https://drive.google.com/file/d/1rF_zF_FhibOt5IQ0YyH4dQ7vwe7lb0z8/view?usp=sharing",
-    "sortOrder": 1,
-    "touch_dt": "2026-02-16T12:41:09.427Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 9,
     "leagueId": 1,
     "group": "Season Downloads",
@@ -63,10 +43,30 @@
     "id": 16,
     "leagueId": 1,
     "group": "Season Downloads",
-    "title": "2025 Prelimiary Ratings",
+    "title": "2026 Prelimiary Ratings",
     "url": "https://docs.google.com/spreadsheets/d/1GTA3ljkxGxl-gRMvJ5jynFLkaJcDBCo9mOaqb9gC_k8/edit?usp=sharing",
     "sortOrder": 0,
     "touch_dt": "2026-04-02T23:03:55.959Z",
+    "touch_id": "George Di Martino"
+  },
+  {
+    "id": 8,
+    "leagueId": 1,
+    "group": "Season Downloads",
+    "title": "2025 Season",
+    "url": "https://drive.google.com/file/d/1rF_zF_FhibOt5IQ0YyH4dQ7vwe7lb0z8/view?usp=sharing",
+    "sortOrder": 3,
+    "touch_dt": "2026-02-16T12:41:09.427Z",
+    "touch_id": "George Di Martino"
+  },
+  {
+    "id": 15,
+    "leagueId": 1,
+    "group": "Season Downloads",
+    "title": "2026 Season",
+    "url": "https://drive.google.com/file/d/1sdf4JPGATzzs3f-bQZbVb_r0L8rsGVki/view?usp=sharing",
+    "sortOrder": 1,
+    "touch_dt": "2026-03-21T20:47:31.713Z",
     "touch_id": "George Di Martino"
   }
 ]

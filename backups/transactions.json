@@ -10,6 +10,7 @@
     "owner": "Frank Vitale",
     "status": "Pending",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-15T14:26:23.013Z",
     "touch_id": "Frank Vitale"
@@ -25,6 +26,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:06.965Z",
     "touch_id": "trade-migration"
@@ -40,6 +42,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:06.991Z",
     "touch_id": "trade-migration"
@@ -55,6 +58,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.011Z",
     "touch_id": "trade-migration"
@@ -70,6 +74,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.044Z",
     "touch_id": "trade-migration"
@@ -85,6 +90,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.076Z",
     "touch_id": "trade-migration"
@@ -100,6 +106,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.107Z",
     "touch_id": "trade-migration"
@@ -115,6 +122,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.139Z",
     "touch_id": "trade-migration"
@@ -130,6 +138,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.169Z",
     "touch_id": "trade-migration"
@@ -145,6 +154,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.202Z",
     "touch_id": "trade-migration"
@@ -160,6 +170,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.233Z",
     "touch_id": "trade-migration"
@@ -175,6 +186,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.263Z",
     "touch_id": "trade-migration"
@@ -190,6 +202,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.295Z",
     "touch_id": "trade-migration"
@@ -205,6 +218,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.325Z",
     "touch_id": "trade-migration"
@@ -220,6 +234,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.342Z",
     "touch_id": "trade-migration"
@@ -235,6 +250,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.372Z",
     "touch_id": "trade-migration"
@@ -250,6 +266,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.403Z",
     "touch_id": "trade-migration"
@@ -265,6 +282,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.438Z",
     "touch_id": "trade-migration"
@@ -280,6 +298,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.467Z",
     "touch_id": "trade-migration"
@@ -295,6 +314,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.500Z",
     "touch_id": "trade-migration"
@@ -310,6 +330,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.530Z",
     "touch_id": "trade-migration"
@@ -325,6 +346,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.560Z",
     "touch_id": "trade-migration"
@@ -340,6 +362,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.592Z",
     "touch_id": "trade-migration"
@@ -355,6 +378,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.621Z",
     "touch_id": "trade-migration"
@@ -370,6 +394,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.652Z",
     "touch_id": "trade-migration"
@@ -385,6 +410,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.683Z",
     "touch_id": "trade-migration"
@@ -400,6 +426,7 @@
     "owner": null,
     "status": "Done",
     "weekBack": null,
+    "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.716Z",
     "touch_id": "trade-migration"
