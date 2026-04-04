@@ -46,7 +46,11 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
       r.year?.toString().includes(historySearch);
       
     return isNotCurrent && matchesYear && matchesSearch;
-  }).sort((a, b) => Number(b.year || 0) - Number(a.year || 0) || Number(b.won || 0) - Number(a.won || 0));
+  }).sort((a, b) =>
+    Number(b.year || 0) - Number(a.year || 0) ||
+    (a.division || '').localeCompare(b.division || '') ||
+    Number(b.won || 0) - Number(a.won || 0)
+  );
 
   // 🚀 SEEDING LOGIC: Calculate seeds based on full current season data
   const seedMap = useMemo(() => {
@@ -679,7 +683,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
                     <div className="px-4 py-2 mb-2 bg-slate-100 rounded-lg">
                       <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">{div} Division</span>
                     </div>
-                    <StandingsTable data={rows} isCurrent={false} totalGames={totalGames} seedMap={seedMap} playoffTeams={playoffTeams} />
+                    <StandingsTable data={rows} isCurrent={false} totalGames={totalGames} seedMap={seedMap} playoffTeams={playoffTeams} hideYear />
                   </div>
                 ))}
               </div>
@@ -692,7 +696,7 @@ export default function StandingsClient({ allData, allGames, currentYear, totalG
   );
 }
 
-function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = false, totalGames, seedMap = {}, playoffTeams = 0 }: { data: StandingRow[], isCurrent: boolean, showGB?: boolean, showMagicNumber?: boolean, totalGames: number, seedMap?: Record<string, { seed: number, reason: string }>, playoffTeams?: number }) {
+function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = false, totalGames, seedMap = {}, playoffTeams = 0, hideYear = false }: { data: StandingRow[], isCurrent: boolean, showGB?: boolean, showMagicNumber?: boolean, totalGames: number, seedMap?: Record<string, { seed: number, reason: string }>, playoffTeams?: number, hideYear?: boolean }) {
   const leader = data[0];
   const secondPlace = data[1];
 
@@ -701,8 +705,9 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
       <table className="w-full text-left border-collapse min-w-[800px]">
         <thead className={isCurrent ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-500"}>
           <tr className="text-[10px] uppercase tracking-[0.2em] font-black">
-            <th className="p-4 pl-6">Year</th>
+            {!hideYear && <th className="p-4 pl-6">Year</th>}
             {isCurrent && <th className="p-4 text-center">Seed</th>}
+            {!isCurrent && !hideYear && <th className="p-4">Division</th>}
             <th className="p-4">Team / Manager</th>
             <th className="p-4 text-center">W-L-T</th>
             <th className="p-4 text-center">Pct</th>
@@ -770,7 +775,8 @@ function StandingsTable({ data, isCurrent, showGB = false, showMagicNumber = fal
 
             return (
               <tr key={i} className="hover:bg-slate-50/80 transition-colors group">
-                <td className="p-4 pl-6 font-bold text-slate-400 text-sm">{row.year}</td>
+                {!hideYear && <td className="p-4 pl-6 font-bold text-slate-400 text-sm">{row.year}</td>}
+                {!isCurrent && !hideYear && <td className="p-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">{row.division || '—'}</td>}
                 {isCurrent && (
                   <td className="p-4 text-center">
                     {seedMap[row.team]?.seed ? (
