@@ -54,6 +54,24 @@
     "details": "Coach entered Front Office"
   },
   {
+    "id": 138,
+    "leagueId": 1,
+    "timestamp": "2026-04-04T14:59:51.284Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 143,
+    "leagueId": 1,
+    "timestamp": "2026-04-04T22:25:49.914Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "RULE_UPDATED",
+    "details": "Updated rule: cuts_year=2026"
+  },
+  {
     "id": 20,
     "leagueId": 1,
     "timestamp": "2026-03-16T23:14:28.935Z",
@@ -387,6 +405,15 @@
     "details": "Updated rule: cuts_year=2025"
   },
   {
+    "id": 139,
+    "leagueId": 1,
+    "timestamp": "2026-04-04T18:28:56.688Z",
+    "coach": "Unknown",
+    "team": "Vico",
+    "action": "ADD",
+    "details": "RB/RET - Ameer Abdullah"
+  },
+  {
     "id": 80,
     "leagueId": 1,
     "timestamp": "2026-03-22T14:15:00.319Z",
@@ -502,6 +529,24 @@
     "team": "Vico",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 140,
+    "leagueId": 1,
+    "timestamp": "2026-04-04T18:35:15.921Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #77 deleted"
+  },
+  {
+    "id": 141,
+    "leagueId": 1,
+    "timestamp": "2026-04-04T18:35:21.554Z",
+    "coach": "Unknown",
+    "team": "Vico",
+    "action": "ADD",
+    "details": "OLB - Yasir Abdullah"
   },
   {
     "id": 96,
@@ -1231,5 +1276,14 @@
     "team": "admin",
     "action": "DRAFT_SETUP_GENERATED",
     "details": "Generated 450 picks for 2026 free_agent draft (25 rounds)"
+  },
+  {
+    "id": 142,
+    "leagueId": 1,
+    "timestamp": "2026-04-04T18:36:13.103Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #78 deleted"
   }
 ]
