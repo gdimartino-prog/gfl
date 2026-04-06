@@ -414,6 +414,24 @@
     "details": "RB/RET - Ameer Abdullah"
   },
   {
+    "id": 144,
+    "leagueId": 1,
+    "timestamp": "2026-04-05T17:03:23.242Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 145,
+    "leagueId": 1,
+    "timestamp": "2026-04-05T17:05:42.326Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
     "id": 80,
     "leagueId": 1,
     "timestamp": "2026-03-22T14:15:00.319Z",
