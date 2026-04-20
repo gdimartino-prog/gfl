@@ -6,6 +6,7 @@ import { eq, and, asc } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyDraftPick } from '@/lib/notify';
+import { getDraftClockMinutes } from '@/lib/draftClock';
 
 export async function POST() {
   const session = await auth();
@@ -49,8 +50,8 @@ export async function POST() {
     const clockStart = prevPick?.pickedAt ? new Date(prevPick.pickedAt) : null;
     if (!clockStart) return NextResponse.json({ skipped: 'no clock start' });
 
-    const limitHours = activePick.round <= 2 ? 24 : 12;
-    const expiryTime = new Date(clockStart.getTime() + limitHours * 60 * 60 * 1000);
+    const clockMinutes = await getDraftClockMinutes(leagueId, activePick.round);
+    const expiryTime = new Date(clockStart.getTime() + clockMinutes * 60 * 1000);
     const now = new Date();
 
     if (now < expiryTime) {
@@ -69,7 +70,7 @@ export async function POST() {
     const onDeck = allPicks
       .slice(activeIdx + 1, activeIdx + 4)
       .filter(p => !p.playerId)
-      .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '' }));
+      .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
     await notifyDraftPick({
       round: activePick.round,

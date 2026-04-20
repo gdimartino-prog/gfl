@@ -171,7 +171,7 @@ export async function clearAllPickSelections(leagueId: number, year: number, cle
 
   // Reset selections only — keep the pick slot structure intact
   await db.update(draftPicks)
-    .set({ playerId: null, selectedPlayerName: null, pickedAt: null, passed: false, touch_id: clearedBy })
+    .set({ playerId: null, selectedPlayerName: null, pickedAt: null, passed: false, warningSent: false, touch_id: clearedBy })
     .where(baseWhere);
 }
 

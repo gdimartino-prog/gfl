@@ -91,7 +91,7 @@ export async function GET(req: Request) {
       const onDeck = allPicks
         .slice(activeIdx + 1, activeIdx + 4)
         .filter(p => !p.playerId && !p.passed)
-        .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '' }));
+        .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
       if (diffMs <= 0) {
         await db.update(draftPicks)
