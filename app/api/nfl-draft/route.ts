@@ -9,7 +9,9 @@ import { getLeagueId } from '@/lib/getLeagueId';
 export const dynamic = 'force-dynamic';
 
 function normalizeName(name: string): string {
-  return name
+  // Strip GFL position prefix: "QB - Cam Ward" → "Cam Ward"
+  const stripped = name.includes(' - ') ? name.split(' - ').slice(1).join(' - ') : name;
+  return stripped
     .toLowerCase()
     .replace(/[^a-z\s]/g, '')
     .replace(/\s+/g, ' ')
