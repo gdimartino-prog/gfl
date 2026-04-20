@@ -326,6 +326,19 @@ export const standingsRelations = relations(standings, ({ one }) => ({
   }),
 }));
 
+// NFL Draft data (global, not league-specific)
+export const nflDraft = pgTable("nfl_draft", {
+  id: serial("id").primaryKey(),
+  year: integer("year").notNull(),
+  round: integer("round").notNull(),
+  pick: integer("pick").notNull(),       // overall pick number
+  roundPick: integer("round_pick").notNull(), // pick within round
+  playerName: text("player_name").notNull(),
+  position: text("position"),
+  nflTeam: text("nfl_team"),
+  college: text("college"),
+});
+
 export const scheduleRelations = relations(schedule, ({ one }) => ({
   league: one(leagues, {
     fields: [schedule.leagueId],
