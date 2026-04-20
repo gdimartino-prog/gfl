@@ -365,11 +365,7 @@ function DraftBoardContent() {
           return Number(a.age || 0) - Number(b.age || 0);
         }
 
-        // 3. Default: OVR first, then Salary (Highest to Lowest)
-        const ovrA = Number(String(a.overall || 0).replace(/[^0-9.-]+/g, ""));
-        const ovrB = Number(String(b.overall || 0).replace(/[^0-9.-]+/g, ""));
-        if (ovrB !== ovrA) return ovrB - ovrA;
-
+        // 3. Default: Salary highest to lowest (salary is the universal rating proxy)
         const salaryA = Number(String(a.salary || 0).replace(/[^0-9.-]+/g, ""));
         const salaryB = Number(String(b.salary || 0).replace(/[^0-9.-]+/g, ""));
         if (salaryB !== salaryA) return salaryB - salaryA;
