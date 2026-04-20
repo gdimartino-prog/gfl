@@ -6,6 +6,7 @@ import { nflDraft, draftPicks, rules, teams } from '@/schema';
 import { eq, and, asc, isNotNull, isNull } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
+import { getPlayers } from '@/lib/players';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,13 +70,22 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // Annotate each NFL pick with GFL draft info
+    // Build name → identity map from GFL players
+    const gflPlayers = await getPlayers(leagueId);
+    const gflIdentityMap = new Map<string, string>(); // normalizedName → identity
+    for (const p of gflPlayers) {
+      const fullName = `${p.first} ${p.last}`.trim();
+      gflIdentityMap.set(normalizeName(fullName), p.identity);
+    }
+
+    // Annotate each NFL pick with GFL draft info + identity for ratings lookup
     const result = nflPicks.map(p => {
       const key = normalizeName(p.playerName);
       return {
         ...p,
         gflDrafted: gflDraftedNames.has(key),
         gflTeam: gflPickedBy.get(key) ?? null,
+        gflIdentity: gflIdentityMap.get(key) ?? null,
       };
     });
 

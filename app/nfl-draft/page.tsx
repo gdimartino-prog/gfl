@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import PlayerCard from '@/components/PlayerCard';
+import { Player } from '@/types';
+import { ChevronRight, Loader2 } from 'lucide-react';
 
 interface NflPick {
   id: number;
@@ -16,6 +19,7 @@ interface NflPick {
   college: string | null;
   gflDrafted: boolean;
   gflTeam: string | null;
+  gflIdentity: string | null;
 }
 
 const POSITION_COLORS: Record<string, string> = {
@@ -49,6 +53,8 @@ export default function NflDraftPage() {
   const [posFilter, setPosFilter] = useState('ALL');
   const [search, setSearch] = useState('');
   const [showGflOnly, setShowGflOnly] = useState(false);
+  const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
+  const [detailLoading, setDetailLoading] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -78,6 +84,14 @@ export default function NflDraftPage() {
     load();
   }, [year, status]);
 
+  const handlePlayerDetails = (identity: string) => {
+    setDetailLoading(identity);
+    fetch(`/api/players/details/${encodeURIComponent(identity)}`)
+      .then(r => r.json())
+      .then(data => { setViewingPlayer(data); setDetailLoading(null); })
+      .catch(() => setDetailLoading(null));
+  };
+
   const role = (session?.user as { role?: string })?.role;
   if (status === 'loading' || (status === 'authenticated' && role !== 'admin' && role !== 'superuser')) {
     return null;
@@ -105,6 +119,7 @@ export default function NflDraftPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {viewingPlayer && <PlayerCard data={viewingPlayer} onClose={() => setViewingPlayer(null)} />}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -183,6 +198,7 @@ export default function NflDraftPage() {
                           <th className="px-3 py-2 text-left w-14">Pos</th>
                           <th className="px-3 py-2 text-left hidden sm:table-cell">NFL Team</th>
                           <th className="px-3 py-2 text-left hidden md:table-cell">College</th>
+                          <th className="px-3 py-2 w-10"></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -229,6 +245,20 @@ export default function NflDraftPage() {
                             </td>
                             <td className="px-3 py-2 text-gray-600 hidden sm:table-cell">{p.nflTeam}</td>
                             <td className="px-3 py-2 text-gray-500 hidden md:table-cell">{p.college}</td>
+                            <td className="px-2 py-2">
+                              {p.gflIdentity && (
+                                <button
+                                  onClick={() => handlePlayerDetails(p.gflIdentity!)}
+                                  disabled={detailLoading === p.gflIdentity}
+                                  className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-gray-400 hover:bg-blue-600 hover:text-white active:scale-95 transition-all disabled:opacity-50"
+                                  title="View player ratings"
+                                >
+                                  {detailLoading === p.gflIdentity
+                                    ? <Loader2 size={14} className="animate-spin" />
+                                    : <ChevronRight size={14} />}
+                                </button>
+                              )}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
