@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
       .orderBy(asc(nflDraft.pick));
 
     // Get all completed GFL draft picks (players actually selected)
-    let gflDraftedNames: Set<string> = new Set();
+    const gflDraftedNames: Set<string> = new Set();
     if (draftYear) {
       const gflPicks = await db.select({ selectedPlayerName: draftPicks.selectedPlayerName })
         .from(draftPicks)

@@ -62,15 +62,19 @@ export default function NflDraftPage() {
 
   useEffect(() => {
     if (status !== 'authenticated') return;
-    setLoading(true);
-    fetch(`/api/nfl-draft?year=${year}`)
-      .then(r => r.json())
-      .then(data => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/nfl-draft?year=${year}`);
+        const data = await res.json();
         setPicks(data.picks || []);
         setDraftYear(data.draftYear || null);
         setGflCount(data.gflDraftedCount || 0);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, [year, status]);
 
   const role = (session?.user as { role?: string })?.role;
