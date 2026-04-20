@@ -89,24 +89,6 @@ function DraftBoardContent() {
     loadData(true);
   };
 
-  const handleClearAll = async () => {
-    const draftYear = yearFilter !== 'All' ? yearFilter : (onClockPick?.year ?? picks[0]?.year ?? '');
-    if (!draftYear) return alert('Could not determine draft year.');
-    const typeLabel = draftTypeFilter === 'all' ? '' : ` ${draftTypeFilter === 'free_agent' ? 'Free Agent' : 'Rookie'}`;
-    if (!await confirm(`Clear ALL picks for the ${draftYear}${typeLabel} draft? This cannot be undone.`, { title: 'Clear Draft', confirmLabel: 'Clear All', destructive: true })) return;
-    setIsRefreshing(true);
-    const res = await fetch('/api/draft-picks', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clearAll: true, year: draftYear, draftType: draftTypeFilter !== 'all' ? draftTypeFilter : undefined }),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      alert(`Clear draft failed: ${err.error || res.status}`);
-    }
-    loadData(true);
-  };
-
   const handleUndoMyPick = async () => {
     if (!await confirm('The player will be returned to free agency.', { title: 'Undo your last pick?', confirmLabel: 'Undo', destructive: true })) return;
     setIsRefreshing(true);
@@ -454,15 +436,6 @@ function DraftBoardContent() {
               title="Undo your last pick (only available before next team picks)"
             >
               <RotateCcw size={14} /> Undo My Pick
-            </button>
-          )}
-          {isAdminUser && (
-            <button
-              onClick={handleClearAll}
-              disabled={isRefreshing}
-              className="bg-red-600 text-white px-6 py-4 rounded-2xl shadow-xl font-black uppercase text-[10px] tracking-widest hover:bg-red-700 transition-all active:scale-95 flex items-center gap-2"
-            >
-              <Trash2 size={14} /> Clear Draft
             </button>
           )}
           <button

@@ -93,6 +93,10 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const [rulesLoading, setRulesLoading] = useState(true);
   const [editedValues, setEditedValues] = useState<Record<string, string>>({});
   const [savingRule, setSavingRule] = useState<string | null>(null);
+  const [clearDraftYear, setClearDraftYear] = useState('');
+  const [clearDraftType, setClearDraftType] = useState('free_agent');
+  const [clearDraftLoading, setClearDraftLoading] = useState(false);
+  const [clearDraftMsg, setClearDraftMsg] = useState<{ success: boolean; text: string } | null>(null);
   const [ruleResults, setRuleResults] = useState<Record<string, { success: boolean; message: string }>>({});
   const [initializingRules, setInitializingRules] = useState(false);
   const [initMessage, setInitMessage] = useState<string | null>(null);
@@ -175,6 +179,21 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
     setGameMsg(null);
     setAddingGame(true);
     setGameForm(blankGameForm());
+  };
+
+  const handleClearDraft = async () => {
+    if (!clearDraftYear) return setClearDraftMsg({ success: false, text: 'Enter a draft year.' });
+    if (!await confirm(`Clear ALL selections for the ${clearDraftYear} ${clearDraftType === 'free_agent' ? 'Free Agent' : 'Rookie'} draft? This cannot be undone.`, { title: 'Clear Draft', confirmLabel: 'Clear All', destructive: true })) return;
+    setClearDraftLoading(true);
+    setClearDraftMsg(null);
+    const res = await fetch('/api/draft-picks', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clearAll: true, year: clearDraftYear, draftType: clearDraftType }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setClearDraftMsg(res.ok ? { success: true, text: 'Draft cleared successfully.' } : { success: false, text: data.error || 'Clear failed.' });
+    setClearDraftLoading(false);
   };
 
   const cancelGame = () => { setEditingGameId(null); setAddingGame(false); setGameMsg(null); };
@@ -726,6 +745,42 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
             className="px-6 py-2.5 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all">
             Open Setup Wizard →
           </Link>
+        </div>
+        <div className="px-8 py-6 border-t border-slate-100">
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Clear Draft Selections</p>
+          <div className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Year</label>
+              <input
+                type="number"
+                value={clearDraftYear}
+                onChange={e => setClearDraftYear(e.target.value)}
+                placeholder="e.g. 2026"
+                className="w-28 px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-300"
+              />
+            </div>
+            <div>
+              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Type</label>
+              <select
+                value={clearDraftType}
+                onChange={e => setClearDraftType(e.target.value)}
+                className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-300"
+              >
+                <option value="free_agent">Free Agent</option>
+                <option value="rookie">Rookie</option>
+              </select>
+            </div>
+            <button
+              onClick={handleClearDraft}
+              disabled={clearDraftLoading}
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all disabled:opacity-50"
+            >
+              <Trash2 size={13} /> {clearDraftLoading ? 'Clearing…' : 'Clear Draft'}
+            </button>
+          </div>
+          {clearDraftMsg && (
+            <p className={`mt-3 text-xs font-bold ${clearDraftMsg.success ? 'text-green-600' : 'text-red-500'}`}>{clearDraftMsg.text}</p>
+          )}
         </div>
       </div>
 
