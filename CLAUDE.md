@@ -102,7 +102,7 @@ All in `.env.local` — never commit this file:
 - `GREENAPI_INSTANCE_ID` / `GREENAPI_API_TOKEN` / `GREENAPI_GROUP_ID` — WhatsApp (GFL only)
 - `SEND_WHATSAPP` — set to `'false'` to disable WhatsApp globally
 - `SUPERUSER_USERNAME` / `SUPERUSER_PASSWORD` — superuser credentials
-- `NEXT_PUBLIC_APP_URL` — public URL (e.g. `https://gfl-zeta.vercel.app`)
+- `NEXT_PUBLIC_APP_URL` — public URL (e.g. `https://afl.gddevco.com`)
 
 ## Code Conventions
 - **Schema first:** Add new tables/columns to `schema.ts` before writing backend code, then `npm run db:push`

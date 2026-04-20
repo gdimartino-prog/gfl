@@ -58,7 +58,7 @@
    - Check for logic bugs, null-handling issues, and React hook dependency errors.
 
 **4. Full Browser UI Testing (MANDATORY):**
-   - Use Playwright MCP to navigate the live app at `https://gfl-alpha.vercel.app`.
+   - Use Playwright MCP to navigate the live app at `https://afl.gddevco.com`.
    - Log in with test accounts: `admin`/`gfl2020` (superuser) or `vico`/`gfl2222` (admin coach).
    - **Click every interactive element on every page.**
    - Verify functionality against the detailed page-by-page test scripts found in `.claude/agents/qa.md`.

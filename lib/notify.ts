@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 const MY_EMAIL = process.env.NOTIFY_MY_EMAIL || 'gdimartino@gmail.com';
 const GROUP_EMAIL = process.env.NOTIFY_GROUP_EMAIL || MY_EMAIL;
 const SEND_WHATSAPP = process.env.SEND_WHATSAPP !== 'false';
-export const GFL_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://gfl-zeta.vercel.app';
+export const GFL_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://afl.gddevco.com';
 const FROM_EMAIL = process.env.NOTIFY_FROM_EMAIL || `GFL <${MY_EMAIL}>`;
 
 let _transporter: nodemailer.Transporter | null = null;

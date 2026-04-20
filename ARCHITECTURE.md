@@ -29,7 +29,7 @@
 | Email | Gmail SMTP via nodemailer v6 |
 | WhatsApp | GreenAPI |
 | File Storage | Vercel Blob |
-| Deployment | Vercel (gfl-alpha.vercel.app) |
+| Deployment | Vercel (afl.gddevco.com) |
 | CI/CD | GitHub Actions |
 
 ---
@@ -429,7 +429,7 @@ All cron jobs run via **GitHub Actions** (not Vercel — Vercel Hobby plan limit
 1. Developer pushes to `main` branch on GitHub
 2. `.github/workflows/deploy.yml` triggers
 3. GitHub Action calls Vercel deploy hook via HTTP POST
-4. Vercel builds and deploys to `gfl-alpha.vercel.app`
+4. Vercel builds and deploys to `afl.gddevco.com`
 
 ### Environment Variables
 - Stored in Vercel dashboard (production environment)

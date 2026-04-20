@@ -44,7 +44,7 @@ Check changed files for:
 
 ## Step 4 — Full Browser UI Testing (ALWAYS REQUIRED)
 
-**This is mandatory on every QA run.** Use Playwright MCP to navigate the live app at `https://gfl-alpha.vercel.app` and click through every interactive element on every page like a human user would. Do not skip UI testing. Do not just load pages — actually interact with them.
+**This is mandatory on every QA run.** Use Playwright MCP to navigate the live app at `https://afl.gddevco.com` and click through every interactive element on every page like a human user would. Do not skip UI testing. Do not just load pages — actually interact with them.
 
 ### Test Accounts
 | Role          | Username | Password | Notes |
