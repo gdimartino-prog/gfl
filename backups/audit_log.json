@@ -72,6 +72,15 @@
     "details": "Updated rule: cuts_year=2026"
   },
   {
+    "id": 148,
+    "leagueId": 1,
+    "timestamp": "2026-04-20T01:49:47.847Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
     "id": 20,
     "leagueId": 1,
     "timestamp": "2026-03-16T23:14:28.935Z",
@@ -428,6 +437,15 @@
     "timestamp": "2026-04-05T17:05:42.326Z",
     "coach": "Pete Vuckovaz",
     "team": "Carolina",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 149,
+    "leagueId": 1,
+    "timestamp": "2026-04-20T02:24:58.920Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
   },
