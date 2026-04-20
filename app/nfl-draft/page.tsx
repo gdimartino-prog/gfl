@@ -15,6 +15,7 @@ interface NflPick {
   nflTeam: string | null;
   college: string | null;
   gflDrafted: boolean;
+  gflTeam: string | null;
 }
 
 const POSITION_COLORS: Record<string, string> = {
@@ -209,7 +210,7 @@ export default function NflDraftPage() {
                                 </span>
                                 {p.gflDrafted && (
                                   <span className="text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded uppercase tracking-wider">
-                                    GFL
+                                    {p.gflTeam ?? 'GFL'}
                                   </span>
                                 )}
                               </div>

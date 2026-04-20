@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { isAdmin } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { nflDraft, draftPicks, rules } from '@/schema';
+import { nflDraft, draftPicks, rules, teams } from '@/schema';
 import { eq, and, asc, isNotNull, isNull } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
 
 export const dynamic = 'force-dynamic';
@@ -43,11 +44,15 @@ export async function GET(req: NextRequest) {
       .where(eq(nflDraft.year, year))
       .orderBy(asc(nflDraft.pick));
 
-    // Get all completed GFL draft picks (players actually selected)
+    // Get all completed GFL draft picks with team name
     const gflDraftedNames: Set<string> = new Set();
+    const gflPickedBy: Map<string, string> = new Map(); // normalizedName → team name
     if (draftYear) {
-      const gflPicks = await db.select({ selectedPlayerName: draftPicks.selectedPlayerName })
+      const currentTeams = alias(teams, 'currentTeams');
+      const gflPicks = await db
+        .select({ selectedPlayerName: draftPicks.selectedPlayerName, teamName: currentTeams.name })
         .from(draftPicks)
+        .leftJoin(currentTeams, eq(draftPicks.currentTeamId, currentTeams.id))
         .where(and(
           eq(draftPicks.leagueId, leagueId),
           eq(draftPicks.year, draftYear),
@@ -57,16 +62,22 @@ export async function GET(req: NextRequest) {
 
       for (const p of gflPicks) {
         if (p.selectedPlayerName && !p.selectedPlayerName.startsWith('SKIPPED')) {
-          gflDraftedNames.add(normalizeName(p.selectedPlayerName));
+          const key = normalizeName(p.selectedPlayerName);
+          gflDraftedNames.add(key);
+          if (p.teamName) gflPickedBy.set(key, p.teamName);
         }
       }
     }
 
-    // Annotate each NFL pick with whether they were GFL drafted
-    const result = nflPicks.map(p => ({
-      ...p,
-      gflDrafted: gflDraftedNames.has(normalizeName(p.playerName)),
-    }));
+    // Annotate each NFL pick with GFL draft info
+    const result = nflPicks.map(p => {
+      const key = normalizeName(p.playerName);
+      return {
+        ...p,
+        gflDrafted: gflDraftedNames.has(key),
+        gflTeam: gflPickedBy.get(key) ?? null,
+      };
+    });
 
     return NextResponse.json({ picks: result, draftYear, gflDraftedCount: gflDraftedNames.size });
   } catch (err) {
