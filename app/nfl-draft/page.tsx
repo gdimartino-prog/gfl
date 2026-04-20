@@ -205,9 +205,14 @@ export default function NflDraftPage() {
                             </td>
                             <td className="px-3 py-2">
                               <div className="flex items-center gap-2">
-                                <span className={`font-semibold ${p.gflDrafted ? 'text-red-700' : 'text-gray-900'}`}>
+                                <a
+                                  href={`https://www.google.com/search?q=${encodeURIComponent(p.playerName)}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`font-semibold hover:underline ${p.gflDrafted ? 'text-red-700' : 'text-blue-600 hover:text-blue-800'}`}
+                                >
                                   {p.playerName}
-                                </span>
+                                </a>
                                 {p.gflDrafted && (
                                   <span className="text-[10px] font-bold bg-red-600 text-white px-1.5 py-0.5 rounded uppercase tracking-wider">
                                     {p.gflTeam ?? 'GFL'}
