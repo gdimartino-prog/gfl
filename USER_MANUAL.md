@@ -101,6 +101,19 @@ The **Team Rosters** page is where you can see the full roster for every team in
 
 The dark panel at the top shows the team's coach name, contact info, win/loss record, and current roster size (e.g., 53/53).
 
+### Adding a Player to the Trade Block
+
+When you are viewing **your own team's roster**, a shopping cart icon appears on the right side of each player row.
+
+1.  **Find the player** you want to list — they appear in the Offense, Defense, or Special Teams sections.
+2.  **Click the shopping cart button** on that player's row. The button is grey by default and turns green when a player is already listed.
+3.  A **"Post to Trade Block"** form will appear. Enter what you are asking for in return (e.g., "1st round pick + starter QB", or "Open to offers").
+4.  Click **"Post to Trade Block"** to publish the listing. The player will appear immediately on the public [Trade Block](#9-the-trade-block-make-a-deal) page for all coaches to see.
+
+**To remove a player from the block**, click the same button again (it will be green). A confirmation dialog will ask you to confirm the removal.
+
+> **Note:** Only the owner of a team can add or remove players from that team's trade block. The button is not visible when viewing another team's roster.
+
 ---
 
 ## 4. League Standings: See Who's on Top
@@ -313,8 +326,8 @@ The **Trade Block** is a public marketplace where coaches can list players they 
 ![Trade Block Page](/manual-screenshots/trade-block.png)
 
 *   **View the Block:** See all players currently listed, along with what the coach is asking for in return.
-*   **Post a Player:** Contact your commissioner to have a player added to the trade block.
-*   **Remove a Player:** If you have a player on the block, you'll see a **"Remove"** button next to their name.
+*   **Post a Player:** Go to your **Team Roster** page and click the shopping cart icon on any player row to list them. See [Section 3](#3-team-rosters-know-your-squad-and-your-rivals) for full instructions.
+*   **Remove a Player:** If you have a player on the block, you'll see a red **trash icon** button next to their name on this page. Click it to remove them, or use the shopping cart button (now green) on your roster page.
 
 ---
 
