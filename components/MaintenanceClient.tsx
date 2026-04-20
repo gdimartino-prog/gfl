@@ -20,6 +20,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const [files, setFiles] = useState<File[]>([]);
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [fileCounts, setFileCounts] = useState<Record<string, number>>({});
   const [results, setResults] = useState<{ fileName: string; success: boolean; message: string }[]>([]);
 
   // Pending signups state
@@ -582,6 +583,17 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (files.length === 0) { alert("Please select one or more files to upload."); return; }
+
+    // Pre-count rows in CSV files so we can show "X records" while processing
+    const counts: Record<string, number> = {};
+    await Promise.all(files.map(async file => {
+      if (!file.name.toLowerCase().endsWith('.csv')) return;
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter(l => l.trim() && !l.startsWith('team,'));
+      counts[file.name] = lines.length;
+    }));
+    setFileCounts(counts);
+
     setUploading(true);
     setResults([]);
     const formData = new FormData();
@@ -591,6 +603,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
     const result = await response.json();
     setUploading(false);
     setFiles([]);
+    setFileCounts({});
 
     if (response.ok) {
       setResults(result.results);
@@ -638,17 +651,27 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
           <div className="mt-6">
             <h4 className="text-lg font-bold">Selected Files:</h4>
             <ul className="mt-2 space-y-2">
-              {files.map((file, index) => (
-                <li key={index} className="flex items-center justify-between p-2 bg-slate-100 rounded-md">
-                  <div className="flex items-center">
-                    <FileIcon className="h-5 w-5 text-slate-500" />
-                    <span className="ml-2 text-sm text-slate-700">{file.name}</span>
-                  </div>
-                  <button onClick={() => removeFile(index)} className="p-1 rounded-full hover:bg-slate-200">
-                    <X className="h-4 w-4 text-slate-500" />
-                  </button>
-                </li>
-              ))}
+              {files.map((file, index) => {
+                const count = fileCounts[file.name];
+                return (
+                  <li key={index} className="flex items-center justify-between p-2 bg-slate-100 rounded-md">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <FileIcon className="h-5 w-5 shrink-0 text-slate-500" />
+                      <span className="text-sm text-slate-700 truncate">{file.name}</span>
+                      {uploading && count !== undefined && (
+                        <span className="shrink-0 text-[10px] font-black text-blue-600 uppercase tracking-widest animate-pulse">
+                          {count.toLocaleString()} records…
+                        </span>
+                      )}
+                    </div>
+                    {!uploading && (
+                      <button onClick={() => removeFile(index)} className="p-1 rounded-full hover:bg-slate-200">
+                        <X className="h-4 w-4 text-slate-500" />
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
@@ -660,7 +683,9 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
             files.length === 0 ? "bg-slate-100 text-slate-300" : "bg-slate-900 text-white shadow-xl hover:bg-blue-600"
           }`}
         >
-          {uploading ? "Processing..." : `Synchronize ${files.length} File(s)`}
+          {uploading
+            ? `Processing ${Object.values(fileCounts).reduce((a, b) => a + b, 0) || ''}${Object.keys(fileCounts).length > 0 ? ' records…' : '…'}`
+            : `Synchronize ${files.length} File(s)`}
         </button>
       </form>
 
