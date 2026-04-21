@@ -20,7 +20,11 @@ function findTeam(allTeams: TeamRow[], nameStr: string): TeamRow | null {
   return byPrefix ?? null;
 }
 
-export async function processPlayersFile(fileContent: string, leagueId: number = 1) {
+export async function processPlayersFile(
+  fileContent: string,
+  leagueId: number = 1,
+  onProgress?: (current: number, total: number) => void,
+) {
   const parseResult = Papa.parse(fileContent, { header: true, skipEmptyLines: true });
   const rows = parseResult.data as Record<string, string>[];
 
@@ -124,7 +128,8 @@ export async function processPlayersFile(fileContent: string, leagueId: number =
 
   // 3. Upsert each player from the file
   const fileIdentities = new Set<string>();
-  for (const p of playerValues) {
+  for (let i = 0; i < playerValues.length; i++) {
+    const p = playerValues[i];
     if (p.identity) fileIdentities.add(p.identity);
     const existingId = p.identity ? existingByIdentity.get(p.identity) : undefined;
     if (existingId) {
@@ -132,6 +137,7 @@ export async function processPlayersFile(fileContent: string, leagueId: number =
     } else {
       await db.insert(players).values(p);
     }
+    if (onProgress) onProgress(i + 1, playerValues.length);
   }
 
   // 4. Remove players no longer in file, but only if not referenced by a draft pick

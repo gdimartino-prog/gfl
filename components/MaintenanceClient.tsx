@@ -21,6 +21,8 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [fileCounts, setFileCounts] = useState<Record<string, number>>({});
+  const [progressCurrent, setProgressCurrent] = useState(0);
+  const [progressTotal, setProgressTotal] = useState(0);
   const [results, setResults] = useState<{ fileName: string; success: boolean; message: string }[]>([]);
 
   // Pending signups state
@@ -584,7 +586,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
     e.preventDefault();
     if (files.length === 0) { alert("Please select one or more files to upload."); return; }
 
-    // Pre-count rows in CSV files so we can show "X records" while processing
+    // Pre-count rows in CSV files for the total display
     const counts: Record<string, number> = {};
     await Promise.all(files.map(async file => {
       if (!file.name.toLowerCase().endsWith('.csv')) return;
@@ -593,22 +595,54 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
       counts[file.name] = lines.length;
     }));
     setFileCounts(counts);
+    setProgressCurrent(0);
+    setProgressTotal(Object.values(counts).reduce((a, b) => a + b, 0));
 
     setUploading(true);
     setResults([]);
+
     const formData = new FormData();
     files.forEach(file => formData.append("files", file));
 
-    const response = await fetch("/api/maintenance", { method: "POST", body: formData });
-    const result = await response.json();
-    setUploading(false);
-    setFiles([]);
-    setFileCounts({});
+    try {
+      const response = await fetch("/api/maintenance/stream", { method: "POST", body: formData });
+      if (!response.ok || !response.body) {
+        const err = await response.json().catch(() => ({}));
+        alert(`Upload failed: ${err.message || err.error || 'Unknown error'}`);
+        return;
+      }
 
-    if (response.ok) {
-      setResults(result.results);
-    } else {
-      alert(`Upload failed: ${result.message || result.error}`);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      const fileResults: { fileName: string; success: boolean; message: string }[] = [];
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const event = JSON.parse(line.slice(6));
+            if (event.type === 'progress') {
+              setProgressCurrent(event.current);
+            } else if (event.type === 'file_done') {
+              fileResults.push({ fileName: event.file, success: event.success, message: event.message });
+            }
+          } catch { /* ignore malformed lines */ }
+        }
+      }
+
+      setResults(fileResults);
+    } finally {
+      setUploading(false);
+      setFiles([]);
+      setFileCounts({});
+      setProgressCurrent(0);
+      setProgressTotal(0);
     }
   };
 
@@ -660,7 +694,9 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                       <span className="text-sm text-slate-700 truncate">{file.name}</span>
                       {uploading && count !== undefined && (
                         <span className="shrink-0 text-[10px] font-black text-blue-600 uppercase tracking-widest animate-pulse">
-                          {count.toLocaleString()} records…
+                          {progressTotal > 0
+                            ? `${progressCurrent.toLocaleString()} / ${count.toLocaleString()}`
+                            : `${count.toLocaleString()} records…`}
                         </span>
                       )}
                     </div>
@@ -684,7 +720,9 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
           }`}
         >
           {uploading
-            ? `Processing ${Object.values(fileCounts).reduce((a, b) => a + b, 0) || ''}${Object.keys(fileCounts).length > 0 ? ' records…' : '…'}`
+            ? progressTotal > 0
+              ? `Processing ${progressCurrent.toLocaleString()} of ${progressTotal.toLocaleString()} records…`
+              : 'Processing…'
             : `Synchronize ${files.length} File(s)`}
         </button>
       </form>
