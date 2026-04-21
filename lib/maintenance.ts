@@ -74,9 +74,11 @@ export async function processPlayersFile(
     // Overall rating (matches parsePlayers logic)
     const parseNum = (k: string) => Number(v(k)) || 0;
     const parseSalary = (k: string) => Number(String(v(k) || '0').replace(/[$,]/g, '')) || 0;
+    const skill_positions = ['WR', 'TE', 'RB', 'HB', 'FB'];
     let overallRating = 0;
     if (def) overallRating = parseNum('total defense');
     else if (off && ol_positions.includes(off.toUpperCase())) overallRating = parseNum('run block') + parseNum('pass block');
+    else if (off && skill_positions.includes(off.toUpperCase())) overallRating = parseNum('receiving');
     else overallRating = parseSalary('salary');
 
     const scouting: Record<string, string> = {};

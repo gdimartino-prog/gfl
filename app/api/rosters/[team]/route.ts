@@ -33,6 +33,7 @@ export async function GET(_req: Request, { params }: RouteContext) {
         pos: (p.position ?? '??').toUpperCase(),
         group: p.offense ? 'OFF' : p.defense ? 'DEF' : 'SPEC',
         overall: p.overall,
+        receiving: p.scouting?.receiving ?? null,
         isIR: p.isIR,
         run: p.run,
         pass: p.pass,
