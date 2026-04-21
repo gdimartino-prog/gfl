@@ -35,6 +35,7 @@ function DraftBoardContent() {
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
   const [yearFilter, setYearFilter] = useState('All');
+  const [draftStartDate, setDraftStartDate] = useState<Date | null>(null);
   const [teamFilter, setTeamFilter] = useState('All Teams');
   const [roundFilter, setRoundFilter] = useState('All');
   const [draftTypeFilter, setDraftTypeFilter] = useState<'free_agent' | 'rookie' | 'all'>('free_agent');
@@ -130,8 +131,15 @@ function DraftBoardContent() {
 
       if (Array.isArray(rRes)) {
         const dYear = rRes.find(r => r.setting === 'draft_year');
-        
         if (dYear?.value) setYearFilter(dYear.value.toString());
+
+        const dStart = rRes.find((r: {setting: string; value: string}) => r.setting === 'draft_start_date');
+        if (dStart?.value) {
+          const d = new Date(dStart.value);
+          setDraftStartDate(isNaN(d.getTime()) ? null : d);
+        } else {
+          setDraftStartDate(null);
+        }
       }
     } catch (err) { 
       console.error("Error loading draft data:", err); 
@@ -425,6 +433,14 @@ function DraftBoardContent() {
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             Season {yearFilter} Live Entry Console
           </p>
+          {draftStartDate && (
+            <p className={`text-[11px] font-black uppercase tracking-[0.2em] mt-2 flex items-center gap-2 ${new Date() < draftStartDate ? 'text-amber-500' : 'text-emerald-500'}`}>
+              <span className={`w-2 h-2 rounded-full ${new Date() < draftStartDate ? 'bg-amber-400 animate-pulse' : 'bg-emerald-500'}`} />
+              {new Date() < draftStartDate
+                ? `Clock starts ${draftStartDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at ${draftStartDate.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`
+                : `Clock active since ${draftStartDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at ${draftStartDate.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`}
+            </p>
+          )}
         </div>
         <div className="flex gap-3 flex-wrap justify-end">
           {canUndoMyPick && !isAdminUser && (
