@@ -410,16 +410,6 @@
     "touch_id": "maintenance"
   },
   {
-    "id": 62,
-    "leagueId": 2,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "23",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-05T15:35:08.929Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
     "id": 24,
     "leagueId": 1,
     "year": null,
@@ -428,26 +418,6 @@
     "desc": "Current season, this is used for Cuts",
     "touch_dt": "2026-03-04T16:08:49.166Z",
     "touch_id": "maintenance"
-  },
-  {
-    "id": 38,
-    "leagueId": 1,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "23",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-04T16:08:49.166Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
-    "id": 71,
-    "leagueId": 3,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "23",
-    "desc": null,
-    "touch_dt": "2026-03-25T12:38:20.671Z",
-    "touch_id": "cron-nfl-week"
   },
   {
     "id": 49,
@@ -470,11 +440,41 @@
     "touch_id": "fix-cuts-year"
   },
   {
+    "id": 62,
+    "leagueId": 2,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "23",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
+    "id": 38,
+    "leagueId": 1,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "23",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
+    "id": 71,
+    "leagueId": 3,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "23",
+    "desc": null,
+    "touch_dt": "2026-03-25T12:38:20.671Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
     "id": 39,
     "leagueId": 1,
     "year": null,
     "rule": "player_sync",
-    "value": "04/05/2026, 01:03:23 PM",
+    "value": "04/20/2026, 05:28:59 PM",
     "desc": "The datetime the player tab was updated",
     "touch_dt": "2026-03-04T16:08:49.166Z",
     "touch_id": "maintenance"

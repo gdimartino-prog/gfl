@@ -130,5 +130,49 @@
     "asking": "CB or S",
     "touch_dt": "2026-03-14T18:33:39.688Z",
     "touch_id": "VV"
+  },
+  {
+    "id": 18,
+    "leagueId": 1,
+    "playerId": "kenny|moore ii|30||cb|kr",
+    "playerName": "Kenny Moore II",
+    "team": "VV",
+    "position": "CB/KR",
+    "asking": null,
+    "touch_dt": "2026-04-20T16:46:05.712Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 19,
+    "leagueId": 1,
+    "playerId": "minkah|fitzpatrick|29||s|",
+    "playerName": "Minkah Fitzpatrick",
+    "team": "VV",
+    "position": "S",
+    "asking": null,
+    "touch_dt": "2026-04-20T16:46:26.787Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 20,
+    "leagueId": 1,
+    "playerId": "ernest|jones iv|26||ilb|",
+    "playerName": "Ernest Jones IV",
+    "team": "VV",
+    "position": "ILB",
+    "asking": null,
+    "touch_dt": "2026-04-20T16:46:57.380Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 21,
+    "leagueId": 1,
+    "playerId": "daniel|jones|28|qb||",
+    "playerName": "Daniel Jones",
+    "team": "LBI",
+    "position": "QB",
+    "asking": null,
+    "touch_dt": "2026-04-20T19:51:43.103Z",
+    "touch_id": "LBI"
   }
 ]
