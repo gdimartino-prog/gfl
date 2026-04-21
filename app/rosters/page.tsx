@@ -787,7 +787,11 @@ function RosterSection({ title, players, accent, color, onDetails, onToggleTrade
                   <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name || '')}`} target="_blank" rel="noopener noreferrer" className="text-sm font-black text-slate-900 uppercase italic tracking-tighter leading-none hover:text-blue-600 truncate block">{p.name}</a>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Age {p.core?.age || p.age || '??'}</span>
-                    {p.overall && <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">OVR {p.overall}</span>}
+                    {p.overall && (() => {
+                      const isOL = ['C', 'G', 'OT', 'OG', 'T', 'OL'].includes((p.pos || '').toUpperCase());
+                      const display = isOL ? Math.round(Number(p.overall) / 2) : p.overall;
+                      return <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">OVR {display}</span>;
+                    })()}
                   </div>
                 </div>
               </div>
