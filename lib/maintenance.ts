@@ -5,7 +5,7 @@ import Papa from "papaparse";
 import { revalidateTag } from 'next/cache';
 import { buildPlayerIdentity } from './playerUtils';
 
-type TeamRow = { id: number; name: string; teamshort: string | null };
+type TeamRow = { id: number; name: string; teamshort: string | null; coach?: string | null };
 
 function findTeam(allTeams: TeamRow[], nameStr: string): TeamRow | null {
   const upper = nameStr.trim().toUpperCase();
@@ -278,9 +278,9 @@ export async function processStandingsFile(fileContent: string, leagueId: number
   const yearMatch = firstLine.match(/\d{4}/);
   const year = yearMatch ? parseInt(yearMatch[0], 10) : new Date().getFullYear();
 
-  const allTeams = await db.select({ id: teams.id, name: teams.name, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId));
+  const allTeams = await db.select({ id: teams.id, name: teams.name, teamshort: teams.teamshort, coach: teams.coach }).from(teams).where(eq(teams.leagueId, leagueId));
 
-  const rowsToInsert: { leagueId: number; teamId: number; year: number; wins: number; losses: number; ties: number; division: string | null; touch_id: string }[] = [];
+  const rowsToInsert: { leagueId: number; teamId: number; year: number; wins: number; losses: number; ties: number; division: string | null; coachName: string | null; touch_id: string }[] = [];
   const unmatchedTeams: string[] = [];
   let currentDivision: string | null = null;
 
@@ -330,6 +330,7 @@ export async function processStandingsFile(fileContent: string, leagueId: number
       losses: parseInt(stats[1], 10) || 0,
       ties: parseInt(stats[2], 10) || 0,
       division: currentDivision,
+      coachName: team.coach ?? null,
       touch_id: 'maintenance',
     });
   }

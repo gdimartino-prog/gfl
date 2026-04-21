@@ -14,6 +14,7 @@ const _getStandings = unstable_cache(
         teamshort: teams.teamshort,
         nickname: teams.nickname,
         coach: teams.coach,
+        coachName: standings.coachName,
         won: standings.wins,
         lost: standings.losses,
         tie: standings.ties,
@@ -33,7 +34,7 @@ const _getStandings = unstable_cache(
 
     return standingsData.map(data => ({
       ...data,
-      gm: data.coach ?? undefined,
+      gm: data.coachName ?? data.coach ?? undefined,
       pct: (data.won + data.tie / 2) / (data.won + data.lost + data.tie) || 0,
       offPts: data.offPts ?? 0,
       defPts: data.defPts ?? 0,

@@ -184,6 +184,7 @@ export const standings = pgTable("standings", {
   isSuperBowl: boolean("is_super_bowl").default(false),
   isChampion: boolean("is_champion").default(false),
   oldTeamName: varchar("old_team_name", { length: 256 }),
+  coachName: varchar("coach_name", { length: 256 }),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
 });
