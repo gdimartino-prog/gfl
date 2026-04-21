@@ -56,13 +56,17 @@ export async function PATCH(req: NextRequest) {
     }
     const leagueId = await getLeagueId();
     const yearVal = year != null ? Number(year) : null;
-    await db.update(rules)
-      .set({ value: String(value), touch_id: 'maintenance' })
-      .where(and(
-        eq(rules.rule, rule),
-        eq(rules.leagueId, leagueId),
-        yearVal != null ? eq(rules.year, yearVal) : isNull(rules.year),
-      ));
+    const whereClause = and(
+      eq(rules.rule, rule),
+      eq(rules.leagueId, leagueId),
+      yearVal != null ? eq(rules.year, yearVal) : isNull(rules.year),
+    );
+    const existing = await db.select({ id: rules.id }).from(rules).where(whereClause).limit(1);
+    if (existing.length > 0) {
+      await db.update(rules).set({ value: String(value), touch_id: 'maintenance' }).where(whereClause);
+    } else {
+      await db.insert(rules).values({ rule, value: String(value), leagueId, year: yearVal, touch_id: 'maintenance' });
+    }
     logSystemEvent('admin', 'admin', 'RULE_UPDATED', `Updated rule: ${rule}=${value}${yearVal != null ? ` (year ${yearVal})` : ''}`, leagueId);
     return NextResponse.json({ success: true });
   } catch (error) {
