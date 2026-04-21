@@ -789,7 +789,7 @@ function RosterSection({ title, players, accent, color, onDetails, onToggleTrade
                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Age {p.core?.age || p.age || '??'}</span>
                     {p.overall && (() => {
                       const isOL = ['C', 'G', 'OT', 'OG', 'T', 'OL'].includes((p.pos || '').toUpperCase());
-                      const display = isOL ? Math.round(Number(p.overall) / 2) : p.overall;
+                      const display = isOL ? (Number(p.overall) / 2).toFixed(1) : p.overall;
                       return <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">OVR {display}</span>;
                     })()}
                   </div>
