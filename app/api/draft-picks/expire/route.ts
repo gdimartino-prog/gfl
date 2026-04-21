@@ -6,7 +6,7 @@ import { eq, and, asc } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyDraftPick } from '@/lib/notify';
-import { getDraftClockMinutes } from '@/lib/draftClock';
+import { getDraftClockMinutes, getDraftStartDate } from '@/lib/draftClock';
 
 export async function POST() {
   const session = await auth();
@@ -47,12 +47,22 @@ export async function POST() {
 
     const activePick = allPicks[activeIdx];
     const prevPick = activeIdx > 0 ? allPicks[activeIdx - 1] : null;
-    const clockStart = prevPick?.pickedAt ? new Date(prevPick.pickedAt) : null;
-    if (!clockStart) return NextResponse.json({ skipped: 'no clock start' });
+
+    // Don't expire if the official draft start date hasn't passed yet
+    const draftStartDate = await getDraftStartDate(leagueId);
+    const now = new Date();
+    if (draftStartDate && now < draftStartDate) {
+      return NextResponse.json({ skipped: 'before draft start date' });
+    }
+
+    const rawClockStart = prevPick?.pickedAt ? new Date(prevPick.pickedAt) : null;
+    if (!rawClockStart) return NextResponse.json({ skipped: 'no clock start' });
+
+    // Clock starts from the later of: when previous pick was made OR the official start date
+    const clockStart = draftStartDate && rawClockStart < draftStartDate ? draftStartDate : rawClockStart;
 
     const clockMinutes = await getDraftClockMinutes(leagueId, activePick.round);
     const expiryTime = new Date(clockStart.getTime() + clockMinutes * 60 * 1000);
-    const now = new Date();
 
     if (now < expiryTime) {
       return NextResponse.json({ skipped: 'not expired yet' });

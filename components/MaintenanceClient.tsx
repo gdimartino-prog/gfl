@@ -100,6 +100,9 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const [clearDraftType, setClearDraftType] = useState('free_agent');
   const [clearDraftLoading, setClearDraftLoading] = useState(false);
   const [clearDraftMsg, setClearDraftMsg] = useState<{ success: boolean; text: string } | null>(null);
+  const [draftStartDate, setDraftStartDate] = useState('');
+  const [savingStartDate, setSavingStartDate] = useState(false);
+  const [startDateMsg, setStartDateMsg] = useState<{ success: boolean; text: string } | null>(null);
   const [ruleResults, setRuleResults] = useState<Record<string, { success: boolean; message: string }>>({});
   const [initializingRules, setInitializingRules] = useState(false);
   const [initMessage, setInitMessage] = useState<string | null>(null);
@@ -197,6 +200,25 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
     const data = await res.json().catch(() => ({}));
     setClearDraftMsg(res.ok ? { success: true, text: 'Draft cleared successfully.' } : { success: false, text: data.error || 'Clear failed.' });
     setClearDraftLoading(false);
+  };
+
+  const handleSaveDraftStartDate = async () => {
+    setSavingStartDate(true);
+    setStartDateMsg(null);
+    try {
+      const isoValue = draftStartDate ? new Date(draftStartDate).toISOString() : '';
+      const res = await fetch('/api/rules', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rule: 'draft_start_date', value: isoValue, year: null }),
+      });
+      const data = await res.json();
+      setStartDateMsg(res.ok ? { success: true, text: isoValue ? 'Draft start date saved.' : 'Draft start date cleared.' } : { success: false, text: data.error || 'Save failed.' });
+    } catch {
+      setStartDateMsg({ success: false, text: 'Error saving.' });
+    } finally {
+      setSavingStartDate(false);
+    }
   };
 
   const cancelGame = () => { setEditingGameId(null); setAddingGame(false); setGameMsg(null); };
@@ -423,6 +445,16 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
         const initial: Record<string, string> = {};
         data.forEach((r: RuleRow) => { initial[`${r.setting}||${r.year ?? ''}`] = r.value; });
         setEditedValues(initial);
+        // Pre-populate draft start date field (convert ISO → datetime-local format)
+        const startDateRule = data.find((r: RuleRow) => r.setting === 'draft_start_date' && r.year == null);
+        if (startDateRule?.value) {
+          // datetime-local input needs "YYYY-MM-DDTHH:MM" format
+          const d = new Date(startDateRule.value);
+          if (!isNaN(d.getTime())) {
+            const pad = (n: number) => String(n).padStart(2, '0');
+            setDraftStartDate(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`);
+          }
+        }
       }
     } catch {
       // ignore
@@ -809,7 +841,41 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
             Open Setup Wizard →
           </Link>
         </div>
-        <div className="px-8 py-6 border-t border-slate-100">
+        <div className="px-8 py-6 border-t border-slate-100 space-y-6">
+          <div>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Official Draft Start Date</p>
+            <p className="text-[10px] text-slate-400 mb-3">The draft clock will not run until this date/time. Teams can still submit picks early, but no auto-expiry fires before it.</p>
+            <div className="flex flex-wrap items-end gap-3">
+              <div>
+                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date &amp; Time (local)</label>
+                <input
+                  type="datetime-local"
+                  value={draftStartDate}
+                  onChange={e => setDraftStartDate(e.target.value)}
+                  className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300"
+                />
+              </div>
+              <button
+                onClick={handleSaveDraftStartDate}
+                disabled={savingStartDate}
+                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all disabled:opacity-50"
+              >
+                <Save size={13} /> {savingStartDate ? 'Saving…' : 'Save'}
+              </button>
+              {draftStartDate && (
+                <button
+                  onClick={() => { setDraftStartDate(''); }}
+                  className="px-4 py-2 rounded-xl bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            {startDateMsg && (
+              <p className={`mt-2 text-xs font-bold ${startDateMsg.success ? 'text-green-600' : 'text-red-500'}`}>{startDateMsg.text}</p>
+            )}
+          </div>
+          <div>
           <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Clear Draft Selections</p>
           <div className="flex flex-wrap items-end gap-3">
             <div>
@@ -844,6 +910,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
           {clearDraftMsg && (
             <p className={`mt-3 text-xs font-bold ${clearDraftMsg.success ? 'text-green-600' : 'text-red-500'}`}>{clearDraftMsg.text}</p>
           )}
+          </div>
         </div>
       </div>
 

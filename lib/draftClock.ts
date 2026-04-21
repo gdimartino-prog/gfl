@@ -53,3 +53,20 @@ export async function getDraftClockMinutes(leagueId: number, round: number): Pro
 export function getWarningThresholdMinutes(clockMinutes: number): number {
   return Math.max(1, Math.min(60, Math.floor(clockMinutes * 0.25)));
 }
+
+/**
+ * Get the official draft start date for a league.
+ * Returns null if not configured or if the date is invalid.
+ * The clock does not run until this date/time has passed.
+ */
+export async function getDraftStartDate(leagueId: number): Promise<Date | null> {
+  const row = await db
+    .select({ value: rules.value })
+    .from(rules)
+    .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'draft_start_date')))
+    .limit(1);
+  const val = row[0]?.value;
+  if (!val) return null;
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? null : d;
+}

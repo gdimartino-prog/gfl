@@ -4,7 +4,7 @@ import { draftPicks, teams, rules } from '@/schema';
 import { eq, and, asc, isNull } from 'drizzle-orm';
 import { notifyDraftPick } from '@/lib/notify';
 import { alias } from 'drizzle-orm/pg-core';
-import { getDraftClockMinutes, getWarningThresholdMinutes } from '@/lib/draftClock';
+import { getDraftClockMinutes, getWarningThresholdMinutes, getDraftStartDate } from '@/lib/draftClock';
 
 function isAuthorized(req: Request) {
   const auth = req.headers.get('authorization');
@@ -63,22 +63,31 @@ export async function GET(req: Request) {
       const activePick = allPicks[activeIdx];
       const prevPick = activeIdx > 0 ? allPicks[activeIdx - 1] : null;
 
+      // If the official draft start date hasn't arrived yet, hold the clock
+      const draftStartDate = await getDraftStartDate(leagueId);
+      const now = new Date();
+      if (draftStartDate && now < draftStartDate) {
+        results.push({ leagueId, skipped: 'before draft start date', draftStartDate });
+        continue;
+      }
+
       // If the pick has a scheduled start time that hasn't arrived yet, skip
-      if (activePick.scheduledAt && activePick.scheduledAt > new Date()) {
+      if (activePick.scheduledAt && activePick.scheduledAt > now) {
         results.push({ leagueId, skipped: 'pick not yet scheduled', scheduledAt: activePick.scheduledAt });
         continue;
       }
 
-      const clockStart = prevPick?.pickedAt ? new Date(prevPick.pickedAt) : activePick.scheduledAt ? new Date(activePick.scheduledAt) : null;
-      if (!clockStart) {
+      const rawClockStart = prevPick?.pickedAt ? new Date(prevPick.pickedAt) : activePick.scheduledAt ? new Date(activePick.scheduledAt) : null;
+      if (!rawClockStart) {
         results.push({ leagueId, skipped: 'no clock start time' });
         continue;
       }
+      // Clock starts from the later of: when previous pick was made OR the official start date
+      const clockStart = draftStartDate && rawClockStart < draftStartDate ? draftStartDate : rawClockStart;
 
       const clockMinutes = await getDraftClockMinutes(leagueId, activePick.round);
       const warningMinutes = getWarningThresholdMinutes(clockMinutes);
 
-      const now = new Date();
       const expiryTime = new Date(clockStart.getTime() + clockMinutes * 60 * 1000);
       const diffMs = expiryTime.getTime() - now.getTime();
       const diffMinutes = diffMs / (1000 * 60);
