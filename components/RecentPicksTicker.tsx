@@ -18,9 +18,10 @@ interface Team {
 interface TickerProps {
   picks: Pick[];
   teams: Team[];
+  draftStartDate?: Date | null;
 }
 
-export default function RecentPicksTicker({ picks, teams }: TickerProps) {
+export default function RecentPicksTicker({ picks, teams, draftStartDate }: TickerProps) {
 
   if (typeof window !== 'undefined') {
     console.log("✅ TICKER VERSION: Jan 28 - V1.2 (Separate Ticker State)");
@@ -58,12 +59,23 @@ export default function RecentPicksTicker({ picks, teams }: TickerProps) {
   // 🚀 Step 2: Show a placeholder if no data is found
   // If you see this in production, the CSS is working, but the API data is empty.
   if (completedPicks.length === 0) {
+    const beforeStart = draftStartDate && new Date() < draftStartDate;
+    const startLabel = draftStartDate
+      ? draftStartDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) +
+        ' at ' +
+        draftStartDate.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+      : null;
+
     return (
       <div className="w-full bg-slate-900 border-y border-white/10 py-4 overflow-hidden relative">
-        <div className="flex items-center justify-center gap-4 text-slate-500 font-black uppercase text-[10px] tracking-[0.3em]">
-          <Zap size={14} className="opacity-20" />
-          <span>Season {new Date().getFullYear()} Draft — No Picks Yet</span>
-          <Zap size={14} className="opacity-20" />
+        <div className="flex items-center justify-center gap-4 font-black uppercase text-[10px] tracking-[0.3em]">
+          <Zap size={14} className={beforeStart ? 'text-amber-400 animate-pulse' : 'opacity-20 text-slate-500'} />
+          {beforeStart ? (
+            <span className="text-amber-400">Draft Clock Starts — {startLabel}</span>
+          ) : (
+            <span className="text-slate-500">Season {new Date().getFullYear()} Draft — No Picks Yet</span>
+          )}
+          <Zap size={14} className={beforeStart ? 'text-amber-400 animate-pulse' : 'opacity-20 text-slate-500'} />
         </div>
       </div>
     );

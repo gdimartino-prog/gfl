@@ -475,7 +475,7 @@ function DraftBoardContent() {
       </header>
 
       {/* 🚀 TICKER PLACEMENT */}
-      <RecentPicksTicker picks={picks} teams={teams} />
+      <RecentPicksTicker picks={picks} teams={teams} draftStartDate={draftStartDate} />
 
       <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-10">
 
