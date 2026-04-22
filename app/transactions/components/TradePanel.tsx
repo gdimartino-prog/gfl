@@ -240,7 +240,7 @@ export default function TradePanel({
               onChange={e => { setFromTeamOverride(e.target.value); setFromPlayers([]); setFromDraftPicks([]); setStatus(''); }}
               className="border-2 border-blue-100 p-2.5 w-full rounded-lg text-sm text-black outline-none focus:border-blue-300 transition-colors font-medium bg-white"
             >
-              {teams.map(t => (
+              {[...teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => (
                 <option key={t.short} value={t.short}>{t.name} ({t.short})</option>
               ))}
             </select>
@@ -292,7 +292,7 @@ export default function TradePanel({
               className="border-2 border-red-100 p-2.5 w-full rounded-lg text-sm text-black outline-none focus:border-red-300 transition-colors font-medium bg-white"
             >
               <option value="">-- Choose Partner Team --</option>
-              {teams.filter(t => resolveCode(t.short) !== activeCode).map(t => (
+              {[...teams].sort((a, b) => a.name.localeCompare(b.name)).filter(t => resolveCode(t.short) !== activeCode).map(t => (
                 <option key={t.short} value={t.short}>{t.name} ({t.short})</option>
               ))}
             </select>
