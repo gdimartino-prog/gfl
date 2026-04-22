@@ -288,18 +288,6 @@
     "email": "deemark2320@gmail.com"
   },
   {
-    "id": 50,
-    "leagueId": 1,
-    "name": "London",
-    "coach": "Matt Cicirelli",
-    "teamshort": "LM",
-    "nickname": "Monarchs",
-    "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-201-471-5849",
-    "email": "mattcicirelli25@gmail.com"
-  },
-  {
     "id": 51,
     "leagueId": 1,
     "name": "Newark Bay",
@@ -406,6 +394,18 @@
     "status": "active",
     "mobile": "+1-732-233-1248",
     "email": null
+  },
+  {
+    "id": 50,
+    "leagueId": 1,
+    "name": "Justin",
+    "coach": "James Di Martino",
+    "teamshort": "JJ",
+    "nickname": "Jets",
+    "isCommissioner": false,
+    "status": "active",
+    "mobile": "+1-551-217-4373",
+    "email": "dinobone4@gmail.com"
   },
   {
     "id": 60,

@@ -457,5 +457,39 @@
     "emailStatus": null,
     "touch_dt": "2026-03-20T23:19:07.716Z",
     "touch_id": "trade-migration"
+  },
+  {
+    "id": 83,
+    "leagueId": 1,
+    "date": "2026-04-22T02:39:49.547Z",
+    "type": "TRADE",
+    "description": "Traded to LE: QB - Daniel Jones",
+    "fromTeam": "LBI",
+    "toTeam": "LE",
+    "owner": "Glenn Gardner",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "touch_dt": "2026-04-22T02:39:49.927Z",
+    "touch_id": "Glenn Gardner"
+  },
+  {
+    "id": 84,
+    "leagueId": 1,
+    "date": "2026-04-22T02:39:49.577Z",
+    "type": "TRADE",
+    "description": "Traded to LBI: 2026 Draft Pick Rd 1 (#11)",
+    "fromTeam": "LE",
+    "toTeam": "LBI",
+    "owner": "Glenn Gardner",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "touch_dt": "2026-04-22T02:39:49.957Z",
+    "touch_id": "Glenn Gardner"
   }
 ]

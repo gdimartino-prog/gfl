@@ -108,6 +108,42 @@
     "touch_id": "Administrator"
   },
   {
+    "id": 2509,
+    "leagueId": 1,
+    "year": 2026,
+    "round": 11,
+    "pick": 181,
+    "draftType": "free_agent",
+    "originalTeamId": 48,
+    "currentTeamId": 48,
+    "playerId": null,
+    "scheduledAt": null,
+    "pickedAt": null,
+    "passed": false,
+    "warningSent": false,
+    "selectedPlayerName": null,
+    "touch_dt": "2026-04-03T22:57:34.352Z",
+    "touch_id": "George Di Martino"
+  },
+  {
+    "id": 2329,
+    "leagueId": 1,
+    "year": 2026,
+    "round": 1,
+    "pick": 1,
+    "draftType": "free_agent",
+    "originalTeamId": 48,
+    "currentTeamId": 48,
+    "playerId": null,
+    "scheduledAt": null,
+    "pickedAt": null,
+    "passed": false,
+    "warningSent": false,
+    "selectedPlayerName": null,
+    "touch_dt": "2026-04-03T22:57:34.352Z",
+    "touch_id": "George Di Martino"
+  },
+  {
     "id": 2166,
     "leagueId": 3,
     "year": 2026,
@@ -142,24 +178,6 @@
     "selectedPlayerName": null,
     "touch_dt": "2026-03-24T17:58:52.848Z",
     "touch_id": "Administrator"
-  },
-  {
-    "id": 2329,
-    "leagueId": 1,
-    "year": 2026,
-    "round": 1,
-    "pick": 1,
-    "draftType": "free_agent",
-    "originalTeamId": 48,
-    "currentTeamId": 48,
-    "playerId": null,
-    "scheduledAt": null,
-    "pickedAt": null,
-    "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": null,
-    "touch_dt": "2026-04-03T22:57:34.352Z",
-    "touch_id": "George Di Martino"
   },
   {
     "id": 2168,
@@ -16164,24 +16182,6 @@
     "touch_id": "George Di Martino"
   },
   {
-    "id": 2509,
-    "leagueId": 1,
-    "year": 2026,
-    "round": 11,
-    "pick": 181,
-    "draftType": "free_agent",
-    "originalTeamId": 48,
-    "currentTeamId": 48,
-    "playerId": null,
-    "scheduledAt": null,
-    "pickedAt": null,
-    "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": null,
-    "touch_dt": "2026-04-03T22:57:34.352Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 2510,
     "leagueId": 1,
     "year": 2026,
@@ -21024,24 +21024,6 @@
     "touch_id": "George Di Martino"
   },
   {
-    "id": 2339,
-    "leagueId": 1,
-    "year": 2026,
-    "round": 1,
-    "pick": 11,
-    "draftType": "free_agent",
-    "originalTeamId": 57,
-    "currentTeamId": 48,
-    "playerId": null,
-    "scheduledAt": null,
-    "pickedAt": null,
-    "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": null,
-    "touch_dt": "2026-04-03T22:57:34.352Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 2500,
     "leagueId": 1,
     "year": 2026,
@@ -21058,5 +21040,23 @@
     "selectedPlayerName": null,
     "touch_dt": "2026-04-03T22:57:34.352Z",
     "touch_id": "George Di Martino"
+  },
+  {
+    "id": 2339,
+    "leagueId": 1,
+    "year": 2026,
+    "round": 1,
+    "pick": 11,
+    "draftType": "free_agent",
+    "originalTeamId": 57,
+    "currentTeamId": 47,
+    "playerId": null,
+    "scheduledAt": null,
+    "pickedAt": null,
+    "passed": false,
+    "warningSent": false,
+    "selectedPlayerName": null,
+    "touch_dt": "2026-04-03T22:57:34.352Z",
+    "touch_id": "Glenn Gardner"
   }
 ]

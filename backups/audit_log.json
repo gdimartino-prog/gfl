@@ -99,6 +99,78 @@
     "details": "R1 #2: QB - Cam Ward"
   },
   {
+    "id": 157,
+    "leagueId": 1,
+    "timestamp": "2026-04-21T11:55:10.401Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 162,
+    "leagueId": 1,
+    "timestamp": "2026-04-21T23:45:35.063Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 165,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T01:13:08.770Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 168,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:11:54.656Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #80 deleted"
+  },
+  {
+    "id": 169,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:11:57.054Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #79 deleted"
+  },
+  {
+    "id": 173,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:19:38.948Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #82 deleted"
+  },
+  {
+    "id": 174,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:19:41.615Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #81 deleted"
+  },
+  {
+    "id": 175,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:20:48.016Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
     "id": 20,
     "leagueId": 1,
     "timestamp": "2026-03-16T23:14:28.935Z",
@@ -477,6 +549,60 @@
     "details": "Cleared all picks for 2026 (free_agent)"
   },
   {
+    "id": 158,
+    "leagueId": 1,
+    "timestamp": "2026-04-21T13:16:25.736Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 163,
+    "leagueId": 1,
+    "timestamp": "2026-04-21T23:57:43.151Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 166,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T01:37:19.102Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "UPDATE_TEAM",
+    "details": "Updated team id 50"
+  },
+  {
+    "id": 170,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:12:59.668Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 176,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:38:51.342Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_DELETED",
+    "details": "Removed pick transfer ID=67 (2026 Rd11)"
+  },
+  {
+    "id": 177,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:39:11.427Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_DELETED",
+    "details": "Removed pick transfer ID=68 (2026 Rd1)"
+  },
+  {
     "id": 80,
     "leagueId": 1,
     "timestamp": "2026-03-22T14:15:00.319Z",
@@ -664,6 +790,15 @@
     "team": "admin",
     "action": "IMPORT_PLAYERS",
     "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 159,
+    "leagueId": 1,
+    "timestamp": "2026-04-21T13:40:43.854Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "RULE_UPDATED",
+    "details": "Updated rule: draft_start_date=2026-04-30T04:00:00.000Z"
   },
   {
     "id": 102,
@@ -1398,6 +1533,69 @@
     "id": 156,
     "leagueId": 1,
     "timestamp": "2026-04-21T00:31:39.539Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 160,
+    "leagueId": 1,
+    "timestamp": "2026-04-21T13:50:56.540Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "UPDATE_TEAM",
+    "details": "Updated team id 50"
+  },
+  {
+    "id": 161,
+    "leagueId": 1,
+    "timestamp": "2026-04-21T13:56:08.135Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "RULE_UPDATED",
+    "details": "Updated rule: draft_start_date=2026-04-30T04:00:00.000Z"
+  },
+  {
+    "id": 164,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T00:47:40.528Z",
+    "coach": "James Di Martino",
+    "team": "London",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 167,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T01:38:13.495Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 171,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:18:15.764Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #81 marked Done"
+  },
+  {
+    "id": 172,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:18:17.357Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #82 marked Done"
+  },
+  {
+    "id": 178,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T02:56:43.363Z",
     "coach": "Bill Matsikoudis",
     "team": "Kigali",
     "action": "LOGIN",

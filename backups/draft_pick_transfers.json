@@ -1,16 +1,5 @@
 [
   {
-    "id": 41,
-    "leagueId": 1,
-    "year": 2026,
-    "draftType": "free_agent",
-    "round": 1,
-    "originalTeamId": 57,
-    "currentTeamId": 48,
-    "touch_dt": "2026-03-20T23:17:34.845Z",
-    "touch_id": "trade-migration"
-  },
-  {
     "id": 42,
     "leagueId": 1,
     "year": 2026,
@@ -284,5 +273,16 @@
     "currentTeamId": 41,
     "touch_dt": "2026-03-20T23:17:35.876Z",
     "touch_id": "trade-migration"
+  },
+  {
+    "id": 41,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 1,
+    "originalTeamId": 57,
+    "currentTeamId": 47,
+    "touch_dt": "2026-04-22T02:39:49.897Z",
+    "touch_id": "Glenn Gardner"
   }
 ]
