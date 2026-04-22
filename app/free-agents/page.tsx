@@ -191,24 +191,24 @@ const POSITION_GROUPS: {
     label: 'Kickers',
     positions: ['K', 'K-P'],
     cols: [
-      { key: 'age',  label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
-      { key: 'fga',  label: 'FGA',  numeric: true, getValue: p => s(p, 'fg attempts') },
-      { key: 'fgpct',label: 'FG%',  numeric: true, getValue: p => {
-          const made = parseFloat(String(s(p, 'fg made'))) || 0;
-          const att  = parseFloat(String(s(p, 'fg attempts'))) || 0;
+      { key: 'age',   label: 'Age', numeric: true, getValue: p => p.age ?? '—' },
+      { key: 'fga',   label: 'FGA', numeric: true, getValue: p => s(p, 'field goal attempts') },
+      { key: 'fgpct', label: 'FG%', numeric: true, getValue: p => {
+          const made = parseFloat(String(s(p, 'field goals made'))) || 0;
+          const att  = parseFloat(String(s(p, 'field goal attempts'))) || 0;
           return att > 0 ? (made / att * 100).toFixed(1) + '%' : '—';
         }
       },
-      { key: 'fglg', label: 'Lg',   numeric: true, getValue: p => s(p, 'fg long') },
-      { key: 'xpa',  label: 'XPA',  numeric: true, getValue: p => s(p, 'xp attempts') },
-      { key: 'xppct',label: 'XP%',  numeric: true, getValue: p => {
-          const made = parseFloat(String(s(p, 'xp made'))) || 0;
-          const att  = parseFloat(String(s(p, 'xp attempts'))) || 0;
+      { key: 'fglg',  label: 'Lg',  numeric: true, getValue: p => s(p, 'field goals long') },
+      { key: 'xpa',   label: 'XPA', numeric: true, getValue: p => s(p, 'extra point attempts') },
+      { key: 'xppct', label: 'XP%', numeric: true, getValue: p => {
+          const made = parseFloat(String(s(p, 'extra points made'))) || 0;
+          const att  = parseFloat(String(s(p, 'extra point attempts'))) || 0;
           return att > 0 ? (made / att * 100).toFixed(1) + '%' : '—';
         }
       },
-      { key: 'dur',  label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
-      { key: 'sal',  label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
+      { key: 'dur',   label: 'Dur', numeric: true, getValue: p => p.dur ?? '—' },
+      { key: 'sal',   label: 'Sal', numeric: true, getValue: p => p.salary ?? '—' },
     ],
   },
   {
@@ -218,9 +218,14 @@ const POSITION_GROUPS: {
       { key: 'age',   label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
       { key: 'punts', label: 'Punts',numeric: true, getValue: p => s(p, 'punts') },
       { key: 'pyds',  label: 'Yds',  numeric: true, getValue: p => s(p, 'punt yards') },
-      { key: 'pavg',  label: 'Avg',  numeric: true, getValue: p => s(p, 'punt avg') },
+      { key: 'pavg',  label: 'Avg',  numeric: true, getValue: p => {
+          const yds   = parseFloat(String(s(p, 'punt yards'))) || 0;
+          const punts = parseFloat(String(s(p, 'punts'))) || 0;
+          return punts > 0 ? (yds / punts).toFixed(1) : '—';
+        }
+      },
       { key: 'plg',   label: 'Lng',  numeric: true, getValue: p => s(p, 'punt long') },
-      { key: 'in20',  label: 'In20', numeric: true, getValue: p => s(p, 'inside 20') },
+      { key: 'in20',  label: 'In20', numeric: true, getValue: p => s(p, 'punt inside 20') },
       { key: 'dur',   label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
       { key: 'sal',   label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
     ],

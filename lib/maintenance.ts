@@ -50,16 +50,20 @@ export async function processPlayersFile(
     'receiving yards', 'receiving TD', 'receiving long', 'pass attempts',
     'completions', 'pass yards', 'pass interceptions', 'pass TD',
     'interceptions', 'tackles', 'sacks', 'stuffs',
-    // Kicker stats
-    'fg attempts', 'fg made', 'fg long', 'xp attempts', 'xp made',
-    // Punter stats
-    'punts', 'punt yards', 'punt avg', 'punt long', 'inside 20',
+    // Kicker stats (actual CSV column names)
+    'field goal attempts', 'field goals made', 'field goals long',
+    'extra point attempts', 'extra points made',
+    // Punter stats (actual CSV column names; 'punt inside 20' matches 'punt Inside 20' via ci lookup)
+    'punts', 'punt yards', 'punt long', 'punt inside 20',
   ];
 
   const ol_positions = ['C', 'G', 'OT', 'OG', 'OC'];
 
   const playerValues = validRows.map(row => {
-    const v = (key: string) => (row[key] || row[key.charAt(0).toUpperCase() + key.slice(1)] || '').trim();
+    // Build a fully case-insensitive key map so column names like 'punt Inside 20' resolve correctly
+    const lowerRow: Record<string, string> = {};
+    for (const k of Object.keys(row)) lowerRow[k.toLowerCase()] = row[k];
+    const v = (key: string) => (lowerRow[key.toLowerCase()] ?? '').trim();
 
     const first = v('first');
     const last = v('last');
