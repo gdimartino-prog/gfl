@@ -80,6 +80,7 @@ export default function TradePanel({
   const [players, setPlayers] = useState<Player[]>([]);
   const [draftPicks, setDraftPicks] = useState<DraftPick[]>([]);
 
+  const [fromTeamOverride, setFromTeamOverride] = useState('');
   const [toTeam, setToTeam] = useState('');
   const [fromPlayers, setFromPlayers] = useState<string[]>([]);
   const [toPlayers, setToPlayers] = useState<string[]>([]);
@@ -119,7 +120,7 @@ export default function TradePanel({
     return (match ? match[1] : teamString).trim().toUpperCase();
   };
 
-  const activeCode = useMemo(() => resolveCode(team), [team]);
+  const activeCode = useMemo(() => resolveCode(fromTeamOverride || team), [fromTeamOverride, team]);
   const partnerCode = useMemo(() => resolveCode(toTeam), [toTeam]);
 
   const activeFullName = useMemo(() => {
@@ -224,32 +225,26 @@ export default function TradePanel({
 
   return (
     <div className="space-y-5 border p-5 rounded-xl bg-white shadow-lg border-purple-100 text-left text-black">
-      <div className="flex justify-between items-center border-b pb-3">
+      <div className="border-b pb-3">
         <h3 className="font-black text-xl uppercase text-purple-700 tracking-tighter italic">Trade Center</h3>
-        <span className="text-[10px] bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full font-bold uppercase italic tracking-tighter">
-          {activeFullName} Proposing
-        </span>
-      </div>
-
-      {/* Trade partner */}
-      <div className="space-y-1">
-        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Select Trade Partner</label>
-        <select
-          value={toTeam}
-          onChange={e => { setToTeam(e.target.value); setStatus(''); }}
-          className="border-2 border-gray-100 p-3 w-full rounded-lg text-sm text-black outline-none focus:border-purple-300 transition-colors font-medium"
-        >
-          <option value="">-- Choose Partner Team --</option>
-          {teams.filter(t => resolveCode(t.short) !== activeCode).map(t => (
-            <option key={t.short} value={t.short}>{t.name} ({t.short})</option>
-          ))}
-        </select>
       </div>
 
       {/* Two-side asset picker */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* YOUR side */}
         <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 space-y-3">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-blue-400 uppercase tracking-widest block">Active Team</label>
+            <select
+              value={fromTeamOverride || team}
+              onChange={e => { setFromTeamOverride(e.target.value); setFromPlayers([]); setFromDraftPicks([]); setStatus(''); }}
+              className="border-2 border-blue-100 p-2.5 w-full rounded-lg text-sm text-black outline-none focus:border-blue-300 transition-colors font-medium bg-white"
+            >
+              {teams.map(t => (
+                <option key={t.short} value={t.short}>{t.name} ({t.short})</option>
+              ))}
+            </select>
+          </div>
           <p className="text-[11px] font-black text-blue-700 uppercase text-center tracking-widest">
             Your Assets — {activeFullName}
             {(fromPlayers.length + fromDraftPicks.length) > 0 && (
@@ -289,8 +284,21 @@ export default function TradePanel({
 
         {/* PARTNER side */}
         <div className={`p-4 rounded-xl border space-y-3 ${toTeam ? 'bg-red-50/50 border-red-100' : 'bg-slate-50 border-slate-100'}`}>
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-red-400 uppercase tracking-widest block">Trade Partner</label>
+            <select
+              value={toTeam}
+              onChange={e => { setToTeam(e.target.value); setToPlayers([]); setToDraftPicks([]); setStatus(''); }}
+              className="border-2 border-red-100 p-2.5 w-full rounded-lg text-sm text-black outline-none focus:border-red-300 transition-colors font-medium bg-white"
+            >
+              <option value="">-- Choose Partner Team --</option>
+              {teams.filter(t => resolveCode(t.short) !== activeCode).map(t => (
+                <option key={t.short} value={t.short}>{t.name} ({t.short})</option>
+              ))}
+            </select>
+          </div>
           <p className="text-[11px] font-black text-red-700 uppercase text-center tracking-widest">
-            {toTeam ? `${partnerFullName} Assets` : 'Select a partner'}
+            {toTeam ? `${partnerFullName} Assets` : 'Choose a partner above'}
             {(toPlayers.length + toDraftPicks.length) > 0 && (
               <span className="ml-2 bg-red-500 text-white rounded-full px-2 py-0.5 text-[9px]">
                 {toPlayers.length + toDraftPicks.length}
