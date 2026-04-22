@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Check } from 'lucide-react';
 import { playerOptionLabel } from '@/lib/playerUtils';
 
 interface Team { name: string; short: string; coach: string; }
@@ -15,6 +15,57 @@ interface Player {
   totalDef?: string; runDef?: string; passDef?: string; passRush?: string; tackles?: string; games?: string;
 }
 interface DraftPick { year: number; round: number; currentOwner: string; overall: number; originalTeam: string; }
+
+function ToggleList<T extends string>({
+  items,
+  selected,
+  onToggle,
+  renderLabel,
+  renderSub,
+  color,
+}: {
+  items: { key: T; label: string; sub?: string }[];
+  selected: T[];
+  onToggle: (key: T) => void;
+  renderLabel?: (item: { key: T; label: string; sub?: string }) => React.ReactNode;
+  renderSub?: (item: { key: T; label: string; sub?: string }) => React.ReactNode;
+  color: 'blue' | 'red';
+}) {
+  const ring = color === 'blue' ? 'border-blue-400 bg-blue-50' : 'border-red-400 bg-red-50';
+  const check = color === 'blue' ? 'bg-blue-500' : 'bg-red-500';
+  return (
+    <div className="space-y-1 max-h-72 overflow-y-auto pr-1">
+      {items.length === 0 && (
+        <p className="text-center text-[10px] text-slate-400 italic py-4">No assets found</p>
+      )}
+      {items.map(item => {
+        const isSelected = selected.includes(item.key);
+        return (
+          <button
+            key={item.key}
+            type="button"
+            onClick={() => onToggle(item.key)}
+            className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl border text-left transition-all active:scale-[0.98]
+              ${isSelected ? ring + ' border-2' : 'border border-slate-100 bg-white hover:bg-slate-50'}`}
+          >
+            <div className="min-w-0">
+              <p className={`text-xs font-bold truncate ${isSelected ? 'text-slate-900' : 'text-slate-700'}`}>
+                {renderLabel ? renderLabel(item) : item.label}
+              </p>
+              {(renderSub || item.sub) && (
+                <p className="text-[10px] text-slate-400 truncate">{renderSub ? renderSub(item) : item.sub}</p>
+              )}
+            </div>
+            <div className={`shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-all
+              ${isSelected ? check + ' text-white' : 'border-2 border-slate-200'}`}>
+              {isSelected && <Check size={11} strokeWidth={3} />}
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function TradePanel({
   team,
@@ -49,17 +100,8 @@ export default function TradePanel({
         fetch(`/api/players?t=${timestamp}`, { cache: 'no-store' }),
         fetch(`/api/draft-picks?t=${timestamp}`, { cache: 'no-store' })
       ]);
-
-      if (!tRes.ok || !pRes.ok || !dRes.ok) {
-        throw new Error("One or more trade data sources failed to load.");
-      }
-
-      const [tData, pData, dData] = await Promise.all([
-        tRes.json(),
-        pRes.json(),
-        dRes.json()
-      ]);
-
+      if (!tRes.ok || !pRes.ok || !dRes.ok) throw new Error("One or more trade data sources failed to load.");
+      const [tData, pData, dData] = await Promise.all([tRes.json(), pRes.json(), dRes.json()]);
       setTeams(Array.isArray(tData) ? tData : []);
       setPlayers(Array.isArray(pData) ? pData : []);
       setDraftPicks(Array.isArray(dData) ? dData : []);
@@ -69,9 +111,7 @@ export default function TradePanel({
     }
   }, []);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useEffect(() => { loadData(); }, [loadData]);
 
   const resolveCode = (teamString: string) => {
     if (!teamString) return "";
@@ -93,47 +133,41 @@ export default function TradePanel({
     return entry ? entry.name : toTeam;
   }, [teams, partnerCode, toTeam]);
 
-  const sortPlayers = (playerList: Player[]) => {
-    return [...playerList].sort((a, b) => {
-      const lastA = (a.last || "").toLowerCase();
-      const lastB = (b.last || "").toLowerCase();
-      if (lastA !== lastB) return lastA.localeCompare(lastB);
-      return (a.first || "").toLowerCase().localeCompare((b.first || "").toLowerCase());
-    });
+  const toggle = <T extends string>(arr: T[], val: T): T[] =>
+    arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val];
+
+  const sortPlayers = (list: Player[]) =>
+    [...list].sort((a, b) => (a.last || '').localeCompare(b.last || '') || (a.first || '').localeCompare(b.first || ''));
+
+  const sortPicks = (list: DraftPick[]) =>
+    [...list].sort((a, b) => a.year !== b.year ? a.year - b.year : a.round - b.round);
+
+  const fromTeamPlayers = useMemo(() => sortPlayers(
+    players.filter(p => resolveCode(p.team) === activeCode &&
+      (fromPlayers.includes(p.identity) || `${p.first} ${p.last}`.toLowerCase().includes(fromSearch.toLowerCase())))
+  ), [players, activeCode, fromSearch, fromPlayers]);
+
+  const toTeamPlayers = useMemo(() => sortPlayers(
+    players.filter(p => resolveCode(p.team) === partnerCode &&
+      (toPlayers.includes(p.identity) || `${p.first} ${p.last}`.toLowerCase().includes(toSearch.toLowerCase())))
+  ), [players, partnerCode, toSearch, toPlayers]);
+
+  const fromTeamDraftPicks = useMemo(() => sortPicks(
+    draftPicks.filter(p => resolveCode(p.currentOwner) === activeCode)
+  ), [draftPicks, activeCode]);
+
+  const toTeamDraftPicks = useMemo(() => sortPicks(
+    draftPicks.filter(p => resolveCode(p.currentOwner) === partnerCode)
+  ), [draftPicks, partnerCode]);
+
+  const selectedSummary = () => {
+    const parts: string[] = [];
+    if (fromPlayers.length) parts.push(`${fromPlayers.length} player${fromPlayers.length > 1 ? 's' : ''} from you`);
+    if (fromDraftPicks.length) parts.push(`${fromDraftPicks.length} pick${fromDraftPicks.length > 1 ? 's' : ''} from you`);
+    if (toPlayers.length) parts.push(`${toPlayers.length} player${toPlayers.length > 1 ? 's' : ''} from ${partnerFullName}`);
+    if (toDraftPicks.length) parts.push(`${toDraftPicks.length} pick${toDraftPicks.length > 1 ? 's' : ''} from ${partnerFullName}`);
+    return parts.length ? parts.join(' · ') : 'No assets selected';
   };
-
-  const sortPicks = (pickList: DraftPick[]) => {
-    return [...pickList].sort((a, b) => {
-      if (a.year !== b.year) return a.year - b.year;
-      return a.round - b.round;
-    });
-  };
-
-  const fromTeamPlayers = useMemo(() => {
-    const list = players.filter(p =>
-      resolveCode(p.team) === activeCode &&
-      (fromPlayers.includes(p.identity) || `${p.first} ${p.last}`.toLowerCase().includes(fromSearch.toLowerCase()))
-    );
-    return sortPlayers(list);
-  }, [players, activeCode, fromSearch, fromPlayers]);
-
-  const toTeamPlayers = useMemo(() => {
-    const list = players.filter(p =>
-      resolveCode(p.team) === partnerCode &&
-      (toPlayers.includes(p.identity) || `${p.first} ${p.last}`.toLowerCase().includes(toSearch.toLowerCase()))
-    );
-    return sortPlayers(list);
-  }, [players, partnerCode, toSearch, toPlayers]);
-
-  const fromTeamDraftPicks = useMemo(() => {
-    const list = draftPicks.filter(p => resolveCode(p.currentOwner) === activeCode);
-    return sortPicks(list);
-  }, [draftPicks, activeCode]);
-
-  const toTeamDraftPicks = useMemo(() => {
-    const list = draftPicks.filter(p => resolveCode(p.currentOwner) === partnerCode);
-    return sortPicks(list);
-  }, [draftPicks, partnerCode]);
 
   const handleTrade = async () => {
     const fromHasAssets = fromPlayers.length > 0 || fromDraftPicks.length > 0;
@@ -142,27 +176,17 @@ export default function TradePanel({
       setStatus('⚠️ Please select assets for both sides.');
       return;
     }
-
     setLoading(true);
     setStatus('⏳ Processing trade assets...');
-
-    const fullFrom = activeFullName;
-    const fullTo = partnerFullName;
-
     try {
-      const formattedPlayersFrom = players
-        .filter(p => fromPlayers.includes(p.identity))
-        .map(p => `${(p.position || "").toUpperCase()} - ${p.first} ${p.last}`);
-
-      const formattedPlayersTo = players
-        .filter(p => toPlayers.includes(p.identity))
-        .map(p => `${(p.position || "").toUpperCase()} - ${p.first} ${p.last}`);
-
+      const formattedPlayersFrom = players.filter(p => fromPlayers.includes(p.identity))
+        .map(p => `${(p.position || '').toUpperCase()} - ${p.first} ${p.last}`);
+      const formattedPlayersTo = players.filter(p => toPlayers.includes(p.identity))
+        .map(p => `${(p.position || '').toUpperCase()} - ${p.first} ${p.last}`);
       const formattedPicksFrom = fromDraftPicks.map(id => {
         const p = draftPicks.find(pick => String(pick.overall) === String(id));
         return p ? `${p.year} Draft Pick Rd ${p.round} (#${p.overall})` : `Pick #${id}`;
       });
-
       const formattedPicksTo = toDraftPicks.map(id => {
         const p = draftPicks.find(pick => String(pick.overall) === String(id));
         return p ? `${p.year} Draft Pick Rd ${p.round} (#${p.overall})` : `Pick #${id}`;
@@ -172,20 +196,13 @@ export default function TradePanel({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          fromTeam: activeCode,
-          toTeam: partnerCode,
-          fromFull: fullFrom,
-          toFull: fullTo,
-          playersFrom: formattedPlayersFrom,
-          playersTo: formattedPlayersTo,
-          draftPicksFrom: formattedPicksFrom,
-          draftPicksTo: formattedPicksTo,
-          rawIdentitiesFrom: fromPlayers,
-          rawIdentitiesTo: toPlayers,
-          rawPicksFrom: fromDraftPicks,
-          rawPicksTo: toDraftPicks,
-          submittedBy: coach,
-          status: 'PENDING'
+          fromTeam: activeCode, toTeam: partnerCode,
+          fromFull: activeFullName, toFull: partnerFullName,
+          playersFrom: formattedPlayersFrom, playersTo: formattedPlayersTo,
+          draftPicksFrom: formattedPicksFrom, draftPicksTo: formattedPicksTo,
+          rawIdentitiesFrom: fromPlayers, rawIdentitiesTo: toPlayers,
+          rawPicksFrom: fromDraftPicks, rawPicksTo: toDraftPicks,
+          submittedBy: coach, status: 'PENDING'
         }),
       });
 
@@ -206,7 +223,7 @@ export default function TradePanel({
   };
 
   return (
-    <div className="space-y-4 border p-5 rounded-xl bg-white shadow-lg border-purple-100 text-left text-black">
+    <div className="space-y-5 border p-5 rounded-xl bg-white shadow-lg border-purple-100 text-left text-black">
       <div className="flex justify-between items-center border-b pb-3">
         <h3 className="font-black text-xl uppercase text-purple-700 tracking-tighter italic">Trade Center</h3>
         <span className="text-[10px] bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full font-bold uppercase italic tracking-tighter">
@@ -214,11 +231,12 @@ export default function TradePanel({
         </span>
       </div>
 
+      {/* Trade partner */}
       <div className="space-y-1">
         <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Select Trade Partner</label>
         <select
           value={toTeam}
-          onChange={(e) => { setToTeam(e.target.value); setStatus(''); }}
+          onChange={e => { setToTeam(e.target.value); setStatus(''); }}
           className="border-2 border-gray-100 p-3 w-full rounded-lg text-sm text-black outline-none focus:border-purple-300 transition-colors font-medium"
         >
           <option value="">-- Choose Partner Team --</option>
@@ -228,85 +246,103 @@ export default function TradePanel({
         </select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-4 bg-blue-50/50 rounded-lg border border-blue-100">
-          <p className="text-[11px] font-black text-blue-700 uppercase mb-3 text-center tracking-widest">Your Assets ({activeFullName})</p>
-          <p className="text-[9px] text-blue-400 text-center mb-2 italic">Hold Ctrl (Win) or Cmd (Mac) to select multiple assets</p>
-          <div className="space-y-2">
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-300" size={12} />
-              <input
-                type="text"
-                placeholder="Search your roster..."
-                className="w-full p-2 pl-7 text-[10px] border rounded bg-white text-black outline-none focus:border-blue-400"
-                value={fromSearch}
-                onChange={e => setFromSearch(e.target.value)}
-              />
-            </div>
-            <select
-              multiple
-              className="border-2 border-white w-full h-80 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold custom-scrollbar"
-              value={fromPlayers}
-              onChange={e => setFromPlayers(Array.from(e.target.selectedOptions, o => o.value))}
-            >
-              {fromTeamPlayers.map(p => (
-                <option key={p.identity} value={p.identity}>{playerOptionLabel(p)}</option>
-              ))}
-            </select>
-            <select
-              multiple
-              className="border-2 border-white w-full h-48 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold custom-scrollbar"
-              value={fromDraftPicks}
-              onChange={e => setFromDraftPicks(Array.from(e.target.selectedOptions, o => o.value))}
-            >
-              {fromTeamDraftPicks.map(p => (
-                <option key={p.overall} value={p.overall}>{p.year} Rd {p.round} (#{p.overall})</option>
-              ))}
-            </select>
+      {/* Two-side asset picker */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* YOUR side */}
+        <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 space-y-3">
+          <p className="text-[11px] font-black text-blue-700 uppercase text-center tracking-widest">
+            Your Assets — {activeFullName}
+            {(fromPlayers.length + fromDraftPicks.length) > 0 && (
+              <span className="ml-2 bg-blue-500 text-white rounded-full px-2 py-0.5 text-[9px]">
+                {fromPlayers.length + fromDraftPicks.length}
+              </span>
+            )}
+          </p>
+
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-300" size={12} />
+            <input type="text" placeholder="Search your roster..."
+              className="w-full p-2 pl-7 text-[10px] border rounded-lg bg-white text-black outline-none focus:border-blue-400"
+              value={fromSearch} onChange={e => setFromSearch(e.target.value)} />
           </div>
+
+          <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Players</p>
+          <ToggleList
+            color="blue"
+            items={fromTeamPlayers.map(p => ({ key: p.identity, label: playerOptionLabel(p) }))}
+            selected={fromPlayers}
+            onToggle={key => setFromPlayers(prev => toggle(prev, key))}
+          />
+
+          <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mt-1">Draft Picks</p>
+          <ToggleList
+            color="blue"
+            items={fromTeamDraftPicks.map(p => ({
+              key: String(p.overall),
+              label: `${p.year} Round ${p.round}`,
+              sub: `Pick #${p.overall} · Originally ${p.originalTeam}`,
+            }))}
+            selected={fromDraftPicks}
+            onToggle={key => setFromDraftPicks(prev => toggle(prev, key))}
+          />
         </div>
 
-        <div className="p-4 bg-red-50/50 rounded-lg border border-red-100">
-          <p className="text-[11px] font-black text-red-700 uppercase mb-3 text-center tracking-widest">Partner Assets ({partnerFullName})</p>
-          <p className="text-[9px] text-red-400 text-center mb-2 italic">Hold Ctrl (Win) or Cmd (Mac) to select multiple assets</p>
-          <div className="space-y-2">
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-300" size={12} />
-              <input
-                type="text"
-                placeholder="Search partner roster..."
-                className="w-full p-2 pl-7 text-[10px] border rounded bg-white text-black outline-none focus:border-red-400"
-                value={toSearch}
-                onChange={e => setToSearch(e.target.value)}
+        {/* PARTNER side */}
+        <div className={`p-4 rounded-xl border space-y-3 ${toTeam ? 'bg-red-50/50 border-red-100' : 'bg-slate-50 border-slate-100'}`}>
+          <p className="text-[11px] font-black text-red-700 uppercase text-center tracking-widest">
+            {toTeam ? `${partnerFullName} Assets` : 'Select a partner'}
+            {(toPlayers.length + toDraftPicks.length) > 0 && (
+              <span className="ml-2 bg-red-500 text-white rounded-full px-2 py-0.5 text-[9px]">
+                {toPlayers.length + toDraftPicks.length}
+              </span>
+            )}
+          </p>
+
+          {toTeam ? (
+            <>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-300" size={12} />
+                <input type="text" placeholder="Search partner roster..."
+                  className="w-full p-2 pl-7 text-[10px] border rounded-lg bg-white text-black outline-none focus:border-red-400"
+                  value={toSearch} onChange={e => setToSearch(e.target.value)} />
+              </div>
+
+              <p className="text-[9px] font-black text-red-400 uppercase tracking-widest">Players</p>
+              <ToggleList
+                color="red"
+                items={toTeamPlayers.map(p => ({ key: p.identity, label: playerOptionLabel(p) }))}
+                selected={toPlayers}
+                onToggle={key => setToPlayers(prev => toggle(prev, key))}
               />
-            </div>
-            <select
-              multiple
-              className="border-2 border-white w-full h-80 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold custom-scrollbar"
-              value={toPlayers}
-              onChange={e => setToPlayers(Array.from(e.target.selectedOptions, o => o.value))}
-            >
-              {toTeamPlayers.map(p => (
-                <option key={p.identity} value={p.identity}>{playerOptionLabel(p)}</option>
-              ))}
-            </select>
-            <select
-              multiple
-              className="border-2 border-white w-full h-48 text-xs rounded-lg p-2 bg-white outline-none text-black font-semibold custom-scrollbar"
-              value={toDraftPicks}
-              onChange={e => setToDraftPicks(Array.from(e.target.selectedOptions, o => o.value))}
-            >
-              {toTeamDraftPicks.map(p => (
-                <option key={p.overall} value={p.overall}>{p.year} Rd {p.round} (#{p.overall})</option>
-              ))}
-            </select>
-          </div>
+
+              <p className="text-[9px] font-black text-red-400 uppercase tracking-widest mt-1">Draft Picks</p>
+              <ToggleList
+                color="red"
+                items={toTeamDraftPicks.map(p => ({
+                  key: String(p.overall),
+                  label: `${p.year} Round ${p.round}`,
+                  sub: `Pick #${p.overall} · Originally ${p.originalTeam}`,
+                }))}
+                selected={toDraftPicks}
+                onToggle={key => setToDraftPicks(prev => toggle(prev, key))}
+              />
+            </>
+          ) : (
+            <p className="text-center text-xs text-slate-400 italic py-8">Choose a trade partner above to see their assets</p>
+          )}
         </div>
       </div>
 
+      {/* Summary bar */}
+      {(fromPlayers.length + fromDraftPicks.length + toPlayers.length + toDraftPicks.length) > 0 && (
+        <div className="bg-purple-50 border border-purple-100 rounded-xl px-4 py-3 text-[11px] text-purple-700 font-bold">
+          {selectedSummary()}
+        </div>
+      )}
+
       <button
         onClick={handleTrade}
-        disabled={loading || !toTeam || (fromPlayers.length === 0 && fromDraftPicks.length === 0 && toPlayers.length === 0 && toDraftPicks.length === 0)}
+        disabled={loading || !toTeam || (fromPlayers.length === 0 && fromDraftPicks.length === 0) || (toPlayers.length === 0 && toDraftPicks.length === 0)}
         className="w-full bg-purple-600 text-white p-4 rounded-xl font-black hover:bg-purple-700 disabled:bg-gray-200 transition-all uppercase tracking-widest shadow-lg active:scale-95"
       >
         {loading ? 'Processing...' : 'Submit Trade'}
