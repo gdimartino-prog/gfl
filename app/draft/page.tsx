@@ -48,6 +48,10 @@ function DraftBoardContent() {
   const [faPosFilter, setFaPosFilter] = useState('All');
   const [faSortKey, setFaSortKey] = useState('overall');
   
+  // Scouting Terminal resize
+  const [faWidth, setFaWidth] = useState(576);
+  const isResizing = useRef(false);
+
   // Selection & Scouting States
   const [watchlist, setWatchlist] = useState<string[]>([]);
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -719,7 +723,34 @@ function DraftBoardContent() {
       {showFA && (
         <div className="fixed inset-0 z-[150] flex justify-end">
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowFA(false)} />
-          <div className="relative w-full max-w-xl bg-slate-50 h-full shadow-2xl flex flex-col border-l border-slate-200">
+          <div
+            className="relative bg-slate-50 h-full shadow-2xl flex flex-col border-l border-slate-200"
+            style={{ width: `${faWidth}px`, maxWidth: '95vw', minWidth: '320px' }}
+          >
+            {/* Resize handle */}
+            <div
+              className="absolute left-0 top-0 h-full w-2 cursor-col-resize z-10 group flex items-center justify-center hover:bg-blue-500/20 transition-colors"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                isResizing.current = true;
+                const startX = e.clientX;
+                const startWidth = faWidth;
+                const onMove = (ev: MouseEvent) => {
+                  if (!isResizing.current) return;
+                  const delta = startX - ev.clientX;
+                  setFaWidth(Math.min(Math.max(320, startWidth + delta), window.innerWidth * 0.95));
+                };
+                const onUp = () => {
+                  isResizing.current = false;
+                  window.removeEventListener('mousemove', onMove);
+                  window.removeEventListener('mouseup', onUp);
+                };
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onUp);
+              }}
+            >
+              <div className="w-0.5 h-12 bg-slate-300 group-hover:bg-blue-400 rounded-full transition-colors" />
+            </div>
             <div className="p-10 bg-slate-900 text-white flex justify-between items-center shadow-xl">
               <div>
                 <h3 className="text-3xl font-black uppercase italic tracking-tighter leading-none">Scouting <span className="text-blue-600">Terminal</span></h3>
