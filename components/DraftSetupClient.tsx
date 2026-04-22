@@ -57,6 +57,8 @@ export default function DraftSetupClient() {
   const [transfers, setTransfers] = useState<TransferRow[]>([]);
   const [transfersLoading, setTransfersLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [transferFilter, setTransferFilter] = useState('');
+  const [transferSort, setTransferSort] = useState<{ col: keyof TransferRow; dir: 'asc' | 'desc' }>({ col: 'year', dir: 'asc' });
 
   const loadTransfers = () => {
     setTransfersLoading(true);
@@ -536,53 +538,83 @@ export default function DraftSetupClient() {
 
         {/* PICK TRANSFER LOG */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap justify-between items-center gap-3">
             <h2 className="text-lg font-black uppercase tracking-tight text-slate-800">Pick Transfer Log</h2>
-            <button onClick={loadTransfers} className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-600 tracking-widest transition-colors">Refresh</button>
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                placeholder="Filter by team..."
+                value={transferFilter}
+                onChange={e => setTransferFilter(e.target.value)}
+                className="px-3 py-1.5 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 w-44"
+              />
+              <button onClick={loadTransfers} className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-600 tracking-widest transition-colors">Refresh</button>
+            </div>
           </div>
           {transfersLoading ? (
             <p className="text-sm text-slate-400 font-black uppercase animate-pulse">Loading...</p>
           ) : transfers.length === 0 ? (
             <p className="text-sm text-slate-400 italic">No pick transfers on record.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-100">
-                    <th className="text-left py-2 px-3 text-[10px] font-black uppercase text-slate-400 tracking-widest">Year</th>
-                    <th className="text-left py-2 px-3 text-[10px] font-black uppercase text-slate-400 tracking-widest">Round</th>
-                    <th className="text-left py-2 px-3 text-[10px] font-black uppercase text-slate-400 tracking-widest">Type</th>
-                    <th className="text-left py-2 px-3 text-[10px] font-black uppercase text-slate-400 tracking-widest">From</th>
-                    <th className="text-left py-2 px-3 text-[10px] font-black uppercase text-slate-400 tracking-widest">To</th>
-                    <th className="text-left py-2 px-3 text-[10px] font-black uppercase text-slate-400 tracking-widest">Date</th>
-                    <th className="py-2 px-3"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transfers.map(t => (
-                    <tr key={t.id} className="border-b border-slate-50 hover:bg-slate-50">
-                      <td className="py-2 px-3 font-bold text-slate-700">{t.year}</td>
-                      <td className="py-2 px-3 font-bold text-slate-700">Rd {t.round}</td>
-                      <td className="py-2 px-3 text-slate-500 capitalize">{t.draftType.replace('_', ' ')}</td>
-                      <td className="py-2 px-3 text-slate-700">{t.from}</td>
-                      <td className="py-2 px-3 font-bold text-blue-600">{t.to}</td>
-                      <td className="py-2 px-3 text-slate-400 text-xs">{new Date(t.touch_dt).toLocaleDateString()}</td>
-                      <td className="py-2 px-3">
-                        <button
-                          onClick={() => deleteTransfer(t.id)}
-                          disabled={deletingId === t.id}
-                          className="text-slate-300 hover:text-red-500 transition-colors disabled:opacity-40"
-                          title="Remove transfer (reverts pick to original owner)"
-                        >
-                          {deletingId === t.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                        </button>
-                      </td>
+          ) : (() => {
+            const search = transferFilter.toLowerCase();
+            const filtered = transfers.filter(t =>
+              !search || t.from.toLowerCase().includes(search) || t.to.toLowerCase().includes(search)
+            );
+            const sorted = [...filtered].sort((a, b) => {
+              const { col, dir } = transferSort;
+              const av = a[col], bv = b[col];
+              const cmp = typeof av === 'number' && typeof bv === 'number' ? av - bv : String(av).localeCompare(String(bv));
+              return dir === 'asc' ? cmp : -cmp;
+            });
+            const sortBtn = (col: keyof TransferRow, label: string) => (
+              <th
+                className="text-left py-2 px-3 text-[10px] font-black uppercase text-slate-400 tracking-widest cursor-pointer hover:text-slate-700 select-none whitespace-nowrap"
+                onClick={() => setTransferSort(s => ({ col, dir: s.col === col && s.dir === 'asc' ? 'desc' : 'asc' }))}
+              >
+                {label} {transferSort.col === col ? (transferSort.dir === 'asc' ? '↑' : '↓') : ''}
+              </th>
+            );
+            return (
+              <div className="overflow-x-auto">
+                <p className="text-[10px] text-slate-400 font-bold mb-2">{sorted.length} transfer{sorted.length !== 1 ? 's' : ''}{search ? ` matching "${transferFilter}"` : ''}</p>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      {sortBtn('year', 'Year')}
+                      {sortBtn('round', 'Round')}
+                      {sortBtn('draftType', 'Type')}
+                      {sortBtn('from', 'From')}
+                      {sortBtn('to', 'To')}
+                      {sortBtn('touch_dt', 'Date')}
+                      <th className="py-2 px-3"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {sorted.map(t => (
+                      <tr key={t.id} className="border-b border-slate-50 hover:bg-slate-50">
+                        <td className="py-2 px-3 font-bold text-slate-700">{t.year}</td>
+                        <td className="py-2 px-3 font-bold text-slate-700">Rd {t.round}</td>
+                        <td className="py-2 px-3 text-slate-500 capitalize">{t.draftType.replace('_', ' ')}</td>
+                        <td className="py-2 px-3 text-slate-700">{t.from}</td>
+                        <td className="py-2 px-3 font-bold text-blue-600">{t.to}</td>
+                        <td className="py-2 px-3 text-slate-400 text-xs">{new Date(t.touch_dt).toLocaleDateString()}</td>
+                        <td className="py-2 px-3">
+                          <button
+                            onClick={() => deleteTransfer(t.id)}
+                            disabled={deletingId === t.id}
+                            className="text-slate-300 hover:text-red-500 transition-colors disabled:opacity-40"
+                            title="Remove transfer (reverts pick to original owner)"
+                          >
+                            {deletingId === t.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            );
+          })()}
         </div>
       </main>
     </div>
