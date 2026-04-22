@@ -295,12 +295,12 @@ function PositionTable({
 
   return (
     <div className="mb-8">
-      <h2 className="text-sm font-black uppercase tracking-widest text-slate-300 mb-2 px-1">
+      <h2 className="sticky top-16 z-20 bg-slate-950 text-sm font-black uppercase tracking-widest text-slate-300 py-2 px-1 -mx-4 px-4 border-b border-slate-800">
         {group.label} <span className="text-slate-500 font-normal">({sorted.length})</span>
       </h2>
-      <div className="overflow-x-auto rounded-lg border border-slate-700">
+      <div className="overflow-x-auto rounded-lg border border-slate-700 mt-2">
         <table className="w-full text-xs text-left">
-          <thead>
+          <thead className="sticky top-[104px] z-10">
             <tr className="bg-slate-800 text-slate-400">
               {/* Star col header */}
               <th className="pl-2 pr-1 py-2 sticky left-0 bg-slate-800 z-10 w-6" />
@@ -310,7 +310,7 @@ function PositionTable({
               {group.cols.map(col => (
                 <th
                   key={col.key}
-                  className="px-2 py-2 font-semibold text-right cursor-pointer select-none hover:text-white whitespace-nowrap"
+                  className="px-2 py-2 font-semibold text-right cursor-pointer select-none hover:text-white whitespace-nowrap bg-slate-800"
                   onClick={() => toggleSort(col.key)}
                 >
                   <span className="inline-flex items-center justify-end gap-0.5">
