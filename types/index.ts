@@ -119,6 +119,7 @@ export interface DraftPick {
   scheduledAt?: string | null;
   via: string | null;
   history?: string;
+  draftType?: string;
 }
 
 export interface StandingRow {

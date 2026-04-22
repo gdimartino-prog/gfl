@@ -522,16 +522,22 @@ function DraftBoardContent() {
           </div>
         )}
 
-        {/* DRAFT TYPE TABS */}
-        <div className="flex gap-2">
-          {([['free_agent', 'Free Agent'], ['rookie', 'Rookie'], ['all', 'All Types']] as const).map(([val, label]) => (
-            <button key={val} onClick={() => setDraftTypeFilter(val)}
-              className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all
-                ${draftTypeFilter === val ? 'bg-slate-900 text-white shadow-lg' : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-400'}`}>
-              {label}
-            </button>
-          ))}
-        </div>
+        {/* DRAFT TYPE TABS — only shown when multiple draft types exist */}
+        {(() => {
+          const types = new Set(picks.map(p => p.draftType).filter(Boolean));
+          if (types.size <= 1) return null;
+          return (
+            <div className="flex gap-2">
+              {([['free_agent', 'Free Agent'], ['rookie', 'Rookie'], ['all', 'All Types']] as const).map(([val, label]) => (
+                <button key={val} onClick={() => setDraftTypeFilter(val)}
+                  className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all
+                    ${draftTypeFilter === val ? 'bg-slate-900 text-white shadow-lg' : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-400'}`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          );
+        })()}
 
         {/* FILTER BAR */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
