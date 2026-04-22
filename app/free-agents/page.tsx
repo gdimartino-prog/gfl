@@ -295,12 +295,12 @@ function PositionTable({
 
   return (
     <div className="mb-8">
-      <h2 className="sticky top-16 z-20 bg-slate-950 text-sm font-black uppercase tracking-widest text-slate-300 py-2 px-1 -mx-4 px-4 border-b border-slate-800">
+      <h2 className="sticky top-16 z-20 bg-slate-950 text-sm font-black uppercase tracking-widest text-slate-300 py-2 -mx-4 px-4 border-b border-slate-800">
         {group.label} <span className="text-slate-500 font-normal">({sorted.length})</span>
       </h2>
       <div className="overflow-x-auto rounded-lg border border-slate-700 mt-2">
         <table className="w-full text-xs text-left">
-          <thead className="sticky top-[104px] z-10">
+          <thead>
             <tr className="bg-slate-800 text-slate-400">
               {/* Star col header */}
               <th className="pl-2 pr-1 py-2 sticky left-0 bg-slate-800 z-10 w-6" />
