@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const teamFilter = searchParams.get('team');
+  const includeScouting = searchParams.get('scouting') === '1';
 
   try {
     // 1. Fetch parsed players from the centralized utility
@@ -35,6 +36,7 @@ export async function GET(req: NextRequest) {
         dur: p.dur,
         overall: p.overall,
         salary: p.scouting?.salary ?? null,
+        ...(includeScouting ? { scouting: p.scouting ?? null } : {}),
         name: `${p.first} ${p.last}`.trim(),
         pos: p.position // Map 'position' to 'pos' for frontend consistency
       };

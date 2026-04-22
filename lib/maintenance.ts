@@ -50,6 +50,10 @@ export async function processPlayersFile(
     'receiving yards', 'receiving TD', 'receiving long', 'pass attempts',
     'completions', 'pass yards', 'pass interceptions', 'pass TD',
     'interceptions', 'tackles', 'sacks', 'stuffs',
+    // Kicker stats
+    'fg attempts', 'fg made', 'fg long', 'xp attempts', 'xp made',
+    // Punter stats
+    'punts', 'punt yards', 'punt avg', 'punt long', 'inside 20',
   ];
 
   const ol_positions = ['C', 'G', 'OT', 'OG', 'OC'];

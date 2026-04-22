@@ -3,11 +3,9 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
 import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
-import { getPositionStats } from '@/lib/playerStats'; 
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, RotateCw, X, Zap, ChevronRight, ChevronUp, Star, Trash2, RotateCcw } from 'lucide-react';
-import { getNormalizedCategories } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { Search, RotateCw, Zap, ChevronUp, Trash2, RotateCcw } from 'lucide-react';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
 import { useConfirm } from '@/components/ConfirmDialog';
 import { Team, Player, DraftPick } from '../../types';
@@ -25,7 +23,6 @@ export default function DraftPage() {
 function DraftBoardContent() {
   const { data: session } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   //const [picks, setPicks] = useState<any[]>([]);
   const [picks, setPicks] = useState<DraftPick[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
@@ -40,20 +37,8 @@ function DraftBoardContent() {
   const [roundFilter, setRoundFilter] = useState('All');
   const [draftTypeFilter, setDraftTypeFilter] = useState<'free_agent' | 'rookie' | 'all'>('free_agent');
   
-  // Free Agent States
-  const [showFA, setShowFA] = useState(false);
-  const [faPlayers, setFaPlayers] = useState<Player[]>([]); 
-  const [faLoading, setFaLoading] = useState(false);
-  const [faSearch, setFaSearch] = useState('');
-  const [faPosFilter, setFaPosFilter] = useState('All');
-  const [faSortKey, setFaSortKey] = useState('overall');
-  
-  // Scouting Terminal resize
-  const [faWidth, setFaWidth] = useState(576);
-  const isResizing = useRef(false);
 
   // Selection & Scouting States
-  const [watchlist, setWatchlist] = useState<string[]>([]);
   const [showBackToTop, setShowBackToTop] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null); 
   const [selectedPick, setSelectedPick] = useState<DraftPick | null>(null);
@@ -155,28 +140,7 @@ function DraftBoardContent() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  // --- WATCHLIST PERSISTENCE ---
-  useEffect(() => {
-    const saved = localStorage.getItem('gfl-draft-watchlist');
-    if (saved) setWatchlist(JSON.parse(saved));
-  }, []);
 
-  // --- HANDLE INCOMING SCOUT REQUEST ---
-  useEffect(() => {
-    const scoutPos = searchParams.get('scout');
-    if (scoutPos) {
-      setFaPosFilter(scoutPos);
-      setShowFA(true);
-      setFaLoading(true);
-      fetch(`/api/players?t=${Date.now()}`, { cache: 'no-store' })
-        .then(r => r.json())
-        .then(res => { 
-          const faOnly = Array.isArray(res) ? res.filter((p: Player) => p.team?.trim().toUpperCase() === 'FA') : [];
-          setFaPlayers(faOnly); 
-          setFaLoading(false); 
-        });
-    }
-  }, [searchParams]);
 
   // --- BACK TO TOP LOGIC ---
   useEffect(() => {
@@ -338,89 +302,12 @@ function DraftBoardContent() {
     );
   };
 
-  const processedFAs = useMemo(() => {
-    if (!Array.isArray(faPlayers)) return [];
-    return [...faPlayers]
-      .filter(p => {
-        const displayName = p.name || `${p.first || ''} ${p.last || ''}`;
-        const matchesSearch = displayName.toLowerCase().includes(faSearch.toLowerCase());
-        const rawPos = p.offense || p.defense || p.special || p.position || p.pos || '';
-        const categories = getNormalizedCategories(rawPos);
-        
-        const matchesPos = faPosFilter === 'All' || 
-          (faPosFilter === 'Starred' ? watchlist.includes(p.identity) :
-           categories.includes(faPosFilter.toUpperCase()));
-
-        return matchesSearch && matchesPos;
-      })
-      .sort((a, b) => {
-        // 🚀 RESTORED: Global Priority - Starred players always float to the top
-        const aStarred = watchlist.includes(a.identity);
-        const bStarred = watchlist.includes(b.identity);
-        if (aStarred && !bStarred) return -1;
-        if (!aStarred && bStarred) return 1;
-
-        // 1. Independent Alphabetical Mode (Last Name First)
-        if (faSortKey === 'alpha') {
-          const lastA = (a.last || "").toLowerCase();
-          const lastB = (b.last || "").toLowerCase();
-          
-          // If last names are different, sort by last name
-          if (lastA !== lastB) return lastA.localeCompare(lastB);
-          
-          // If last names are same, sort by first name
-          return (a.first || "").localeCompare(b.first || "");
-        }
-
-        // 2. Independent Age Mode
-        if (faSortKey === 'age') {
-          return Number(a.age || 0) - Number(b.age || 0);
-        }
-
-        // 3. Default: Salary highest to lowest (salary is the universal rating proxy)
-        const salaryA = Number(String(a.salary || 0).replace(/[^0-9.-]+/g, ""));
-        const salaryB = Number(String(b.salary || 0).replace(/[^0-9.-]+/g, ""));
-        if (salaryB !== salaryA) return salaryB - salaryA;
-
-        // Fallback tie-breaker (Last Name then First Name)
-        const lastA = (a.last || "").toLowerCase();
-        const lastB = (b.last || "").toLowerCase();
-        if (lastA !== lastB) return lastA.localeCompare(lastB);
-        return (a.first || "").localeCompare(b.first || "");
-      });
-
-
-  }, [faPlayers, faSearch, faPosFilter, faSortKey, watchlist]);
-
-  const toggleWatchlist = (identity: string) => {
-    const next = watchlist.includes(identity) 
-      ? watchlist.filter(id => id !== identity)
-      : [...watchlist, identity];
-    setWatchlist(next);
-    localStorage.setItem('gfl-draft-watchlist', JSON.stringify(next));
-  };
-
-  // --- 🚀 HYDRATION ENGINE ---
-  const fetchFAWithDetails = async (p: Player, silent = false) => {
-    if (silent && (p.stats || p.allStats?.receptions)) return;
+  const fetchPlayerCard = async (p: Player) => {
     try {
       const r = await fetch(`/api/players/details/${encodeURIComponent(p.identity)}`);
-      if (r.ok) {
-        const detailData = await r.json();
-        setFaPlayers(prev => prev.map(player => 
-            player.identity === p.identity ? { ...player, ...detailData } : player
-        ));
-        if (!silent) setSelectedPlayer(detailData);
-      }
-    } catch (e) { console.error("Hydration Error:", e); }
+      if (r.ok) setSelectedPlayer(await r.json());
+    } catch { /* ignore */ }
   };
-
-  useEffect(() => {
-    if (showFA && processedFAs.length > 0) {
-      const topHydrate = processedFAs.slice(0, 10);
-      topHydrate.forEach(p => fetchFAWithDetails(p, true));
-    }
-  }, [showFA, faPosFilter, faSearch, processedFAs]);
 
   if (loading) return <div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Syncing Draft Board...</div>;
 
@@ -451,15 +338,7 @@ function DraftBoardContent() {
           )}
           <button
             type="button"
-            onClick={() => {
-              setFaLoading(true);
-              setShowFA(true);
-              fetch(`/api/players?t=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()).then(res => {
-                const faOnly = Array.isArray(res) ? res.filter((p: Player) => p.team?.trim().toUpperCase() === 'FA') : [];
-                setFaPlayers(faOnly);
-                setFaLoading(false);
-              });
-            }}
+            onClick={() => router.push('/free-agents')}
             className="bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-3"
           >
             <Search size={14} /> Scout Free Agents
@@ -725,115 +604,23 @@ function DraftBoardContent() {
         </div>
       </main>
 
-      {/* FREE AGENT DRAWER */}
-      {showFA && (
-        <div className="fixed inset-0 z-[150] flex justify-end">
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowFA(false)} />
-          <div
-            className="relative bg-slate-50 h-full shadow-2xl flex flex-col border-l border-slate-200"
-            style={{ width: `${faWidth}px`, maxWidth: '95vw', minWidth: '320px' }}
-          >
-            {/* Resize handle */}
-            <div
-              className="absolute left-0 top-0 h-full w-2 cursor-col-resize z-10 group flex items-center justify-center hover:bg-blue-500/20 transition-colors"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                isResizing.current = true;
-                const startX = e.clientX;
-                const startWidth = faWidth;
-                const onMove = (ev: MouseEvent) => {
-                  if (!isResizing.current) return;
-                  const delta = startX - ev.clientX;
-                  setFaWidth(Math.min(Math.max(320, startWidth + delta), window.innerWidth * 0.95));
-                };
-                const onUp = () => {
-                  isResizing.current = false;
-                  window.removeEventListener('mousemove', onMove);
-                  window.removeEventListener('mouseup', onUp);
-                };
-                window.addEventListener('mousemove', onMove);
-                window.addEventListener('mouseup', onUp);
-              }}
-            >
-              <div className="w-0.5 h-12 bg-slate-300 group-hover:bg-blue-400 rounded-full transition-colors" />
-            </div>
-            <div className="p-10 bg-slate-900 text-white flex justify-between items-center shadow-xl">
-              <div>
-                <h3 className="text-3xl font-black uppercase italic tracking-tighter leading-none">Scouting <span className="text-blue-600">Terminal</span></h3>
-                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-2">Live Personnel Database Access</p>
-              </div>
-              <button onClick={() => setShowFA(false)} className="bg-slate-800 p-3 rounded-2xl text-slate-400 hover:text-white transition-all"><X size={24} /></button>
-            </div>
-
-            <div className="p-6 bg-white border-b shadow-sm space-y-4">
-              <div className="flex gap-3">
-                <div className="relative flex-[2]">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-                  <input type="text" placeholder="Filter by name..." className="w-full p-4 pl-12 bg-slate-50 border-none rounded-2xl text-slate-900 font-bold text-sm" value={faSearch} onChange={(e) => setFaSearch(e.target.value)} />
-                </div>
-                <select className="flex-1 p-2 bg-slate-50 border-none rounded-2xl text-[10px] font-black uppercase text-slate-900" value={faSortKey} onChange={(e) => setFaSortKey(e.target.value)}>
-                  <option value="overall">Sort: OVR/Salary</option>
-                  <option value="age">Sort: AGE</option>
-                  <option value="alpha">Sort: A-Z</option>
-                </select>
-              </div>
-              
-              <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar scroll-smooth">
-                {/* 🚀 STARRED FILTER (Back in the list but distinct) */}
-                <button 
-                  onClick={() => setFaPosFilter(faPosFilter === 'Starred' ? 'All' : 'Starred')} 
-                  className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all shrink-0 flex items-center gap-2 border-2 ${faPosFilter === 'Starred' ? 'bg-yellow-500 text-white border-yellow-500 shadow-lg shadow-yellow-500/30' : 'bg-white border-yellow-200 text-yellow-600 hover:bg-yellow-50 hover:border-yellow-400'}`}
-                  title="Filter by Starred Players"
-                >
-                  <Star size={12} fill={faPosFilter === 'Starred' ? "currentColor" : "none"} />
-                  Starred
-                </button>
-
-                  {['All', 'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'].map(pos => (
-                    <button key={pos} onClick={() => setFaPosFilter(pos)} className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase transition-all shrink-0 ${faPosFilter === pos ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>{pos}</button>
-                  ))}
-            </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/50">
-              {faLoading ? (
-                <div className="text-center py-20 text-slate-300 font-black uppercase animate-pulse italic">Querying Database...</div>
-              ) : (
-                <>
-                  {processedFAs.length === 0 ? (
-                    <div className="text-center py-20 text-slate-300 font-black uppercase italic">No players found matching criteria</div>
-                  ) : (
-                    processedFAs.map((p, i) => (
-                      <PlayerFACard key={p.identity || i} p={p} onScout={fetchFAWithDetails} onToggleWatchlist={toggleWatchlist} isWatched={watchlist.includes(p.identity)} />
-                    ))
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {showSelectionModal && selectedPick && (
         <SelectionModal 
           key={`modal-${selectedPick.overall}-${modalSessionId}`}
           pick={{...selectedPick, currentOwner: getFullTeamName(selectedPick.currentOwner), currentOwnerCode: resolveCode(selectedPick.currentOwner)}}
           coach={session?.user?.name || "Unknown Coach"}
           onClose={() => { setSelectedPick(null); setShowSelectionModal(false); }}
-          onComplete={async () => { 
-            setSelectedPick(null); 
-            setShowSelectionModal(false); 
-            setFaPlayers([]); 
-            setShowFA(false); 
+          onComplete={async () => {
+            setSelectedPick(null);
+            setShowSelectionModal(false);
 
             // 🚀 PROPAGATION DELAY: Wait 1.5s for Google Sheets to settle
-            // This prevents the "immediate reopen" from hitting a stale cache
             await new Promise(resolve => setTimeout(resolve, 1500));
 
-            router.refresh(); 
-            await loadData(true); 
+            router.refresh();
+            await loadData(true);
           }}
-          onScout={(p) => fetchFAWithDetails(p)} 
+          onScout={(p) => fetchPlayerCard(p)}
         />
       )}
 
@@ -852,41 +639,6 @@ function DraftBoardContent() {
   );
 }
 
-function PlayerFACard({ p, onScout, onToggleWatchlist, isWatched }: { p: Player, onScout: (p: Player, silent: boolean) => void, onToggleWatchlist: (id: string) => void, isWatched: boolean }) {
-  return (
-    <div 
-      onMouseEnter={() => onScout(p, true)}
-      className="bg-white border border-slate-100 rounded-[2rem] shadow-sm p-6 transition-all hover:border-blue-200 hover:shadow-md group/card"
-    >
-       <div className="flex justify-between items-start mb-6">
-          <div className="flex gap-4">
-            <button 
-              onClick={() => onToggleWatchlist(p.identity)}
-              className={`mt-1 transition-colors ${isWatched ? 'text-yellow-500' : 'text-slate-300 hover:text-yellow-400'}`}
-            >
-              <Star size={20} fill={isWatched ? "currentColor" : "none"} />
-            </button>
-            <div className="space-y-1">
-              <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name || `${p.first} ${p.last}`)}`} target="_blank" rel="noopener noreferrer" className="font-black text-slate-900 uppercase text-xl italic block leading-none hover:text-blue-600 transition-all">
-                {p.name || `${p.first} ${p.last}`}
-              </a>
-              <div className="flex gap-2 items-center">
-                <span className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded uppercase">{p.pos || p.position || p.offense || p.defense}</span>
-                <span className="text-slate-400 text-[9px] font-black uppercase tracking-widest">Age {p.core?.age || p.age || '??'}</span>
-              </div>
-            </div>
-          </div>
-          <button onClick={() => onScout(p, false)} className="bg-slate-900 text-white text-[9px] font-black px-5 py-3 rounded-xl uppercase hover:bg-blue-600 transition-all flex items-center gap-2">Details <ChevronRight size={12} /></button>
-       </div>
-       <div className="grid grid-cols-5 gap-2">
-          {getPositionStats(p).map((stat, idx) => (
-            <StatMini key={idx} label={stat.label} val={stat.val} />
-          ))}
-       </div>
-    </div>
-  );
-}
-
 // 🚀 HELPER COMPONENTS
 function FilterSelect({ label, value, onChange, options }: { label: string, value: string, onChange: (v: string) => void, options: (string | number)[] }) {
   return (
@@ -900,11 +652,3 @@ function FilterSelect({ label, value, onChange, options }: { label: string, valu
   );
 }
 
-function StatMini({ label, val }: { label: string, val: string | number | undefined }) {
-  return (
-    <div className="flex flex-col items-center justify-center bg-slate-50 rounded-2xl py-3 border border-slate-100">
-      <span className="text-[10px] font-black text-slate-600 uppercase leading-none mb-1 tracking-tight">{label}</span>
-      <span className="text-sm font-black text-slate-900 italic">{val || '0'}</span>
-    </div>
-  );
-}
