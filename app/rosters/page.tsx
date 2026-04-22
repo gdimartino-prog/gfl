@@ -558,11 +558,19 @@ function RosterContent() {
           <input type="text" placeholder={activeTab === 'ROSTER' ? "Filter roster..." : "Search draft history..."} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full bg-white border border-slate-200 rounded-[1.5rem] py-6 pl-16 pr-8 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all text-lg shadow-sm" />
         </div>
         {activeTab === 'ROSTER' && (
-          <div className="flex bg-white p-2 rounded-[1.5rem] shadow-sm border border-slate-200 gap-2">
-          {(['default', 'name', 'pos'] as const).map((s) => (
-            <button key={s} onClick={() => setSortBy(s)} className={`px-8 py-4 text-[10px] font-black uppercase rounded-xl transition-all ${sortBy === s ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>{s}</button>
-          ))}
-        </div>
+          <div className="flex gap-2">
+            <div className="flex bg-white p-2 rounded-[1.5rem] shadow-sm border border-slate-200 gap-2">
+              {(['default', 'name', 'pos'] as const).map((s) => (
+                <button key={s} onClick={() => setSortBy(s)} className={`px-8 py-4 text-[10px] font-black uppercase rounded-xl transition-all ${sortBy === s ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>{s}</button>
+              ))}
+            </div>
+            <Link
+              href="/free-agents"
+              className="bg-slate-900 text-white px-6 py-4 rounded-[1.5rem] shadow-sm font-black uppercase text-[10px] tracking-widest hover:bg-blue-600 transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap"
+            >
+              <Search size={13} /> Scout Free Agents
+            </Link>
+          </div>
         )}
       </div>
 
@@ -678,8 +686,8 @@ function RosterContent() {
                         {isThin && <span className="text-[7px] font-black bg-red-500 text-white px-1 rounded-sm animate-pulse">NEED</span>}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Link 
-                          href={`/draft?scout=${category}`} 
+                        <Link
+                          href="/free-agents"
                           className="p-1 hover:bg-blue-100 rounded text-blue-600 transition-colors"
                           title={`Scout ${category} Free Agents`}
                         >
