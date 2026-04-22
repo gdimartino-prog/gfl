@@ -903,7 +903,7 @@ function FilterSelect({ label, value, onChange, options }: { label: string, valu
 function StatMini({ label, val }: { label: string, val: string | number | undefined }) {
   return (
     <div className="flex flex-col items-center justify-center bg-slate-50 rounded-2xl py-3 border border-slate-100">
-      <span className="text-[9px] font-black text-slate-400 uppercase leading-none mb-1 tracking-tight">{label}</span>
+      <span className="text-[10px] font-black text-slate-600 uppercase leading-none mb-1 tracking-tight">{label}</span>
       <span className="text-sm font-black text-slate-900 italic">{val || '0'}</span>
     </div>
   );
