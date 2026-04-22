@@ -298,13 +298,13 @@ function PositionTable({
       <h2 className="sticky top-16 z-20 bg-slate-950 text-sm font-black uppercase tracking-widest text-slate-300 py-2 -mx-4 px-4 border-b border-slate-800">
         {group.label} <span className="text-slate-500 font-normal">({sorted.length})</span>
       </h2>
-      <div className="overflow-x-auto rounded-lg border border-slate-700 mt-2">
+      <div className="overflow-auto rounded-lg border border-slate-700 mt-2" style={{ maxHeight: '70vh' }}>
         <table className="w-full text-xs text-left">
-          <thead>
+          <thead className="sticky top-0 z-20 bg-slate-800">
             <tr className="bg-slate-800 text-slate-400">
               {/* Star col header */}
-              <th className="pl-2 pr-1 py-2 sticky left-0 bg-slate-800 z-10 w-6" />
-              <th className="px-3 py-2 font-semibold text-left sticky left-8 bg-slate-800 z-10 min-w-[140px]">
+              <th className="pl-2 pr-1 py-2 sticky left-0 bg-slate-800 z-30 w-6" />
+              <th className="px-3 py-2 font-semibold text-left sticky left-8 bg-slate-800 z-30 min-w-[140px]">
                 Player
               </th>
               {group.cols.map(col => (
