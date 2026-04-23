@@ -180,6 +180,24 @@
     "details": "Demo user accessed Front Office"
   },
   {
+    "id": 179,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T14:31:30.132Z",
+    "coach": "Mike Fullen",
+    "team": "Tetbury",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 183,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T22:33:47.400Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
     "id": 23,
     "leagueId": 1,
     "timestamp": "2026-03-18T21:54:53.843Z",
@@ -207,11 +225,47 @@
     "details": "Demo user accessed Front Office"
   },
   {
+    "id": 186,
+    "leagueId": null,
+    "timestamp": "2026-04-22T23:05:07.131Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 187,
+    "leagueId": null,
+    "timestamp": "2026-04-22T23:07:10.942Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 190,
+    "leagueId": 1,
+    "timestamp": "2026-04-23T01:02:36.277Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
     "id": 29,
     "leagueId": 1,
     "timestamp": "2026-03-20T13:17:06.536Z",
     "coach": "George Di Martino",
     "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 191,
+    "leagueId": 1,
+    "timestamp": "2026-04-23T01:02:38.980Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
   },
@@ -601,6 +655,42 @@
     "team": "admin",
     "action": "PICK_TRANSFER_DELETED",
     "details": "Removed pick transfer ID=68 (2026 Rd1)"
+  },
+  {
+    "id": 180,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T15:27:03.699Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 181,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T15:28:14.588Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 184,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T22:42:09.970Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 188,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T23:09:53.266Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "RULE_UPDATED",
+    "details": "Updated rule: draft_start_date=2026-05-02T04:00:00.000Z"
   },
   {
     "id": 80,
@@ -1598,6 +1688,33 @@
     "timestamp": "2026-04-22T02:56:43.363Z",
     "coach": "Bill Matsikoudis",
     "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 182,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T17:51:53.538Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 185,
+    "leagueId": null,
+    "timestamp": "2026-04-22T23:02:46.209Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 189,
+    "leagueId": 1,
+    "timestamp": "2026-04-23T00:08:24.119Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
   }
