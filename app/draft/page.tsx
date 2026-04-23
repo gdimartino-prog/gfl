@@ -336,13 +336,6 @@ function DraftBoardContent() {
               <RotateCcw size={14} /> Undo My Pick
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => router.push('/free-agents')}
-            className="bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-800 transition-all active:scale-95 flex items-center gap-3"
-          >
-            <Search size={14} /> Scout Free Agents
-          </button>
           <button onClick={() => loadData(true)} className="bg-white border-2 border-slate-100 p-4 rounded-2xl hover:bg-slate-50 transition-all active:scale-95">
             <RotateCw size={20} className={`${isRefreshing ? 'animate-spin' : ''} text-slate-400`} />
           </button>

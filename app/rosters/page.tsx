@@ -564,12 +564,6 @@ function RosterContent() {
                 <button key={s} onClick={() => setSortBy(s)} className={`px-8 py-4 text-[10px] font-black uppercase rounded-xl transition-all ${sortBy === s ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}>{s}</button>
               ))}
             </div>
-            <Link
-              href="/free-agents"
-              className="bg-slate-900 text-white px-6 py-4 rounded-[1.5rem] shadow-sm font-black uppercase text-[10px] tracking-widest hover:bg-blue-600 transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap"
-            >
-              <Search size={13} /> Scout Free Agents
-            </Link>
           </div>
         )}
       </div>
@@ -686,13 +680,6 @@ function RosterContent() {
                         {isThin && <span className="text-[7px] font-black bg-red-500 text-white px-1 rounded-sm animate-pulse">NEED</span>}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Link
-                          href="/free-agents"
-                          className="p-1 hover:bg-blue-100 rounded text-blue-600 transition-colors"
-                          title={`Scout ${category} Free Agents`}
-                        >
-                          <Search size={12} />
-                        </Link>
                         <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isThin ? 'text-red-600 bg-red-100' : 'text-blue-600 bg-blue-50'}`}>{players.length}</span>
                       </div>
                     </div>

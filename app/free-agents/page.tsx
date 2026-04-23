@@ -42,7 +42,10 @@ type ColDef = {
 };
 
 function s(p: FaPlayer, key: string): string | number {
-  return p.scouting?.[key.toLowerCase()] ?? '—';
+  if (!p.scouting) return '—';
+  const lk = key.toLowerCase();
+  const found = Object.keys(p.scouting).find(k => k.toLowerCase() === lk);
+  return found !== undefined ? p.scouting[found] : '—';
 }
 
 function n(v: string | number | null | undefined): number {
