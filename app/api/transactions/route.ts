@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { players, teams, transactions, rules } from '@/schema';
+import { players, teams, transactions, rules, tradeBlock } from '@/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { logTransaction, getTransactions, updateTransactionStatus } from '@/lib/transactions';
 import { getCoaches } from '@/lib/config';
@@ -148,6 +148,10 @@ export async function POST(req: Request) {
         .set({ teamId: newTeamId, touch_id: 'transaction' })
         .where(eq(players.id, player.id));
     }
+
+    // Remove from trade block if present
+    await db.delete(tradeBlock)
+      .where(and(eq(tradeBlock.playerId, player.id), eq(tradeBlock.leagueId, leagueId)));
 
     // Resolve current season from rules
     const seasonRule = await db.select({ value: rules.value }).from(rules)
