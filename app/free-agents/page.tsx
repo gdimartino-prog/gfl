@@ -83,7 +83,7 @@ const POSITION_GROUPS: {
   },
   {
     label: 'Running Backs',
-    positions: ['RB', 'FB'],
+    positions: ['RB', 'HB'],
     cols: [
       { key: 'age',    label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
       { key: 'att',    label: 'Att',  numeric: true, getValue: p => s(p, 'rush attempts') },
@@ -113,7 +113,7 @@ const POSITION_GROUPS: {
   },
   {
     label: 'Tight Ends',
-    positions: ['TE', 'HB'],
+    positions: ['TE', 'FB'],
     cols: [
       { key: 'age',    label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
       { key: 'rec',    label: 'Rec',  numeric: true, getValue: p => s(p, 'receptions') },
