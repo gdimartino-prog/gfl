@@ -1,5 +1,5 @@
 import { db } from './db';
-import { players, teams, schedule, standings, rules, draftPicks } from '@/schema';
+import { players, teams, schedule, standings, rules, draftPicks, tradeBlock } from '@/schema';
 import { eq, and, inArray, isNotNull } from 'drizzle-orm';
 import Papa from "papaparse";
 import { revalidateTag } from 'next/cache';
@@ -122,11 +122,11 @@ export async function processPlayersFile(
   // Upsert by identity so draft pick playerId refs remain valid across re-syncs.
   // 1. Fetch existing players
   const existingPlayers = await db
-    .select({ id: players.id, identity: players.identity })
+    .select({ id: players.id, identity: players.identity, teamId: players.teamId })
     .from(players)
     .where(eq(players.leagueId, leagueId));
   const existingByIdentity = new Map(
-    existingPlayers.filter(p => p.identity).map(p => [p.identity!, p.id])
+    existingPlayers.filter(p => p.identity).map(p => [p.identity!, { id: p.id, teamId: p.teamId }])
   );
 
   // 2. Fetch player IDs currently referenced by draft picks (already drafted)
@@ -138,16 +138,25 @@ export async function processPlayersFile(
 
   // 3. Upsert each player from the file
   const fileIdentities = new Set<string>();
+  const movedPlayerIds: number[] = [];
   for (let i = 0; i < playerValues.length; i++) {
     const p = playerValues[i];
     if (p.identity) fileIdentities.add(p.identity);
-    const existingId = p.identity ? existingByIdentity.get(p.identity) : undefined;
-    if (existingId) {
-      await db.update(players).set(p).where(eq(players.id, existingId));
+    const existing = p.identity ? existingByIdentity.get(p.identity) : undefined;
+    if (existing) {
+      if (existing.teamId !== p.teamId) movedPlayerIds.push(existing.id);
+      await db.update(players).set(p).where(eq(players.id, existing.id));
     } else {
       await db.insert(players).values(p);
     }
     if (onProgress) onProgress(i + 1, playerValues.length);
+  }
+
+  // Remove trade block entries for players whose team changed during sync
+  if (movedPlayerIds.length > 0) {
+    await db.delete(tradeBlock).where(
+      and(eq(tradeBlock.leagueId, leagueId), inArray(tradeBlock.playerId, movedPlayerIds.map(String)))
+    );
   }
 
   // 4. Remove players no longer in file, but only if not referenced by a draft pick
