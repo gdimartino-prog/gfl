@@ -138,13 +138,13 @@ export async function processPlayersFile(
 
   // 3. Upsert each player from the file
   const fileIdentities = new Set<string>();
-  const movedPlayerIds: number[] = [];
+  const movedIdentities: string[] = [];
   for (let i = 0; i < playerValues.length; i++) {
     const p = playerValues[i];
     if (p.identity) fileIdentities.add(p.identity);
     const existing = p.identity ? existingByIdentity.get(p.identity) : undefined;
     if (existing) {
-      if (existing.teamId !== p.teamId) movedPlayerIds.push(existing.id);
+      if (existing.teamId !== p.teamId && p.identity) movedIdentities.push(p.identity);
       await db.update(players).set(p).where(eq(players.id, existing.id));
     } else {
       await db.insert(players).values(p);
@@ -153,9 +153,9 @@ export async function processPlayersFile(
   }
 
   // Remove trade block entries for players whose team changed during sync
-  if (movedPlayerIds.length > 0) {
+  if (movedIdentities.length > 0) {
     await db.delete(tradeBlock).where(
-      and(eq(tradeBlock.leagueId, leagueId), inArray(tradeBlock.playerId, movedPlayerIds.map(String)))
+      and(eq(tradeBlock.leagueId, leagueId), inArray(tradeBlock.playerId, movedIdentities))
     );
   }
 
