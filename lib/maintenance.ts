@@ -171,6 +171,7 @@ export async function processPlayersFile(
         staleBlockIds.push(entry.playerId);
       }
     }
+    console.log(`[sync] trade block check: ${blockEntries.length} entries, ${staleBlockIds.length} stale`, staleBlockIds);
     if (staleBlockIds.length > 0) {
       await db.delete(tradeBlock).where(
         and(eq(tradeBlock.leagueId, leagueId), inArray(tradeBlock.playerId, staleBlockIds))
