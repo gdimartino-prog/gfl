@@ -151,7 +151,7 @@ export async function POST(req: Request) {
 
     // Remove from trade block if present
     await db.delete(tradeBlock)
-      .where(and(eq(tradeBlock.playerId, player.id), eq(tradeBlock.leagueId, leagueId)));
+      .where(and(eq(tradeBlock.playerId, String(player.id)), eq(tradeBlock.leagueId, leagueId)));
 
     // Resolve current season from rules
     const seasonRule = await db.select({ value: rules.value }).from(rules)
