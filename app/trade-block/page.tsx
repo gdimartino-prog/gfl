@@ -20,6 +20,7 @@ export default function TradeBlockPage() {
   const [players, setPlayers] = useState<TradeBlockPlayer[]>([]);
   const [loading, setLoading] = useState(true);
   const [teamNameMap, setTeamNameMap] = useState<Record<string, string>>({});
+  const [isCommissioner, setIsCommissioner] = useState(false);
   const [confirm, ConfirmDialog] = useConfirm();
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
   const [season, setSeason] = useState('');
@@ -36,18 +37,26 @@ export default function TradeBlockPage() {
     const fetchTeamNames = async () => {
       try {
         const res = await fetch('/api/teams');
-        const teams = await res.json();
+        const teamsData = await res.json();
         const map: Record<string, string> = {};
-        teams.forEach((team: { short: string; team: string; nickname: string }) => {
+        teamsData.forEach((team: { short: string; team: string; nickname: string }) => {
           map[team.short.toUpperCase()] = `${team.team} ${team.nickname}`;
         });
         setTeamNameMap(map);
+        // Check if current user is commissioner
+        const sessionTeamshort = (session?.user as { id?: string })?.id;
+        if (sessionTeamshort) {
+          const myTeam = teamsData.find((t: { short: string; commissioner?: boolean }) =>
+            t.short.toUpperCase() === sessionTeamshort.toUpperCase()
+          );
+          setIsCommissioner(myTeam?.commissioner ?? false);
+        }
       } catch (error) {
         console.error("Failed to fetch team names:", error);
       }
     };
     fetchTeamNames();
-  }, []);
+  }, [session]);
 
   const fetchTradeBlock = async () => {
     try {
@@ -104,8 +113,15 @@ export default function TradeBlockPage() {
       .then(setViewingPlayer);
   }, []);
 
+  const isPrivileged = () => {
+    if (!session?.user) return false;
+    const role = (session.user as { role?: string })?.role;
+    return role === 'admin' || role === 'superuser';
+  };
+
   const canManage = (team: string) => {
     if (!session?.user) return false;
+    if (isPrivileged() || isCommissioner) return true;
     const sessionUserId = (session.user as { id?: string })?.id;
     return sessionUserId === team;
   };

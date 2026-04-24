@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/auth";
 import { db } from '@/lib/db';
-import { tradeBlock } from '@/schema';
+import { tradeBlock, teams } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 
@@ -80,8 +80,18 @@ export async function DELETE(req: NextRequest) {
     const teamCode = (session.user as { id?: string }).id || '';
     const isAdminUser = (session.user as { role?: string }).role === 'admin' || (session.user as { role?: string }).role === 'superuser';
 
-    // Verify ownership unless admin
-    if (!isAdminUser) {
+    // Check commissioner status from DB if not admin
+    let isCommissioner = false;
+    if (!isAdminUser && teamCode) {
+      const teamRow = await db.select({ isCommissioner: teams.isCommissioner })
+        .from(teams)
+        .where(and(eq(teams.teamshort, teamCode), eq(teams.leagueId, leagueId)))
+        .limit(1);
+      isCommissioner = teamRow[0]?.isCommissioner ?? false;
+    }
+
+    // Verify ownership unless admin or commissioner
+    if (!isAdminUser && !isCommissioner) {
       const existing = await db.select({ team: tradeBlock.team }).from(tradeBlock)
         .where(and(eq(tradeBlock.playerId, playerId), eq(tradeBlock.leagueId, leagueId)))
         .limit(1);
