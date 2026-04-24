@@ -270,6 +270,24 @@
     "details": "Coach entered Front Office"
   },
   {
+    "id": 194,
+    "leagueId": 1,
+    "timestamp": "2026-04-23T15:51:57.228Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 195,
+    "leagueId": 1,
+    "timestamp": "2026-04-23T15:55:39.032Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
     "id": 34,
     "leagueId": 1,
     "timestamp": "2026-03-20T13:50:11.136Z",
@@ -691,6 +709,15 @@
     "team": "admin",
     "action": "RULE_UPDATED",
     "details": "Updated rule: draft_start_date=2026-05-02T04:00:00.000Z"
+  },
+  {
+    "id": 192,
+    "leagueId": 1,
+    "timestamp": "2026-04-23T15:40:29.493Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
   },
   {
     "id": 80,
@@ -1717,5 +1744,14 @@
     "team": "Amalfi",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 193,
+    "leagueId": 1,
+    "timestamp": "2026-04-23T15:47:28.588Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
   }
 ]
