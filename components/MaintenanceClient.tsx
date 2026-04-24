@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useConfirm } from "@/components/ConfirmDialog";
 import Link from "next/link";
-import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList } from "lucide-react";
+import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList, Bell } from "lucide-react";
 
 type RuleRow = { setting: string; value: string; desc: string | null; year: number | null };
 const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
@@ -29,6 +29,10 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const [pendingSignups, setPendingSignups] = useState<PendingSignup[]>([]);
   const [pendingLoading, setPendingLoading] = useState(true);
   const [processingId, setProcessingId] = useState<number | null>(null);
+
+  // Test notifications state
+  const [testNotifyLoading, setTestNotifyLoading] = useState(false);
+  const [testNotifyResult, setTestNotifyResult] = useState<{ email: string; whatsapp: string } | null>(null);
 
   // Section collapse state
   const [teamsOpen, setTeamsOpen] = useState(false);
@@ -1317,6 +1321,46 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
             </table>
           )}
         </>)}
+      </div>
+
+      {/* Test Notifications Section */}
+      <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
+        <div className="px-8 py-5 bg-slate-900 flex items-center justify-between">
+          <div>
+            <h3 className="text-white font-black uppercase italic tracking-tighter text-lg flex items-center gap-2"><Bell size={16} /> Test Notifications</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Send a test email &amp; WhatsApp to verify delivery</p>
+          </div>
+          <button
+            onClick={async () => {
+              setTestNotifyLoading(true);
+              setTestNotifyResult(null);
+              try {
+                const res = await fetch('/api/test-notify', { method: 'POST' });
+                const data = await res.json();
+                setTestNotifyResult(data.results ?? { email: 'unknown', whatsapp: 'unknown' });
+              } catch {
+                setTestNotifyResult({ email: 'failed', whatsapp: 'failed' });
+              } finally {
+                setTestNotifyLoading(false);
+              }
+            }}
+            disabled={testNotifyLoading}
+            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 disabled:opacity-50 transition-all"
+          >
+            <Bell size={13} />
+            {testNotifyLoading ? 'Sending...' : 'Send Test'}
+          </button>
+        </div>
+        {testNotifyResult && (
+          <div className="px-8 py-4 flex items-center gap-6 bg-slate-50 border-t border-slate-100">
+            <span className={`text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5 ${testNotifyResult.email === 'sent' ? 'text-emerald-600' : 'text-red-500'}`}>
+              ✉ Email: {testNotifyResult.email}
+            </span>
+            <span className={`text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5 ${testNotifyResult.whatsapp === 'sent' ? 'text-emerald-600' : 'text-red-500'}`}>
+              💬 WhatsApp: {testNotifyResult.whatsapp}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Rules Editor Section */}
