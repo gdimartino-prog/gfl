@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPlayers } from '@/lib/players';
+import { getPlayersWithScouting } from '@/lib/players';
 import { executeFreeAgentMove } from '@/lib/freeAgency';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
@@ -7,7 +7,7 @@ import { auth } from '@/auth';
 export async function GET() {
   try {
     const leagueId = await getLeagueId();
-    const allPlayers = await getPlayers(leagueId);
+    const allPlayers = await getPlayersWithScouting(leagueId);
 
     const freeAgents = allPlayers.filter(
       (p) => p.team?.trim().toUpperCase() === 'FA'
