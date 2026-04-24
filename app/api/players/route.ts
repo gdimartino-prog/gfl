@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getPlayers } from '@/lib/players';
 import { getLeagueId } from '@/lib/getLeagueId';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -51,8 +50,10 @@ export async function GET(req: NextRequest) {
     }
 
     // 4. Return the processed array directly
-    return NextResponse.json(processedPlayers);
-    
+    return NextResponse.json(processedPlayers, {
+      headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=60' },
+    });
+
   } catch (err: unknown) {
     console.error('API Error (Players):', err instanceof Error ? err.message : String(err));
     return NextResponse.json({ error: 'Failed to fetch players' }, { status: 500 });

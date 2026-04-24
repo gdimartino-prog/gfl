@@ -2,7 +2,7 @@
 import { db } from './db';
 import { players, teams } from '@/schema';
 import { eq } from 'drizzle-orm';
-import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 
 export type Player = {
   id: number;
@@ -16,7 +16,7 @@ export type Player = {
  * Fetches all players from the database with caching.
  * Returns data in the same shape as the Google Sheets parser for API compatibility.
  */
-const _getPlayers = cache(async (leagueId: number) => {
+const _getPlayers = unstable_cache(async (leagueId: number) => {
     const rows = await db.select({
       id: players.id,
       name: players.name,
@@ -54,7 +54,7 @@ const _getPlayers = cache(async (leagueId: number) => {
       sack: p.sacksVal ?? '0',
       dur: p.durability ?? '0',
     }));
-});
+}, ['players'], { revalidate: 300, tags: ['players'] });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getPlayers(leagueId: number = 1): Promise<any[]> {

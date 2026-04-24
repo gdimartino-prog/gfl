@@ -4,20 +4,18 @@ import { executeFreeAgentMove } from '@/lib/freeAgency';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
   try {
     const leagueId = await getLeagueId();
-    // 1. Fetch parsed players from the centralized utility (handles caching internally)
     const allPlayers = await getPlayers(leagueId);
 
-    // 2. Filter for Free Agents (Case-insensitive 'FA')
     const freeAgents = allPlayers.filter(
       (p) => p.team?.trim().toUpperCase() === 'FA'
     );
 
-    return NextResponse.json(freeAgents);
+    return NextResponse.json(freeAgents, {
+      headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=60' },
+    });
   } catch (error: unknown) {
     console.error('API Error (Free Agents):', error instanceof Error ? error.message : String(error));
     return NextResponse.json(
