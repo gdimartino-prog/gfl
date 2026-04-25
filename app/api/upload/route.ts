@@ -10,6 +10,9 @@ import { eq } from 'drizzle-orm';
 
 // 1. GET: Fetches the list of .COA files for the current league's teams only
 export async function GET() {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const leagueId = await getLeagueId();
 

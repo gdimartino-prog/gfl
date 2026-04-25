@@ -48,13 +48,14 @@ export async function PATCH(req: NextRequest) {
   const { id, isDivWinner, isPlayoff, isSuperBowl, isChampion } = body;
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
 
+  const leagueId = await getLeagueId();
   await db.update(standings).set({
     isDivWinner: !!isDivWinner,
     isPlayoff: !!isPlayoff,
     isSuperBowl: !!isSuperBowl,
     isChampion: !!isChampion,
     touch_id: 'admin-awards',
-  }).where(eq(standings.id, Number(id)));
+  }).where(and(eq(standings.id, Number(id)), eq(standings.leagueId, leagueId)));
 
   return NextResponse.json({ success: true });
 }

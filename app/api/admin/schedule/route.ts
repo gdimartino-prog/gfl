@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     touch_id: 'commissioner',
   }).returning();
 
-  revalidateTag('schedule', 'max');
+  revalidateTag('schedule');
   return NextResponse.json(row, { status: 201 });
 }
 
@@ -90,7 +90,7 @@ export async function PATCH(req: Request) {
     touch_id: 'commissioner',
   }).where(and(eq(schedule.id, id), eq(schedule.leagueId, leagueId)));
 
-  revalidateTag('schedule', 'max');
+  revalidateTag('schedule');
   return NextResponse.json({ success: true });
 }
 
@@ -103,6 +103,6 @@ export async function DELETE(req: Request) {
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
 
   await db.delete(schedule).where(and(eq(schedule.id, id), eq(schedule.leagueId, leagueId)));
-  revalidateTag('schedule', 'max');
+  revalidateTag('schedule');
   return NextResponse.json({ success: true });
 }
