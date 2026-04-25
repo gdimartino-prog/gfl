@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     if (teamCode) {
       await updateCoachSync(teamCode);
     }
-    logSystemEvent(session?.user?.name || teamCode, teamCode, 'COA_UPLOAD', `Uploaded ${filename}`, leagueId);
+    logSystemEvent(session?.user?.name || teamCode || 'unknown', teamCode || 'unknown', 'COA_UPLOAD', `Uploaded ${filename}`, leagueId);
 
     return NextResponse.json(blob);
   } catch (error: unknown) {
