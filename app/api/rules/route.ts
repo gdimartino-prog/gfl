@@ -5,11 +5,15 @@ import { eq, and, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { isAdmin } from '@/lib/auth';
+import { auth } from '@/auth';
 
 const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
 const isGlobalOnlyRule = (r: string) => GLOBAL_ONLY_RULES.has(r) || r.startsWith('draft_clock_');
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json([], { status: 401 });
+
   try {
     const leagueId = await getLeagueId();
     const rows = await db.select().from(rules)

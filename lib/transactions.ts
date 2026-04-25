@@ -2,6 +2,7 @@
 import { db } from './db';
 import { transactions, rules } from '@/schema';
 import { desc, eq, and, isNull } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
 
 export async function logTransaction(tx: {
   type: string;
@@ -43,10 +44,31 @@ export async function logTransaction(tx: {
   });
 }
 
+const _getTransactions = unstable_cache(
+  async (leagueId: number) => {
+    return db.select({
+      id: transactions.id,
+      date: transactions.date,
+      type: transactions.type,
+      description: transactions.description,
+      fromTeam: transactions.fromTeam,
+      toTeam: transactions.toTeam,
+      owner: transactions.owner,
+      status: transactions.status,
+      weekBack: transactions.weekBack,
+      fee: transactions.fee,
+      season: transactions.season,
+    }).from(transactions)
+      .where(eq(transactions.leagueId, leagueId))
+      .orderBy(desc(transactions.date))
+      .limit(200);
+  },
+  ['transactions'],
+  { revalidate: 60, tags: ['transactions'] }
+);
+
 export async function getTransactions(leagueId: number = 1) {
-  return db.select().from(transactions)
-    .where(eq(transactions.leagueId, leagueId))
-    .orderBy(desc(transactions.date));
+  return _getTransactions(leagueId);
 }
 
 export async function updateTransactionStatus(id: number, status: string) {

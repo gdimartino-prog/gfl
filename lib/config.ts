@@ -2,6 +2,7 @@
 import { db } from './db';
 import { teams } from '@/schema';
 import { eq } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
 
 export type Coach = {
   coach: string;
@@ -15,10 +16,20 @@ export type Coach = {
   lastSync: string;
 };
 
-// Reads teams table and returns coaches, optionally filtered by league
-export async function getCoaches(leagueId: number = 1): Promise<Coach[]> {
-  const allTeams = await db.select().from(teams).where(eq(teams.leagueId, leagueId));
-  return allTeams.map(t => ({
+const _getCoaches = unstable_cache(
+  async (leagueId: number): Promise<Coach[]> => {
+    const allTeams = await db.select({
+      name: teams.name,
+      coach: teams.coach,
+      teamshort: teams.teamshort,
+      nickname: teams.nickname,
+      isCommissioner: teams.isCommissioner,
+      status: teams.status,
+      mobile: teams.mobile,
+      email: teams.email,
+      touch_dt: teams.touch_dt,
+    }).from(teams).where(eq(teams.leagueId, leagueId));
+    return allTeams.map(t => ({
       team: t.name,
       coach: t.coach || '',
       teamshort: t.teamshort || '',
@@ -28,7 +39,15 @@ export async function getCoaches(leagueId: number = 1): Promise<Coach[]> {
       mobile: t.mobile || '',
       email: t.email || '',
       lastSync: t.touch_dt?.toString() || '',
-  }));
+    }));
+  },
+  ['coaches'],
+  { revalidate: 300, tags: ['coaches'] }
+);
+
+// Reads teams table and returns coaches, optionally filtered by league
+export async function getCoaches(leagueId: number = 1): Promise<Coach[]> {
+  return _getCoaches(leagueId);
 }
 
 export async function getCoachByTeamCode(teamCode: string) {

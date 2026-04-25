@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         session.user.name || "Unknown Coach",
         teamCode,
         "UPDATE_CONTACT",
-        `Email: ${email}, Mobile: ${mobile}, Coach: ${coach}, Nickname: ${nickname}, Team: ${team}`
+        `Coach: ${(coach || '').slice(0, 50)}, Nickname: ${(nickname || '').slice(0, 50)}`
       );
     }
 

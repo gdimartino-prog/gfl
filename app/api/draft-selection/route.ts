@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       id: draftPicks.id,
       round: draftPicks.round,
       pick: draftPicks.pick,
+      year: draftPicks.year,
       originalTeam: originalTeams.name,
       currentOwner: currentTeams.name,
       pickedAt: draftPicks.pickedAt,
@@ -103,7 +104,7 @@ export async function POST(req: NextRequest) {
     .from(draftPicks)
     .leftJoin(originalTeams, eq(draftPicks.originalTeamId, originalTeams.id))
     .leftJoin(currentTeams, eq(draftPicks.currentTeamId, currentTeams.id))
-    .where(eq(draftPicks.leagueId, leagueId))
+    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, pickRow.year!)))
     .orderBy(asc(draftPicks.pick));
 
     const currentIdx = allPicks.findIndex(p => p.pick === parseInt(String(overallPick)));

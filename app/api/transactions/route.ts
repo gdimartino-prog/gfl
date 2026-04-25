@@ -2,14 +2,13 @@ import { db } from '@/lib/db';
 import { players, teams, transactions, rules, tradeBlock } from '@/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { logTransaction, getTransactions, updateTransactionStatus } from '@/lib/transactions';
-import { getCoaches } from '@/lib/config';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
+import { isAdmin, isCommissioner } from '@/lib/auth';
 import { notifyTransaction } from '@/lib/notify';
 import { logSystemEvent } from '@/lib/db-helpers';
+import { revalidateTag } from 'next/cache';
 import { NextRequest } from 'next/server';
-
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const session = await auth();
@@ -42,14 +41,12 @@ export async function PATCH(req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!await isAdmin() && !await isCommissioner()) {
+      return Response.json({ error: 'Commissioner access required' }, { status: 403 });
+    }
 
     const teamshort = (session.user as { id?: string }).id || '';
     const leagueId = await getLeagueId();
-    const coaches = await getCoaches(leagueId);
-    const coach = coaches.find(c => c.teamshort === teamshort);
-    if (!coach?.isCommissioner) {
-      return Response.json({ error: 'Commissioner access required' }, { status: 403 });
-    }
 
     const { id, status } = await req.json();
     if (!id || !status) return Response.json({ error: 'id and status required' }, { status: 400 });
@@ -60,6 +57,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     await updateTransactionStatus(Number(id), status);
+    revalidateTag('transactions', 'max');
     logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_STATUS', `Transaction #${id} marked ${status}`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
@@ -71,24 +69,18 @@ export async function DELETE(req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!await isAdmin() && !await isCommissioner()) {
+      return Response.json({ error: 'Commissioner access required' }, { status: 403 });
+    }
 
     const teamshort = (session.user as { id?: string }).id || '';
-    const role = (session.user as { role?: string }).role || '';
     const leagueId = await getLeagueId();
-
-    // Allow superuser or commissioner
-    if (role !== 'superuser') {
-      const coaches = await getCoaches(leagueId);
-      const coach = coaches.find(c => c.teamshort === teamshort);
-      if (!coach?.isCommissioner) {
-        return Response.json({ error: 'Commissioner access required' }, { status: 403 });
-      }
-    }
 
     const { id } = await req.json();
     if (!id) return Response.json({ error: 'id required' }, { status: 400 });
 
     await db.delete(transactions).where(and(eq(transactions.id, Number(id)), eq(transactions.leagueId, leagueId)));
+    revalidateTag('transactions', 'max');
     logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
@@ -99,6 +91,9 @@ export async function DELETE(req: NextRequest) {
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!await isAdmin() && !await isCommissioner()) {
+    return Response.json({ error: 'Commissioner access required' }, { status: 403 });
+  }
   try {
     const body = await req.json();
     const { type, identity, toTeam, details, fromTeam } = body;
@@ -161,8 +156,10 @@ export async function POST(req: Request) {
       .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'cuts_year'), isNull(rules.year))).limit(1);
     const season = seasonRule[0] ? parseInt(seasonRule[0].value) || null : null;
 
-    await logTransaction({ ...body, fromTeam: resolvedFromTeam, details, leagueId, season });
-    logSystemEvent(body.owner || 'Unknown', toTeam || resolvedFromTeam, type, details || identity, leagueId);
+    const actorName = session.user.name || (session.user as { id?: string }).id || 'Commissioner';
+    await logTransaction({ ...body, owner: actorName, fromTeam: resolvedFromTeam, details, leagueId, season });
+    revalidateTag('transactions', 'max');
+    logSystemEvent(actorName, toTeam || resolvedFromTeam, type, details || identity, leagueId);
 
     // Send notification
     const directionKey = `${resolvedFromTeam} ➔ ${toTeam || 'Free Agent'}`;

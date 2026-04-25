@@ -3,8 +3,12 @@ import { db } from '@/lib/db';
 import { rules } from '@/schema';
 import { eq } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
+import { auth } from '@/auth';
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const leagueId = await getLeagueId();
     const rows = await db.select({ rule: rules.rule, value: rules.value })

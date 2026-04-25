@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { isAdmin, isCommissioner } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { teams } from '@/schema';
 import { and, eq } from 'drizzle-orm';
@@ -10,6 +11,9 @@ import { logSystemEvent } from '@/lib/db-helpers';
 export async function POST() {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!await isAdmin() && !await isCommissioner()) {
+    return NextResponse.json({ error: 'Commissioner access required to undo a pick' }, { status: 403 });
+  }
 
   try {
     const leagueId = await getLeagueId();

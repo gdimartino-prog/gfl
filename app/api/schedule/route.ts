@@ -1,7 +1,8 @@
 import { getSchedule } from '@/lib/getSchedule';
-import { getStandings } from '@/lib/getStandings'; // Using your lib as a lookup
+import { getStandings } from '@/lib/getStandings';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/auth';
 
 interface Game {
   year: number | null;
@@ -14,9 +15,12 @@ interface Game {
 }
 
 export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const { searchParams } = new URL(req.url);
-    const teamCode = searchParams.get('team'); // e.g., "VV"
+    const teamCode = searchParams.get('team');
 
     const leagueId = await getLeagueId();
 
@@ -26,7 +30,9 @@ export async function GET(req: NextRequest) {
       getStandings(leagueId)
     ]);
 
-    if (!teamCode) return NextResponse.json(allGames);
+    if (!teamCode) return NextResponse.json(allGames, {
+      headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
+    });
 
     // 2. Look up the City Name (Column A) using the Short Code (Column B)
     // Example: Find "Vico" where teamshort is "VV"
@@ -45,7 +51,9 @@ export async function GET(req: NextRequest) {
       return home === searchStr || visitor === searchStr;
     });
 
-    return NextResponse.json(filtered);
+    return NextResponse.json(filtered, {
+      headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
+    });
   } catch (error) {
     console.error("Dynamic Schedule API Error:", error);
     return NextResponse.json({ error: 'Fetch failed' }, { status: 500 });

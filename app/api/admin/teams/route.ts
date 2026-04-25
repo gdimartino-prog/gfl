@@ -7,6 +7,7 @@ import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { auth } from '@/auth';
 import bcrypt from 'bcrypt';
+import { revalidateTag } from 'next/cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,20 @@ export async function GET() {
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
   const leagueId = await getLeagueId();
-  const rows = await db.select().from(teams).where(eq(teams.leagueId, leagueId));
+  const rows = await db.select({
+    id: teams.id,
+    leagueId: teams.leagueId,
+    name: teams.name,
+    teamshort: teams.teamshort,
+    coach: teams.coach,
+    email: teams.email,
+    mobile: teams.mobile,
+    nickname: teams.nickname,
+    isCommissioner: teams.isCommissioner,
+    status: teams.status,
+    touch_dt: teams.touch_dt,
+    touch_id: teams.touch_id,
+  }).from(teams).where(eq(teams.leagueId, leagueId));
   return NextResponse.json(rows);
 }
 
@@ -72,6 +86,7 @@ export async function PATCH(req: Request) {
 
     await db.update(teams).set({ password: hashed, touch_id: actor })
       .where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
+    revalidateTag('coaches', 'max');
     logSystemEvent(actor, 'admin', 'RESET_PASSWORD', `Reset password for team ${target[0].teamshort}`, leagueId);
     return NextResponse.json({ success: true });
   }
@@ -88,6 +103,7 @@ export async function PATCH(req: Request) {
     touch_id: actor,
   }).where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
 
+  revalidateTag('coaches', 'max');
   logSystemEvent(actor, 'admin', 'UPDATE_TEAM', `Updated team id ${id}`, leagueId);
   return NextResponse.json({ success: true });
 }

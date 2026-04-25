@@ -8,8 +8,6 @@ import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getPlayers } from '@/lib/players';
 
-export const dynamic = 'force-dynamic';
-
 function normalizeName(name: string): string {
   // Strip GFL position prefix: "QB - Cam Ward" → "Cam Ward"
   const stripped = name.includes(' - ') ? name.split(' - ').slice(1).join(' - ') : name;
