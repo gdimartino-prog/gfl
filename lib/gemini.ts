@@ -20,7 +20,7 @@ export async function generateBoxScoreStory(
   coachNames?: { [coachName: string]: string }
 ): Promise<string> {
   const genAI = getGeminiClient();
-  const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
   let additionalContext = '';
 
