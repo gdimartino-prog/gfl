@@ -196,5 +196,60 @@
     "asking": null,
     "touch_dt": "2026-04-24T08:04:41.326Z",
     "touch_id": "FPR"
+  },
+  {
+    "id": 26,
+    "leagueId": 1,
+    "playerId": "christian|mccaffrey|29|rb||",
+    "playerName": "Christian McCaffrey",
+    "team": "CT",
+    "position": "RB",
+    "asking": null,
+    "touch_dt": "2026-04-24T15:08:43.932Z",
+    "touch_id": "CT"
+  },
+  {
+    "id": 27,
+    "leagueId": 1,
+    "playerId": "drew|dalman|26|c||",
+    "playerName": "Drew Dalman",
+    "team": "CT",
+    "position": "C",
+    "asking": null,
+    "touch_dt": "2026-04-24T15:09:03.741Z",
+    "touch_id": "CT"
+  },
+  {
+    "id": 28,
+    "leagueId": 1,
+    "playerId": "braden|fiske|25||dl|",
+    "playerName": "Braden Fiske",
+    "team": "CT",
+    "position": "DL",
+    "asking": null,
+    "touch_dt": "2026-04-24T15:09:34.712Z",
+    "touch_id": "CT"
+  },
+  {
+    "id": 29,
+    "leagueId": 1,
+    "playerId": "terrel|bernard|26||lb|",
+    "playerName": "Terrel Bernard",
+    "team": "CT",
+    "position": "LB",
+    "asking": null,
+    "touch_dt": "2026-04-24T15:09:48.299Z",
+    "touch_id": "CT"
+  },
+  {
+    "id": 30,
+    "leagueId": 1,
+    "playerId": "christian|harris|24||lb|",
+    "playerName": "Christian Harris",
+    "team": "CT",
+    "position": "LB",
+    "asking": null,
+    "touch_dt": "2026-04-24T15:09:53.988Z",
+    "touch_id": "CT"
   }
 ]
