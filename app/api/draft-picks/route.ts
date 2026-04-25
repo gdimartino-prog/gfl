@@ -77,6 +77,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const authorized = await isAdmin() || await isCommissioner();
+  if (!authorized) return NextResponse.json({ error: 'Commissioner access required' }, { status: 403 });
   try {
     const body = await req.json();
     const { fromTeam, toTeam, year, round, overall, coachName } = body;

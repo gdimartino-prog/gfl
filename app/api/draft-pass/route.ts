@@ -36,6 +36,14 @@ export async function POST(req: NextRequest) {
     if (pick.playerId) return NextResponse.json({ error: 'Pick already made.' }, { status: 400 });
     if (pick.passed) return NextResponse.json({ error: 'Pick already passed.' }, { status: 400 });
 
+    // Verify caller owns this pick
+    const callerTeamshort = (session.user as { id?: string }).id || '';
+    const role = (session.user as { role?: string }).role || '';
+    const isSuperuser = role === 'superuser' || role === 'admin';
+    if (!isSuperuser && callerTeamshort.toLowerCase() !== (pick.currentOwner || '').toLowerCase()) {
+      return NextResponse.json({ error: 'Forbidden: you do not own this pick' }, { status: 403 });
+    }
+
     await db.update(draftPicks)
       .set({ passed: true, pickedAt: new Date(), touch_id: coachName || 'draft' })
       .where(eq(draftPicks.id, pick.id));

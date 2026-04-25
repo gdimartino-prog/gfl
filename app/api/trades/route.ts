@@ -5,16 +5,15 @@ import { logTransaction } from '@/lib/transactions';
 import { upsertPickTransfer } from '@/lib/draftPicks';
 import { notifyTransaction } from '@/lib/notify';
 import { auth } from '@/auth';
+import { isAdmin, isCommissioner } from '@/lib/auth';
 import { getLeagueId } from '@/lib/getLeagueId';
 
 export async function POST(req: Request) {
   const session = await auth();
-  const isAdmin = session?.user?.name === 'George Di Martino' ||
-    (session?.user as { role?: string })?.role === 'admin' ||
-    (session?.user as { role?: string })?.role === 'superuser';
-
-  if (!isAdmin) {
-    return Response.json({ message: 'Unauthorized: Admin access required to process trades.' }, { status: 401 });
+  if (!session?.user) return Response.json({ message: 'Unauthorized' }, { status: 401 });
+  const authorized = await isAdmin() || await isCommissioner();
+  if (!authorized) {
+    return Response.json({ message: 'Unauthorized: Admin access required to process trades.' }, { status: 403 });
   }
 
   try {

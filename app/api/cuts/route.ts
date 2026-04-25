@@ -92,6 +92,14 @@ export async function POST(req: NextRequest) {
     const { team, year, selections } = await req.json();
     const leagueId = await getLeagueId();
 
+    // Verify caller owns this team unless admin/commissioner
+    const callerTeamshort = (session.user as { id?: string }).id || '';
+    const role = (session.user as { role?: string }).role || '';
+    const isSuperuser = role === 'superuser' || role === 'admin';
+    if (!isSuperuser && callerTeamshort.toLowerCase() !== (team || '').toLowerCase()) {
+      return NextResponse.json({ error: 'Forbidden: you can only submit cuts for your own team' }, { status: 403 });
+    }
+
     const teamRow = await db.select({ id: teams.id })
       .from(teams)
       .where(and(eq(teams.teamshort, team), eq(teams.leagueId, leagueId)))

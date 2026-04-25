@@ -40,7 +40,14 @@ export async function POST(req: NextRequest) {
     }
 
     const leagueId = await getLeagueId();
-    const touchId = (session.user as { id?: string }).id || session.user.name || 'unknown';
+    const callerTeamshort = (session.user as { id?: string }).id || '';
+    const role = (session.user as { role?: string }).role || '';
+    const isSuperuser = role === 'superuser' || role === 'admin';
+    if (!isSuperuser && callerTeamshort.toLowerCase() !== (team || '').toLowerCase()) {
+      return NextResponse.json({ message: "Forbidden: you can only list players from your own team" }, { status: 403 });
+    }
+
+    const touchId = callerTeamshort || session.user.name || 'unknown';
 
     await db.insert(tradeBlock).values({
       leagueId,

@@ -10,6 +10,8 @@ import { getDraftClockMinutes, getDraftStartDate } from '@/lib/draftClock';
 
 export async function POST() {
   const session = await auth();
+  // Require auth — any coach can trigger this, but the server-side time check prevents
+  // premature expiry. The cron job at /api/cron/draft is the authoritative expiry handler.
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {

@@ -6,13 +6,25 @@ import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyDraftPick } from '@/lib/notify';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { alias } from 'drizzle-orm/pg-core';
+import { auth } from '@/auth';
+import { isAdmin, isCommissioner } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const body = await req.json();
     const { overallPick, playerIdentity, playerName, playerPosition, newOwnerCode, coachName } = body;
 
     const leagueId = await getLeagueId();
+
+    // Verify caller owns the pick or is admin/commissioner
+    const callerTeamshort = (session.user as { id?: string }).id || '';
+    const privileged = await isAdmin() || await isCommissioner();
+    if (!privileged && callerTeamshort.toLowerCase() !== (newOwnerCode || '').toLowerCase()) {
+      return NextResponse.json({ error: 'Forbidden: you do not own this pick' }, { status: 403 });
+    }
 
     // 1. Find the draft pick row by overall pick number
     const originalTeams = alias(teams, 'originalTeams');
