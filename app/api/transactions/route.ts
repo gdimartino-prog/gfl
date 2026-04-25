@@ -12,6 +12,9 @@ import { NextRequest } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const leagueId = await getLeagueId();
     const data = await getTransactions(leagueId);
@@ -85,7 +88,7 @@ export async function DELETE(req: NextRequest) {
     const { id } = await req.json();
     if (!id) return Response.json({ error: 'id required' }, { status: 400 });
 
-    await db.delete(transactions).where(eq(transactions.id, Number(id)));
+    await db.delete(transactions).where(and(eq(transactions.id, Number(id)), eq(transactions.leagueId, leagueId)));
     logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {

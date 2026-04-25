@@ -13,6 +13,9 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export async function GET(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const leagueId = await getLeagueId();
     const typeFilter = req.nextUrl.searchParams.get('type'); // 'rookie' | 'free_agent' | null = all

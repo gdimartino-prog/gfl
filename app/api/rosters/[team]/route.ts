@@ -2,12 +2,16 @@ import { getPlayers } from '@/lib/players';
 import { getAllDraftPicks } from '@/lib/draftPicks';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { NextResponse } from 'next/server';
+import { auth } from '@/auth';
 
 type RouteContext = {
   params: Promise<{ team: string }>;
 };
 
 export async function GET(_req: Request, { params }: RouteContext) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const resolvedParams = await params;
     const teamShort = resolvedParams.team.toUpperCase();
