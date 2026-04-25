@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPlayers } from '@/lib/players';
+import { getPlayers, getPlayersWithScouting } from '@/lib/players';
 import { getLeagueId } from '@/lib/getLeagueId';
 
 
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   try {
     // 1. Fetch parsed players from the centralized utility
     const leagueId = await getLeagueId();
-    const players = await getPlayers(leagueId);
+    const players = includeScouting ? await getPlayersWithScouting(leagueId) : await getPlayers(leagueId);
     
     // 2. Map to ensure compatibility and STRIP heavy scouting data for the list view
     // This keeps the JSON response small and fast.
@@ -46,7 +46,9 @@ export async function GET(req: NextRequest) {
       const filtered = processedPlayers.filter(p => 
         p.team?.toString().toUpperCase() === teamFilter.toUpperCase()
       );
-      return NextResponse.json(filtered);
+      return NextResponse.json(filtered, {
+        headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=60' },
+      });
     }
 
     // 4. Return the processed array directly
