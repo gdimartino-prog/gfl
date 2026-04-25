@@ -91,12 +91,12 @@ export async function DELETE(req: NextRequest) {
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!await isAdmin() && !await isCommissioner()) {
-    return Response.json({ error: 'Commissioner access required' }, { status: 403 });
-  }
   try {
     const body = await req.json();
     const { type, identity, toTeam, details, fromTeam } = body;
+
+    const callerTeamshort = (session.user as { id?: string }).id || '';
+    const privileged = await isAdmin() || await isCommissioner();
 
     const leagueId = await getLeagueId();
 
@@ -114,6 +114,18 @@ export async function POST(req: Request) {
 
     if (!playerRows[0]) return Response.json({ error: 'Player not found' }, { status: 404 });
     const player = playerRows[0];
+
+    // Ownership check: coaches can only transact their own players
+    if (!privileged) {
+      if ((type === 'ADD' || type === 'INJURY PICKUP') &&
+          callerTeamshort.toLowerCase() !== (toTeam || '').toLowerCase()) {
+        return Response.json({ error: 'Forbidden: you can only add players to your own team' }, { status: 403 });
+      }
+      if (['DROP', 'WAIVE', 'IR', 'IR MOVE'].includes(type) &&
+          callerTeamshort.toLowerCase() !== (player.teamshort || '').toLowerCase()) {
+        return Response.json({ error: 'Forbidden: you can only drop or IR your own players' }, { status: 403 });
+      }
+    }
 
     // Resolve new team ownership
     let newTeamId: number | null = player.teamId ?? null;
