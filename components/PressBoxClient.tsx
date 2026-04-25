@@ -55,14 +55,16 @@ export default function PressBoxClient() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: 'Failed to generate summary.' }));
-        throw new Error(errorData.error || 'Failed to generate summary.');
+        throw new Error(errorData.details || errorData.error || 'Failed to generate summary.');
       }
 
       const data = await res.json();
       setSummary(data.story);
       setFile(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+      const msg = err instanceof Error ? err.message : 'An unknown error occurred.';
+      // fetch details from response if available
+      setError(msg);
     } finally {
       setLoading(false);
     }
