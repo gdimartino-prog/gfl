@@ -198,7 +198,7 @@ export async function processPlayersFile(
     .set({ value: now, touch_id: 'maintenance' })
     .where(and(eq(rules.rule, 'player_sync'), eq(rules.leagueId, leagueId)));
 
-  revalidateTag('players');
+  revalidateTag('players', 'max');
 
   return { success: true, message: `Successfully synced ${playerValues.length} players.` };
 }
@@ -299,7 +299,7 @@ export async function processScheduleFile(fileContent: string, leagueId: number 
     }
   }
 
-  revalidateTag('schedule');
+  revalidateTag('schedule', 'max');
 
   return { success: true, message: `Import Complete. Updated: ${updateCount}, Inserted: ${insertCount}` };
 }
@@ -382,7 +382,7 @@ export async function processStandingsFile(fileContent: string, leagueId: number
   await db.delete(standings).where(and(eq(standings.leagueId, leagueId), eq(standings.year, year)));
   await db.insert(standings).values(rowsToInsert);
 
-  revalidateTag('standings');
+  revalidateTag('standings', 'max');
 
   return { success: true, message: `Successfully synced ${rowsToInsert.length} teams for ${year}.` };
 }
