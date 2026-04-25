@@ -107,20 +107,25 @@ export default function PressBoxClient() {
           onDragEnter={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => !loading && inputRef.current?.click()}
-          className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl p-10 cursor-pointer transition-colors ${
-            isDragging ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50/40'
+          className={`flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-xl p-10 transition-colors ${
+            isDragging ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50'
           } ${loading ? 'pointer-events-none opacity-50' : ''}`}
         >
           <UploadCloud size={36} className={isDragging ? 'text-blue-500' : 'text-slate-400'} />
           {file ? (
             <p className="text-sm font-semibold text-slate-700">{file.name}</p>
           ) : (
-            <>
-              <p className="text-sm font-semibold text-slate-600">Drop file here or click to browse</p>
-              <p className="text-xs text-slate-400">.html, .htm, .txt</p>
-            </>
+            <p className="text-sm font-semibold text-slate-600">Drop file here</p>
           )}
+          <p className="text-xs text-slate-400">.html, .htm, .txt</p>
+          <button
+            type="button"
+            onClick={e => { e.stopPropagation(); inputRef.current?.click(); }}
+            disabled={loading}
+            className="mt-1 px-4 py-1.5 text-xs font-semibold bg-white border border-slate-300 rounded-full text-slate-600 hover:border-blue-400 hover:text-blue-600 transition-colors disabled:opacity-50"
+          >
+            Choose File
+          </button>
           <input
             ref={inputRef}
             type="file"
