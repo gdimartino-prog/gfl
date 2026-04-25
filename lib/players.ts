@@ -56,15 +56,16 @@ const _getPlayers = unstable_cache(async (leagueId: number) => {
   return rows.map(p => mapRow(p as any));
 }, ['players-lean'], { revalidate: 300, tags: ['players'] });
 
-// Full query — includes scouting JSON. Used by FA board and player detail modal.
-const _getPlayersWithScouting = unstable_cache(async (leagueId: number) => {
+// Full query — includes scouting JSON. Too large for unstable_cache (>2MB);
+// rely on CDN Cache-Control headers at the API route level instead.
+async function _getPlayersWithScouting(leagueId: number) {
   const rows = await db.select({ ...sharedSelect, scouting: players.scouting })
     .from(players)
     .leftJoin(teams, eq(players.teamId, teams.id))
     .where(eq(players.leagueId, leagueId));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return rows.map(p => mapRow(p as any));
-}, ['players-full'], { revalidate: 300, tags: ['players'] });
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getPlayers(leagueId: number = 1): Promise<any[]> {
