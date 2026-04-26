@@ -36,7 +36,7 @@ export default function RecentPicksTicker({ picks, teams, draftStartDate }: Tick
   }, []);
 
   useEffect(() => {
-    if (!draftStartDate || draftStartDate <= new Date()) { setTickerCountdown(''); return; }
+    if (!draftStartDate) return;
     const tick = () => {
       const diff = draftStartDate.getTime() - Date.now();
       if (diff <= 0) { setTickerCountdown(''); return; }
