@@ -405,6 +405,24 @@
     "details": "Coach entered Front Office"
   },
   {
+    "id": 217,
+    "leagueId": null,
+    "timestamp": "2026-04-25T14:48:41.578Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 218,
+    "leagueId": 1,
+    "timestamp": "2026-04-25T14:51:12.594Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
     "id": 48,
     "leagueId": 1,
     "timestamp": "2026-03-21T00:43:47.548Z",
@@ -448,6 +466,33 @@
     "team": "Vico",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 221,
+    "leagueId": 1,
+    "timestamp": "2026-04-26T00:55:26.974Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #94 marked Done"
+  },
+  {
+    "id": 222,
+    "leagueId": 1,
+    "timestamp": "2026-04-26T00:55:29.648Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #93 marked Done"
+  },
+  {
+    "id": 223,
+    "leagueId": 1,
+    "timestamp": "2026-04-26T00:55:31.208Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #92 marked Done"
   },
   {
     "id": 63,
@@ -844,6 +889,33 @@
     "team": "VV",
     "action": "TRANSACTION_STATUS",
     "details": "Transaction #88 marked Done"
+  },
+  {
+    "id": 215,
+    "leagueId": 1,
+    "timestamp": "2026-04-25T11:11:53.924Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #91 marked Done"
+  },
+  {
+    "id": 219,
+    "leagueId": 1,
+    "timestamp": "2026-04-26T00:34:39.546Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 224,
+    "leagueId": 1,
+    "timestamp": "2026-04-26T06:36:53.019Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   },
   {
     "id": 80,
@@ -1924,5 +1996,23 @@
     "team": "IR",
     "action": "IR MOVE",
     "details": "Placed on IR: WR - Tank Dell"
+  },
+  {
+    "id": 216,
+    "leagueId": null,
+    "timestamp": "2026-04-25T14:29:56.190Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 220,
+    "leagueId": 1,
+    "timestamp": "2026-04-26T00:47:10.199Z",
+    "coach": "Ed Casserly",
+    "team": "IR",
+    "action": "IR MOVE",
+    "details": "Placed on IR: T - Kaleb McGary"
   }
 ]

@@ -88,17 +88,6 @@
     "touch_id": "trade-migration"
   },
   {
-    "id": 50,
-    "leagueId": 1,
-    "year": 2026,
-    "draftType": "free_agent",
-    "round": 3,
-    "originalTeamId": 53,
-    "currentTeamId": 52,
-    "touch_dt": "2026-03-20T23:17:35.314Z",
-    "touch_id": "trade-migration"
-  },
-  {
     "id": 51,
     "leagueId": 1,
     "year": 2026,
@@ -284,5 +273,16 @@
     "currentTeamId": 47,
     "touch_dt": "2026-04-22T02:39:49.897Z",
     "touch_id": "Glenn Gardner"
+  },
+  {
+    "id": 50,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 3,
+    "originalTeamId": 53,
+    "currentTeamId": 44,
+    "touch_dt": "2026-04-25T22:45:27.719Z",
+    "touch_id": "Alex Matsikoudis"
   }
 ]

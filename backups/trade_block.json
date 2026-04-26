@@ -251,5 +251,49 @@
     "asking": null,
     "touch_dt": "2026-04-24T15:09:53.988Z",
     "touch_id": "CT"
+  },
+  {
+    "id": 31,
+    "leagueId": 1,
+    "playerId": "alvin|kamara|30|rb||",
+    "playerName": "Alvin Kamara",
+    "team": "SG",
+    "position": "RB",
+    "asking": null,
+    "touch_dt": "2026-04-25T11:28:16.427Z",
+    "touch_id": "SG"
+  },
+  {
+    "id": 32,
+    "leagueId": 1,
+    "playerId": "kareem|hunt|30|rb||",
+    "playerName": "Kareem Hunt",
+    "team": "SG",
+    "position": "RB",
+    "asking": null,
+    "touch_dt": "2026-04-25T11:28:19.370Z",
+    "touch_id": "SG"
+  },
+  {
+    "id": 33,
+    "leagueId": 1,
+    "playerId": "marquise|brown|28|wr||",
+    "playerName": "Marquise Brown",
+    "team": "SG",
+    "position": "WR",
+    "asking": null,
+    "touch_dt": "2026-04-25T11:28:22.501Z",
+    "touch_id": "SG"
+  },
+  {
+    "id": 34,
+    "leagueId": 1,
+    "playerId": "carson|wentz|33|qb||",
+    "playerName": "Carson Wentz",
+    "team": "VV",
+    "position": "QB",
+    "asking": "Toilet Paper",
+    "touch_dt": "2026-04-26T01:13:42.545Z",
+    "touch_id": "VV"
   }
 ]
