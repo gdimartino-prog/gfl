@@ -28,15 +28,32 @@ export default function RecentPicksTicker({ picks, teams, draftStartDate }: Tick
   }
 
   const [mounted, setMounted] = useState(false);
+  const [tickerCountdown, setTickerCountdown] = useState('');
 
-  // 🚀 Step 1: Prevent Hydration Mismatch
-  // This ensures the component only renders once the browser is ready.
   useEffect(() => {
-    const handle = requestAnimationFrame(() => {
-      setMounted(true);
-    });
+    const handle = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(handle);
   }, []);
+
+  useEffect(() => {
+    if (!draftStartDate || draftStartDate <= new Date()) { setTickerCountdown(''); return; }
+    const tick = () => {
+      const diff = draftStartDate.getTime() - Date.now();
+      if (diff <= 0) { setTickerCountdown(''); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff / 3600000) % 24);
+      const m = Math.floor((diff / 60000) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+      setTickerCountdown(
+        d > 0
+          ? `${d}d ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+          : `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+      );
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [draftStartDate]);
 
   const getFullTeamName = (shortCode: string) => {
     if (!shortCode) return "Unknown";
@@ -60,18 +77,14 @@ export default function RecentPicksTicker({ picks, teams, draftStartDate }: Tick
   // If you see this in production, the CSS is working, but the API data is empty.
   if (completedPicks.length === 0) {
     const beforeStart = draftStartDate && new Date() < draftStartDate;
-    const startLabel = draftStartDate
-      ? draftStartDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) +
-        ' at ' +
-        draftStartDate.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
-      : null;
-
     return (
       <div className="w-full bg-slate-900 border-y border-white/10 py-4 overflow-hidden relative">
         <div className="flex items-center justify-center gap-4 font-black uppercase text-[10px] tracking-[0.3em]">
           <Zap size={14} className={beforeStart ? 'text-amber-400 animate-pulse' : 'opacity-20 text-slate-500'} />
-          {beforeStart ? (
-            <span className="text-amber-400">Draft Clock Starts — {startLabel}</span>
+          {beforeStart && tickerCountdown ? (
+            <span className="text-amber-400 font-mono tracking-widest">Draft Starts In — {tickerCountdown}</span>
+          ) : beforeStart ? (
+            <span className="text-amber-400">Draft Coming Up</span>
           ) : (
             <span className="text-slate-500">Season {new Date().getFullYear()} Draft — No Picks Yet</span>
           )}

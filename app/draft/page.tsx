@@ -48,6 +48,7 @@ function DraftBoardContent() {
   // Timer States
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
   const [progress, setProgress] = useState(100);
+  const [preDraftTimeLeft, setPreDraftTimeLeft] = useState<string>('');
   const hasCalledExpireRef = useRef(false);
   const onClockRowRef = useRef<HTMLTableRowElement>(null);
   const [confirm, ConfirmDialog] = useConfirm();
@@ -250,6 +251,27 @@ function DraftBoardContent() {
     return () => clearInterval(timerInterval);
   }, [onClockPick, scheduledAtMs, previousPick, loadData]);
 
+  useEffect(() => {
+    if (onClockPick || !draftStartDate) { setPreDraftTimeLeft(''); return; }
+    const target = draftStartDate.getTime();
+    const tick = () => {
+      const diff = target - Date.now();
+      if (diff <= 0) { setPreDraftTimeLeft('STARTING'); loadData(true); return; }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff / 3600000) % 24);
+      const m = Math.floor((diff / 60000) % 60);
+      const s = Math.floor((diff / 1000) % 60);
+      setPreDraftTimeLeft(
+        d > 0
+          ? `${d}d ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+          : `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+      );
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [onClockPick, draftStartDate, loadData]);
+
   const resolveCode = (str: string) => {
     if (!str) return "";
     const match = str.match(/\(([^)]+)\)/);
@@ -346,6 +368,39 @@ function DraftBoardContent() {
       <RecentPicksTicker picks={picks} teams={teams} draftStartDate={draftStartDate} />
 
       <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-10">
+
+        {/* PRE-DRAFT COUNTDOWN */}
+        {!onClockPick && preDraftTimeLeft && draftStartDate && draftStartDate > new Date() && (
+          <div className="bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-slate-800 p-10 flex flex-col md:flex-row justify-between items-center gap-10">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Zap size={14} className="text-amber-400 fill-amber-400 animate-pulse" />
+                <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">
+                  GFL Draft — Coming Up
+                </span>
+              </div>
+              <h2 className="text-5xl md:text-7xl font-black text-white uppercase italic tracking-tighter leading-none">
+                Draft Day
+              </h2>
+              <p className="text-slate-400 font-black text-[11px] uppercase tracking-[0.2em]">
+                {draftStartDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                {' · '}
+                {draftStartDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+              </p>
+            </div>
+            <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 min-w-[300px] text-center relative overflow-hidden">
+              <p className="text-8xl font-mono font-black text-amber-400 tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+                {preDraftTimeLeft}
+              </p>
+              <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-widest">
+                Until Draft Starts
+              </p>
+              <div className="absolute bottom-0 left-0 w-full h-1.5 bg-slate-700/30">
+                <div className="h-full w-full bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)] animate-pulse" />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* CLOCK SECTION */}
         {onClockPick && (
