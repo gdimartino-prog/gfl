@@ -179,3 +179,66 @@ export async function notifyTransaction({
     await sendWhatsApp(`📝 *GFL TRANSACTION: ${type}*\n----------------------------\n${waSectionsText}🌐 ${GFL_URL}`);
   }
 }
+
+export async function notifyTradeBlock({
+  newPlayer,
+  block,
+  leagueId,
+}: {
+  newPlayer: { playerName: string; team: string; position?: string | null; asking?: string | null };
+  block: { playerName: string; team: string; position?: string | null; asking?: string | null }[];
+  leagueId?: number;
+}) {
+  const blockRows = block.map(p => {
+    const pos = p.position ? `[${p.position}] ` : '';
+    const asking = p.asking ? ` — ${p.asking}` : '';
+    return `<tr>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-weight:bold;">${pos}${p.playerName}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#555;">${p.team}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#888;font-style:italic;">${asking || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const waBlock = block.map(p => {
+    const pos = p.position ? `[${p.position}] ` : '';
+    const asking = p.asking ? ` — ${p.asking}` : '';
+    return `• ${pos}${p.playerName} (${p.team})${asking}`;
+  }).join('\n');
+
+  const html = `
+    <div style="max-width:560px;border:2px solid #0047AB;border-radius:12px;font-family:sans-serif;overflow:hidden;">
+      <div style="background:#0047AB;color:white;padding:10px;text-align:center;">
+        <p style="margin:0;font-size:12px;font-weight:bold;">OFFICIAL LEAGUE ACTIVITY</p>
+      </div>
+      <div style="padding:20px;">
+        <p style="font-size:22px;font-weight:bold;text-align:center;margin-bottom:4px;">TRADE BLOCK UPDATE</p>
+        <p style="text-align:center;color:#555;font-size:13px;margin-bottom:20px;">
+          <strong>${newPlayer.playerName}</strong>${newPlayer.position ? ` (${newPlayer.position})` : ''} listed by ${newPlayer.team}
+        </p>
+        <p style="font-size:13px;font-weight:bold;color:#333;margin-bottom:8px;">FULL TRADE BLOCK (${block.length} player${block.length !== 1 ? 's' : ''})</p>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead>
+            <tr style="background:#f8f9fa;">
+              <th style="padding:8px 12px;text-align:left;color:#666;font-size:11px;text-transform:uppercase;">Player</th>
+              <th style="padding:8px 12px;text-align:left;color:#666;font-size:11px;text-transform:uppercase;">Team</th>
+              <th style="padding:8px 12px;text-align:left;color:#666;font-size:11px;text-transform:uppercase;">Asking</th>
+            </tr>
+          </thead>
+          <tbody>${blockRows}</tbody>
+        </table>
+      </div>
+      <p style="text-align:center;padding:0 20px 20px;">
+        <a href="${GFL_URL}/trade-block" style="background:#0047AB;color:white;padding:12px 24px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;">View Trade Block</a>
+      </p>
+    </div>`;
+
+  await sendEmail({ subject: `GFL Trade Block: ${newPlayer.playerName} (${newPlayer.team}) listed`, html });
+
+  if (leagueId === 1 || leagueId === undefined) {
+    await sendWhatsApp(
+      `🔄 *TRADE BLOCK UPDATE*\n----------------------------\n` +
+      `*${newPlayer.playerName}*${newPlayer.position ? ` [${newPlayer.position}]` : ''} listed by ${newPlayer.team}\n\n` +
+      `*FULL BLOCK (${block.length}):*\n${waBlock}\n\n🌐 ${GFL_URL}/trade-block`
+    );
+  }
+}

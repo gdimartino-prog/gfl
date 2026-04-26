@@ -169,9 +169,9 @@ export async function POST(req: Request) {
     const season = seasonRule[0] ? parseInt(seasonRule[0].value) || null : null;
 
     const actorName = session.user.name || (session.user as { id?: string }).id || 'Commissioner';
-    await logTransaction({ ...body, owner: actorName, fromTeam: resolvedFromTeam, details, leagueId, season });
+    await logTransaction({ ...body, coach: actorName, fromTeam: resolvedFromTeam, details, leagueId, season });
     revalidateTag('transactions', 'max');
-    logSystemEvent(actorName, toTeam || resolvedFromTeam, type, details || identity, leagueId);
+    await logSystemEvent(actorName, resolvedFromTeam, type, details || identity, leagueId);
 
     // Send notification
     const directionKey = `${resolvedFromTeam} ➔ ${toTeam || 'Free Agent'}`;

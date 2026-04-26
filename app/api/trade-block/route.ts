@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { tradeBlock, teams } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
+import { notifyTradeBlock } from '@/lib/notify';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,6 +62,19 @@ export async function POST(req: NextRequest) {
       target: tradeBlock.playerId,
       set: { leagueId, playerName, team, position, asking, touch_id: touchId },
     });
+
+    const fullBlock = await db.select({
+      playerName: tradeBlock.playerName,
+      team: tradeBlock.team,
+      position: tradeBlock.position,
+      asking: tradeBlock.asking,
+    }).from(tradeBlock).where(eq(tradeBlock.leagueId, leagueId)).orderBy(tradeBlock.touch_dt);
+
+    await notifyTradeBlock({
+      newPlayer: { playerName, team, position: position || null, asking: asking || null },
+      block: fullBlock.map(p => ({ ...p, playerName: p.playerName ?? '', team: p.team ?? '' })),
+      leagueId,
+    }).catch(e => console.error('Trade block notify failed:', e));
 
     return NextResponse.json({ message: "Player added to trade block" });
   } catch (error) {
