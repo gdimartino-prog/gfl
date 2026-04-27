@@ -9,7 +9,7 @@ export async function logSystemEvent(coach: string, team: string, action: string
       team,
       action,
       details,
-      ...(leagueId !== undefined ? { leagueId } : {}),
+      leagueId: leagueId ?? 1,
     });
   } catch (error) {
     console.error("Audit Log Failure:", error);

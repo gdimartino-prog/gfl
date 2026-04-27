@@ -3,7 +3,7 @@ import { db } from './db';
 import { draftPicks, pickTransfers, teams, players } from '@/schema';
 import { and, eq, isNotNull, asc, sql, or } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
-import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 
 export type DraftPick = {
   id: number;
@@ -34,7 +34,7 @@ export type DraftPickRow = {
   passed: boolean;
 };
 
-const _getAllDraftPicks = cache(async (leagueId: number) => {
+const _getAllDraftPicks = unstable_cache(async (leagueId: number) => {
   try {
     const originalTeams = alias(teams, 'originalTeams');
     const currentTeams = alias(teams, 'currentTeams');
@@ -64,7 +64,7 @@ const _getAllDraftPicks = cache(async (leagueId: number) => {
     console.error('getAllDraftPicks failed:', error);
     return [];
   }
-});
+}, ['all-draft-picks'], { revalidate: 30, tags: ['draft-picks'] });
 
 /**
  * Get all draft picks with full details for a given league

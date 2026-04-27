@@ -7,6 +7,7 @@ import { unstable_cache } from 'next/cache';
 
 export type Schedule = {
     id: number;
+    leagueId: number;
     year?: number | null;
     week: string;
     homeTeamId: number;

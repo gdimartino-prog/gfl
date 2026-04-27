@@ -6,6 +6,7 @@ import { unstable_cache } from 'next/cache';
 
 export type Player = {
   id: number;
+  leagueId: number;
   name: string;
   position: string | null;
   teamId?: number | null;

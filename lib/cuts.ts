@@ -1,10 +1,11 @@
 
 import { db } from './db';
 import { cuts, teams } from '@/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 export type Cut = {
   id: number;
+  leagueId: number;
   teamId: number;
   touch_id?: string | null;
 };
@@ -13,7 +14,7 @@ export type Cut = {
  * Fetches all cuts from the database.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getCuts(): Promise<any[]> {
+export async function getCuts(leagueId: number = 1): Promise<any[]> {
     return await db.select({
         id: cuts.id,
         firstName: cuts.firstName,
@@ -21,7 +22,8 @@ export async function getCuts(): Promise<any[]> {
         teamName: teams.name,
     })
     .from(cuts)
-    .leftJoin(teams, eq(cuts.teamId, teams.id));
+    .leftJoin(teams, eq(cuts.teamId, teams.id))
+    .where(and(eq(cuts.leagueId, leagueId), eq(teams.leagueId, leagueId)));
 }
 
 /**

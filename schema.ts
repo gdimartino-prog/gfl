@@ -9,6 +9,7 @@ import {
   boolean,
   jsonb,
   unique,
+  index,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -25,7 +26,7 @@ export const leagues = pgTable("leagues", {
 // Teams table (replaces Coaches/Teams)
 export const teams = pgTable("teams", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   name: varchar("name", { length: 256 }).notNull(),
   coach: varchar("coach", { length: 256 }),
   teamshort: varchar("teamshort", { length: 10 }),
@@ -38,12 +39,15 @@ export const teams = pgTable("teams", {
   coa_last_sync: timestamp("coa_last_sync"),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
-});
+}, (table) => [
+  index("teams_league_id_idx").on(table.leagueId),
+  index("teams_teamshort_league_idx").on(table.teamshort, table.leagueId),
+]);
 
 // Players table
 export const players = pgTable("players", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   name: varchar("name", { length: 256 }).notNull(),
   first: varchar("first", { length: 128 }),
   last: varchar("last", { length: 128 }),
@@ -65,12 +69,16 @@ export const players = pgTable("players", {
   teamId: integer("team_id").references(() => teams.id),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
-});
+}, (table) => [
+  index("players_league_id_idx").on(table.leagueId),
+  index("players_team_id_idx").on(table.teamId),
+  index("players_identity_league_idx").on(table.identity, table.leagueId),
+]);
 
 // Transactions table
 export const transactions = pgTable("transactions", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   date: timestamp("date").notNull(),
   type: varchar("type", { length: 100 }).notNull(),
   description: text("description"),
@@ -84,12 +92,15 @@ export const transactions = pgTable("transactions", {
   emailStatus: varchar("email_status", { length: 50 }),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
-});
+}, (table) => [
+  index("transactions_league_date_idx").on(table.leagueId, table.date),
+  index("transactions_league_status_idx").on(table.leagueId, table.status),
+]);
 
 // Draft Picks table
 export const draftPicks = pgTable("draft_picks", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   year: integer("year").notNull(),
   round: integer("round").notNull(),
   pick: integer("pick").notNull(),
@@ -104,12 +115,16 @@ export const draftPicks = pgTable("draft_picks", {
   selectedPlayerName: varchar("selected_player_name", { length: 256 }),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
-});
+}, (table) => [
+  index("draft_picks_league_year_type_idx").on(table.leagueId, table.year, table.draftType),
+  index("draft_picks_league_year_type_pick_idx").on(table.leagueId, table.year, table.draftType, table.pick),
+  index("draft_picks_league_pick_idx").on(table.leagueId, table.pick),
+]);
 
 // Draft Pick Transfers table — persistent record of traded pick ownership (survives draft regeneration)
 export const pickTransfers = pgTable("draft_pick_transfers", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   year: integer("year").notNull(),
   draftType: varchar("draft_type", { length: 20 }).notNull().default("free_agent"),
   round: integer("round").notNull(),
@@ -119,12 +134,13 @@ export const pickTransfers = pgTable("draft_pick_transfers", {
   touch_id: varchar("touch_id", { length: 256 }),
 }, (table) => [
   unique('draft_pick_transfers_unique_owner').on(table.leagueId, table.year, table.draftType, table.round, table.originalTeamId),
+  index("pick_transfers_league_year_type_idx").on(table.leagueId, table.year, table.draftType),
 ]);
 
 // Cuts table
 export const cuts = pgTable("cuts", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   year: integer("year"),
   teamId: integer("team_id").references(() => teams.id),
   firstName: varchar("first_name", { length: 256 }),
@@ -137,12 +153,14 @@ export const cuts = pgTable("cuts", {
   datetime: timestamp("datetime"),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
-});
+}, (table) => [
+  index("cuts_league_year_team_idx").on(table.leagueId, table.year, table.teamId),
+]);
 
 // Rules table
 export const rules = pgTable("rules", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   year: integer("year"),
   rule: varchar("rule", { length: 256 }).notNull(),
   value: varchar("value", { length: 256 }).notNull(),
@@ -156,19 +174,21 @@ export const rules = pgTable("rules", {
 // Resources table
 export const resources = pgTable("resources", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   group: varchar("group", { length: 256 }),
   title: varchar("title", { length: 256 }).notNull(),
   url: varchar("url", { length: 1024 }),
   sortOrder: integer("sort_order").default(0).notNull(),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
-});
+}, (table) => [
+  index("resources_league_id_idx").on(table.leagueId),
+]);
 
 // Standings table
 export const standings = pgTable("standings", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   teamId: integer("team_id")
     .references(() => teams.id)
     .notNull(),
@@ -187,12 +207,14 @@ export const standings = pgTable("standings", {
   coachName: varchar("coach_name", { length: 256 }),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
-});
+}, (table) => [
+  index("standings_league_year_idx").on(table.leagueId, table.year),
+]);
 
 // Schedule table
 export const schedule = pgTable("schedule", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   year: integer("year"),
   week: varchar("week", { length: 10 }).notNull(),
   homeTeamId: integer("home_team_id")
@@ -206,31 +228,53 @@ export const schedule = pgTable("schedule", {
   is_bye: boolean("is_bye").default(false),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
-});
+}, (table) => [
+  index("schedule_league_year_idx").on(table.leagueId, table.year),
+]);
 
 // Trade Block table
 export const tradeBlock = pgTable("trade_block", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
-  playerId: varchar("player_id", { length: 512 }).notNull().unique(),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
+  playerId: varchar("player_id", { length: 512 }).notNull(),
   playerName: varchar("player_name", { length: 256 }),
   team: varchar("team", { length: 50 }),
   position: varchar("position", { length: 50 }),
   asking: varchar("asking", { length: 512 }),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
-});
+}, (table) => [
+  unique("trade_block_league_player_unique").on(table.leagueId, table.playerId),
+  index("trade_block_league_id_idx").on(table.leagueId),
+]);
 
 // Audit Log table
 export const auditLog = pgTable("audit_log", {
   id: serial("id").primaryKey(),
-  leagueId: integer("league_id").references(() => leagues.id),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
   coach: varchar("coach", { length: 256 }),
   team: varchar("team", { length: 256 }),
   action: varchar("action", { length: 256 }),
   details: text("details"),
-});
+}, (table) => [
+  index("audit_log_league_ts_idx").on(table.leagueId, table.timestamp),
+]);
+
+// NFL Draft data (global, not league-specific)
+export const nflDraft = pgTable("nfl_draft", {
+  id: serial("id").primaryKey(),
+  year: integer("year").notNull(),
+  round: integer("round").notNull(),
+  pick: integer("pick").notNull(),
+  roundPick: integer("round_pick").notNull(),
+  playerName: text("player_name").notNull(),
+  position: text("position"),
+  nflTeam: text("nfl_team"),
+  college: text("college"),
+}, (table) => [
+  index("nfl_draft_year_round_pick_idx").on(table.year, table.round, table.pick),
+]);
 
 // Relationships
 
@@ -326,19 +370,6 @@ export const standingsRelations = relations(standings, ({ one }) => ({
     references: [teams.id],
   }),
 }));
-
-// NFL Draft data (global, not league-specific)
-export const nflDraft = pgTable("nfl_draft", {
-  id: serial("id").primaryKey(),
-  year: integer("year").notNull(),
-  round: integer("round").notNull(),
-  pick: integer("pick").notNull(),       // overall pick number
-  roundPick: integer("round_pick").notNull(), // pick within round
-  playerName: text("player_name").notNull(),
-  position: text("position"),
-  nflTeam: text("nfl_team"),
-  college: text("college"),
-});
 
 export const scheduleRelations = relations(schedule, ({ one }) => ({
   league: one(leagues, {

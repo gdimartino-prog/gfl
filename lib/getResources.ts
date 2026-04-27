@@ -6,6 +6,7 @@ import { unstable_cache } from 'next/cache';
 
 export type Resource = {
   id: number;
+  leagueId: number;
   group: string;
   title: string;
   url: string;

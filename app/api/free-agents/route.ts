@@ -30,18 +30,21 @@ export async function POST(req: Request) {
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
     const body = await req.json();
-    const { team, addIdentity, dropIdentity } = body;
+    const { addIdentity, dropIdentity } = body;
 
-    // Validation for Free Agent moves (Drafting/Signing)
-    if (!team || !addIdentity || !dropIdentity) {
+    // Always use the session team — never trust client-supplied team value
+    const team = (session.user as { id?: string }).id;
+    if (!team) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    if (!addIdentity || !dropIdentity) {
       return NextResponse.json(
-        { error: 'Missing required fields: team, addIdentity, or dropIdentity' },
+        { error: 'Missing required fields: addIdentity or dropIdentity' },
         { status: 400 }
       );
     }
 
-    // executeFreeAgentMove handles the Google Sheets row updates
-    await executeFreeAgentMove(team, addIdentity, dropIdentity);
+    const leagueId = await getLeagueId();
+    await executeFreeAgentMove(team, addIdentity, dropIdentity, leagueId);
 
     return NextResponse.json({ success: true });
   } catch (err: unknown) {

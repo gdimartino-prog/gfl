@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 
 export type Rule = {
   id: number;
-  leagueId?: number | null;
+  leagueId: number;
   year?: number | null;
   rule: string;
   value: string;
@@ -16,8 +16,8 @@ export type Rule = {
 /**
  * Fetches all rules from the database.
  */
-export async function getRules(): Promise<Rule[]> {
-    return await db.select().from(rules);
+export async function getRules(leagueId: number = 1): Promise<Rule[]> {
+    return await db.select().from(rules).where(eq(rules.leagueId, leagueId));
 }
 
 /**

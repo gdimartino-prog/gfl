@@ -5,7 +5,13 @@ import { X, Search, UserPlus } from 'lucide-react';
 import { useConfirm } from '@/components/ConfirmDialog';
 import { Player, DraftPick } from '../types';
 
-const POSITIONS = ['All', 'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'];
+const POSITIONS = ['All', 'QB', 'RB', 'WR', 'TE', 'G', 'T', 'C', 'DL', 'LB', 'CB', 'S', 'K', 'P'];
+
+const parseSalary = (s?: string | number | null): number => {
+  if (!s) return 0;
+  if (typeof s === 'number') return s;
+  return parseInt(s.replace(/[^0-9]/g, ''), 10) || 0;
+};
 
 interface SelectionModalProps {
   pick: DraftPick;
@@ -34,13 +40,17 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
   }, []);
 
   const filteredPlayers = useMemo(() => {
-    return players.filter(p => {
-      const name = (p.name || `${p.first} ${p.last}`).toLowerCase();
-      const matchesSearch = name.includes(searchTerm.toLowerCase());
-      const rawPos = (p.pos || p.position || p.offense || p.defense || p.special || '').toUpperCase();
-      const matchesPos = posFilter === 'All' || rawPos.includes(posFilter);
-      return matchesSearch && matchesPos;
-    }).slice(0, 50);
+    return players
+      .filter(p => {
+        const name = (p.name || `${p.first} ${p.last}`).toLowerCase();
+        const matchesSearch = name.includes(searchTerm.toLowerCase());
+        const rawPos = (p.pos || p.position || p.offense || p.defense || p.special || '').toUpperCase();
+        const posSegments = rawPos.split(/[^A-Z]+/).filter(Boolean);
+        const matchesPos = posFilter === 'All' || posSegments.includes(posFilter);
+        return matchesSearch && matchesPos;
+      })
+      .sort((a, b) => parseSalary(b.salary) - parseSalary(a.salary))
+      .slice(0, 50);
   }, [players, searchTerm, posFilter]);
 
   const handleSelect = async (player: Player) => {
@@ -153,7 +163,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
                     {displayName}
                   </a>
                   <span className="text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">
-                    {p.pos || p.position} • Age {p.age}
+                    {p.pos || p.position} • Age {p.age}{p.salary ? ` • ${typeof p.salary === 'number' ? `$${p.salary.toLocaleString()}` : p.salary}` : ''}
                   </span>
                 </div>
                 

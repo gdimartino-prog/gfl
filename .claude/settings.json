@@ -10,6 +10,9 @@
       "WebSearch",
       "WebFetch",
       "mcp__playwright__*"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\George\\.claude"
     ]
   },
   "hooks": {
