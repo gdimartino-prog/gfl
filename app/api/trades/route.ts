@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { players, draftPicks, teams } from '@/schema';
+import { teams } from '@/schema';
 import { eq, and } from 'drizzle-orm';
 import { logTransaction } from '@/lib/transactions';
 import { upsertPickTransfer } from '@/lib/draftPicks';
@@ -7,25 +7,31 @@ import { notifyTransaction } from '@/lib/notify';
 import { auth } from '@/auth';
 import { isAdmin, isCommissioner } from '@/lib/auth';
 import { getLeagueId } from '@/lib/getLeagueId';
+import { revalidateTag } from 'next/cache';
+import { logSystemEvent } from '@/lib/db-helpers';
 
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user) return Response.json({ message: 'Unauthorized' }, { status: 401 });
-  const authorized = await isAdmin() || await isCommissioner();
-  if (!authorized) {
-    return Response.json({ message: 'Unauthorized: Admin access required to process trades.' }, { status: 403 });
-  }
 
   try {
     const leagueId = await getLeagueId();
     const body = await req.json();
     const {
-      fromTeam, toTeam, fromFull, toFull, submittedBy,
-      playersFrom, playersTo, rawIdentitiesFrom, rawIdentitiesTo,
-      draftPicksFrom, draftPicksTo, rawPicksFrom, rawPicksTo, status,
+      fromTeam, toTeam, fromFull, toFull,
+      playersFrom, playersTo,
+      draftPicksFrom, draftPicksTo, rawPicksFrom, rawPicksTo,
     } = body;
 
-    // Resolve team IDs
+    const callerTeamshort = (session.user as { id?: string }).id || '';
+    const privileged = await isAdmin() || await isCommissioner();
+
+    // Coaches can only submit trades involving their own team
+    if (!privileged && callerTeamshort.toUpperCase() !== (fromTeam || '').toUpperCase()) {
+      return Response.json({ message: 'Forbidden: you can only submit trades for your own team.' }, { status: 403 });
+    }
+
+    // Resolve team IDs for pick transfers
     const [fromTeamRow, toTeamRow] = await Promise.all([
       db.select({ id: teams.id }).from(teams)
         .where(and(eq(teams.leagueId, leagueId), eq(teams.teamshort, fromTeam))).limit(1),
@@ -36,55 +42,7 @@ export async function POST(req: Request) {
     const fromTeamId = fromTeamRow[0]?.id;
     const toTeamId = toTeamRow[0]?.id;
 
-    const updates: Promise<unknown>[] = [];
-
-    // Move proposer's players → partner
-    if (rawIdentitiesFrom?.length && toTeamId) {
-      for (const identity of rawIdentitiesFrom as string[]) {
-        updates.push(
-          db.update(players)
-            .set({ teamId: toTeamId, touch_id: submittedBy || 'trade' })
-            .where(and(eq(players.identity, identity), eq(players.leagueId, leagueId)))
-        );
-      }
-    }
-
-    // Move partner's players → proposer
-    if (rawIdentitiesTo?.length && fromTeamId) {
-      for (const identity of rawIdentitiesTo as string[]) {
-        updates.push(
-          db.update(players)
-            .set({ teamId: fromTeamId, touch_id: submittedBy || 'trade' })
-            .where(and(eq(players.identity, identity), eq(players.leagueId, leagueId)))
-        );
-      }
-    }
-
-    // Move proposer's picks → partner
-    if (rawPicksFrom?.length && toTeamId) {
-      for (const overall of rawPicksFrom as string[]) {
-        updates.push(
-          db.update(draftPicks)
-            .set({ currentTeamId: toTeamId, touch_id: submittedBy || 'trade' })
-            .where(and(eq(draftPicks.pick, parseInt(overall)), eq(draftPicks.leagueId, leagueId)))
-        );
-      }
-    }
-
-    // Move partner's picks → proposer
-    if (rawPicksTo?.length && fromTeamId) {
-      for (const overall of rawPicksTo as string[]) {
-        updates.push(
-          db.update(draftPicks)
-            .set({ currentTeamId: fromTeamId, touch_id: submittedBy || 'trade' })
-            .where(and(eq(draftPicks.pick, parseInt(overall)), eq(draftPicks.leagueId, leagueId)))
-        );
-      }
-    }
-
-    await Promise.all(updates);
-
-    // Record pick transfers so ownership survives draft regeneration
+    // Execute draft pick transfers immediately — picks are managed in the web app
     const transferUpserts: Promise<void>[] = [];
     if (rawPicksFrom?.length && fromTeamId && toTeamId) {
       for (const overall of rawPicksFrom as string[]) {
@@ -92,7 +50,7 @@ export async function POST(req: Request) {
           leagueId,
           pickOverall: parseInt(overall),
           toTeamId,
-          touchId: submittedBy || 'trade',
+          touchId: callerTeamshort || 'trade',
         }));
       }
     }
@@ -102,13 +60,14 @@ export async function POST(req: Request) {
           leagueId,
           pickOverall: parseInt(overall),
           toTeamId: fromTeamId,
-          touchId: submittedBy || 'trade',
+          touchId: callerTeamshort || 'trade',
         }));
       }
     }
     await Promise.all(transferUpserts);
 
-    // Log transactions
+    // Log transactions as Pending — player moves happen in the Action game
+    const actorName = session.user.name || callerTeamshort || 'Coach';
     const proposerAssets = [...(playersFrom || []), ...(draftPicksFrom || [])].join(', ');
     const partnerAssets = [...(playersTo || []), ...(draftPicksTo || [])].join(', ');
 
@@ -117,7 +76,7 @@ export async function POST(req: Request) {
         type: 'TRADE',
         details: `Traded to ${toFull}: ${proposerAssets}`,
         fromTeam: fromFull, toTeam: toFull,
-        coach: submittedBy, status: status || 'COMPLETED',
+        coach: actorName, status: 'Pending',
         leagueId,
       });
     }
@@ -126,17 +85,20 @@ export async function POST(req: Request) {
         type: 'TRADE',
         details: `Traded to ${fromFull}: ${partnerAssets}`,
         fromTeam: toFull, toTeam: fromFull,
-        coach: submittedBy, status: status || 'COMPLETED',
+        coach: actorName, status: 'Pending',
         leagueId,
       });
     }
 
-    // Notify
+    revalidateTag('transactions', 'max');
+    await logSystemEvent(actorName, fromTeam, 'TRADE', `${fromFull} ↔ ${toFull}`, leagueId);
+
+    // Notify league
     const directions: Record<string, string[]> = {};
     if (proposerAssets) directions[`${fromFull} ➔ ${toFull}`] = (playersFrom || []).concat(draftPicksFrom || []);
     if (partnerAssets) directions[`${toFull} ➔ ${fromFull}`] = (playersTo || []).concat(draftPicksTo || []);
     if (Object.keys(directions).length > 0) {
-      await notifyTransaction({ type: 'TRADE', directions }).catch(e => console.error('Notify failed:', e));
+      await notifyTransaction({ type: 'TRADE', directions, leagueId }).catch(e => console.error('Notify failed:', e));
     }
 
     return Response.json({ success: true });

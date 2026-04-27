@@ -249,7 +249,7 @@ export default function TransactionsPage() {
               {activeTab === 'FA' && <FreeAgentPanel key={`fa-${refreshKey}`} team={selectedTeam} coach={coach} onComplete={handleTransactionComplete} />}
               {activeTab === 'DROP' && <DropPlayer key={`drop-${refreshKey}`} team={selectedTeam} coach={coach} onComplete={handleTransactionComplete} />}
               {activeTab === 'IR' && <IRPanel key={`ir-${refreshKey}`} team={selectedTeam} coach={coach} onComplete={handleTransactionComplete} />}
-              {activeTab === 'TRADE' && <TradePanel key={`trade-${refreshKey}`} team={selectedTeam} coach={coach} onComplete={handleTransactionComplete} />}
+              {activeTab === 'TRADE' && <TradePanel key={`trade-${refreshKey}`} team={selectedTeam} coach={coach} isCommissioner={isCommissioner} onComplete={handleTransactionComplete} />}
             </div>
 
           </div>

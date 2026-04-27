@@ -70,10 +70,12 @@ function ToggleList<T extends string>({
 export default function TradePanel({
   team,
   coach,
+  isCommissioner = false,
   onComplete
 }: {
   team: string;
   coach: string;
+  isCommissioner?: boolean;
   onComplete?: () => void
 }) {
   const [teams, setTeams] = useState<Team[]>([]);
@@ -208,7 +210,7 @@ export default function TradePanel({
       });
 
       if (res.ok) {
-        setStatus('✅ Trade Logged and Assets Moved.');
+        setStatus(isCommissioner ? '✅ Trade logged.' : '✅ Trade submitted — pending commissioner approval.');
         setFromPlayers([]); setToPlayers([]); setFromDraftPicks([]); setToDraftPicks([]); setToTeam('');
         await loadData();
         if (onComplete) onComplete();
@@ -235,15 +237,21 @@ export default function TradePanel({
         <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 space-y-3">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-blue-400 uppercase tracking-widest block">Active Team</label>
-            <select
-              value={fromTeamOverride || team}
-              onChange={e => { setFromTeamOverride(e.target.value); setFromPlayers([]); setFromDraftPicks([]); setStatus(''); }}
-              className="border-2 border-blue-100 p-2.5 w-full rounded-lg text-sm text-black outline-none focus:border-blue-300 transition-colors font-medium bg-white"
-            >
-              {[...teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => (
-                <option key={t.short} value={t.short}>{t.name} ({t.short})</option>
-              ))}
-            </select>
+            {isCommissioner ? (
+              <select
+                value={fromTeamOverride || team}
+                onChange={e => { setFromTeamOverride(e.target.value); setFromPlayers([]); setFromDraftPicks([]); setStatus(''); }}
+                className="border-2 border-blue-100 p-2.5 w-full rounded-lg text-sm text-black outline-none focus:border-blue-300 transition-colors font-medium bg-white"
+              >
+                {[...teams].sort((a, b) => a.name.localeCompare(b.name)).map(t => (
+                  <option key={t.short} value={t.short}>{t.name} ({t.short})</option>
+                ))}
+              </select>
+            ) : (
+              <div className="border-2 border-blue-100 p-2.5 w-full rounded-lg text-sm text-black font-medium bg-slate-50">
+                {activeFullName}
+              </div>
+            )}
           </div>
           <p className="text-[11px] font-black text-blue-700 uppercase text-center tracking-widest">
             Your Assets — {activeFullName}
