@@ -141,7 +141,7 @@ export default function TradeBlockPage() {
       {loading ? (
         <div className="text-center p-20 font-black animate-pulse text-slate-400 uppercase italic">Loading Trade Block...</div>
       ) : (
-        <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
+        <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>

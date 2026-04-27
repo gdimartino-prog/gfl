@@ -345,7 +345,7 @@ export default function TransactionsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
+        <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100">
           <div className="overflow-x-auto max-h-[600px] no-scrollbar">
             <table className="w-full text-left">
               <thead className="bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.2em] sticky top-0 z-10">

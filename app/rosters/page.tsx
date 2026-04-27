@@ -522,7 +522,7 @@ function RosterContent() {
                 </div>
               </div>
             </div>
-          <div className="flex gap-12 pr-6">
+          <div className="flex gap-4 md:gap-12 pr-6">
             <div className="text-center">
               <p className="text-[10px] font-black text-slate-500 uppercase italic tracking-widest mb-3">Record</p>
               <p className="text-4xl font-black italic tracking-tighter">{data?.stats?.won || 0}-{data?.stats?.lost || 0}</p>

@@ -388,8 +388,8 @@ function DraftBoardContent() {
                 {draftStartDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
               </p>
             </div>
-            <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 min-w-[300px] text-center relative overflow-hidden">
-              <p className="text-8xl font-mono font-black text-amber-400 tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+            <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 w-full md:min-w-[300px] text-center relative overflow-hidden">
+              <p className="text-5xl md:text-8xl font-mono font-black text-amber-400 tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
                 {preDraftTimeLeft}
               </p>
               <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-widest">
@@ -413,7 +413,7 @@ function DraftBoardContent() {
                 </span>
               </div>
               
-              <h2 className="text-7xl font-black text-white uppercase italic tracking-tighter leading-none">
+              <h2 className="text-4xl md:text-7xl font-black text-white uppercase italic tracking-tighter leading-none">
                 {getFullTeamName(onClockPick.currentOwner)}
               </h2>
 
@@ -428,8 +428,8 @@ function DraftBoardContent() {
               </div>
             </div>
 
-            <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 min-w-[300px] text-center relative overflow-hidden">
-              <p className="text-8xl font-mono font-black text-amber-400 tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
+            <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 w-full md:min-w-[300px] text-center relative overflow-hidden">
+              <p className="text-5xl md:text-8xl font-mono font-black text-amber-400 tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
                 {timeLeft}
               </p>
               <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-widest">
@@ -487,7 +487,7 @@ function DraftBoardContent() {
         </div>
 
         {/* DRAFT TABLE */}
-        <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden">
+        <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-separate border-spacing-0">
               <thead>
