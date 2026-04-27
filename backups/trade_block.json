@@ -295,5 +295,16 @@
     "asking": "Toilet Paper",
     "touch_dt": "2026-04-26T01:13:42.545Z",
     "touch_id": "VV"
+  },
+  {
+    "id": 35,
+    "leagueId": 1,
+    "playerId": "caleb|williams|24|qb||",
+    "playerName": "Caleb Williams",
+    "team": "OBG",
+    "position": "QB",
+    "asking": null,
+    "touch_dt": "2026-04-27T03:19:16.073Z",
+    "touch_id": "OBG"
   }
 ]

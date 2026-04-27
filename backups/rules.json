@@ -430,16 +430,6 @@
     "touch_id": "maintenance"
   },
   {
-    "id": 62,
-    "leagueId": 2,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "23",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-05T15:35:08.929Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
     "id": 49,
     "leagueId": 2,
     "year": null,
@@ -458,6 +448,16 @@
     "desc": "Current active season year",
     "touch_dt": "2026-03-05T15:32:48.052Z",
     "touch_id": "fix-cuts-year"
+  },
+  {
+    "id": 62,
+    "leagueId": 2,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "23",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "cron-nfl-week"
   },
   {
     "id": 38,
