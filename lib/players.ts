@@ -1,7 +1,7 @@
 
 import { db } from './db';
 import { players, teams } from '@/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 
 export type Player = {
@@ -34,9 +34,11 @@ const sharedSelect = {
   durability: players.durability,
   teamShort: teams.teamshort,
   teamName: teams.name,
+  salary: sql<string | null>`${players.scouting}->>'salary'`,
 };
 
-const mapRow = (p: typeof sharedSelect & { teamShort: string | null; runBlock: string | null; passBlock: string | null; rushYards: string | null; interceptionsVal: string | null; sacksVal: string | null; durability: string | null; scouting?: Record<string, string> | null }) => ({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mapRow = (p: any) => ({
   ...p,
   team: p.teamShort ?? 'FA',
   run: p.runBlock ?? '0',
@@ -45,6 +47,7 @@ const mapRow = (p: typeof sharedSelect & { teamShort: string | null; runBlock: s
   int: p.interceptionsVal ?? '0',
   sack: p.sacksVal ?? '0',
   dur: p.durability ?? '0',
+  salary: p.salary ?? null,
 });
 
 // Lean query — no scouting column. Used by rosters, draft board, players list.

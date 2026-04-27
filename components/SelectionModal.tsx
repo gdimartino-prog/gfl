@@ -7,6 +7,12 @@ import { Player, DraftPick } from '../types';
 
 const POSITIONS = ['All', 'QB', 'RB', 'WR', 'TE', 'G', 'T', 'C', 'DL', 'LB', 'CB', 'S', 'K', 'P'];
 
+// Filters that expand to multiple position codes
+const POS_GROUP: Record<string, string[]> = {
+  DL: ['DL', 'DT', 'DE', 'NT'],
+  LB: ['LB', 'ILB', 'OLB', 'MLB'],
+};
+
 const parseSalary = (s?: string | number | null): number => {
   if (!s) return 0;
   if (typeof s === 'number') return s;
@@ -46,7 +52,8 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
         const matchesSearch = name.includes(searchTerm.toLowerCase());
         const rawPos = (p.pos || p.position || p.offense || p.defense || p.special || '').toUpperCase();
         const posSegments = rawPos.split(/[^A-Z]+/).filter(Boolean);
-        const matchesPos = posFilter === 'All' || posSegments.includes(posFilter);
+        const expandedGroup = POS_GROUP[posFilter] ?? [posFilter];
+        const matchesPos = posFilter === 'All' || posSegments.some(seg => expandedGroup.includes(seg));
         return matchesSearch && matchesPos;
       })
       .sort((a, b) => parseSalary(b.salary) - parseSalary(a.salary))
@@ -94,7 +101,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 sm:p-6">
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose} />
       
-      <div className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="relative w-full max-w-3xl bg-white rounded-[3rem] shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
         
         {/* 🚀 HEADER: Restored Round # and enlarged Team Name */}
         <div className="p-8 bg-blue-600 text-white flex justify-between items-start">
