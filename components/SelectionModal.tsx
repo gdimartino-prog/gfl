@@ -170,7 +170,7 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
                     {displayName}
                   </a>
                   <span className="text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">
-                    {p.pos || p.position} • Age {p.age}{p.salary ? ` • ${typeof p.salary === 'number' ? `$${p.salary.toLocaleString()}` : p.salary}` : ''}
+                    {p.pos || p.position} • Age {p.age}{p.salary ? ` • $${Number(p.salary).toLocaleString()}K` : ''}
                   </span>
                 </div>
                 

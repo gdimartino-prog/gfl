@@ -58,7 +58,7 @@ const _getPlayers = unstable_cache(async (leagueId: number) => {
     .where(eq(players.leagueId, leagueId));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return rows.map(p => mapRow(p as any));
-}, ['players-lean'], { revalidate: 300, tags: ['players'] });
+}, ['players-lean-v2'], { revalidate: 300, tags: ['players'] });
 
 // Full query — includes scouting JSON. Too large for unstable_cache (>2MB);
 // rely on CDN Cache-Control headers at the API route level instead.
