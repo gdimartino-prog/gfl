@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
         dur: p.dur,
         overall: p.overall,
         salary: p.salary ?? p.scouting?.salary ?? null,
+        receiving: p.receiving ?? p.scouting?.receiving ?? null,
         ...(includeScouting ? { scouting: p.scouting ?? null } : {}),
         name: `${p.first} ${p.last}`.trim(),
         pos: p.position // Map 'position' to 'pos' for frontend consistency

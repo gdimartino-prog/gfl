@@ -100,6 +100,7 @@ export interface Player {
   run?: string;
   pass?: string;
   overall?: string | number;
+  receiving?: string | number | null;
   stats?: PlayerStats;
   allStats?: Record<string, string>;
 }

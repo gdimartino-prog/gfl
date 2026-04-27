@@ -158,19 +158,28 @@ export default function SelectionModal({ pick, coach, onClose, onComplete, onSco
             <div className="text-center py-20 font-black uppercase text-slate-300 animate-pulse italic">Scanning personnel...</div>
           ) : filteredPlayers.map((p, i) => {
             const displayName = p.name || `${p.first || ''} ${p.last || ''}`.trim();
+            const rawPos = (p.pos || p.position || p.offense || p.defense || p.special || '').toUpperCase();
+            const posSegs = rawPos.split(/[^A-Z]+/).filter(Boolean);
+            const isOL = posSegs.some(s => ['G','T','C','OT','OG','LT','RT','LG','RG','OL'].includes(s));
+            const isSkill = posSegs.some(s => ['WR','TE','RB','HB','FB'].includes(s));
+            const ovrVal = isSkill
+              ? (p.receiving && p.receiving !== '0' ? p.receiving : p.overall || null)
+              : isOL
+                ? (p.overall ? (Number(p.overall) / 2).toFixed(1) : null)
+                : (p.overall || null);
             return (
               <div key={p.identity || i} className="flex items-center justify-between p-6 bg-slate-50/50 rounded-[2.5rem] border border-transparent hover:border-blue-100 hover:bg-white transition-all group">
                 <div className="flex flex-col">
-                  <a 
-                    href={`https://www.google.com/search?q=${encodeURIComponent(displayName)}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href={`https://www.google.com/search?q=${encodeURIComponent(displayName)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="font-black text-slate-900 uppercase text-xl italic hover:text-blue-600 transition-all"
                   >
                     {displayName}
                   </a>
                   <span className="text-[10px] font-black text-slate-400 uppercase mt-1 tracking-widest">
-                    {p.pos || p.position} • Age {p.age}{p.salary ? ` • $${Number(p.salary).toLocaleString()}K` : ''}
+                    {p.pos || p.position} • Age {p.age}{ovrVal ? ` • OVR ${ovrVal}` : ''}{p.salary ? ` • $${Number(p.salary).toLocaleString()}K` : ''}
                   </span>
                 </div>
                 

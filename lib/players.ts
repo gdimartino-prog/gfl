@@ -35,6 +35,7 @@ const sharedSelect = {
   teamShort: teams.teamshort,
   teamName: teams.name,
   salary: sql<string | null>`${players.scouting}->>'salary'`,
+  receiving: sql<string | null>`${players.scouting}->>'receiving'`,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,6 +49,7 @@ const mapRow = (p: any) => ({
   sack: p.sacksVal ?? '0',
   dur: p.durability ?? '0',
   salary: p.salary ?? null,
+  receiving: p.receiving ?? null,
 });
 
 // Lean query — no scouting column. Used by rosters, draft board, players list.
@@ -58,7 +60,7 @@ const _getPlayers = unstable_cache(async (leagueId: number) => {
     .where(eq(players.leagueId, leagueId));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return rows.map(p => mapRow(p as any));
-}, ['players-lean-v2'], { revalidate: 300, tags: ['players'] });
+}, ['players-lean-v3'], { revalidate: 300, tags: ['players'] });
 
 // Full query — includes scouting JSON. Too large for unstable_cache (>2MB);
 // rely on CDN Cache-Control headers at the API route level instead.
