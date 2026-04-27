@@ -979,7 +979,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
           <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest">No teams found.</div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {teamsData.filter(t => t.status === teamStatusFilter).map(team => (
+            {teamsData.filter(t => t.status === teamStatusFilter).sort((a, b) => a.name.localeCompare(b.name)).map(team => (
               <div key={team.id}>
                 {editingTeamId === team.id ? (
                   <div className="px-8 py-6 bg-amber-50">
