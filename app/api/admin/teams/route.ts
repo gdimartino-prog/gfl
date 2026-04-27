@@ -104,6 +104,7 @@ export async function PATCH(req: Request) {
   }).where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
 
   revalidateTag('coaches', 'max');
+  revalidateTag('players', 'max');
   logSystemEvent(actor, 'admin', 'UPDATE_TEAM', `Updated team id ${id}`, leagueId);
   return NextResponse.json({ success: true });
 }
