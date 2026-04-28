@@ -7,11 +7,14 @@
 4. [Authentication & Authorization](#authentication--authorization)
 5. [Multi-League Architecture](#multi-league-architecture)
 6. [API Routes](#api-routes)
-7. [Notification System](#notification-system)
-8. [Cron Jobs & Automation](#cron-jobs--automation)
-9. [Deployment Pipeline](#deployment-pipeline)
-10. [Caching Strategy](#caching-strategy)
-11. [Key Libraries & Patterns](#key-libraries--patterns)
+7. [Player Data Flow](#player-data-flow)
+8. [Draft System](#draft-system)
+9. [Trade Flow](#trade-flow)
+10. [Notification System](#notification-system)
+11. [Cron Jobs & Automation](#cron-jobs--automation)
+12. [Deployment Pipeline](#deployment-pipeline)
+13. [Caching Strategy](#caching-strategy)
+14. [Key Conventions](#key-conventions)
 
 ---
 
@@ -19,18 +22,15 @@
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 15 (App Router) |
-| Language | TypeScript |
+| Framework | Next.js 16 (App Router, TypeScript) |
 | Styling | Tailwind CSS v4 + shadcn/ui |
-| Database | Supabase Postgres (via `@vercel/postgres`) |
-| ORM | Drizzle ORM |
-| Auth | NextAuth v5 (beta) |
-| AI | Google Gemini (`@google/generative-ai`) |
-| Email | Gmail SMTP via nodemailer v6 |
-| WhatsApp | GreenAPI |
-| File Storage | Vercel Blob |
-| Deployment | Vercel (afl.gddevco.com) |
-| CI/CD | GitHub Actions |
+| Database | Vercel Postgres (Supabase) via `@vercel/postgres` |
+| ORM | Drizzle ORM (`schema.ts` is source of truth) |
+| Auth | NextAuth v5 (credentials provider, JWT strategy) |
+| AI | Google Gemini (`@google/generative-ai`) — game summaries |
+| Email | Nodemailer (Gmail SMTP) |
+| WhatsApp | GreenAPI (GFL league only) |
+| Deployment | Vercel |
 
 ---
 
@@ -40,465 +40,478 @@
 gfl/
 ├── app/
 │   ├── page.tsx                      # Dashboard / Home
-│   ├── rosters/page.tsx              # Team rosters & depth charts
-│   ├── standings/page.tsx            # Season standings
-│   ├── standings/summary/page.tsx    # All-time leaderboard
-│   ├── schedule/page.tsx             # Weekly schedule & results
-│   ├── draft/page.tsx                # Live draft board
-│   ├── transactions/page.tsx         # FA pickups, drops, trades, IR
-│   ├── cuts/page.tsx                 # Roster cuts selections
+│   ├── login/                        # Login (league dropdown when >1 league)
+│   ├── signup/                       # New coach registration
+│   ├── draft/
+│   │   ├── page.tsx                  # Live draft board + pre-draft countdown
+│   │   └── setup/page.tsx            # Commissioner draft configuration
+│   ├── transactions/page.tsx         # Transaction log + Trade Panel
+│   ├── rosters/page.tsx              # Team roster viewer
+│   ├── free-agents/page.tsx          # Free agent board
+│   ├── trade-block/page.tsx          # Players listed for trade
+│   ├── standings/
+│   │   ├── page.tsx                  # Season standings
+│   │   └── summary/page.tsx          # All-time standings summary
+│   ├── schedule/page.tsx             # Season schedule + scores
+│   ├── cuts/page.tsx                 # Roster cut selections
+│   ├── rules/page.tsx                # League rules viewer
+│   ├── resources/page.tsx            # League links/documents
+│   ├── nfl-draft/page.tsx            # NFL draft reference data
+│   ├── press-box/page.tsx            # AI-generated game summaries
 │   ├── coaching/page.tsx             # COA file upload/download
-│   ├── settings/page.tsx             # Coach profile settings
 │   ├── directory/page.tsx            # Coach contact directory
-│   ├── resources/page.tsx            # League resource downloads
-│   ├── press-box/page.tsx            # AI game analysis
-│   ├── rules/page.tsx                # League rules display
-│   ├── trade-block/page.tsx          # Players available for trade
-│   ├── maintenance/page.tsx          # Commissioner admin panel
-│   ├── manual/page.tsx               # In-app user manual
-│   ├── login/page.tsx                # Login
-│   ├── signup/page.tsx               # New coach registration
-│   └── api/                          # API route handlers
-├── lib/                              # Business logic
-│   ├── db.ts                         # Drizzle DB connection
-│   ├── db-helpers.ts                 # Shared DB utilities
-│   ├── players.ts                    # Player queries (cached)
-│   ├── config.ts                     # Teams/coaches queries (cached)
-│   ├── getStandings.ts               # Standings queries (cached)
-│   ├── getSchedule.ts                # Schedule queries (cached)
-│   ├── getResources.ts               # Resources queries (cached)
-│   ├── transactions.ts               # Transaction log queries
-│   ├── draftPicks.ts                 # Draft pick queries (cached)
-│   ├── cuts.ts                       # Cuts management queries
-│   ├── freeAgency.ts                 # Free agent move logic
-│   ├── rules.ts                      # League rules queries
-│   ├── getLeagueId.ts                # League resolver from cookie
-│   ├── auth.ts                       # Auth role helpers
-│   ├── notify.ts                     # Email + WhatsApp notifications
-│   ├── gemini.ts                     # AI summary generation
-│   ├── actions.ts                    # Next.js server actions
-│   └── utils.ts                      # General utilities
+│   ├── maintenance/page.tsx          # Admin panel (sync, teams, schedule, standings)
+│   ├── settings/page.tsx             # Coach profile settings
+│   ├── manual/page.tsx               # In-app league manual
+│   └── api/                          # API route handlers (see API Routes section)
+├── lib/
+│   ├── db.ts                         # Vercel Postgres + Drizzle connection
+│   ├── db-helpers.ts                 # logSystemEvent()
+│   ├── getLeagueId.ts                # Cookie-based active league resolver
+│   ├── players.ts                    # getPlayers(), getPlayersWithScouting()
+│   ├── config.ts                     # getCoaches() / team helpers
+│   ├── transactions.ts               # logTransaction(), getTransactions()
+│   ├── draftPicks.ts                 # getAllDraftPicks(), upsertPickTransfer()
+│   ├── cuts.ts                       # getCuts(), addCut(), removeCut()
+│   ├── rules.ts                      # getRules(), addRule(), updateRule()
+│   ├── getStandings.ts               # getStandings()
+│   ├── getSchedule.ts                # getSchedule()
+│   ├── getResources.ts               # getResources(), addResource()
+│   ├── maintenance.ts                # syncPlayersFromFile(), syncStandings(), syncSchedule()
+│   ├── notify.ts                     # sendEmail(), sendWhatsApp(), notifyDraftPick(), notifyTransaction(), notifyTradeBlock()
+│   ├── auth.ts                       # isAdmin(), isCommissioner()
+│   ├── playerUtils.ts                # buildPlayerIdentity()
+│   └── playerStats.ts                # Player stat formatting helpers
 ├── schema.ts                         # Drizzle table definitions (source of truth)
-├── types/index.ts                    # TypeScript interfaces
-├── components/                       # Reusable UI components
-├── context/                          # React context providers
-│   ├── LeagueContext.tsx             # Active league state
-│   └── TeamContext.tsx               # Active team state
+├── types/index.ts                    # Shared TypeScript interfaces
+├── components/                       # Shared UI components
+│   ├── SelectionModal.tsx            # Draft pick selection modal
+│   ├── RecentPicksTicker.tsx         # Draft board live ticker
+│   ├── MaintenanceClient.tsx         # Admin maintenance UI
+│   └── DraftSetupClient.tsx          # Draft setup UI
+├── context/
+│   └── LeagueContext.tsx             # useLeague() hook, stores leagueId in cookie
 ├── auth.ts                           # NextAuth configuration
-├── drizzle.config.ts                 # Drizzle config (points to .env.local)
+├── drizzle.config.ts                 # Drizzle config (reads .env.local)
 ├── drizzle/                          # Auto-generated SQL migration files
-├── scripts/                          # One-time data migration scripts
-└── .github/workflows/               # GitHub Actions CI/CD
-    ├── deploy.yml                    # Auto-deploy on push to main
-    ├── crons.yml                     # Daily/weekly scheduled jobs
-    └── draft-cron.yml               # Draft timer (every 5 minutes)
+└── scripts/                          # Utility / one-time scripts (not active app code)
+    └── enable-rls.ts                 # Re-enable RLS after db:push
 ```
 
 ---
 
 ## Database Schema
 
-All tables have `leagueId` for multi-league tenancy and `touch_dt` / `touch_id` audit fields.
+All tenant tables have `leagueId` (row-level tenancy) and `touch_dt` / `touch_id` audit fields. **GFL = leagueId 1.**
 
 ### leagues
 | Column | Type | Notes |
 |--------|------|-------|
-| id | serial PK | Auto-increment |
-| name | text | Display name (e.g., "GFL") |
-| slug | text | URL-safe identifier |
-| legacyUrl | text | Old domain for redirects |
+| id | serial PK | |
+| name | varchar | Display name |
+| slug | varchar UNIQUE | URL-safe identifier |
+| legacyUrl | varchar | Old domain for redirects |
 
 ### teams
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
-| name | text | Full team name |
-| coach | text | Head coach name |
-| teamshort | text | Short code (e.g., "ALP") — used as user login |
-| nickname | text | Optional alias |
+| leagueId | integer → leagues.id NOT NULL | |
+| name | varchar | Full team name |
+| coach | varchar | Head coach name |
+| teamshort | varchar(10) | Short code used as login ID |
+| nickname | varchar | Optional mascot/alias |
 | isCommissioner | boolean | Commissioner flag |
-| status | text | active / pending / inactive |
-| mobile | text | Phone for WhatsApp |
-| email | text | Contact email |
-| password | text | bcrypt hash |
-| coa_last_sync | timestamp | Last COA file upload |
+| status | varchar | active / pending / inactive |
+| mobile / email | varchar | Contact info |
+| password | varchar | bcrypt hash |
+| coa_last_sync | timestamp | Last player file upload |
+| **Indexes** | teams_league_id_idx, teams_teamshort_league_idx | |
 
 ### players
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
-| name | text | Full name |
-| first / last | text | Split name |
+| leagueId | integer → leagues.id NOT NULL | |
+| name / first / last | varchar | |
 | age | integer | |
-| position | text | QB, RB, WR, TE, K, DEF |
-| offense / defense / special | integer | Core ratings |
-| identity | text | Unique identifier for transactions |
-| isIR | boolean | Injured reserve status |
-| overall | integer | Overall player rating |
-| teamId | integer → teams.id | Null = free agent |
-| scouting | jsonb | Detailed scouting report |
+| position | varchar | Canonical position (QB, RB, etc.) |
+| offense / defense / special | varchar | Position codes from game file |
+| identity | varchar | Dedup key: `first\|last\|age\|offense\|defense\|special` |
+| isIR | boolean | Injured reserve |
+| overall | varchar | Overall rating |
+| runBlock / passBlock / rushYards / interceptionsVal / sacksVal / durability | varchar | Core ratings |
+| scouting | jsonb | Full scouting report (salary, receiving, contract, etc.) |
+| teamId | integer → teams.id | NULL = free agent |
+| **Indexes** | players_league_id_idx, players_team_id_idx, players_identity_league_idx | |
 
 ### transactions
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
-| date | timestamp | When logged |
-| type | text | ADD / DROP / TRADE / IR |
+| leagueId | integer → leagues.id NOT NULL | |
+| date | timestamp | |
+| type | varchar | ADD / DROP / TRADE / IR MOVE / etc. |
 | description | text | Human-readable summary |
-| fromTeam / toTeam | text | Teams involved |
-| owner | text | Initiating coach |
-| status | text | Pending / Done / On Team |
-| emailStatus | text | sent / skipped / error |
+| fromTeam / toTeam | varchar | Teams involved |
+| owner | varchar | Initiating coach |
+| status | varchar | Pending / Done / On Team |
+| weekBack / season / fee | integer | Additional context |
+| emailStatus | varchar | sent / skipped / error |
+| **Indexes** | transactions_league_date_idx, transactions_league_status_idx | |
 
-### draftPicks
+### draft_picks
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
-| year | integer | Draft year |
-| round | integer | Round number |
-| pick | integer | Pick within round |
-| originalTeamId | integer → teams.id | Original owner |
+| leagueId | integer → leagues.id NOT NULL | |
+| year / round / pick | integer | Pick identity |
+| draftType | varchar | free_agent / rookie / etc. |
+| originalTeamId | integer → teams.id | Pick's original owner |
 | currentTeamId | integer → teams.id | Current owner (may differ if traded) |
-| playerId | integer → players.id | Null until pick is made |
-| pickedAt | timestamp | When selection was made |
-| warningSent | boolean | 1-hour warning flag |
-| selectedPlayerName | text | Snapshot of player name |
+| playerId | integer → players.id | NULL until selection made |
+| scheduledAt | timestamp | When pick timer started |
+| pickedAt | timestamp | When selection was recorded |
+| passed / warningSent | boolean | Clock management flags |
+| selectedPlayerName | varchar | Snapshot of player name at pick time |
+
+### draft_pick_transfers
+Persistent record of traded pick ownership — survives draft regeneration.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | serial PK | |
+| leagueId / year / draftType / round | | Pick identity |
+| originalTeamId / currentTeamId | integer → teams.id | |
+| **Unique** | (leagueId, year, draftType, round, originalTeamId) | |
 
 ### cuts
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
-| year | integer | Season year |
-| teamId | integer → teams.id | |
-| firstName / lastName | text | |
-| age | integer | |
-| offense / defense / special | integer | |
-| status | text | protected / pullback |
+| leagueId | integer → leagues.id NOT NULL | |
+| year / teamId | | |
+| firstName / lastName / age | | |
+| offense / defense / special | varchar | Position codes |
+| status | varchar | protected / pullback |
 | datetime | timestamp | When saved |
 
 ### rules
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
-| year | integer | Null for global rules |
-| rule | text | Rule key (e.g., "cuts_year") |
-| value | text | Rule value |
+| leagueId | integer → leagues.id NOT NULL | |
+| year | integer | NULL = global rule |
+| rule | varchar | Key (e.g., `cuts_year`, `draft_clock_minutes`) |
+| value | varchar | Value |
 | desc | text | Description |
-| Unique | (leagueId, year, rule) | One value per rule per year |
+| **Unique** | (leagueId, year, rule) | |
 
 ### resources
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
-| group | text | Category for grouping |
-| title | text | Display name |
-| url | text | Download/link URL |
+| leagueId | integer → leagues.id NOT NULL | |
+| group / title / url | varchar | |
+| sortOrder | integer | Display order |
 
 ### standings
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
-| teamId | integer → teams.id | |
-| year | integer | Season year |
-| wins / losses / ties | integer | Record |
-| offPts / defPts | integer | Points scored/allowed |
-| isDivWinner | boolean | Division winner flag |
-| isPlayoff | boolean | Made playoffs |
-| isSuperBowl | boolean | Reached championship game |
-| isChampion | boolean | Won championship |
-| oldTeamName | text | Historical team name snapshot |
+| leagueId | integer → leagues.id NOT NULL | |
+| teamId | integer → teams.id NOT NULL | |
+| year | integer | |
+| wins / losses / ties | integer | |
+| offPts / defPts | integer | |
+| isDivWinner / isPlayoff / isSuperBowl / isChampion | boolean | |
+| oldTeamName / coachName | varchar | Historical snapshots |
 
 ### schedule
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
-| year | integer | Season year |
-| week | varchar | Week number or identifier |
+| leagueId | integer → leagues.id NOT NULL | |
+| year / week | | |
 | homeTeamId / awayTeamId | integer → teams.id | |
-| home_score / away_score | integer | Final scores |
-| is_bye | boolean | Bye week flag |
+| home_score / away_score | integer | |
+| is_bye | boolean | |
 
-### tradeBlock
+### trade_block
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
-| playerId | integer UNIQUE | One entry per player |
-| playerName | text | |
-| team | text | Owning team |
-| position | text | |
-| asking | text | Asking terms |
+| leagueId | integer → leagues.id NOT NULL | |
+| playerId | varchar | Player identity string |
+| playerName / team / position / asking | varchar | |
+| **Unique** | (leagueId, playerId) | One entry per player per league |
 
-### auditLog
+### audit_log
 | Column | Type | Notes |
 |--------|------|-------|
 | id | serial PK | |
-| leagueId | integer → leagues.id | |
+| leagueId | integer → leagues.id NOT NULL | |
 | timestamp | timestamp | |
-| coach | text | Who performed action |
-| team | text | Team code |
-| action | text | Action type |
-| details | text | Additional context |
+| coach / team / action / details | varchar/text | |
+
+### nfl_draft
+Global reference table — no leagueId.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | serial PK | |
+| year / round / pick / roundPick | integer | |
+| playerName / position / nflTeam / college | text | |
+
+**RLS:** All tenant tables have Row Level Security enabled. App connects via service role key (bypasses RLS). Must re-enable after every `npm run db:push`:
+```bash
+npx tsx scripts/enable-rls.ts
+```
 
 ---
 
 ## Authentication & Authorization
 
 ### Auth Flow
-1. User submits team name (or email) + password on `/login`
-2. NextAuth `authorize` callback in `auth.ts`:
+1. Login form calls `/api/leagues?public=true` — shows league dropdown if >1 league
+2. User submits teamshort (or email) + password + leagueId
+3. NextAuth `authorize` in `auth.ts`:
    - **Superuser check**: env vars `SUPERUSER_USERNAME` / `SUPERUSER_PASSWORD` → role `'superuser'`
-   - **Google Sheets check** (legacy): lookup by teamshort in Sheets
-   - **DB check**: lookup by teamshort or email in `teams` table; bcrypt compare
-3. Session JWT stores `{ id: teamshort, role: 'admin'|'superuser'|'coach' }`
+   - **DB check**: lookup by teamshort or email in `teams` table scoped to leagueId; bcrypt compare
+4. On success: JWT stores `{ id: teamshort, name: coachName, role, leagueId }`; `gfl-league-id` cookie set
 
 ### Roles
 | Role | Access |
 |------|--------|
-| `superuser` | Everything — all leagues, all admin functions |
-| `admin` / `commissioner` | Own league commissioner functions |
+| `superuser` | All leagues, all admin functions |
+| `admin` | Own league admin functions |
 | `coach` | Own team data; read-only for others |
-| Unauthenticated | Public pages only (home, login, signup) |
 
 ### Helper Functions (`lib/auth.ts`)
-- `isAdmin(session)` — true if role is `'admin'` or `'superuser'`
-- `isCommissioner(session, leagueId)` — true if team has `isCommissioner=true` in DB
+- `isAdmin()` — true if `session.user.role === 'admin' | 'superuser'`
+- `isCommissioner()` — true if team has `is_commissioner=true` in DB
 
 ---
 
 ## Multi-League Architecture
 
-The app supports multiple independent leagues via **row-level tenancy**.
-
-- Every data table has a `leagueId` column
-- All queries filter by `leagueId`
-- Default `leagueId = 1` (GFL)
+Every tenant table has a `leagueId` column. All queries filter by it.
 
 ### League Resolution
-1. Cookie `gfl-league-id` set by `LeagueContext` on the client
-2. `getLeagueId()` in `lib/getLeagueId.ts` reads the cookie server-side
-3. Falls back to `leagueId = 1` if no cookie
+1. `gfl-league-id` cookie set by `LeagueContext` on the client
+2. `getLeagueId()` in `lib/getLeagueId.ts` reads cookie server-side → falls back to `1`
 
 ### League Switcher
-- Navbar shows league switcher only when user has access to multiple leagues
-- Calls `/api/leagues` (auth-protected) to get available leagues
-- Updates cookie on selection → all subsequent requests use new leagueId
+- Navbar shows switcher only when user's email exists in multiple leagues
+- Calls `/api/leagues` (auth-protected); updates cookie on selection
+
+### Active Leagues
+| leagueId | Name | URL |
+|----------|------|-----|
+| 1 | GFL | gfl-alpha.vercel.app / www.gddevco.com |
+| 2 | AFL | afl.gddevco.com |
 
 ---
 
 ## API Routes
 
-### Public Routes
-| Route | Methods | Description |
-|-------|---------|-------------|
-| `/api/auth/[...nextauth]` | GET, POST | NextAuth session management |
-| `/api/signup` | POST | Register new coach (creates pending team) |
+### Public
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/leagues?public=true` | GET | All leagues (for login dropdown, no auth) |
+| `/api/signup` | POST | Create pending team |
 
-### Protected Routes (require login)
-| Route | Methods | Description |
-|-------|---------|-------------|
-| `/api/leagues` | GET | Leagues available to current user |
-| `/api/teams` | GET, POST | Team list; update coach contact info |
-| `/api/players` | GET | All players for league |
-| `/api/players/details/[id]` | GET | Single player full data |
-| `/api/rosters/[team]` | GET | Roster + draft picks for team |
-| `/api/free-agents` | GET, POST | FA list; execute FA pickup + drop |
-| `/api/draft-picks` | GET, POST | All picks; transfer pick between teams |
-| `/api/transactions` | GET, POST | Log + retrieve transactions; triggers email/WhatsApp |
-| `/api/standings` | GET | League standings data |
-| `/api/schedule` | GET | Schedule data |
-| `/api/rules` | GET | League rules |
-| `/api/resources` | GET | Resource links |
-| `/api/cuts` | GET, POST | Cuts summary + save selections |
-| `/api/trade-block` | GET, POST, DELETE | Trade block listings |
-| `/api/upload` | POST | File upload (COA, spreadsheets) |
-| `/api/press-box` | GET, POST | Game file upload + AI summaries |
+### Authenticated
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/players` | GET | All players; `?scouting=1` includes full scouting JSON |
+| `/api/players/details/[id]` | GET | Single player detail |
+| `/api/rosters/[team]` | GET | Roster for a teamshort code |
+| `/api/teams` | GET | All active teams for league |
+| `/api/transactions` | GET/POST | Transaction log; POST logs new transaction |
+| `/api/transactions` | PATCH | Update status (commissioner only) |
+| `/api/trades` | POST | Submit trade (own team only for coaches; any team for commissioner) |
+| `/api/trade-block` | GET/POST/DELETE | Trade block listings |
+| `/api/draft-picks` | GET | All draft picks with transfer info |
+| `/api/draft-selection` | POST | Record a draft pick selection |
+| `/api/draft-pass` | POST | Pass on a pick (commissioner) |
+| `/api/draft-picks/undo` | POST | Undo last selection (commissioner) |
+| `/api/draft-picks/expire` | POST | Expire timed-out picks |
+| `/api/draft-setup` | GET/POST | Draft configuration |
+| `/api/draft-setup/teams` | GET | Teams for draft setup |
+| `/api/free-agents` | GET | Free agent list |
+| `/api/standings` | GET | Standings |
+| `/api/schedule` | GET | Schedule |
+| `/api/cuts` | GET/POST/DELETE | Cut player management |
+| `/api/cuts/config` | GET | Cuts config rules |
+| `/api/rules` | GET/POST/PATCH/DELETE | League rules/settings |
+| `/api/rules/initialize` | POST | Seed default rules |
+| `/api/leagues` | GET | Leagues accessible to authenticated user |
+| `/api/nfl-draft` | GET | NFL draft reference data |
+| `/api/press-box` | GET | AI game summaries |
+| `/api/upload` | POST | Upload player sync file |
+| `/api/test-notify` | POST | Test email/WhatsApp notifications |
 
-### Commissioner Routes
-| Route | Methods | Description |
-|-------|---------|-------------|
-| `/api/signup` | GET, PATCH | View + approve pending signups |
-| `/api/rules` | POST, PATCH, DELETE | Create/update/delete rules |
-| `/api/maintenance` | GET, POST | Admin utilities |
-| `/api/admin/teams` | PATCH | Bulk team updates |
-| `/api/admin/standings` | POST | Import standings |
-| `/api/admin/schedule` | POST | Import schedule |
-| `/api/rules/initialize` | POST | Initialize default rules |
-| `/api/transactions` | PATCH | Update transaction status |
+### Admin Only
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/admin/teams` | GET/POST/PATCH | Team management (create, edit, reset password) |
+| `/api/admin/standings` | GET/POST/PATCH/DELETE | Standings management |
+| `/api/admin/schedule` | GET/POST/PATCH/DELETE | Schedule management |
+| `/api/admin/resources` | GET/POST/PATCH/DELETE | Resources management |
+| `/api/maintenance` | POST | Trigger maintenance actions |
+| `/api/maintenance/stream` | POST | Streaming player sync (SSE) |
+| `/api/signup` | GET/PATCH | View/approve pending signups |
 
-### Cron Routes (require `Authorization: Bearer CRON_SECRET`)
+### Cron Jobs
 | Route | Description |
 |-------|-------------|
-| `/api/cron/nfl-week` | Auto-update current NFL week |
-| `/api/cron/cuts-alert` | Send cuts deadline notification |
-| `/api/cron/draft` | Check draft clock; send warnings/expirations |
-| `/api/cron/schedule-reminder` | Send weekly schedule reminder |
+| `/api/cron/draft` | Advance draft clock, send warnings, expire picks |
+| `/api/cron/cuts-alert` | Alert teams approaching cuts limit |
+| `/api/cron/schedule-reminder` | Weekly schedule reminder emails |
+| `/api/cron/nfl-week` | Advance NFL week counter |
 
 ---
 
-## Notification System
+## Player Data Flow
 
-The app sends notifications via two channels: **Email (Gmail SMTP)** and **WhatsApp (GreenAPI)**.
+Players originate from the **Action** simulation game. Sync flow:
 
-### Configuration (Environment Variables)
-```
-GMAIL_USER=gdimartino@gmail.com
-GMAIL_APP_PASSWORD=<app-specific password>
-NOTIFY_MY_EMAIL=gdimartino@gmail.com       # Always receives a copy
-NOTIFY_GROUP_EMAIL=gfl1@googlegroups.com   # Main recipient (default: NOTIFY_MY_EMAIL)
-SEND_WHATSAPP=true
-GREENAPI_INSTANCE_ID=<id>
-GREENAPI_API_TOKEN=<token>
-GREENAPI_GROUP_ID=<group chat id>
-```
+1. Commissioner exports player file from Action game
+2. Uploads via Maintenance page → `/api/maintenance/stream` (Server-Sent Events)
+3. `lib/maintenance.ts` `syncPlayersFromFile()`:
+   - Matches players to teams by `teamshort` (exact) or team name prefix
+   - Builds `identity` key: `first|last|age|offense|defense|special` (all lowercase)
+   - Upserts by identity — preserves `id` so draft pick `playerId` refs remain valid across re-syncs
+   - Extracts scouting JSONB (ratings, salary, contract, receiving, etc.)
+   - Sets `teamId` FK from matched team row
+4. Calls `revalidateTag('players', 'max')` after sync
 
-### Email Sending
-- Sent via `nodemailer` using Gmail SMTP + App Password
-- To: `NOTIFY_GROUP_EMAIL` (group or personal)
-- CC: `NOTIFY_MY_EMAIL` (always)
-- HTML emails for rich formatting; plain text fallback
-- Skipped silently if `GMAIL_APP_PASSWORD` is not set
+**Note:** On localhost, `revalidateTag` does not flush the file-based Next.js cache — restart the dev server after syncing to see updated player/team assignments.
 
-### WhatsApp Sending
-- HTTP POST to GreenAPI endpoint
-- Delivered to group chat
-- Skipped if `SEND_WHATSAPP=false` or credentials missing
+---
 
-### Notification Triggers
+## Draft System
 
-| Event | Function | Channels |
-|-------|----------|---------|
-| Transaction (ADD/DROP/TRADE/IR) | `notifyTransaction()` | Email + WhatsApp |
-| Draft pick made | `notifyDraftPick(type='PICK')` | Email + WhatsApp |
-| 1 hour before pick clock expires | `notifyDraftPick(type='WARNING')` | Email + WhatsApp |
-| Pick clock expires | `notifyDraftPick(type='EXPIRATION')` | Email + WhatsApp |
-| Cuts deadline approaching | `sendEmail()` (cron) | Email |
-| Weekly schedule reminder | `sendEmail()` (cron) | Email |
+- Draft picks pre-generated in `draft_picks` for each year/round/pick
+- **On the clock:** pick with lowest `pick` number where `picked_at IS NULL AND passed = false`
+- **Timer:** `scheduled_at` set when pick becomes active; cron checks expiry
+- **Pick transfers:** traded picks stored in `draft_pick_transfers` (survives regeneration via upsert)
+- **Selection:** commissioner or coach submits via `SelectionModal` → `POST /api/draft-selection`
+- **Pass:** commissioner → `POST /api/draft-pass`
+- **Pre-draft countdown:** Draft board shows live countdown to `draftStartDate` when no active pick
 
-### Email Format: Transactions
-- Blue-bordered HTML card
-- Header: `GFL — TRANSACTION ALERT`
-- Assets grouped by direction (Team A ➔ Team B)
-- App link for viewing full transaction log
+### Draft Board Features
+- Live ticker showing recent picks (`RecentPicksTicker`) with countdown before draft
+- Position filters: QB, RB, WR, TE, G, T, C, DL (matches DT/DE/NT), LB (matches ILB/OLB/MLB), CB, S, K, P
+- Players sorted by salary descending
+- Salary and OVR rating shown per player (OL = overall/2; skill = receiving rating; others = overall)
 
-### Email Format: Draft
-- Subject: `GFL DRAFT (R{round}): Pick #{overall}`
-- Body: round/pick, team, player name
-- Trade suffix if pick was traded
-- Recent 3–5 picks shown
-- Next 3–5 teams on deck
-- Ping message for next team: `@TEAMCODE: YOU ARE ON THE CLOCK`
+---
+
+## Trade Flow
+
+1. Coach submits trade via Trade Panel → `POST /api/trades`
+   - Non-commissioners: can only submit where their team is `fromTeam`
+   - Commissioners: can submit for any team
+2. Trade logged as `status='Pending'` in transactions
+3. Draft pick transfers applied immediately via `upsertPickTransfer`
+4. Player moves **not** made in web app — commissioner makes moves in Action game
+5. Commissioner marks `status='Done'` via `PATCH /api/transactions` after moves are made
+
+---
+
+## Notification System (`lib/notify.ts`)
+
+| Function | Trigger | Channels |
+|----------|---------|---------|
+| `notifyTransaction()` | ADD / DROP / TRADE / IR | Email + WhatsApp (GFL only) |
+| `notifyDraftPick(type='PICK')` | Draft selection | Email + WhatsApp (GFL only) |
+| `notifyDraftPick(type='WARNING')` | 1hr before clock expires | Email + WhatsApp (GFL only) |
+| `notifyDraftPick(type='EXPIRATION')` | Pick clock expired | Email + WhatsApp (GFL only) |
+| `notifyTradeBlock()` | Player listed on trade block | Email + WhatsApp (GFL only) |
+| Cron email | Cuts alert, schedule reminder | Email only |
+
+- **Email:** Gmail SMTP via Nodemailer; skipped if `GMAIL_APP_PASSWORD` not set
+- **WhatsApp:** GreenAPI; skipped if env vars missing; `leagueId === 1` check enforced
+- All notify calls must be `await`ed — Vercel serverless kills unawaited promises on response return
 
 ---
 
 ## Cron Jobs & Automation
 
-All cron jobs run via **GitHub Actions** (not Vercel — Vercel Hobby plan limits to daily).
+Cron jobs run via **GitHub Actions**.
 
-### `.github/workflows/crons.yml`
-| Job | Schedule | Description |
-|-----|----------|-------------|
-| `nfl-week` | Daily at noon UTC | Calls `/api/cron/nfl-week` — updates current NFL week |
-| `cuts-alert` | Daily at noon UTC | Calls `/api/cron/cuts-alert` — sends email if cuts deadline is near |
-| `schedule-reminder` | Mondays at 2pm UTC | Calls `/api/cron/schedule-reminder` — sends weekly matchup email |
+| Workflow | Schedule | Route |
+|----------|----------|-------|
+| `draft-cron.yml` | Every 5 minutes | `/api/cron/draft` |
+| `crons.yml` — nfl-week | Daily noon UTC | `/api/cron/nfl-week` |
+| `crons.yml` — cuts-alert | Daily noon UTC | `/api/cron/cuts-alert` |
+| `crons.yml` — schedule-reminder | Mondays 2pm UTC | `/api/cron/schedule-reminder` |
 
-### `.github/workflows/draft-cron.yml`
-| Job | Schedule | Description |
-|-----|----------|-------------|
-| `check-draft` | Every 5 minutes | Calls `/api/cron/draft` — checks if any team is over draft clock |
-
-### Security
-- All cron endpoints check `Authorization: Bearer CRON_SECRET` header
-- `CRON_SECRET` stored as GitHub Actions secret and Vercel env var
-- `workflow_dispatch` enabled on all cron workflows for manual triggering
+All cron routes require `Authorization: Bearer CRON_SECRET` header.
 
 ---
 
 ## Deployment Pipeline
 
-### Auto-Deploy on Push
-1. Developer pushes to `main` branch on GitHub
-2. `.github/workflows/deploy.yml` triggers
-3. GitHub Action calls Vercel deploy hook via HTTP POST
-4. Vercel builds and deploys to `afl.gddevco.com`
+- **Auto-deploy:** Push to `main` → pre-push hook runs `npm run lint` + `npm run build` → Vercel deploys
+- **Domains:** `www.gddevco.com` / `gddevco.com` (GFL), `afl.gddevco.com` (AFL), `gfl-alpha.vercel.app`
+- **DNS:** Porkbun → Vercel (A record `216.198.79.1` for root; CNAME for subdomains)
+- **DB migrations:** `npm run db:push` (interactive terminal only — WebSocket drops on non-interactive input)
+- **Post-migration:** Always run `npx tsx scripts/enable-rls.ts` to re-enable RLS
 
 ### Environment Variables
-- Stored in Vercel dashboard (production environment)
-- Local development uses `.env.local` (never committed)
-- Key variables: `POSTGRES_URL`, `AUTH_SECRET`, `CRON_SECRET`, `GMAIL_APP_PASSWORD`
-
-### Build Configuration
-- `vercel.json`: `"installCommand": "npm install --legacy-peer-deps"` (required for nodemailer/next-auth compatibility)
+| Variable | Purpose |
+|----------|---------|
+| `POSTGRES_URL` | Vercel Postgres connection string |
+| `AUTH_SECRET` | NextAuth secret |
+| `GOOGLE_GENERATIVE_AI_KEY` | Gemini API |
+| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Email notifications |
+| `NOTIFY_MY_EMAIL` / `NOTIFY_GROUP_EMAIL` / `NOTIFY_FROM_EMAIL` | Email targets |
+| `GREENAPI_INSTANCE_ID` / `GREENAPI_API_TOKEN` / `GREENAPI_GROUP_ID` | WhatsApp |
+| `SEND_WHATSAPP` | Set `'false'` to disable WhatsApp globally |
+| `SUPERUSER_USERNAME` / `SUPERUSER_PASSWORD` | Superuser credentials |
+| `NEXT_PUBLIC_APP_URL` | Public URL |
+| `CRON_SECRET` | Cron job auth token |
 
 ---
 
 ## Caching Strategy
 
-Data that changes infrequently is cached using Next.js `unstable_cache`.
+| Cache key | Tag | TTL | Notes |
+|-----------|-----|-----|-------|
+| `players-lean-v4` | `players` | 300s | Lean player data (no scouting blob); includes salary + receiving from JSONB |
+| `schedule-data` | `schedule` | 60s | Season schedule |
+| `standings-data` | `standings` | 60s | Season standings |
+| `resources-data` | `resources` | 60s | League resources |
+| `coaches-data` | `coaches` | 300s | Teams/coaches list |
+| `all-draft-picks` | `draft-picks` | 30s | Full draft pick board |
 
-| Data | Cache Tag | TTL |
-|------|-----------|-----|
-| Players | `players` | 60 seconds |
-| Standings | `standings` | 60 seconds |
-| Schedule | `schedule` | 60 seconds |
-| Resources | `resources` | 60 seconds |
-| Draft Picks | `draft-picks` | 60 seconds |
+`getPlayersWithScouting` exceeds the 2MB `unstable_cache` limit — not cached; uses CDN `Cache-Control: s-maxage=300` at the API route level instead.
 
-Cache is invalidated by tag using `revalidateTag()` when data is mutated.
+Cache invalidation via `revalidateTag(tag, 'max')` in mutation routes. When a team is renamed/updated, both `coaches` and `players` tags are invalidated so rosters reflect the new teamshort immediately.
 
-Pattern for league-aware cached functions:
+Pattern:
 ```ts
-const _fn = unstable_cache(async (leagueId: number) => {
-  // DB query filtering by leagueId
-}, ['cache-key'], { tags: ['tag-name'], revalidate: 60 });
-
-export async function fn(leagueId = 1) {
-  return _fn(leagueId);
-}
+const _fn = unstable_cache(
+  async (leagueId: number) => { /* DB query */ },
+  ['cache-key'],
+  { revalidate: 60, tags: ['tag'] }
+);
+export async function fn(leagueId = 1) { return _fn(leagueId); }
 ```
 
 ---
 
-## Key Libraries & Patterns
+## Key Conventions
 
-### Server Components vs Client Components
-- Pages are **Server Components by default** (data fetching at render time)
-- `"use client"` directive only for interactive UI (forms, tabs, filters)
-- Client components hydrate from server-passed props or fetch via API routes
-
-### API Route Pattern
-- Routes live in `app/api/**/route.ts`
-- Logic is kept thin in routes — business logic goes in `lib/`
-- Auth checks at the top of each handler:
-  ```ts
-  const session = await auth();
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  ```
-
-### Transaction Logging
-```ts
-await logTransaction({
-  type: 'ADD',
-  description: 'Team A adds Player X',
-  fromTeam: 'FA',
-  toTeam: 'ALPHA',
-  owner: session.user.id,
-  leagueId,
-  status: 'Pending'
-});
-```
-
-### Schema-First Development
-1. Add new table to `schema.ts`
-2. Run `npm run db:push` to apply to Supabase
-3. Write lib functions using Drizzle queries
-4. Create API routes calling lib functions
+- **Schema first:** Add columns to `schema.ts` → `npm run db:push` → `npx tsx scripts/enable-rls.ts` → write lib code
+- **leagueId everywhere:** All queries on tenant tables must filter by `leagueId`
+- **Transactions always Pending:** `logTransaction()` always saves `status='Pending'`; commissioner changes to `Done`/`On Team`
+- **touch_id / touch_dt:** All tables record last modifier and timestamp
+- **Player identity key:** `first|last|age|offense|defense|special` (all lowercase); age-mismatch fallback drops age field
+- **teamshort normalization:** Stored mixed-case in some leagues; all lookups use `.toUpperCase()`
+- **logSystemEvent must be awaited:** Vercel serverless kills unawaited promises on response return
+- **App Router patterns:** Server Components by default; `"use client"` only for interactive UI
+- **Keep API routes thin:** Business logic in `/lib`, not in route handlers
