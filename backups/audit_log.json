@@ -1,14 +1,5 @@
 [
   {
-    "id": 107,
-    "leagueId": null,
-    "timestamp": "2026-03-24T14:21:58.000Z",
-    "coach": "Administrator",
-    "team": "System",
-    "action": "LOGIN",
-    "details": "Superuser accessed Front Office"
-  },
-  {
     "id": 112,
     "leagueId": 3,
     "timestamp": "2026-03-24T15:06:52.691Z",
@@ -225,24 +216,6 @@
     "details": "Demo user accessed Front Office"
   },
   {
-    "id": 186,
-    "leagueId": null,
-    "timestamp": "2026-04-22T23:05:07.131Z",
-    "coach": "Administrator",
-    "team": "System",
-    "action": "LOGIN",
-    "details": "Superuser accessed Front Office"
-  },
-  {
-    "id": 187,
-    "leagueId": null,
-    "timestamp": "2026-04-22T23:07:10.942Z",
-    "coach": "Administrator",
-    "team": "System",
-    "action": "LOGIN",
-    "details": "Superuser accessed Front Office"
-  },
-  {
     "id": 190,
     "leagueId": 1,
     "timestamp": "2026-04-23T01:02:36.277Z",
@@ -405,15 +378,6 @@
     "details": "Coach entered Front Office"
   },
   {
-    "id": 217,
-    "leagueId": null,
-    "timestamp": "2026-04-25T14:48:41.578Z",
-    "coach": "Administrator",
-    "team": "System",
-    "action": "LOGIN",
-    "details": "Superuser accessed Front Office"
-  },
-  {
     "id": 218,
     "leagueId": 1,
     "timestamp": "2026-04-25T14:51:12.594Z",
@@ -495,6 +459,69 @@
     "details": "Transaction #92 marked Done"
   },
   {
+    "id": 107,
+    "leagueId": 1,
+    "timestamp": "2026-03-24T14:21:58.000Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 186,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T23:05:07.131Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 187,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T23:07:10.942Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 217,
+    "leagueId": 1,
+    "timestamp": "2026-04-25T14:48:41.578Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 114,
+    "leagueId": 1,
+    "timestamp": "2026-03-24T17:32:29.127Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 229,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T16:40:46.884Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #96 marked Done"
+  },
+  {
+    "id": 230,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T16:40:49.542Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #95 marked Done"
+  },
+  {
     "id": 63,
     "leagueId": 1,
     "timestamp": "2026-03-21T20:02:18.686Z",
@@ -502,6 +529,24 @@
     "team": "Vico",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 235,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T17:42:47.353Z",
+    "coach": "James Thurlow",
+    "team": "TFT",
+    "action": "UPDATE_CONTACT",
+    "details": "Coach: James Thurlow, Nickname: NEW"
+  },
+  {
+    "id": 236,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T17:48:24.903Z",
+    "coach": "James Thurlow",
+    "team": "TFT",
+    "action": "UPDATE_CONTACT",
+    "details": "Coach: James Thurlow, Nickname: Tigers"
   },
   {
     "id": 66,
@@ -540,6 +585,24 @@
     "details": "Coach entered Front Office"
   },
   {
+    "id": 239,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T18:58:22.642Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team PT"
+  },
+  {
+    "id": 240,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T19:00:13.510Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
     "id": 72,
     "leagueId": 1,
     "timestamp": "2026-03-22T14:08:06.350Z",
@@ -565,6 +628,24 @@
     "team": "LE",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 243,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T19:16:43.939Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 244,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T19:18:51.950Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
   },
   {
     "id": 75,
@@ -918,6 +999,60 @@
     "details": "Coach entered Front Office"
   },
   {
+    "id": 226,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T16:27:19.486Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team JJ"
+  },
+  {
+    "id": 227,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T16:27:23.639Z",
+    "coach": "James Di Martino",
+    "team": "Justin",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 233,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T17:01:07.735Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team TFT"
+  },
+  {
+    "id": 237,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T17:54:38.391Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 241,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T19:04:39.793Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 245,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T19:23:17.614Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
     "id": 80,
     "leagueId": 1,
     "timestamp": "2026-03-22T14:15:00.319Z",
@@ -961,15 +1096,6 @@
     "team": "admin",
     "action": "DRAFT_CLEAR_ALL",
     "details": "Cleared all picks for 2026 (rookie)"
-  },
-  {
-    "id": 114,
-    "leagueId": null,
-    "timestamp": "2026-03-24T17:32:29.127Z",
-    "coach": "Administrator",
-    "team": "System",
-    "action": "LOGIN",
-    "details": "Superuser accessed Front Office"
   },
   {
     "id": 120,
@@ -1764,15 +1890,6 @@
     "details": "Generated 168 picks for 2026 rookie draft (6 rounds)"
   },
   {
-    "id": 117,
-    "leagueId": null,
-    "timestamp": "2026-03-24T18:01:18.105Z",
-    "coach": "Administrator",
-    "team": "admin",
-    "action": "RESET_PASSWORD",
-    "details": "Reset password for team TB"
-  },
-  {
     "id": 122,
     "leagueId": 1,
     "timestamp": "2026-03-25T19:30:27.942Z",
@@ -1935,15 +2052,6 @@
     "details": "Imported players: Complete League.csv"
   },
   {
-    "id": 185,
-    "leagueId": null,
-    "timestamp": "2026-04-22T23:02:46.209Z",
-    "coach": "Administrator",
-    "team": "System",
-    "action": "LOGIN",
-    "details": "Superuser accessed Front Office"
-  },
-  {
     "id": 189,
     "leagueId": 1,
     "timestamp": "2026-04-23T00:08:24.119Z",
@@ -1998,15 +2106,6 @@
     "details": "Placed on IR: WR - Tank Dell"
   },
   {
-    "id": 216,
-    "leagueId": null,
-    "timestamp": "2026-04-25T14:29:56.190Z",
-    "coach": "Administrator",
-    "team": "System",
-    "action": "LOGIN",
-    "details": "Superuser accessed Front Office"
-  },
-  {
     "id": 220,
     "leagueId": 1,
     "timestamp": "2026-04-26T00:47:10.199Z",
@@ -2014,5 +2113,113 @@
     "team": "IR",
     "action": "IR MOVE",
     "details": "Placed on IR: T - Kaleb McGary"
+  },
+  {
+    "id": 225,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T13:08:53.922Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 117,
+    "leagueId": 1,
+    "timestamp": "2026-03-24T18:01:18.105Z",
+    "coach": "Administrator",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team TB"
+  },
+  {
+    "id": 185,
+    "leagueId": 1,
+    "timestamp": "2026-04-22T23:02:46.209Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 216,
+    "leagueId": 1,
+    "timestamp": "2026-04-25T14:29:56.190Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 228,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T16:39:35.620Z",
+    "coach": "James Di Martino",
+    "team": "JJ",
+    "action": "TRADE",
+    "details": "Justin ↔ DC"
+  },
+  {
+    "id": 231,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T16:42:49.974Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 232,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T16:48:32.453Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 234,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T17:01:54.254Z",
+    "coach": "James Thurlow",
+    "team": "Tinton Falls",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 238,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T17:55:58.849Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "UPDATE_TEAM",
+    "details": "Updated team id 59"
+  },
+  {
+    "id": 242,
+    "leagueId": 1,
+    "timestamp": "2026-04-27T19:13:30.505Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 246,
+    "leagueId": 1,
+    "timestamp": "2026-04-28T01:09:59.005Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 247,
+    "leagueId": 1,
+    "timestamp": "2026-04-28T01:10:09.620Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]

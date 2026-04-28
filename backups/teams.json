@@ -156,16 +156,40 @@
     "email": "ccooper@demo.com"
   },
   {
-    "id": 95,
-    "leagueId": 2,
-    "name": "Tinton Falls",
-    "coach": "Eddie Grant",
-    "teamshort": "TFT",
-    "nickname": "Thunder",
+    "id": 59,
+    "leagueId": 1,
+    "name": "Pyongyang",
+    "coach": "James Thurlow",
+    "teamshort": "PT",
+    "nickname": "Tigers",
     "isCommissioner": false,
     "status": "active",
-    "mobile": null,
-    "email": "egrant@demo.com"
+    "mobile": "+1-201-925-6990",
+    "email": "thurlowjp3@gmail.com"
+  },
+  {
+    "id": 95,
+    "leagueId": 2,
+    "name": "Pyongyang ",
+    "coach": "James Thurlow",
+    "teamshort": "PT",
+    "nickname": "Tigers",
+    "isCommissioner": false,
+    "status": "active",
+    "mobile": "+1-201-925-6990",
+    "email": "thurlowjp3@gmail.com"
+  },
+  {
+    "id": 56,
+    "leagueId": 1,
+    "name": "Tinton Falls",
+    "coach": "Eddie White",
+    "teamshort": "TFT",
+    "nickname": "Tittie Suckers  ",
+    "isCommissioner": false,
+    "status": "Inactive",
+    "mobile": "NULL",
+    "email": "NULL"
   },
   {
     "id": 47,
@@ -348,18 +372,6 @@
     "email": "fullen.michael@gmail.com"
   },
   {
-    "id": 56,
-    "leagueId": 1,
-    "name": "Tinton Falls",
-    "coach": "Eddie White",
-    "teamshort": "TFT",
-    "nickname": "Titty Suckers",
-    "isCommissioner": false,
-    "status": "Inactive",
-    "mobile": "+1-732-233-1248",
-    "email": null
-  },
-  {
     "id": 57,
     "leagueId": 1,
     "name": "Urban",
@@ -382,18 +394,6 @@
     "status": "active",
     "mobile": "+1-646-296-1164",
     "email": "gdimartino@gmail.com"
-  },
-  {
-    "id": 59,
-    "leagueId": 1,
-    "name": "Tinton Falls",
-    "coach": "James Thurlow",
-    "teamshort": "TFT",
-    "nickname": "NEW",
-    "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-233-1248",
-    "email": null
   },
   {
     "id": 50,

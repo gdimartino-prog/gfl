@@ -459,6 +459,23 @@
     "touch_id": "trade-migration"
   },
   {
+    "id": 96,
+    "leagueId": 1,
+    "date": "2026-04-27T16:39:35.599Z",
+    "type": "TRADE",
+    "description": "Traded to Justin: S - Ronnie Hickman",
+    "fromTeam": "DC",
+    "toTeam": "Justin",
+    "owner": "James Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "touch_dt": "2026-04-27T16:39:35.611Z",
+    "touch_id": "commissioner"
+  },
+  {
     "id": 84,
     "leagueId": 1,
     "date": "2026-04-22T02:39:49.577Z",
@@ -609,6 +626,23 @@
     "fee": 0,
     "emailStatus": null,
     "touch_dt": "2026-04-25T22:45:27.740Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 95,
+    "leagueId": 1,
+    "date": "2026-04-27T16:39:35.575Z",
+    "type": "TRADE",
+    "description": "Traded to DC: CB - Alontae Taylor",
+    "fromTeam": "Justin",
+    "toTeam": "DC",
+    "owner": "James Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "touch_dt": "2026-04-27T16:39:35.578Z",
     "touch_id": "commissioner"
   }
 ]
