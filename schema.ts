@@ -130,6 +130,7 @@ export const pickTransfers = pgTable("draft_pick_transfers", {
   round: integer("round").notNull(),
   originalTeamId: integer("original_team_id").references(() => teams.id),
   currentTeamId: integer("current_team_id").references(() => teams.id),
+  history: integer("history").array().default([]),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
 }, (table) => [

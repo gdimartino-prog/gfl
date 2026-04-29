@@ -110,7 +110,10 @@ export async function GET() {
     round: pickTransfers.round,
     draftType: pickTransfers.draftType,
     from: origTeam.name,
+    fromShort: origTeam.teamshort,
     to: currTeam.name,
+    toShort: currTeam.teamshort,
+    history: pickTransfers.history,
     touch_dt: pickTransfers.touch_dt,
   })
     .from(pickTransfers)
@@ -119,7 +122,18 @@ export async function GET() {
     .where(eq(pickTransfers.leagueId, leagueId))
     .orderBy(pickTransfers.year, pickTransfers.round);
 
-  return NextResponse.json(rows);
+  // Resolve history team IDs to teamshorts
+  const allTeams = await db.select({ id: teams.id, teamshort: teams.teamshort, name: teams.name }).from(teams).where(eq(teams.leagueId, leagueId));
+  const teamMap = Object.fromEntries(allTeams.map(t => [t.id, { short: t.teamshort, name: t.name }]));
+
+  const enriched = rows.map(r => ({
+    ...r,
+    historyShorts: (r.history ?? []).map(id => teamMap[id]?.short ?? String(id)),
+    historyNames: (r.history ?? []).map(id => teamMap[id]?.name ?? String(id)),
+    canUndo: (r.history ?? []).length > 0,
+  }));
+
+  return NextResponse.json(enriched);
 }
 
 export async function DELETE(req: NextRequest) {
@@ -158,7 +172,7 @@ export async function DELETE(req: NextRequest) {
   return NextResponse.json({ success: true });
 }
 
-// Update the current owner of a pick transfer
+// Update the current owner of a pick transfer, or undo the last trade
 export async function PATCH(req: NextRequest) {
   if (!await isAdmin() && !await isCommissioner()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
@@ -166,21 +180,65 @@ export async function PATCH(req: NextRequest) {
   const session = await auth();
   const actor = session?.user?.name || 'Commissioner';
   const leagueId = await getLeagueId();
-  const { id, toTeamshort } = await req.json() as { id: number; toTeamshort: string };
+  const body = await req.json() as { id: number; toTeamshort?: string; undo?: boolean };
+  const { id } = body;
 
   const transfer = await db.select().from(pickTransfers)
     .where(and(eq(pickTransfers.id, id), eq(pickTransfers.leagueId, leagueId)))
     .limit(1);
   if (!transfer[0]) return NextResponse.json({ error: 'Transfer not found' }, { status: 404 });
 
+  const { year, round, draftType, originalTeamId, history } = transfer[0];
+
+  if (body.undo) {
+    const prevHistory = history ?? [];
+
+    if (prevHistory.length === 0) {
+      // No history — revert to original owner by deleting the transfer row
+      await Promise.all([
+        db.delete(pickTransfers).where(eq(pickTransfers.id, id)),
+        db.update(draftPicks)
+          .set({ currentTeamId: originalTeamId })
+          .where(and(
+            eq(draftPicks.leagueId, leagueId),
+            eq(draftPicks.year, year!),
+            eq(draftPicks.round, round),
+            eq(draftPicks.draftType, draftType!),
+            eq(draftPicks.originalTeamId, originalTeamId!),
+          )),
+      ]);
+      logSystemEvent(actor, 'admin', 'PICK_TRANSFER_UNDO', `Undid last trade for transfer ID=${id} — reverted to original owner`, leagueId);
+    } else {
+      const newHistory = [...prevHistory];
+      const revertToId = newHistory.pop()!;
+      await Promise.all([
+        db.update(pickTransfers)
+          .set({ currentTeamId: revertToId, history: newHistory })
+          .where(eq(pickTransfers.id, id)),
+        db.update(draftPicks)
+          .set({ currentTeamId: revertToId })
+          .where(and(
+            eq(draftPicks.leagueId, leagueId),
+            eq(draftPicks.year, year!),
+            eq(draftPicks.round, round),
+            eq(draftPicks.draftType, draftType!),
+            eq(draftPicks.originalTeamId, originalTeamId!),
+          )),
+      ]);
+      logSystemEvent(actor, 'admin', 'PICK_TRANSFER_UNDO', `Undid last trade for transfer ID=${id} → reverted to team ID ${revertToId}`, leagueId);
+    }
+
+    revalidateTag('draft-picks', 'max');
+    return NextResponse.json({ success: true });
+  }
+
+  // Edit: change to a specific team
   const toTeamRow = await db.select({ id: teams.id, name: teams.name }).from(teams)
-    .where(and(eq(teams.teamshort, toTeamshort), eq(teams.leagueId, leagueId)))
+    .where(and(eq(teams.teamshort, body.toTeamshort!), eq(teams.leagueId, leagueId)))
     .limit(1);
   if (!toTeamRow[0]) return NextResponse.json({ error: 'Team not found' }, { status: 404 });
 
-  const { year, round, draftType, originalTeamId } = transfer[0];
   const toTeamId = toTeamRow[0].id;
-
   await Promise.all([
     db.update(pickTransfers)
       .set({ currentTeamId: toTeamId })

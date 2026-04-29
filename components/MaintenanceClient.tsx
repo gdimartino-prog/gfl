@@ -840,10 +840,16 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
             </h3>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Generate draft pick order for a new season</p>
           </div>
-          <Link href="/draft/setup"
-            className="px-6 py-2.5 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all">
-            Open Setup Wizard →
-          </Link>
+          <div className="flex gap-2 flex-wrap">
+            <Link href="/draft/setup"
+              className="px-6 py-2.5 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all">
+              Open Setup Wizard →
+            </Link>
+            <Link href="/draft/setup#transfers"
+              className="px-6 py-2.5 rounded-2xl bg-slate-100 text-slate-700 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
+              Draft Transfers →
+            </Link>
+          </div>
         </div>
         <div className="px-8 py-6 border-t border-slate-100 space-y-6">
           <div>

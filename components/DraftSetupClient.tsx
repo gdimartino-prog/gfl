@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { GripVertical, ChevronLeft, AlertTriangle, CheckCircle2, Loader2, Eye, ArrowLeft, Trash2, Pencil, Check, X } from 'lucide-react';
+import { GripVertical, ChevronLeft, AlertTriangle, CheckCircle2, Loader2, Eye, ArrowLeft, Trash2, Pencil, Check, X, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 
 type TeamRow = { id: number; name: string; teamshort: string | null };
@@ -53,7 +53,7 @@ export default function DraftSetupClient() {
   const [showPreview, setShowPreview] = useState(false);
 
   // Pick transfer log
-  type TransferRow = { id: number; year: number; round: number; draftType: string; from: string; to: string; touch_dt: string };
+  type TransferRow = { id: number; year: number; round: number; draftType: string; from: string; fromShort: string; to: string; toShort: string; historyShorts: string[]; historyNames: string[]; canUndo: boolean; touch_dt: string };
   const [transfers, setTransfers] = useState<TransferRow[]>([]);
   const [transfersLoading, setTransfersLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -92,6 +92,17 @@ export default function DraftSetupClient() {
     setSavingId(null);
     setEditingId(null);
     setEditingTo('');
+    loadTransfers();
+  };
+
+  const undoTransfer = async (id: number, canUndo: boolean) => {
+    const msg = canUndo
+      ? 'Undo the last trade for this pick? It will revert to the previous owner.'
+      : 'No trade history — this will revert the pick back to the original owner and remove the transfer record.';
+    if (!confirm(msg)) return;
+    setSavingId(id);
+    await fetch('/api/draft-setup', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, undo: true }) });
+    setSavingId(null);
     loadTransfers();
   };
 
@@ -557,7 +568,7 @@ export default function DraftSetupClient() {
         )}
 
         {/* PICK TRANSFER LOG */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 space-y-4">
+        <div id="transfers" className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 space-y-4">
           <div className="flex flex-wrap justify-between items-center gap-3">
             <div className="flex items-center gap-3">
               <h2 className="text-lg font-black uppercase tracking-tight text-slate-800">Pick Transfer Log</h2>
@@ -627,7 +638,16 @@ export default function DraftSetupClient() {
                         <td className="py-2 px-3 font-bold text-slate-700">{t.year}</td>
                         <td className="py-2 px-3 font-bold text-slate-700">Rd {t.round}</td>
                         <td className="py-2 px-3 text-slate-500 capitalize">{t.draftType.replace('_', ' ')}</td>
-                        <td className="py-2 px-3 text-slate-700">{t.from}</td>
+                        <td className="py-2 px-3 text-slate-700">
+                          <div className="flex flex-col">
+                            <span>{t.from}</span>
+                            {t.historyShorts.length > 0 && (
+                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wide mt-0.5">
+                                {[t.fromShort, ...t.historyShorts].join(' → ')}
+                              </span>
+                            )}
+                          </div>
+                        </td>
                         <td className="py-2 px-3 font-bold text-blue-600">
                           {editingId === t.id ? (
                             <select
@@ -666,6 +686,14 @@ export default function DraftSetupClient() {
                               </>
                             ) : (
                               <>
+                                <button
+                                  onClick={() => undoTransfer(t.id, t.canUndo)}
+                                  disabled={savingId === t.id}
+                                  className="text-slate-300 hover:text-amber-500 transition-colors disabled:opacity-40"
+                                  title={t.canUndo ? 'Undo last trade (revert to previous owner)' : 'Revert to original owner'}
+                                >
+                                  {savingId === t.id ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={13} />}
+                                </button>
                                 <button
                                   onClick={() => { setEditingId(t.id); setEditingTo(''); }}
                                   className="text-slate-300 hover:text-blue-500 transition-colors"

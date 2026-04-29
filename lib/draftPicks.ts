@@ -32,6 +32,7 @@ export type DraftPickRow = {
   scheduledAt: Date | null;
   pickedAt: Date | null;
   passed: boolean;
+  transferHistory?: number[] | null;
 };
 
 const _getAllDraftPicks = unstable_cache(async (leagueId: number) => {
@@ -54,11 +55,19 @@ const _getAllDraftPicks = unstable_cache(async (leagueId: number) => {
       scheduledAt: draftPicks.scheduledAt,
       pickedAt: draftPicks.pickedAt,
       passed: draftPicks.passed,
+      transferHistory: pickTransfers.history,
     })
     .from(draftPicks)
     .leftJoin(originalTeams, eq(draftPicks.originalTeamId, originalTeams.id))
     .leftJoin(currentTeams, eq(draftPicks.currentTeamId, currentTeams.id))
     .leftJoin(players, eq(draftPicks.playerId, players.id))
+    .leftJoin(pickTransfers, and(
+      eq(pickTransfers.leagueId, draftPicks.leagueId),
+      eq(pickTransfers.year, draftPicks.year),
+      eq(pickTransfers.draftType, draftPicks.draftType),
+      eq(pickTransfers.round, draftPicks.round),
+      eq(pickTransfers.originalTeamId, draftPicks.originalTeamId),
+    ))
     .where(eq(draftPicks.leagueId, leagueId));
   } catch (error) {
     console.error('getAllDraftPicks failed:', error);
@@ -367,12 +376,31 @@ export async function upsertPickTransfer(params: {
     return;
   }
 
+  // Read existing transfer to append current owner to history before overwriting
+  const existingTransfer = await db.select({
+    currentTeamId: pickTransfers.currentTeamId,
+    history: pickTransfers.history,
+  })
+    .from(pickTransfers)
+    .where(and(
+      eq(pickTransfers.leagueId, leagueId),
+      eq(pickTransfers.year, year!),
+      eq(pickTransfers.draftType, draftType!),
+      eq(pickTransfers.round, round),
+      eq(pickTransfers.originalTeamId, originalTeamId),
+    ))
+    .limit(1);
+
+  const prevHistory = existingTransfer[0]?.history ?? [];
+  const prevOwner = existingTransfer[0]?.currentTeamId;
+  const newHistory = prevOwner ? [...prevHistory, prevOwner] : prevHistory;
+
   await Promise.all([
     db.insert(pickTransfers)
-      .values({ leagueId, year, draftType, round, originalTeamId, currentTeamId: toTeamId, touch_id: touchId })
+      .values({ leagueId, year, draftType, round, originalTeamId, currentTeamId: toTeamId, history: newHistory, touch_id: touchId })
       .onConflictDoUpdate({
         target: [pickTransfers.leagueId, pickTransfers.year, pickTransfers.draftType, pickTransfers.round, pickTransfers.originalTeamId],
-        set: { currentTeamId: toTeamId, touch_id: touchId, touch_dt: sql`now()` },
+        set: { currentTeamId: toTeamId, history: newHistory, touch_id: touchId, touch_dt: sql`now()` },
       }),
     db.update(draftPicks)
       .set({ currentTeamId: toTeamId })

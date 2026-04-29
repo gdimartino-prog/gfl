@@ -31,6 +31,10 @@ export async function GET(req: NextRequest) {
     }
     const clockMinutes = activeRound !== null ? await getDraftClockMinutes(leagueId, activeRound) : null;
 
+    // Build teamId → teamshort map for history resolution
+    const allTeams = await db.select({ id: teams.id, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId));
+    const teamShortMap: Record<number, string> = Object.fromEntries(allTeams.map(t => [t.id, t.teamshort ?? '']));
+
     const formattedPicks = sorted.map(p => {
       const isSkipped = !p.selectedPlayer && !!p.pickedAt && !p.passed; // auto-expired, no player
       const isDrafted = !!p.selectedPlayer || isSkipped;
@@ -64,7 +68,9 @@ export async function GET(req: NextRequest) {
         clockMinutes: status === 'Active' ? clockMinutes : null,
         scheduledAt: p.scheduledAt ? p.scheduledAt.toISOString() : null,
         processedBy: '',
-        history: '',
+        history: (p.transferHistory && p.transferHistory.length > 0)
+          ? p.transferHistory.map(id => teamShortMap[id] ?? '').filter(Boolean).join(',')
+          : '',
       };
     });
 
