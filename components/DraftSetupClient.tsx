@@ -63,6 +63,11 @@ export default function DraftSetupClient() {
   const [savingId, setSavingId] = useState<number | null>(null);
   const [allTeams, setAllTeams] = useState<{ name: string; teamshort: string }[]>([]);
 
+  // Add Transfer form state
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [addForm, setAddForm] = useState({ year: new Date().getFullYear(), draftType: 'free_agent', round: 1, fromTeam: '', toTeam: '' });
+  const [addingSaving, setAddingSaving] = useState(false);
+
   const loadTransfers = () => {
     setTransfersLoading(true);
     Promise.all([
@@ -94,6 +99,25 @@ const updateTransfer = async (id: number) => {
     setSavingId(id);
     await fetch('/api/draft-setup', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, undo: true }) });
     setSavingId(null);
+    loadTransfers();
+  };
+
+  const addTransfer = async () => {
+    if (!addForm.fromTeam || !addForm.toTeam) return;
+    setAddingSaving(true);
+    const res = await fetch('/api/draft-picks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fromTeam: addForm.fromTeam, toTeam: addForm.toTeam, year: addForm.year, round: addForm.round, coachName: 'commissioner' }),
+    });
+    setAddingSaving(false);
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || 'Failed to add transfer');
+      return;
+    }
+    setShowAddForm(false);
+    setAddForm({ year: new Date().getFullYear(), draftType: 'free_agent', round: 1, fromTeam: '', toTeam: '' });
     loadTransfers();
   };
 
@@ -575,6 +599,12 @@ const updateTransfer = async (id: number) => {
               </button>
             </div>
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowAddForm(v => !v)}
+                className="text-[9px] font-black uppercase tracking-widest bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                + Add Transfer
+              </button>
               <input
                 type="text"
                 placeholder="Filter by team..."
@@ -585,6 +615,49 @@ const updateTransfer = async (id: number) => {
               <button onClick={loadTransfers} className="text-[10px] font-black uppercase text-slate-400 hover:text-slate-600 tracking-widest transition-colors">Refresh</button>
             </div>
           </div>
+          {/* ADD TRANSFER FORM */}
+          {showAddForm && (
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-3">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Add Pick Transfer — current owner → new owner</p>
+              <div className="flex flex-wrap gap-3 items-end">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Year</label>
+                  <input type="number" value={addForm.year} onChange={e => setAddForm(f => ({ ...f, year: Number(e.target.value) }))}
+                    className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold w-24 focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Round</label>
+                  <input type="number" min={1} value={addForm.round} onChange={e => setAddForm(f => ({ ...f, round: Number(e.target.value) }))}
+                    className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold w-20 focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Current Owner (From)</label>
+                  <select value={addForm.fromTeam} onChange={e => setAddForm(f => ({ ...f, fromTeam: e.target.value }))}
+                    className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[160px]">
+                    <option value="">Select team…</option>
+                    {allTeams.map(t => <option key={t.teamshort} value={t.teamshort ?? ''}>{t.name}</option>)}
+                  </select>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">New Owner (To)</label>
+                  <select value={addForm.toTeam} onChange={e => setAddForm(f => ({ ...f, toTeam: e.target.value }))}
+                    className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[160px]">
+                    <option value="">Select team…</option>
+                    {allTeams.map(t => <option key={t.teamshort} value={t.teamshort ?? ''}>{t.name}</option>)}
+                  </select>
+                </div>
+                <button onClick={addTransfer} disabled={addingSaving || !addForm.fromTeam || !addForm.toTeam}
+                  className="px-5 py-2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                  {addingSaving ? 'Saving…' : 'Add'}
+                </button>
+                <button onClick={() => setShowAddForm(false)}
+                  className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
           {transfersLoading ? (
             <p className="text-sm text-slate-400 font-black uppercase animate-pulse">Loading...</p>
           ) : transfers.length === 0 ? (

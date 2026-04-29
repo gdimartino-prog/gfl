@@ -78,6 +78,7 @@ export async function POST(req: Request) {
         fromTeam: fromFull, toTeam: toFull,
         coach: actorName, status: 'Pending',
         leagueId,
+        pickIds: rawPicksFrom?.length ? (rawPicksFrom as string[]).map(Number) : undefined,
       });
     }
     if (partnerAssets) {
@@ -87,6 +88,7 @@ export async function POST(req: Request) {
         fromTeam: toFull, toTeam: fromFull,
         coach: actorName, status: 'Pending',
         leagueId,
+        pickIds: rawPicksTo?.length ? (rawPicksTo as string[]).map(Number) : undefined,
       });
     }
 

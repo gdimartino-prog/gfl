@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from "next-auth/react";
 import {
@@ -13,6 +13,7 @@ import {
   Activity,
   Trash2,
   DollarSign,
+  RefreshCcw,
 } from 'lucide-react';
 import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
@@ -45,6 +46,9 @@ export default function TransactionsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<'FA' | 'DROP' | 'IR' | 'TRADE'>('FA');
   const [savingStatus, setSavingStatus] = useState<string | null>(null);
+  const [reprocessId, setReprocessId] = useState<string | null>(null);
+  const [reprocessForm, setReprocessForm] = useState({ year: new Date().getFullYear(), round: 1, fromTeam: '', toTeam: '' });
+  const [reprocessSaving, setReprocessSaving] = useState(false);
   const [showSpend, setShowSpend] = useState(false);
   const [spendSeason, setSpendSeason] = useState('');
   const [spendFrom, setSpendFrom] = useState('');
@@ -124,6 +128,31 @@ export default function TransactionsPage() {
     } catch (err) { console.error(err); }
     finally { setSavingStatus(null); }
   }, []);
+
+  const openReprocess = (log: Record<string, string>) => {
+    const fromShort = teams.find(t => t.name === log.fromFull)?.teamshort || teams.find(t => t.short === log.fromFull)?.short || '';
+    const toShort = teams.find(t => t.name === log.toFull)?.teamshort || teams.find(t => t.short === log.toFull)?.short || '';
+    setReprocessForm({ year: new Date().getFullYear(), round: 1, fromTeam: fromShort, toTeam: toShort });
+    setReprocessId(reprocessId === log.id ? null : log.id);
+  };
+
+  const handleReprocess = async () => {
+    if (!reprocessForm.fromTeam || !reprocessForm.toTeam) return;
+    setReprocessSaving(true);
+    const res = await fetch('/api/draft-picks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fromTeam: reprocessForm.fromTeam, toTeam: reprocessForm.toTeam, year: reprocessForm.year, round: reprocessForm.round, coachName: 'commissioner' }),
+    });
+    setReprocessSaving(false);
+    if (!res.ok) {
+      const err = await res.json();
+      alert(err.error || 'Pick not found — check year/round/current owner');
+      return;
+    }
+    setReprocessId(null);
+    alert('Pick transfer added to transfer table.');
+  };
 
   const handleTransactionComplete = async () => {
     await fetchLogs();
@@ -367,7 +396,8 @@ export default function TransactionsPage() {
                 ) : filteredLogs.length === 0 ? (
                   <tr><td colSpan={isCommissioner ? 9 : 8} className="p-24 text-center text-slate-300 italic font-black uppercase">No Recent Records</td></tr>
                 ) : filteredLogs.map((log, i) => (
-                  <tr key={i} className={`text-[11px] hover:bg-slate-50 transition-colors ${log.coach === session?.user?.name ? 'bg-blue-50/30' : ''}`}>
+                  <React.Fragment key={i}>
+                  <tr className={`text-[11px] hover:bg-slate-50 transition-colors ${log.coach === session?.user?.name ? 'bg-blue-50/30' : ''}`}>
                     <td className="px-6 py-5 font-mono text-slate-400 tabular-nums whitespace-nowrap">{log.timestamp}</td>
                     <td className="px-6 py-5">
                       <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap ${
@@ -422,16 +452,75 @@ export default function TransactionsPage() {
                     </td>
                     {isCommissioner && (
                       <td className="px-4 py-5 text-center">
-                        <button
-                          onClick={() => handleDelete(log.id)}
-                          className="text-slate-300 hover:text-red-500 transition-colors"
-                          title="Delete transaction"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <div className="flex items-center justify-center gap-2">
+                          {log.type === 'TRADE' && (
+                            <button
+                              onClick={() => openReprocess(log)}
+                              className={`transition-colors ${reprocessId === log.id ? 'text-blue-500' : 'text-slate-300 hover:text-blue-500'}`}
+                              title="Reprocess pick transfer"
+                            >
+                              <RefreshCcw size={14} />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDelete(log.id)}
+                            className="text-slate-300 hover:text-red-500 transition-colors"
+                            title="Delete transaction"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </td>
                     )}
                   </tr>
+                  {isCommissioner && reprocessId === log.id && (
+                    <tr className="bg-blue-50/50">
+                      <td colSpan={9} className="px-6 py-4">
+                        <div className="flex flex-wrap items-end gap-3">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-blue-500 mr-2">Push Pick to Transfer Table</span>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Year</label>
+                            <input type="number" value={reprocessForm.year}
+                              onChange={e => setReprocessForm(f => ({ ...f, year: Number(e.target.value) }))}
+                              className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-bold w-20 focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Round</label>
+                            <input type="number" min={1} value={reprocessForm.round}
+                              onChange={e => setReprocessForm(f => ({ ...f, round: Number(e.target.value) }))}
+                              className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-bold w-16 focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">From (Current Owner)</label>
+                            <select value={reprocessForm.fromTeam}
+                              onChange={e => setReprocessForm(f => ({ ...f, fromTeam: e.target.value }))}
+                              className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[140px]">
+                              <option value="">Select…</option>
+                              {teams.map(t => <option key={t.teamshort || t.short} value={t.teamshort || t.short || ''}>{t.name}</option>)}
+                            </select>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">To (New Owner)</label>
+                            <select value={reprocessForm.toTeam}
+                              onChange={e => setReprocessForm(f => ({ ...f, toTeam: e.target.value }))}
+                              className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 min-w-[140px]">
+                              <option value="">Select…</option>
+                              {teams.map(t => <option key={t.teamshort || t.short} value={t.teamshort || t.short || ''}>{t.name}</option>)}
+                            </select>
+                          </div>
+                          <button onClick={handleReprocess} disabled={reprocessSaving || !reprocessForm.fromTeam || !reprocessForm.toTeam}
+                            className="px-4 py-1.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                            {reprocessSaving ? 'Saving…' : 'Push Transfer'}
+                          </button>
+                          <button onClick={() => setReprocessId(null)}
+                            className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors px-2">
+                            Cancel
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

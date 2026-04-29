@@ -15,6 +15,7 @@ export async function logTransaction(tx: {
   touch_id?: string;
   leagueId?: number;
   season?: number;
+  pickIds?: number[];
 }) {
   const leagueId = tx.leagueId ?? 1;
   let fee = 0;
@@ -40,6 +41,7 @@ export async function logTransaction(tx: {
     weekBack: tx.weekBack ? (parseInt(String(tx.weekBack)) || null) : null,
     fee,
     season: tx.season ?? null,
+    pickIds: tx.pickIds?.length ? tx.pickIds : null,
     touch_id: tx.touch_id || tx.coach || 'transaction',
   });
 }
@@ -58,6 +60,7 @@ const _getTransactions = unstable_cache(
       weekBack: transactions.weekBack,
       fee: transactions.fee,
       season: transactions.season,
+      pickIds: transactions.pickIds,
     }).from(transactions)
       .where(eq(transactions.leagueId, leagueId))
       .orderBy(desc(transactions.date))

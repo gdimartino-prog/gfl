@@ -90,6 +90,7 @@ export const transactions = pgTable("transactions", {
   season: integer("season"),
   fee: integer("fee").default(0),
   emailStatus: varchar("email_status", { length: 50 }),
+  pickIds: integer("pick_ids").array(),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
 }, (table) => [

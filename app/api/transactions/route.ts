@@ -9,6 +9,7 @@ import { notifyTransaction } from '@/lib/notify';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { revalidateTag } from 'next/cache';
 import { NextRequest } from 'next/server';
+import { revertPickTransferByPickId } from '@/lib/draftPicks';
 
 export async function GET() {
   const session = await auth();
@@ -31,6 +32,7 @@ export async function GET() {
       weekBack: t.weekBack?.toString() || '',
       fee: t.fee ?? 0,
       season: t.season ?? null,
+      pickIds: t.pickIds ?? null,
     })));
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
@@ -79,9 +81,20 @@ export async function DELETE(req: NextRequest) {
     const { id } = await req.json();
     if (!id) return Response.json({ error: 'id required' }, { status: 400 });
 
+    // Revert any pick transfers associated with this transaction
+    const txRow = await db.select({ pickIds: transactions.pickIds })
+      .from(transactions)
+      .where(and(eq(transactions.id, Number(id)), eq(transactions.leagueId, leagueId)))
+      .limit(1);
+    const pickIds = txRow[0]?.pickIds;
+    if (pickIds?.length) {
+      await Promise.all(pickIds.map(pickId => revertPickTransferByPickId(leagueId, pickId)));
+      revalidateTag('draft-picks', 'max');
+    }
+
     await db.delete(transactions).where(and(eq(transactions.id, Number(id)), eq(transactions.leagueId, leagueId)));
     revalidateTag('transactions', 'max');
-    logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted`, leagueId);
+    logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted${pickIds?.length ? ` (reverted ${pickIds.length} pick transfer(s))` : ''}`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });

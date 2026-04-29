@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllDraftPicks, transferDraftPick, findDraftPick, clearPickSelection, clearAllPickSelections, DraftPickRow } from '@/lib/draftPicks';
+import { getAllDraftPicks, upsertPickTransfer, findDraftPick, clearPickSelection, clearAllPickSelections, DraftPickRow } from '@/lib/draftPicks';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
 import { draftPicks, pickTransfers, teams } from '@/schema';
@@ -122,7 +122,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Draft pick not found' }, { status: 404 });
     }
 
-    await transferDraftPick(pick.id, toTeamRows[0].id, coachName);
+    await upsertPickTransfer({ leagueId, pickId: pick.id, toTeamId: toTeamRows[0].id, touchId: coachName || 'commissioner' });
+    revalidateTag('draft-picks', 'max');
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -409,6 +409,47 @@ export async function upsertPickTransfer(params: {
 }
 
 /**
+ * Undo the last trade leg for a pick (by its DB id).
+ * If the transfer has history, pops the last entry and reverts to that owner.
+ * If no history, deletes the transfer row and resets the pick to its original owner.
+ * No-op if no transfer exists for the pick.
+ */
+export async function revertPickTransferByPickId(leagueId: number, pickId: number): Promise<void> {
+  const pick = await db.select({
+    year: draftPicks.year, round: draftPicks.round,
+    draftType: draftPicks.draftType, originalTeamId: draftPicks.originalTeamId,
+  }).from(draftPicks).where(and(eq(draftPicks.id, pickId), eq(draftPicks.leagueId, leagueId))).limit(1);
+
+  if (!pick[0]?.originalTeamId) return;
+  const { year, round, draftType, originalTeamId } = pick[0];
+
+  const transfer = await db.select().from(pickTransfers).where(and(
+    eq(pickTransfers.leagueId, leagueId),
+    eq(pickTransfers.year, year!),
+    eq(pickTransfers.round, round),
+    eq(pickTransfers.draftType, draftType!),
+    eq(pickTransfers.originalTeamId, originalTeamId),
+  )).limit(1);
+
+  if (!transfer[0]) return;
+
+  const prevHistory = transfer[0].history ?? [];
+  if (prevHistory.length === 0) {
+    await Promise.all([
+      db.delete(pickTransfers).where(eq(pickTransfers.id, transfer[0].id)),
+      db.update(draftPicks).set({ currentTeamId: originalTeamId }).where(eq(draftPicks.id, pickId)),
+    ]);
+  } else {
+    const newHistory = [...prevHistory];
+    const revertToId = newHistory.pop()!;
+    await Promise.all([
+      db.update(pickTransfers).set({ currentTeamId: revertToId, history: newHistory }).where(eq(pickTransfers.id, transfer[0].id)),
+      db.update(draftPicks).set({ currentTeamId: revertToId }).where(eq(draftPicks.id, pickId)),
+    ]);
+  }
+}
+
+/**
  * Re-apply all recorded pick transfers for a given league/year/draftType.
  * Called after draft picks are regenerated so traded pick ownership is restored.
  * Returns the count of picks successfully updated.
