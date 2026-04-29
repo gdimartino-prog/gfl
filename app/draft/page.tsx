@@ -80,6 +80,17 @@ function DraftBoardContent() {
     loadData(true);
   };
 
+  const handleRevertTransfer = async (pickId: number) => {
+    if (!await confirm('This will reset the pick back to its original owner and remove the trade record.', { title: 'Revert this pick transfer?', confirmLabel: 'Revert', destructive: true })) return;
+    setIsRefreshing(true);
+    await fetch('/api/draft-picks', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pickId }),
+    });
+    loadData(true);
+  };
+
   const handleUndoMyPick = async () => {
     if (!await confirm('The player will be returned to free agency.', { title: 'Undo your last pick?', confirmLabel: 'Undo', destructive: true })) return;
     setIsRefreshing(true);
@@ -639,7 +650,19 @@ function DraftBoardContent() {
                             </button>
                           </div>
                         ) : (
-                          <span className="text-slate-200 font-black text-[10px] uppercase tracking-widest">Locked</span>
+                          <div className="flex items-center justify-end gap-2">
+                            <span className="text-slate-200 font-black text-[10px] uppercase tracking-widest">Locked</span>
+                            {isAdminUser && pick.via && (
+                              <button
+                                onClick={() => handleRevertTransfer(pick.id)}
+                                disabled={isRefreshing}
+                                className="text-orange-400 hover:text-orange-600 transition-colors p-1 rounded"
+                                title="Revert this pick transfer"
+                              >
+                                <RotateCcw size={14} />
+                              </button>
+                            )}
+                          </div>
                         )}
                       </td>
                     </tr>

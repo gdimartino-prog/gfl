@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAllDraftPicks, transferDraftPick, findDraftPick, clearPickSelection, clearAllPickSelections, DraftPickRow } from '@/lib/draftPicks';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
-import { teams } from '@/schema';
+import { draftPicks, pickTransfers, teams } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { isAdmin, isCommissioner } from '@/lib/auth';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { getDraftClockMinutes } from '@/lib/draftClock';
+import { revalidateTag } from 'next/cache';
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -152,5 +153,58 @@ export async function DELETE(req: Request) {
   } catch (error) {
     console.error('API /draft-picks DELETE failed:', error);
     return NextResponse.json({ error: 'Failed to delete pick' }, { status: 500 });
+  }
+}
+
+// Revert a traded pick back to its original owner
+export async function PATCH(req: Request) {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const authorized = await isAdmin() || await isCommissioner();
+  if (!authorized) return NextResponse.json({ error: 'Commissioner access required' }, { status: 403 });
+
+  try {
+    const { pickId } = await req.json();
+    if (!pickId) return NextResponse.json({ error: 'pickId required' }, { status: 400 });
+
+    const leagueId = await getLeagueId();
+    const actor = session.user.name || 'Commissioner';
+
+    const pick = await db.select({
+      originalTeamId: draftPicks.originalTeamId,
+      year: draftPicks.year,
+      round: draftPicks.round,
+      draftType: draftPicks.draftType,
+    }).from(draftPicks)
+      .where(and(eq(draftPicks.id, pickId), eq(draftPicks.leagueId, leagueId)))
+      .limit(1);
+
+    if (!pick[0] || !pick[0].originalTeamId) {
+      return NextResponse.json({ error: 'Pick not found' }, { status: 404 });
+    }
+
+    const { originalTeamId, year, round, draftType } = pick[0];
+
+    await Promise.all([
+      db.update(draftPicks)
+        .set({ currentTeamId: originalTeamId })
+        .where(and(eq(draftPicks.id, pickId), eq(draftPicks.leagueId, leagueId))),
+      db.delete(pickTransfers)
+        .where(and(
+          eq(pickTransfers.leagueId, leagueId),
+          eq(pickTransfers.year, year!),
+          eq(pickTransfers.draftType, draftType!),
+          eq(pickTransfers.round, round),
+          eq(pickTransfers.originalTeamId, originalTeamId),
+        )),
+    ]);
+
+    revalidateTag('draft-picks', 'max');
+    logSystemEvent(actor, 'admin', 'DRAFT_REVERT_TRANSFER', `Reverted transfer for pick id=${pickId}`, leagueId);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('API /draft-picks PATCH failed:', error);
+    return NextResponse.json({ error: 'Failed to revert transfer' }, { status: 500 });
   }
 }
