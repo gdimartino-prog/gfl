@@ -559,7 +559,19 @@ export default function DraftSetupClient() {
         {/* PICK TRANSFER LOG */}
         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 space-y-4">
           <div className="flex flex-wrap justify-between items-center gap-3">
-            <h2 className="text-lg font-black uppercase tracking-tight text-slate-800">Pick Transfer Log</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg font-black uppercase tracking-tight text-slate-800">Pick Transfer Log</h2>
+              <button
+                onClick={async () => {
+                  await fetch('/api/admin/revalidate', { method: 'POST' });
+                  alert('Draft board cache refreshed.');
+                }}
+                className="text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-blue-600 border border-slate-200 px-2 py-1 rounded-lg transition-colors"
+                title="Force refresh the draft board cache"
+              >
+                Refresh Cache
+              </button>
+            </div>
             <div className="flex items-center gap-3">
               <input
                 type="text"
