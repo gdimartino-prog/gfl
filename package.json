@@ -10,7 +10,7 @@
     "lint": "cross-env NODE_OPTIONS=--max-old-space-size=4096 eslint app components lib --ext .ts,.tsx",
     "prepare": "husky",
     "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
+    "db:push": "drizzle-kit push && npx tsx scripts/enable-rls.ts",
     "db:studio": "drizzle-kit studio",
     "db:migrate:teams": "tsx scripts/migrate-teams.ts",
     "db:migrate:rules": "tsx scripts/migrate-rules.ts",
