@@ -641,11 +641,9 @@ export default function DraftSetupClient() {
                         <td className="py-2 px-3 text-slate-700">
                           <div className="flex flex-col">
                             <span>{t.from}</span>
-                            {t.historyShorts.length > 0 && (
-                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wide mt-0.5">
-                                {[t.fromShort, ...t.historyShorts].join(' → ')}
-                              </span>
-                            )}
+                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wide mt-0.5">
+                              {[t.fromShort, ...t.historyShorts, t.toShort].join(' → ')}
+                            </span>
                           </div>
                         </td>
                         <td className="py-2 px-3 font-bold text-blue-600">

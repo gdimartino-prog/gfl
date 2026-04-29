@@ -311,26 +311,22 @@ function DraftBoardContent() {
 
   // Helper to render trade history logic cleanly
   const renderTradeHistory = (pick: DraftPick) => {
-    if (!pick.history || pick.history.trim() === "") {
-      return pick.via ? (
-        <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
-          VIA {getFullTeamName(pick.via)}
-        </span>
-      ) : null;
-    }
+    const originalName = pick.via || (pick.originalTeam !== getFullTeamName(pick.currentOwner) ? pick.originalTeam : null);
+    if (!originalName) return null;
 
-    const teamCodes = pick.history.match(/[A-Z0-9]+/g) || [];
-    
+    const historyShorts = pick.history ? pick.history.split(',').filter(Boolean) : [];
+    // Full chain: original → ...history → current
+    const chain = [
+      originalName,
+      ...historyShorts.map(code => getFullTeamName(code)),
+      getFullTeamName(pick.currentOwner),
+    ];
+
     return (
-      <div className="flex flex-col">
-        <span className="text-[10px] font-black uppercase text-blue-500 italic tracking-[0.2em] leading-none mt-1">
-          VIA {getFullTeamName(pick.originalTeam)}
+      <div className="flex flex-col mt-1">
+        <span className="text-[9px] font-black uppercase text-blue-400 italic tracking-[0.15em] leading-tight">
+          {chain.join(' → ')}
         </span>
-        {teamCodes.length >= 3 && (
-          <span className="text-[9px] font-black uppercase text-blue-400 italic tracking-[0.1em] leading-tight mt-1">
-            {teamCodes.map(code => getFullTeamName(code)).join(' → ')}
-          </span>
-        )}
       </div>
     );
   };
