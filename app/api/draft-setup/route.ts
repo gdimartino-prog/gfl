@@ -7,6 +7,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { alias } from 'drizzle-orm/pg-core';
+import { revalidateTag } from 'next/cache';
 import {
   getDraftPicksExist,
   hasDraftStarted,
@@ -151,7 +152,52 @@ export async function DELETE(req: NextRequest) {
     ));
 
   await db.delete(pickTransfers).where(eq(pickTransfers.id, id));
+  revalidateTag('draft-picks', 'max');
   logSystemEvent(actor, 'admin', 'PICK_TRANSFER_DELETED', `Removed pick transfer ID=${id} (${year} Rd${round})`, leagueId);
+
+  return NextResponse.json({ success: true });
+}
+
+// Update the current owner of a pick transfer
+export async function PATCH(req: NextRequest) {
+  if (!await isAdmin() && !await isCommissioner()) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+  const session = await auth();
+  const actor = session?.user?.name || 'Commissioner';
+  const leagueId = await getLeagueId();
+  const { id, toTeamshort } = await req.json() as { id: number; toTeamshort: string };
+
+  const transfer = await db.select().from(pickTransfers)
+    .where(and(eq(pickTransfers.id, id), eq(pickTransfers.leagueId, leagueId)))
+    .limit(1);
+  if (!transfer[0]) return NextResponse.json({ error: 'Transfer not found' }, { status: 404 });
+
+  const toTeamRow = await db.select({ id: teams.id, name: teams.name }).from(teams)
+    .where(and(eq(teams.teamshort, toTeamshort), eq(teams.leagueId, leagueId)))
+    .limit(1);
+  if (!toTeamRow[0]) return NextResponse.json({ error: 'Team not found' }, { status: 404 });
+
+  const { year, round, draftType, originalTeamId } = transfer[0];
+  const toTeamId = toTeamRow[0].id;
+
+  await Promise.all([
+    db.update(pickTransfers)
+      .set({ currentTeamId: toTeamId })
+      .where(eq(pickTransfers.id, id)),
+    db.update(draftPicks)
+      .set({ currentTeamId: toTeamId })
+      .where(and(
+        eq(draftPicks.leagueId, leagueId),
+        eq(draftPicks.year, year!),
+        eq(draftPicks.round, round),
+        eq(draftPicks.draftType, draftType!),
+        eq(draftPicks.originalTeamId, originalTeamId!),
+      )),
+  ]);
+
+  revalidateTag('draft-picks', 'max');
+  logSystemEvent(actor, 'admin', 'PICK_TRANSFER_UPDATED', `Updated pick transfer ID=${id} → ${toTeamRow[0].name}`, leagueId);
 
   return NextResponse.json({ success: true });
 }

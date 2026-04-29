@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { GripVertical, ChevronLeft, AlertTriangle, CheckCircle2, Loader2, Eye, ArrowLeft, Trash2 } from 'lucide-react';
+import { GripVertical, ChevronLeft, AlertTriangle, CheckCircle2, Loader2, Eye, ArrowLeft, Trash2, Pencil, Check, X } from 'lucide-react';
 import Link from 'next/link';
 
 type TeamRow = { id: number; name: string; teamshort: string | null };
@@ -59,10 +59,20 @@ export default function DraftSetupClient() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [transferFilter, setTransferFilter] = useState('');
   const [transferSort, setTransferSort] = useState<{ col: keyof TransferRow; dir: 'asc' | 'desc' }>({ col: 'year', dir: 'asc' });
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editingTo, setEditingTo] = useState('');
+  const [savingId, setSavingId] = useState<number | null>(null);
+  const [allTeams, setAllTeams] = useState<{ name: string; teamshort: string }[]>([]);
 
   const loadTransfers = () => {
     setTransfersLoading(true);
-    fetch('/api/draft-setup').then(r => r.json()).then(setTransfers).finally(() => setTransfersLoading(false));
+    Promise.all([
+      fetch('/api/draft-setup').then(r => r.json()),
+      fetch('/api/teams').then(r => r.json()),
+    ]).then(([rows, teamList]) => {
+      setTransfers(rows);
+      setAllTeams(Array.isArray(teamList) ? teamList.sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name)) : []);
+    }).finally(() => setTransfersLoading(false));
   };
 
   useEffect(() => { loadTransfers(); }, []);
@@ -72,6 +82,16 @@ export default function DraftSetupClient() {
     setDeletingId(id);
     await fetch('/api/draft-setup', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
     setDeletingId(null);
+    loadTransfers();
+  };
+
+  const updateTransfer = async (id: number) => {
+    if (!editingTo) return;
+    setSavingId(id);
+    await fetch('/api/draft-setup', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, toTeamshort: editingTo }) });
+    setSavingId(null);
+    setEditingId(null);
+    setEditingTo('');
     loadTransfers();
   };
 
@@ -596,17 +616,62 @@ export default function DraftSetupClient() {
                         <td className="py-2 px-3 font-bold text-slate-700">Rd {t.round}</td>
                         <td className="py-2 px-3 text-slate-500 capitalize">{t.draftType.replace('_', ' ')}</td>
                         <td className="py-2 px-3 text-slate-700">{t.from}</td>
-                        <td className="py-2 px-3 font-bold text-blue-600">{t.to}</td>
+                        <td className="py-2 px-3 font-bold text-blue-600">
+                          {editingId === t.id ? (
+                            <select
+                              value={editingTo}
+                              onChange={e => setEditingTo(e.target.value)}
+                              className="border border-blue-300 rounded px-2 py-0.5 text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                              autoFocus
+                            >
+                              <option value="">-- Select team --</option>
+                              {allTeams.map(tm => (
+                                <option key={tm.teamshort} value={tm.teamshort}>{tm.name}</option>
+                              ))}
+                            </select>
+                          ) : t.to}
+                        </td>
                         <td className="py-2 px-3 text-slate-400 text-xs">{new Date(t.touch_dt).toLocaleDateString()}</td>
                         <td className="py-2 px-3">
-                          <button
-                            onClick={() => deleteTransfer(t.id)}
-                            disabled={deletingId === t.id}
-                            className="text-slate-300 hover:text-red-500 transition-colors disabled:opacity-40"
-                            title="Remove transfer (reverts pick to original owner)"
-                          >
-                            {deletingId === t.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                          </button>
+                          <div className="flex items-center gap-1">
+                            {editingId === t.id ? (
+                              <>
+                                <button
+                                  onClick={() => updateTransfer(t.id)}
+                                  disabled={!editingTo || savingId === t.id}
+                                  className="text-emerald-500 hover:text-emerald-700 disabled:opacity-40 transition-colors"
+                                  title="Save"
+                                >
+                                  {savingId === t.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                                </button>
+                                <button
+                                  onClick={() => { setEditingId(null); setEditingTo(''); }}
+                                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                                  title="Cancel"
+                                >
+                                  <X size={14} />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => { setEditingId(t.id); setEditingTo(''); }}
+                                  className="text-slate-300 hover:text-blue-500 transition-colors"
+                                  title="Edit current owner"
+                                >
+                                  <Pencil size={13} />
+                                </button>
+                                <button
+                                  onClick={() => deleteTransfer(t.id)}
+                                  disabled={deletingId === t.id}
+                                  className="text-slate-300 hover:text-red-500 transition-colors disabled:opacity-40"
+                                  title="Remove transfer (reverts pick to original owner)"
+                                >
+                                  {deletingId === t.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
