@@ -14,7 +14,7 @@ interface Player {
   rec?: string; recYds?: string; recTD?: string;
   totalDef?: string; runDef?: string; passDef?: string; passRush?: string; tackles?: string; games?: string;
 }
-interface DraftPick { year: number; round: number; currentOwner: string; overall: number; originalTeam: string; }
+interface DraftPick { id: number; year: number; round: number; currentOwner: string; overall: number; originalTeam: string; via?: string | null; }
 
 function ToggleList<T extends string>({
   items,
@@ -139,6 +139,24 @@ export default function TradePanel({
   const toggle = <T extends string>(arr: T[], val: T): T[] =>
     arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val];
 
+  const ROUND_ORDINALS = ['1st', '2nd', '3rd', '4th', '5th', '6th', '7th'];
+  const roundOrdinal = (r: number) => ROUND_ORDINALS[r - 1] ?? `${r}th`;
+  const overallOrdinal = (n: number) => {
+    const v = n % 100;
+    if (v >= 11 && v <= 13) return `${n}th`;
+    switch (n % 10) { case 1: return `${n}st`; case 2: return `${n}nd`; case 3: return `${n}rd`; default: return `${n}th`; }
+  };
+  const formatPick = (p: DraftPick) => {
+    const ownerEntry = teams.find(t => resolveCode(t.short) === resolveCode(p.currentOwner));
+    const ownerName = ownerEntry?.name || p.currentOwner;
+    const round = roundOrdinal(Number(p.round));
+    const overall = overallOrdinal(Number(p.overall));
+    const currentYear = new Date().getFullYear();
+    const year = Number(p.year);
+    const via = p.via ? ` via ${p.via}` : '';
+    return `${year} ${ownerName} ${round} round pick${via} (${overall} overall)`;
+  };
+
   const sortPlayers = (list: Player[]) =>
     [...list].sort((a, b) => (a.last || '').localeCompare(b.last || '') || (a.first || '').localeCompare(b.first || ''));
 
@@ -183,16 +201,16 @@ export default function TradePanel({
     setStatus('⏳ Processing trade assets...');
     try {
       const formattedPlayersFrom = players.filter(p => fromPlayers.includes(p.identity))
-        .map(p => `${(p.position || '').toUpperCase()} - ${p.first} ${p.last}`);
+        .map(p => `${p.first} ${p.last} - ${(p.position || '').toUpperCase()}`);
       const formattedPlayersTo = players.filter(p => toPlayers.includes(p.identity))
-        .map(p => `${(p.position || '').toUpperCase()} - ${p.first} ${p.last}`);
+        .map(p => `${p.first} ${p.last} - ${(p.position || '').toUpperCase()}`);
       const formattedPicksFrom = fromDraftPicks.map(id => {
-        const p = draftPicks.find(pick => String(pick.overall) === String(id));
-        return p ? `${p.year} Draft Pick Rd ${p.round} (#${p.overall})` : `Pick #${id}`;
+        const p = draftPicks.find(pick => String(pick.id) === String(id));
+        return p ? formatPick(p) : `Pick #${id}`;
       });
       const formattedPicksTo = toDraftPicks.map(id => {
-        const p = draftPicks.find(pick => String(pick.overall) === String(id));
-        return p ? `${p.year} Draft Pick Rd ${p.round} (#${p.overall})` : `Pick #${id}`;
+        const p = draftPicks.find(pick => String(pick.id) === String(id));
+        return p ? formatPick(p) : `Pick #${id}`;
       });
 
       const res = await fetch('/api/trades', {
@@ -281,7 +299,7 @@ export default function TradePanel({
           <ToggleList
             color="blue"
             items={fromTeamDraftPicks.map(p => ({
-              key: String(p.overall),
+              key: String(p.id),
               label: `${p.year} Round ${p.round}`,
               sub: `Pick #${p.overall} · Originally ${p.originalTeam}`,
             }))}
@@ -335,7 +353,7 @@ export default function TradePanel({
               <ToggleList
                 color="red"
                 items={toTeamDraftPicks.map(p => ({
-                  key: String(p.overall),
+                  key: String(p.id),
                   label: `${p.year} Round ${p.round}`,
                   sub: `Pick #${p.overall} · Originally ${p.originalTeam}`,
                 }))}
@@ -349,10 +367,50 @@ export default function TradePanel({
         </div>
       </div>
 
-      {/* Summary bar */}
+      {/* Trade summary */}
       {(fromPlayers.length + fromDraftPicks.length + toPlayers.length + toDraftPicks.length) > 0 && (
-        <div className="bg-purple-50 border border-purple-100 rounded-xl px-4 py-3 text-[11px] text-purple-700 font-bold">
-          {selectedSummary()}
+        <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 space-y-3">
+          <p className="text-[10px] font-black text-purple-400 uppercase tracking-widest">Trade Summary</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Active team gives */}
+            <div>
+              <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">{activeFullName} gives</p>
+              <ul className="space-y-1">
+                {players.filter(p => fromPlayers.includes(p.identity)).map(p => (
+                  <li key={p.identity} className="text-xs text-slate-700">
+                    <span className="font-semibold">{p.first} {p.last}</span>
+                    <span className="text-slate-400"> — {(p.position || '').toUpperCase()}</span>
+                  </li>
+                ))}
+                {fromDraftPicks.map(id => {
+                  const p = draftPicks.find(pick => String(pick.id) === String(id));
+                  return p ? (
+                    <li key={id} className="text-xs text-slate-700">{formatPick(p)}</li>
+                  ) : null;
+                })}
+              </ul>
+            </div>
+            {/* Partner team gives */}
+            {(toPlayers.length > 0 || toDraftPicks.length > 0) && (
+              <div>
+                <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">{partnerFullName} gives</p>
+                <ul className="space-y-1">
+                  {players.filter(p => toPlayers.includes(p.identity)).map(p => (
+                    <li key={p.identity} className="text-xs text-slate-700">
+                      <span className="font-semibold">{p.first} {p.last}</span>
+                      <span className="text-slate-400"> — {(p.position || '').toUpperCase()}</span>
+                    </li>
+                  ))}
+                  {toDraftPicks.map(id => {
+                    const p = draftPicks.find(pick => String(pick.id) === String(id));
+                    return p ? (
+                      <li key={id} className="text-xs text-slate-700">{formatPick(p)}</li>
+                    ) : null;
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

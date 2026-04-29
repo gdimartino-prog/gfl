@@ -45,20 +45,20 @@ export async function POST(req: Request) {
     // Execute draft pick transfers immediately — picks are managed in the web app
     const transferUpserts: Promise<void>[] = [];
     if (rawPicksFrom?.length && fromTeamId && toTeamId) {
-      for (const overall of rawPicksFrom as string[]) {
+      for (const id of rawPicksFrom as string[]) {
         transferUpserts.push(upsertPickTransfer({
           leagueId,
-          pickOverall: parseInt(overall),
+          pickId: parseInt(id),
           toTeamId,
           touchId: callerTeamshort || 'trade',
         }));
       }
     }
     if (rawPicksTo?.length && fromTeamId && toTeamId) {
-      for (const overall of rawPicksTo as string[]) {
+      for (const id of rawPicksTo as string[]) {
         transferUpserts.push(upsertPickTransfer({
           leagueId,
-          pickOverall: parseInt(overall),
+          pickId: parseInt(id),
           toTeamId: fromTeamId,
           touchId: callerTeamshort || 'trade',
         }));

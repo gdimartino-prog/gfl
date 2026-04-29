@@ -339,11 +339,11 @@ export function generateDraftPickRows(params: {
  */
 export async function upsertPickTransfer(params: {
   leagueId: number;
-  pickOverall: number;
+  pickId: number;
   toTeamId: number;
   touchId: string;
 }): Promise<void> {
-  const { leagueId, pickOverall, toTeamId, touchId } = params;
+  const { leagueId, pickId, toTeamId, touchId } = params;
 
   const existing = await db.select({
     year: draftPicks.year,
@@ -352,18 +352,18 @@ export async function upsertPickTransfer(params: {
     originalTeamId: draftPicks.originalTeamId,
   })
     .from(draftPicks)
-    .where(and(eq(draftPicks.pick, pickOverall), eq(draftPicks.leagueId, leagueId)))
+    .where(and(eq(draftPicks.id, pickId), eq(draftPicks.leagueId, leagueId)))
     .limit(1);
 
   if (!existing[0]) {
-    console.warn(`[upsertPickTransfer] Pick overall=${pickOverall} not found in draftPicks for leagueId=${leagueId} — transfer not recorded`);
+    console.warn(`[upsertPickTransfer] Pick overall=${pickId} not found in draftPicks for leagueId=${leagueId} — transfer not recorded`);
     return;
   }
 
   const { year, round, draftType, originalTeamId } = existing[0];
 
   if (!originalTeamId) {
-    console.warn(`[upsertPickTransfer] Pick overall=${pickOverall} has no originalTeamId — transfer not recorded`);
+    console.warn(`[upsertPickTransfer] Pick overall=${pickId} has no originalTeamId — transfer not recorded`);
     return;
   }
 
