@@ -151,7 +151,6 @@ export default function TradePanel({
     const ownerName = ownerEntry?.name || p.currentOwner;
     const round = roundOrdinal(Number(p.round));
     const overall = overallOrdinal(Number(p.overall));
-    const currentYear = new Date().getFullYear();
     const year = Number(p.year);
     const via = p.via ? ` via ${p.via}` : '';
     return `${year} ${ownerName} ${round} round pick${via} (${overall} overall)`;
@@ -180,15 +179,6 @@ export default function TradePanel({
   const toTeamDraftPicks = useMemo(() => sortPicks(
     draftPicks.filter(p => resolveCode(p.currentOwner) === partnerCode)
   ), [draftPicks, partnerCode]);
-
-  const selectedSummary = () => {
-    const parts: string[] = [];
-    if (fromPlayers.length) parts.push(`${fromPlayers.length} player${fromPlayers.length > 1 ? 's' : ''} from you`);
-    if (fromDraftPicks.length) parts.push(`${fromDraftPicks.length} pick${fromDraftPicks.length > 1 ? 's' : ''} from you`);
-    if (toPlayers.length) parts.push(`${toPlayers.length} player${toPlayers.length > 1 ? 's' : ''} from ${partnerFullName}`);
-    if (toDraftPicks.length) parts.push(`${toDraftPicks.length} pick${toDraftPicks.length > 1 ? 's' : ''} from ${partnerFullName}`);
-    return parts.length ? parts.join(' · ') : 'No assets selected';
-  };
 
   const handleTrade = async () => {
     const fromHasAssets = fromPlayers.length > 0 || fromDraftPicks.length > 0;
