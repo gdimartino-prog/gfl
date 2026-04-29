@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { GripVertical, ChevronLeft, AlertTriangle, CheckCircle2, Loader2, Eye, ArrowLeft, Trash2, Pencil, Check, X, RotateCcw } from 'lucide-react';
+import { GripVertical, ChevronLeft, AlertTriangle, CheckCircle2, Loader2, Eye, ArrowLeft, Trash2, Pencil, Check, X } from 'lucide-react';
 import Link from 'next/link';
 
 type TeamRow = { id: number; name: string; teamshort: string | null };
@@ -56,7 +56,6 @@ export default function DraftSetupClient() {
   type TransferRow = { id: number; year: number; round: number; draftType: string; from: string; fromShort: string; to: string; toShort: string; historyShorts: string[]; historyNames: string[]; canUndo: boolean; touch_dt: string };
   const [transfers, setTransfers] = useState<TransferRow[]>([]);
   const [transfersLoading, setTransfersLoading] = useState(false);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [transferFilter, setTransferFilter] = useState('');
   const [transferSort, setTransferSort] = useState<{ col: keyof TransferRow; dir: 'asc' | 'desc' }>({ col: 'year', dir: 'asc' });
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -77,15 +76,7 @@ export default function DraftSetupClient() {
 
   useEffect(() => { loadTransfers(); }, []);
 
-  const deleteTransfer = async (id: number) => {
-    if (!confirm('Remove this pick transfer? The pick will revert to the original owner on the draft board.')) return;
-    setDeletingId(id);
-    await fetch('/api/draft-setup', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
-    setDeletingId(null);
-    loadTransfers();
-  };
-
-  const updateTransfer = async (id: number) => {
+const updateTransfer = async (id: number) => {
     if (!editingTo) return;
     setSavingId(id);
     await fetch('/api/draft-setup', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, toTeamshort: editingTo }) });
@@ -97,8 +88,8 @@ export default function DraftSetupClient() {
 
   const undoTransfer = async (id: number, canUndo: boolean) => {
     const msg = canUndo
-      ? 'Undo the last trade for this pick? It will revert to the previous owner.'
-      : 'No trade history — this will revert the pick back to the original owner and remove the transfer record.';
+      ? 'Revert to the previous owner? The last trade in the chain will be undone.'
+      : 'Remove this transfer? The pick will revert to the original owner.';
     if (!confirm(msg)) return;
     setSavingId(id);
     await fetch('/api/draft-setup', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, undo: true }) });
@@ -687,10 +678,10 @@ export default function DraftSetupClient() {
                                 <button
                                   onClick={() => undoTransfer(t.id, t.canUndo)}
                                   disabled={savingId === t.id}
-                                  className="text-slate-300 hover:text-amber-500 transition-colors disabled:opacity-40"
-                                  title={t.canUndo ? 'Undo last trade (revert to previous owner)' : 'Revert to original owner'}
+                                  className="text-slate-300 hover:text-red-500 transition-colors disabled:opacity-40"
+                                  title={t.canUndo ? 'Revert to previous owner' : 'Remove transfer (revert to original owner)'}
                                 >
-                                  {savingId === t.id ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={13} />}
+                                  {savingId === t.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                                 </button>
                                 <button
                                   onClick={() => { setEditingId(t.id); setEditingTo(''); }}
@@ -698,14 +689,6 @@ export default function DraftSetupClient() {
                                   title="Edit current owner"
                                 >
                                   <Pencil size={13} />
-                                </button>
-                                <button
-                                  onClick={() => deleteTransfer(t.id)}
-                                  disabled={deletingId === t.id}
-                                  className="text-slate-300 hover:text-red-500 transition-colors disabled:opacity-40"
-                                  title="Remove transfer (reverts pick to original owner)"
-                                >
-                                  {deletingId === t.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
                                 </button>
                               </>
                             )}
