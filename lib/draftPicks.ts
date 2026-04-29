@@ -367,12 +367,17 @@ export async function upsertPickTransfer(params: {
     return;
   }
 
-  await db.insert(pickTransfers)
-    .values({ leagueId, year, draftType, round, originalTeamId, currentTeamId: toTeamId, touch_id: touchId })
-    .onConflictDoUpdate({
-      target: [pickTransfers.leagueId, pickTransfers.year, pickTransfers.draftType, pickTransfers.round, pickTransfers.originalTeamId],
-      set: { currentTeamId: toTeamId, touch_id: touchId, touch_dt: sql`now()` },
-    });
+  await Promise.all([
+    db.insert(pickTransfers)
+      .values({ leagueId, year, draftType, round, originalTeamId, currentTeamId: toTeamId, touch_id: touchId })
+      .onConflictDoUpdate({
+        target: [pickTransfers.leagueId, pickTransfers.year, pickTransfers.draftType, pickTransfers.round, pickTransfers.originalTeamId],
+        set: { currentTeamId: toTeamId, touch_id: touchId, touch_dt: sql`now()` },
+      }),
+    db.update(draftPicks)
+      .set({ currentTeamId: toTeamId })
+      .where(and(eq(draftPicks.id, pickId), eq(draftPicks.leagueId, leagueId))),
+  ]);
 }
 
 /**

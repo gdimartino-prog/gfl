@@ -91,6 +91,7 @@ export async function POST(req: Request) {
     }
 
     revalidateTag('transactions', 'max');
+    revalidateTag('draft-picks', 'max');
     await logSystemEvent(actorName, fromTeam, 'TRADE', `${fromFull} ↔ ${toFull}`, leagueId);
 
     // Notify league
