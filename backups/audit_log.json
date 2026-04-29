@@ -648,6 +648,15 @@
     "details": "Imported players: Complete League.csv"
   },
   {
+    "id": 248,
+    "leagueId": 1,
+    "timestamp": "2026-04-28T21:16:00.555Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_SETUP_GENERATED",
+    "details": "Generated 450 picks for 2027 free_agent draft (25 rounds)"
+  },
+  {
     "id": 75,
     "leagueId": 2,
     "timestamp": "2026-03-22T14:12:05.997Z",
@@ -1051,6 +1060,15 @@
     "team": "admin",
     "action": "IMPORT_PLAYERS",
     "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 249,
+    "leagueId": 1,
+    "timestamp": "2026-04-28T22:37:49.470Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Old Bridge"
   },
   {
     "id": 80,
@@ -2221,5 +2239,14 @@
     "team": "Amalfi",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 250,
+    "leagueId": 1,
+    "timestamp": "2026-04-28T22:43:32.997Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Old Bridge"
   }
 ]

@@ -284,5 +284,49 @@
     "currentTeamId": 44,
     "touch_dt": "2026-04-25T22:45:27.719Z",
     "touch_id": "Alex Matsikoudis"
+  },
+  {
+    "id": 71,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 1,
+    "originalTeamId": 55,
+    "currentTeamId": 52,
+    "touch_dt": "2026-04-28T22:43:32.704Z",
+    "touch_id": "CK"
+  },
+  {
+    "id": 72,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 1,
+    "originalTeamId": 50,
+    "currentTeamId": 52,
+    "touch_dt": "2026-04-28T22:43:32.707Z",
+    "touch_id": "CK"
+  },
+  {
+    "id": 73,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 1,
+    "originalTeamId": 52,
+    "currentTeamId": 43,
+    "touch_dt": "2026-04-28T22:43:32.972Z",
+    "touch_id": "CK"
+  },
+  {
+    "id": 74,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 2,
+    "originalTeamId": 43,
+    "currentTeamId": 52,
+    "touch_dt": "2026-04-28T22:43:32.978Z",
+    "touch_id": "CK"
   }
 ]
