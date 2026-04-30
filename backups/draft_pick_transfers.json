@@ -1,5 +1,55 @@
 [
   {
+    "id": 50,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 3,
+    "originalTeamId": 53,
+    "currentTeamId": 52,
+    "history": [],
+    "touch_dt": "2026-04-25T22:45:27.719Z",
+    "touch_id": "Alex Matsikoudis"
+  },
+  {
+    "id": 95,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 2,
+    "originalTeamId": 43,
+    "currentTeamId": 52,
+    "history": [],
+    "touch_dt": "2026-04-29T14:08:21.952Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 92,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 1,
+    "originalTeamId": 47,
+    "currentTeamId": 52,
+    "history": [
+      43
+    ],
+    "touch_dt": "2026-04-29T14:08:21.530Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 99,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 1,
+    "originalTeamId": 52,
+    "currentTeamId": 43,
+    "history": [],
+    "touch_dt": "2026-04-29T15:13:36.636Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 42,
     "leagueId": 1,
     "year": 2026,
@@ -7,18 +57,8 @@
     "round": 1,
     "originalTeamId": 59,
     "currentTeamId": 50,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:34.908Z",
-    "touch_id": "trade-migration"
-  },
-  {
-    "id": 43,
-    "leagueId": 1,
-    "year": 2026,
-    "draftType": "free_agent",
-    "round": 1,
-    "originalTeamId": 47,
-    "currentTeamId": 43,
-    "touch_dt": "2026-03-20T23:17:34.954Z",
     "touch_id": "trade-migration"
   },
   {
@@ -29,6 +69,7 @@
     "round": 1,
     "originalTeamId": 45,
     "currentTeamId": 53,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.001Z",
     "touch_id": "trade-migration"
   },
@@ -40,6 +81,7 @@
     "round": 2,
     "originalTeamId": 42,
     "currentTeamId": 41,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.056Z",
     "touch_id": "trade-migration"
   },
@@ -51,6 +93,7 @@
     "round": 2,
     "originalTeamId": 57,
     "currentTeamId": 48,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.128Z",
     "touch_id": "trade-migration"
   },
@@ -62,6 +105,7 @@
     "round": 2,
     "originalTeamId": 55,
     "currentTeamId": 43,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.174Z",
     "touch_id": "trade-migration"
   },
@@ -73,6 +117,7 @@
     "round": 2,
     "originalTeamId": 59,
     "currentTeamId": 52,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.220Z",
     "touch_id": "trade-migration"
   },
@@ -84,6 +129,7 @@
     "round": 2,
     "originalTeamId": 45,
     "currentTeamId": 53,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.267Z",
     "touch_id": "trade-migration"
   },
@@ -95,6 +141,7 @@
     "round": 3,
     "originalTeamId": 57,
     "currentTeamId": 52,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.361Z",
     "touch_id": "trade-migration"
   },
@@ -106,6 +153,7 @@
     "round": 3,
     "originalTeamId": 41,
     "currentTeamId": 43,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.409Z",
     "touch_id": "trade-migration"
   },
@@ -117,6 +165,7 @@
     "round": 3,
     "originalTeamId": 45,
     "currentTeamId": 43,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.455Z",
     "touch_id": "trade-migration"
   },
@@ -128,6 +177,7 @@
     "round": 4,
     "originalTeamId": 52,
     "currentTeamId": 41,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.502Z",
     "touch_id": "trade-migration"
   },
@@ -139,6 +189,7 @@
     "round": 4,
     "originalTeamId": 43,
     "currentTeamId": 41,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.548Z",
     "touch_id": "trade-migration"
   },
@@ -150,6 +201,7 @@
     "round": 4,
     "originalTeamId": 42,
     "currentTeamId": 52,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.594Z",
     "touch_id": "trade-migration"
   },
@@ -161,6 +213,7 @@
     "round": 4,
     "originalTeamId": 44,
     "currentTeamId": 41,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.642Z",
     "touch_id": "trade-migration"
   },
@@ -172,6 +225,7 @@
     "round": 4,
     "originalTeamId": 45,
     "currentTeamId": 53,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.689Z",
     "touch_id": "trade-migration"
   },
@@ -183,6 +237,7 @@
     "round": 5,
     "originalTeamId": 43,
     "currentTeamId": 47,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.735Z",
     "touch_id": "trade-migration"
   },
@@ -194,6 +249,7 @@
     "round": 10,
     "originalTeamId": 42,
     "currentTeamId": 41,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.783Z",
     "touch_id": "trade-migration"
   },
@@ -205,6 +261,7 @@
     "round": 1,
     "originalTeamId": 45,
     "currentTeamId": 58,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.798Z",
     "touch_id": "trade-migration"
   },
@@ -216,6 +273,7 @@
     "round": 2,
     "originalTeamId": 45,
     "currentTeamId": 52,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.814Z",
     "touch_id": "trade-migration"
   },
@@ -227,6 +285,7 @@
     "round": 3,
     "originalTeamId": 45,
     "currentTeamId": 58,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.829Z",
     "touch_id": "trade-migration"
   },
@@ -238,6 +297,7 @@
     "round": 1,
     "originalTeamId": 57,
     "currentTeamId": 48,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.845Z",
     "touch_id": "trade-migration"
   },
@@ -249,6 +309,7 @@
     "round": 2,
     "originalTeamId": 57,
     "currentTeamId": 48,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.860Z",
     "touch_id": "trade-migration"
   },
@@ -260,6 +321,7 @@
     "round": 9,
     "originalTeamId": 44,
     "currentTeamId": 41,
+    "history": [],
     "touch_dt": "2026-03-20T23:17:35.876Z",
     "touch_id": "trade-migration"
   },
@@ -270,63 +332,9 @@
     "draftType": "free_agent",
     "round": 1,
     "originalTeamId": 57,
-    "currentTeamId": 47,
+    "currentTeamId": 48,
+    "history": [],
     "touch_dt": "2026-04-22T02:39:49.897Z",
     "touch_id": "Glenn Gardner"
-  },
-  {
-    "id": 50,
-    "leagueId": 1,
-    "year": 2026,
-    "draftType": "free_agent",
-    "round": 3,
-    "originalTeamId": 53,
-    "currentTeamId": 44,
-    "touch_dt": "2026-04-25T22:45:27.719Z",
-    "touch_id": "Alex Matsikoudis"
-  },
-  {
-    "id": 71,
-    "leagueId": 1,
-    "year": 2027,
-    "draftType": "free_agent",
-    "round": 1,
-    "originalTeamId": 55,
-    "currentTeamId": 52,
-    "touch_dt": "2026-04-28T22:43:32.704Z",
-    "touch_id": "CK"
-  },
-  {
-    "id": 72,
-    "leagueId": 1,
-    "year": 2027,
-    "draftType": "free_agent",
-    "round": 1,
-    "originalTeamId": 50,
-    "currentTeamId": 52,
-    "touch_dt": "2026-04-28T22:43:32.707Z",
-    "touch_id": "CK"
-  },
-  {
-    "id": 73,
-    "leagueId": 1,
-    "year": 2026,
-    "draftType": "free_agent",
-    "round": 1,
-    "originalTeamId": 52,
-    "currentTeamId": 43,
-    "touch_dt": "2026-04-28T22:43:32.972Z",
-    "touch_id": "CK"
-  },
-  {
-    "id": 74,
-    "leagueId": 1,
-    "year": 2027,
-    "draftType": "free_agent",
-    "round": 2,
-    "originalTeamId": 43,
-    "currentTeamId": 52,
-    "touch_dt": "2026-04-28T22:43:32.978Z",
-    "touch_id": "CK"
   }
 ]

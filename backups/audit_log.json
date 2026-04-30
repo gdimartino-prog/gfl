@@ -1071,6 +1071,222 @@
     "details": "Crimson ↔ Old Bridge"
   },
   {
+    "id": 251,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T12:47:21.180Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 254,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:12:44.428Z",
+    "coach": "George Di Martino",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Old Bridge"
+  },
+  {
+    "id": 255,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:13:22.474Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #104 deleted"
+  },
+  {
+    "id": 256,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:13:32.145Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #97 deleted"
+  },
+  {
+    "id": 257,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:13:35.047Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #98 deleted"
+  },
+  {
+    "id": 258,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:13:39.440Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #100 deleted"
+  },
+  {
+    "id": 259,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:13:42.506Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #99 deleted"
+  },
+  {
+    "id": 260,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:13:46.881Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #101 deleted"
+  },
+  {
+    "id": 261,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:13:59.890Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #103 deleted"
+  },
+  {
+    "id": 262,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:14:03.509Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #102 deleted"
+  },
+  {
+    "id": 270,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:42:29.786Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #105 deleted"
+  },
+  {
+    "id": 271,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:47:47.893Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_UPDATED",
+    "details": "Updated pick transfer ID=41 → LE"
+  },
+  {
+    "id": 272,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T14:08:21.993Z",
+    "coach": "George Di Martino",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Old Bridge"
+  },
+  {
+    "id": 273,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T14:42:41.110Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRADE",
+    "details": "Vico ↔ Crimson"
+  },
+  {
+    "id": 274,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T14:43:46.362Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_DELETED",
+    "details": "Removed pick transfer ID=97 (2026 Rd1)"
+  },
+  {
+    "id": 275,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T14:43:52.063Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_DELETED",
+    "details": "Removed pick transfer ID=96 (2026 Rd1)"
+  },
+  {
+    "id": 276,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T14:45:38.483Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #110 deleted"
+  },
+  {
+    "id": 277,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T14:45:41.304Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #109 deleted"
+  },
+  {
+    "id": 278,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T15:02:33.371Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #108 marked Done"
+  },
+  {
+    "id": 279,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T15:02:35.243Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #107 marked Done"
+  },
+  {
+    "id": 280,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T15:04:32.897Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 281,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T15:13:37.122Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRADE",
+    "details": "Vico ↔ Crimson"
+  },
+  {
+    "id": 282,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T15:14:29.333Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #111 deleted (reverted 1 pick transfer(s))"
+  },
+  {
+    "id": 283,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T15:15:24.706Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #112 deleted (reverted 1 pick transfer(s))"
+  },
+  {
     "id": 80,
     "leagueId": 1,
     "timestamp": "2026-03-22T14:15:00.319Z",
@@ -2248,5 +2464,86 @@
     "team": "CK",
     "action": "TRADE",
     "details": "Crimson ↔ Old Bridge"
+  },
+  {
+    "id": 252,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T12:49:49.152Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Old Bridge"
+  },
+  {
+    "id": 253,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T12:53:39.565Z",
+    "coach": "George Di Martino",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Old Bridge"
+  },
+  {
+    "id": 263,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:41:35.334Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_DELETED",
+    "details": "Removed pick transfer ID=74 (2027 Rd2)"
+  },
+  {
+    "id": 264,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:41:38.546Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_DELETED",
+    "details": "Removed pick transfer ID=73 (2026 Rd1)"
+  },
+  {
+    "id": 265,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:41:41.289Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_DELETED",
+    "details": "Removed pick transfer ID=43 (2026 Rd1)"
+  },
+  {
+    "id": 266,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:41:47.197Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_DELETED",
+    "details": "Removed pick transfer ID=88 (2026 Rd1)"
+  },
+  {
+    "id": 267,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:41:50.417Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_DELETED",
+    "details": "Removed pick transfer ID=71 (2027 Rd1)"
+  },
+  {
+    "id": 268,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:42:08.229Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "PICK_TRANSFER_DELETED",
+    "details": "Removed pick transfer ID=72 (2027 Rd1)"
+  },
+  {
+    "id": 269,
+    "leagueId": 1,
+    "timestamp": "2026-04-29T13:42:26.555Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #106 deleted"
   }
 ]

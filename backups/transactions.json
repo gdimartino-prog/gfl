@@ -13,6 +13,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-15T14:26:23.013Z",
     "touch_id": "Frank Vitale"
   },
@@ -30,6 +31,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:06.965Z",
     "touch_id": "trade-migration"
   },
@@ -47,6 +49,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:06.991Z",
     "touch_id": "trade-migration"
   },
@@ -64,6 +67,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.011Z",
     "touch_id": "trade-migration"
   },
@@ -81,6 +85,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.044Z",
     "touch_id": "trade-migration"
   },
@@ -98,6 +103,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.076Z",
     "touch_id": "trade-migration"
   },
@@ -115,6 +121,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.107Z",
     "touch_id": "trade-migration"
   },
@@ -132,6 +139,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.139Z",
     "touch_id": "trade-migration"
   },
@@ -149,6 +157,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.169Z",
     "touch_id": "trade-migration"
   },
@@ -166,6 +175,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.202Z",
     "touch_id": "trade-migration"
   },
@@ -183,6 +193,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.233Z",
     "touch_id": "trade-migration"
   },
@@ -200,6 +211,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.263Z",
     "touch_id": "trade-migration"
   },
@@ -217,6 +229,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.295Z",
     "touch_id": "trade-migration"
   },
@@ -234,6 +247,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.325Z",
     "touch_id": "trade-migration"
   },
@@ -251,6 +265,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.342Z",
     "touch_id": "trade-migration"
   },
@@ -268,6 +283,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.372Z",
     "touch_id": "trade-migration"
   },
@@ -285,6 +301,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.403Z",
     "touch_id": "trade-migration"
   },
@@ -302,6 +319,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.438Z",
     "touch_id": "trade-migration"
   },
@@ -319,6 +337,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.467Z",
     "touch_id": "trade-migration"
   },
@@ -336,6 +355,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.500Z",
     "touch_id": "trade-migration"
   },
@@ -353,6 +373,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.530Z",
     "touch_id": "trade-migration"
   },
@@ -370,6 +391,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.560Z",
     "touch_id": "trade-migration"
   },
@@ -387,6 +409,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.592Z",
     "touch_id": "trade-migration"
   },
@@ -404,6 +427,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.621Z",
     "touch_id": "trade-migration"
   },
@@ -421,6 +445,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.652Z",
     "touch_id": "trade-migration"
   },
@@ -438,6 +463,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.683Z",
     "touch_id": "trade-migration"
   },
@@ -455,6 +481,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-03-20T23:19:07.716Z",
     "touch_id": "trade-migration"
   },
@@ -472,6 +499,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-27T16:39:35.611Z",
     "touch_id": "commissioner"
   },
@@ -489,6 +517,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-22T02:39:49.957Z",
     "touch_id": "commissioner"
   },
@@ -506,6 +535,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-22T02:39:49.927Z",
     "touch_id": "commissioner"
   },
@@ -523,6 +553,7 @@
     "season": 2026,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-24T21:56:02.502Z",
     "touch_id": "commissioner"
   },
@@ -540,6 +571,7 @@
     "season": 2026,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-24T21:54:57.217Z",
     "touch_id": "commissioner"
   },
@@ -557,6 +589,7 @@
     "season": 2026,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-24T21:54:32.728Z",
     "touch_id": "commissioner"
   },
@@ -574,6 +607,7 @@
     "season": 2026,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-24T23:36:23.864Z",
     "touch_id": "commissioner"
   },
@@ -591,6 +625,7 @@
     "season": 2026,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-26T00:47:10.177Z",
     "touch_id": "commissioner"
   },
@@ -608,6 +643,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-25T22:45:27.749Z",
     "touch_id": "commissioner"
   },
@@ -625,6 +661,7 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-25T22:45:27.740Z",
     "touch_id": "commissioner"
   },
@@ -642,75 +679,44 @@
     "season": null,
     "fee": 0,
     "emailStatus": null,
+    "pickIds": null,
     "touch_dt": "2026-04-27T16:39:35.578Z",
     "touch_id": "commissioner"
   },
   {
-    "id": 97,
+    "id": 108,
     "leagueId": 1,
-    "date": "2026-04-28T22:37:49.444Z",
+    "date": "2026-04-29T14:08:21.988Z",
     "type": "TRADE",
-    "description": "Traded to Old Bridge: 2026 Draft Pick Rd 1 (#6), 2026 Draft Pick Rd 1 (#16), 2026 Draft Pick Rd 2 (#21)",
-    "fromTeam": "Crimson",
-    "toTeam": "Old Bridge",
-    "owner": "Bob Glade",
-    "status": "Pending",
-    "weekBack": null,
-    "season": null,
-    "fee": 0,
-    "emailStatus": null,
-    "touch_dt": "2026-04-28T22:37:49.443Z",
-    "touch_id": "Bob Glade"
-  },
-  {
-    "id": 98,
-    "leagueId": 1,
-    "date": "2026-04-28T22:37:49.465Z",
-    "type": "TRADE",
-    "description": "Traded to Crimson: QB - Caleb Williams, 2026 Draft Pick Rd 1 (#3)",
+    "description": "Traded to Crimson: Caleb Williams - QB, 2026 Old Bridge 1st round pick (3rd overall)",
     "fromTeam": "Old Bridge",
     "toTeam": "Crimson",
-    "owner": "Bob Glade",
-    "status": "Pending",
+    "owner": "George Di Martino",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
     "emailStatus": null,
-    "touch_dt": "2026-04-28T22:37:49.464Z",
-    "touch_id": "Bob Glade"
+    "pickIds": null,
+    "touch_dt": "2026-04-29T14:08:21.987Z",
+    "touch_id": "commissioner"
   },
   {
-    "id": 99,
+    "id": 107,
     "leagueId": 1,
-    "date": "2026-04-28T22:43:32.985Z",
+    "date": "2026-04-29T14:08:21.974Z",
     "type": "TRADE",
-    "description": "Traded to Old Bridge: 2027 Draft Pick Rd 1 (#6), 2027 Draft Pick Rd 1 (#16), 2027 Draft Pick Rd 2 (#21)",
+    "description": "Traded to Old Bridge: 2026 Crimson 1st round pick (6th overall), 2026 Crimson 1st round pick via LBI (16th overall), 2027 Crimson 2nd round pick (21st overall)",
     "fromTeam": "Crimson",
     "toTeam": "Old Bridge",
-    "owner": "Bob Glade",
-    "status": "Pending",
+    "owner": "George Di Martino",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
     "emailStatus": null,
-    "touch_dt": "2026-04-28T22:43:32.985Z",
-    "touch_id": "Bob Glade"
-  },
-  {
-    "id": 100,
-    "leagueId": 1,
-    "date": "2026-04-28T22:43:32.992Z",
-    "type": "TRADE",
-    "description": "Traded to Crimson: QB - Caleb Williams, 2026 Draft Pick Rd 1 (#3)",
-    "fromTeam": "Old Bridge",
-    "toTeam": "Crimson",
-    "owner": "Bob Glade",
-    "status": "Pending",
-    "weekBack": null,
-    "season": null,
-    "fee": 0,
-    "emailStatus": null,
-    "touch_dt": "2026-04-28T22:43:32.990Z",
-    "touch_id": "Bob Glade"
+    "pickIds": null,
+    "touch_dt": "2026-04-29T14:08:21.974Z",
+    "touch_id": "commissioner"
   }
 ]
