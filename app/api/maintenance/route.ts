@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/auth";
+import { auth } from "@/auth";
 import { processStandingsFile, processScheduleFile, processPlayersFile } from "@/lib/maintenance";
 import { getLeagueId } from "@/lib/getLeagueId";
 import { logSystemEvent } from "@/lib/db-helpers";
@@ -9,6 +10,9 @@ export async function POST(request: Request) {
   if (!admin) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
   }
+
+  const session = await auth();
+  const actor = session?.user?.name || (session?.user as { id?: string })?.id || 'commissioner';
 
   const leagueId = await getLeagueId();
   const data = await request.formData();
@@ -30,15 +34,15 @@ export async function POST(request: Request) {
       if (lowerName.includes("standings")) {
         const processResult = await processStandingsFile(fileContent, leagueId);
         result = { ...processResult, fileName };
-        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_STANDINGS', `Imported standings: ${fileName}`, leagueId);
+        if (processResult.success) logSystemEvent(actor, actor, 'IMPORT_STANDINGS', `Imported standings: ${fileName}`, leagueId);
       } else if (lowerName.includes("schedule")) {
         const processResult = await processScheduleFile(fileContent, leagueId);
         result = { ...processResult, fileName };
-        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_SCHEDULE', `Imported schedule: ${fileName}`, leagueId);
+        if (processResult.success) logSystemEvent(actor, actor, 'IMPORT_SCHEDULE', `Imported schedule: ${fileName}`, leagueId);
       } else if (lowerName.endsWith(".csv")) {
         const processResult = await processPlayersFile(fileContent, leagueId);
         result = { ...processResult, fileName };
-        if (processResult.success) logSystemEvent('admin', 'admin', 'IMPORT_PLAYERS', `Imported players: ${fileName}`, leagueId);
+        if (processResult.success) logSystemEvent(actor, actor, 'IMPORT_PLAYERS', `Imported players: ${fileName}`, leagueId);
       } else {
         result = { success: false, message: "Unsupported file type", fileName };
       }
