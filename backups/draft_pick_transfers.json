@@ -50,6 +50,30 @@
     "touch_id": "VV"
   },
   {
+    "id": 102,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 2,
+    "originalTeamId": 55,
+    "currentTeamId": 43,
+    "history": [],
+    "touch_dt": "2026-05-01T01:58:17.521Z",
+    "touch_id": "CK"
+  },
+  {
+    "id": 103,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 1,
+    "originalTeamId": 43,
+    "currentTeamId": 52,
+    "history": [],
+    "touch_dt": "2026-05-01T02:26:56.016Z",
+    "touch_id": "commissioner"
+  },
+  {
     "id": 42,
     "leagueId": 1,
     "year": 2026,

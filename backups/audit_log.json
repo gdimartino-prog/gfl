@@ -2545,5 +2545,41 @@
     "team": "VV",
     "action": "TRANSACTION_DELETE",
     "details": "Transaction #106 deleted"
+  },
+  {
+    "id": 284,
+    "leagueId": 1,
+    "timestamp": "2026-05-01T01:58:17.566Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Tetbury"
+  },
+  {
+    "id": 285,
+    "leagueId": 1,
+    "timestamp": "2026-05-01T02:17:19.508Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_CONDITIONAL",
+    "details": "Transaction #114 conditional details updated"
+  },
+  {
+    "id": 286,
+    "leagueId": 1,
+    "timestamp": "2026-05-01T02:24:55.533Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 287,
+    "leagueId": 1,
+    "timestamp": "2026-05-01T02:33:54.696Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
   }
 ]

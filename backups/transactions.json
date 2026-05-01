@@ -14,6 +14,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-15T14:26:23.013Z",
     "touch_id": "Frank Vitale"
   },
@@ -32,6 +33,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:06.965Z",
     "touch_id": "trade-migration"
   },
@@ -50,6 +52,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:06.991Z",
     "touch_id": "trade-migration"
   },
@@ -68,6 +71,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.011Z",
     "touch_id": "trade-migration"
   },
@@ -86,6 +90,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.044Z",
     "touch_id": "trade-migration"
   },
@@ -104,6 +109,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.076Z",
     "touch_id": "trade-migration"
   },
@@ -122,6 +128,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.107Z",
     "touch_id": "trade-migration"
   },
@@ -140,6 +147,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.139Z",
     "touch_id": "trade-migration"
   },
@@ -158,6 +166,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.169Z",
     "touch_id": "trade-migration"
   },
@@ -176,6 +185,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.202Z",
     "touch_id": "trade-migration"
   },
@@ -194,6 +204,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.233Z",
     "touch_id": "trade-migration"
   },
@@ -212,6 +223,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.263Z",
     "touch_id": "trade-migration"
   },
@@ -230,6 +242,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.295Z",
     "touch_id": "trade-migration"
   },
@@ -248,6 +261,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.325Z",
     "touch_id": "trade-migration"
   },
@@ -266,6 +280,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.342Z",
     "touch_id": "trade-migration"
   },
@@ -284,6 +299,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.372Z",
     "touch_id": "trade-migration"
   },
@@ -302,6 +318,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.403Z",
     "touch_id": "trade-migration"
   },
@@ -320,6 +337,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.438Z",
     "touch_id": "trade-migration"
   },
@@ -338,6 +356,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.467Z",
     "touch_id": "trade-migration"
   },
@@ -356,6 +375,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.500Z",
     "touch_id": "trade-migration"
   },
@@ -374,6 +394,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.530Z",
     "touch_id": "trade-migration"
   },
@@ -392,6 +413,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.560Z",
     "touch_id": "trade-migration"
   },
@@ -410,6 +432,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.592Z",
     "touch_id": "trade-migration"
   },
@@ -428,6 +451,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.621Z",
     "touch_id": "trade-migration"
   },
@@ -446,6 +470,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.652Z",
     "touch_id": "trade-migration"
   },
@@ -464,6 +489,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.683Z",
     "touch_id": "trade-migration"
   },
@@ -482,6 +508,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.716Z",
     "touch_id": "trade-migration"
   },
@@ -500,6 +527,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-27T16:39:35.611Z",
     "touch_id": "commissioner"
   },
@@ -518,6 +546,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-22T02:39:49.957Z",
     "touch_id": "commissioner"
   },
@@ -536,6 +565,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-22T02:39:49.927Z",
     "touch_id": "commissioner"
   },
@@ -554,6 +584,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-24T21:56:02.502Z",
     "touch_id": "commissioner"
   },
@@ -572,6 +603,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-24T21:54:57.217Z",
     "touch_id": "commissioner"
   },
@@ -590,6 +622,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-24T21:54:32.728Z",
     "touch_id": "commissioner"
   },
@@ -608,6 +641,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-24T23:36:23.864Z",
     "touch_id": "commissioner"
   },
@@ -626,6 +660,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-26T00:47:10.177Z",
     "touch_id": "commissioner"
   },
@@ -644,6 +679,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-25T22:45:27.749Z",
     "touch_id": "commissioner"
   },
@@ -662,6 +698,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-25T22:45:27.740Z",
     "touch_id": "commissioner"
   },
@@ -680,6 +717,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-27T16:39:35.578Z",
     "touch_id": "commissioner"
   },
@@ -698,6 +736,7 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-29T14:08:21.987Z",
     "touch_id": "commissioner"
   },
@@ -716,7 +755,48 @@
     "fee": 0,
     "emailStatus": null,
     "pickIds": null,
+    "conditionalDetails": null,
     "touch_dt": "2026-04-29T14:08:21.974Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 113,
+    "leagueId": 1,
+    "date": "2026-05-01T01:58:17.545Z",
+    "type": "TRADE",
+    "description": "Traded to Tetbury: Baker Mayfield - QB",
+    "fromTeam": "Crimson",
+    "toTeam": "Tetbury",
+    "owner": "Bob Glade",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-01T01:58:17.546Z",
+    "touch_id": "Bob Glade"
+  },
+  {
+    "id": 114,
+    "leagueId": 1,
+    "date": "2026-05-01T01:58:17.559Z",
+    "type": "TRADE",
+    "description": "Traded to Crimson: Malik Willis - QB, 2027 Tetbury 2nd round pick (34th overall)",
+    "fromTeam": "Tetbury",
+    "toTeam": "Crimson",
+    "owner": "Bob Glade",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2812
+    ],
+    "conditionalDetails": "The 2nd round draft pick is a contingency pick. If Malik Willis, in next year's rankings, has a salary cap of $10,000 or more, then the 2nd round pick becomes a 4th round pick in next year's draft instead. If Willis is below $10,000, then it remains a 2nd in next year's draft. ",
+    "touch_dt": "2026-05-01T01:58:17.560Z",
     "touch_id": "commissioner"
   }
 ]
