@@ -60,7 +60,7 @@ export async function PATCH(req: NextRequest) {
         return Response.json({ error: 'Conditional details too long (max 2000 characters)' }, { status: 400 });
       }
       await updateTransactionConditional(Number(id), conditionalDetails || null, leagueId);
-      revalidateTag('transactions');
+      revalidateTag('transactions', 'max');
       await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_CONDITIONAL', `Transaction #${id} conditional details updated`, leagueId);
       return Response.json({ success: true });
     }
@@ -72,7 +72,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     await updateTransactionStatus(Number(id), status, leagueId);
-    revalidateTag('transactions');
+    revalidateTag('transactions', 'max');
     await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_STATUS', `Transaction #${id} marked ${status}`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
@@ -102,11 +102,11 @@ export async function DELETE(req: NextRequest) {
     const pickIds = txRow[0]?.pickIds;
     if (pickIds?.length) {
       await Promise.all(pickIds.map(pickId => revertPickTransferByPickId(leagueId, pickId)));
-      revalidateTag('draft-picks');
+      revalidateTag('draft-picks', 'max');
     }
 
     await db.delete(transactions).where(and(eq(transactions.id, Number(id)), eq(transactions.leagueId, leagueId)));
-    revalidateTag('transactions');
+    revalidateTag('transactions', 'max');
     logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted${pickIds?.length ? ` (reverted ${pickIds.length} pick transfer(s))` : ''}`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
@@ -196,7 +196,7 @@ export async function POST(req: Request) {
 
     const actorName = session.user.name || (session.user as { id?: string }).id || 'Commissioner';
     await logTransaction({ ...body, coach: actorName, fromTeam: resolvedFromTeam, details, leagueId, season });
-    revalidateTag('transactions');
+    revalidateTag('transactions', 'max');
     await logSystemEvent(actorName, resolvedFromTeam, type, details || identity, leagueId);
 
     // Send notification
