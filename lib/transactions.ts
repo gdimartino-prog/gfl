@@ -61,6 +61,7 @@ const _getTransactions = unstable_cache(
       fee: transactions.fee,
       season: transactions.season,
       pickIds: transactions.pickIds,
+      conditionalDetails: transactions.conditionalDetails,
     }).from(transactions)
       .where(eq(transactions.leagueId, leagueId))
       .orderBy(desc(transactions.date))
@@ -77,5 +78,11 @@ export async function getTransactions(leagueId: number = 1) {
 export async function updateTransactionStatus(id: number, status: string) {
   await db.update(transactions)
     .set({ status, touch_id: 'commissioner' })
+    .where(eq(transactions.id, id));
+}
+
+export async function updateTransactionConditional(id: number, conditionalDetails: string | null) {
+  await db.update(transactions)
+    .set({ conditionalDetails, touch_id: 'commissioner' })
     .where(eq(transactions.id, id));
 }

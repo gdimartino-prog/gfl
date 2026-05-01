@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { players, teams, transactions, rules, tradeBlock } from '@/schema';
 import { eq, and, isNull } from 'drizzle-orm';
-import { logTransaction, getTransactions, updateTransactionStatus } from '@/lib/transactions';
+import { logTransaction, getTransactions, updateTransactionStatus, updateTransactionConditional } from '@/lib/transactions';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
 import { isAdmin, isCommissioner } from '@/lib/auth';
@@ -33,6 +33,7 @@ export async function GET() {
       fee: t.fee ?? 0,
       season: t.season ?? null,
       pickIds: t.pickIds ?? null,
+      conditionalDetails: t.conditionalDetails ?? null,
     })));
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
@@ -50,9 +51,19 @@ export async function PATCH(req: NextRequest) {
     const teamshort = (session.user as { id?: string }).id || '';
     const leagueId = await getLeagueId();
 
-    const { id, status } = await req.json();
-    if (!id || !status) return Response.json({ error: 'id and status required' }, { status: 400 });
+    const body = await req.json();
+    const { id, status, conditionalDetails } = body;
+    if (!id) return Response.json({ error: 'id required' }, { status: 400 });
 
+    if (conditionalDetails !== undefined) {
+      // Update conditional details on a TRADE transaction
+      await updateTransactionConditional(Number(id), conditionalDetails || null);
+      revalidateTag('transactions', 'max');
+      logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_CONDITIONAL', `Transaction #${id} conditional details updated`, leagueId);
+      return Response.json({ success: true });
+    }
+
+    if (!status) return Response.json({ error: 'status or conditionalDetails required' }, { status: 400 });
     const validStatuses = ['Done', 'Pending', 'On Team'];
     if (!validStatuses.includes(status)) {
       return Response.json({ error: 'Invalid status value' }, { status: 400 });

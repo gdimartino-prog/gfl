@@ -14,6 +14,7 @@ import {
   Trash2,
   DollarSign,
   RefreshCcw,
+  GitMerge,
 } from 'lucide-react';
 import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
@@ -49,6 +50,9 @@ export default function TransactionsPage() {
   const [reprocessId, setReprocessId] = useState<string | null>(null);
   const [reprocessForm, setReprocessForm] = useState({ year: new Date().getFullYear(), round: 1, fromTeam: '', toTeam: '' });
   const [reprocessSaving, setReprocessSaving] = useState(false);
+  const [conditionalId, setConditionalId] = useState<string | null>(null);
+  const [conditionalText, setConditionalText] = useState('');
+  const [conditionalSaving, setConditionalSaving] = useState(false);
   const [showSpend, setShowSpend] = useState(false);
   const [spendSeason, setSpendSeason] = useState('');
   const [spendFrom, setSpendFrom] = useState('');
@@ -152,6 +156,29 @@ export default function TransactionsPage() {
     }
     setReprocessId(null);
     alert('Pick transfer added to transfer table.');
+  };
+
+  const openConditional = (log: Record<string, string>) => {
+    setConditionalText(log.conditionalDetails || '');
+    setConditionalId(conditionalId === log.id ? null : log.id);
+    setReprocessId(null);
+  };
+
+  const handleConditional = async (logId: string) => {
+    if (!conditionalText.trim()) return;
+    setConditionalSaving(true);
+    const res = await fetch('/api/transactions', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: parseInt(logId), conditionalDetails: conditionalText }),
+    });
+    setConditionalSaving(false);
+    if (res.ok) {
+      setConditionalId(null);
+      setLogs(prev => prev.map(l => l.id === logId ? { ...l, conditionalDetails: conditionalText } : l));
+    } else {
+      alert('Failed to save conditional details.');
+    }
   };
 
   const handleTransactionComplete = async () => {
@@ -414,6 +441,9 @@ export default function TransactionsPage() {
                     </td>
                     <td className="px-6 py-5 font-bold text-slate-800 uppercase tracking-tight leading-snug">
                       {log.details}
+                      {log.conditionalDetails && (
+                        <p className="text-[9px] font-black text-amber-600 mt-1 italic tracking-tighter normal-case">⚡ Conditional: {log.conditionalDetails}</p>
+                      )}
                       <p className="text-[9px] font-black text-slate-400 uppercase mt-1 italic tracking-tighter">Coach: {log.coach}</p>
                     </td>
                     <td className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase whitespace-nowrap">{log.fromFull || '—'}</td>
@@ -456,13 +486,22 @@ export default function TransactionsPage() {
                       <td className="px-4 py-5 text-center">
                         <div className="flex items-center justify-center gap-2">
                           {log.type === 'TRADE' && (
-                            <button
-                              onClick={() => openReprocess(log)}
-                              className={`transition-colors ${reprocessId === log.id ? 'text-blue-500' : 'text-slate-300 hover:text-blue-500'}`}
-                              title="Reprocess pick transfer"
-                            >
-                              <RefreshCcw size={14} />
-                            </button>
+                            <>
+                              <button
+                                onClick={() => openConditional(log)}
+                                className={`transition-colors ${conditionalId === log.id ? 'text-amber-500' : log.conditionalDetails ? 'text-amber-400' : 'text-slate-300 hover:text-amber-500'}`}
+                                title={log.conditionalDetails ? 'Edit conditional clause' : 'Add conditional clause'}
+                              >
+                                <GitMerge size={14} />
+                              </button>
+                              <button
+                                onClick={() => openReprocess(log)}
+                                className={`transition-colors ${reprocessId === log.id ? 'text-blue-500' : 'text-slate-300 hover:text-blue-500'}`}
+                                title="Reprocess pick transfer"
+                              >
+                                <RefreshCcw size={14} />
+                              </button>
+                            </>
                           )}
                           <button
                             onClick={() => handleDelete(log.id)}
@@ -475,6 +514,32 @@ export default function TransactionsPage() {
                       </td>
                     )}
                   </tr>
+                  {isCommissioner && conditionalId === log.id && (
+                    <tr className="bg-amber-50/50">
+                      <td colSpan={9} className="px-6 py-4">
+                        <div className="flex flex-col gap-3">
+                          <span className="text-[9px] font-black uppercase tracking-widest text-amber-600">Conditional Clause — saved to this trade record</span>
+                          <textarea
+                            rows={3}
+                            value={conditionalText}
+                            onChange={e => setConditionalText(e.target.value)}
+                            placeholder="e.g. If Malik Willis salary ≥ $10,000 in 2027, pick becomes a 4th round pick instead."
+                            className="w-full px-3 py-2 border border-amber-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-300 resize-none"
+                          />
+                          <div className="flex gap-2">
+                            <button onClick={() => handleConditional(log.id)} disabled={conditionalSaving || !conditionalText.trim()}
+                              className="px-4 py-1.5 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-amber-600 disabled:opacity-50 transition-colors">
+                              {conditionalSaving ? 'Saving…' : 'Save Conditional'}
+                            </button>
+                            <button onClick={() => setConditionalId(null)}
+                              className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors px-2">
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                   {isCommissioner && reprocessId === log.id && (
                     <tr className="bg-blue-50/50">
                       <td colSpan={9} className="px-6 py-4">
