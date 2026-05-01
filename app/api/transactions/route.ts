@@ -61,7 +61,7 @@ export async function PATCH(req: NextRequest) {
       }
       await updateTransactionConditional(Number(id), conditionalDetails || null, leagueId);
       revalidateTag('transactions');
-      logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_CONDITIONAL', `Transaction #${id} conditional details updated`, leagueId);
+      await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_CONDITIONAL', `Transaction #${id} conditional details updated`, leagueId);
       return Response.json({ success: true });
     }
 
@@ -73,7 +73,7 @@ export async function PATCH(req: NextRequest) {
 
     await updateTransactionStatus(Number(id), status, leagueId);
     revalidateTag('transactions');
-    logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_STATUS', `Transaction #${id} marked ${status}`, leagueId);
+    await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_STATUS', `Transaction #${id} marked ${status}`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });

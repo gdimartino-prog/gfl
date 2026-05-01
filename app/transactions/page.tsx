@@ -135,6 +135,7 @@ export default function TransactionsPage() {
     const fromShort = teams.find(t => t.name === log.fromFull)?.teamshort || teams.find(t => t.short === log.fromFull)?.short || '';
     const toShort = teams.find(t => t.name === log.toFull)?.teamshort || teams.find(t => t.short === log.toFull)?.short || '';
     setReprocessForm({ year: new Date().getFullYear(), round: 1, fromTeam: fromShort, toTeam: toShort });
+    setConditionalId(null);
     setReprocessId(reprocessId === log.id ? null : log.id);
   };
 
@@ -162,18 +163,18 @@ export default function TransactionsPage() {
     setReprocessId(null);
   };
 
-  const handleConditional = async (logId: string) => {
-    if (!conditionalText.trim()) return;
+  const handleConditional = async (logId: string, clear = false) => {
+    const value = clear ? '' : conditionalText;
     setConditionalSaving(true);
     const res = await fetch('/api/transactions', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: parseInt(logId), conditionalDetails: conditionalText }),
+      body: JSON.stringify({ id: parseInt(logId), conditionalDetails: value }),
     });
     setConditionalSaving(false);
     if (res.ok) {
       setConditionalId(null);
-      setLogs(prev => prev.map(l => l.id === logId ? { ...l, conditionalDetails: conditionalText } : l));
+      setLogs(prev => prev.map(l => l.id === logId ? { ...l, conditionalDetails: value } : l));
     } else {
       alert('Failed to save conditional details.');
     }
@@ -523,11 +524,17 @@ export default function TransactionsPage() {
                             placeholder="e.g. If Malik Willis salary ≥ $10,000 in 2027, pick becomes a 4th round pick instead."
                             className="w-full px-3 py-2 border border-amber-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-300 resize-none"
                           />
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 flex-wrap">
                             <button onClick={() => handleConditional(log.id)} disabled={conditionalSaving || !conditionalText.trim()}
                               className="px-4 py-1.5 bg-amber-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-amber-600 disabled:opacity-50 transition-colors">
                               {conditionalSaving ? 'Saving…' : 'Save Conditional'}
                             </button>
+                            {log.conditionalDetails && (
+                              <button onClick={() => handleConditional(log.id, true)} disabled={conditionalSaving}
+                                className="px-4 py-1.5 bg-white border border-red-200 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors">
+                                Clear
+                              </button>
+                            )}
                             <button onClick={() => setConditionalId(null)}
                               className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors px-2">
                               Cancel
