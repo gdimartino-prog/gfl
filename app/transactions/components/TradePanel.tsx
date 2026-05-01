@@ -95,6 +95,13 @@ export default function TradePanel({
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [showConditional, setShowConditional] = useState(false);
+  const [condFrom, setCondFrom] = useState('');
+  const [condTo, setCondTo] = useState('');
+  const [condDescription, setCondDescription] = useState('');
+  const [condLoading, setCondLoading] = useState(false);
+  const [condStatus, setCondStatus] = useState('');
+
   const loadData = useCallback(async () => {
     try {
       const timestamp = Date.now();
@@ -419,6 +426,89 @@ export default function TradePanel({
           {status}
         </div>
       )}
+
+      {/* CONDITIONAL TRADE LOG */}
+      <div className="border-t border-slate-100 pt-4">
+          <button
+            type="button"
+            onClick={() => { setShowConditional(v => !v); setCondStatus(''); }}
+            className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-amber-600 transition-colors flex items-center gap-2"
+          >
+            <span className={`transition-transform ${showConditional ? 'rotate-90' : ''}`}>▶</span>
+            Log Conditional Trade
+          </button>
+
+          {showConditional && (
+            <div className="mt-4 space-y-4 bg-amber-50 border border-amber-100 rounded-xl p-5">
+              <p className="text-[10px] font-black uppercase tracking-widest text-amber-600">
+                Conditional Trade — for record keeping only. Resolve manually if condition is met.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">From Team</label>
+                  <select
+                    value={condFrom}
+                    onChange={e => setCondFrom(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-300"
+                  >
+                    <option value="">Select team…</option>
+                    {teams.map(t => <option key={t.short} value={t.name}>{t.name}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">To Team</label>
+                  <select
+                    value={condTo}
+                    onChange={e => setCondTo(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-300"
+                  >
+                    <option value="">Select team…</option>
+                    {teams.map(t => <option key={t.short} value={t.name}>{t.name}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Condition Details</label>
+                <textarea
+                  value={condDescription}
+                  onChange={e => setCondDescription(e.target.value)}
+                  rows={4}
+                  placeholder="e.g. Tetbury's 2027 2nd round pick goes to Crimson Kings. If Malik Willis salary ≥ $10,000 in 2027 rankings, the pick becomes a 4th round pick instead."
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-300 resize-none"
+                />
+              </div>
+              <button
+                type="button"
+                disabled={condLoading || !condFrom || !condTo || !condDescription.trim()}
+                onClick={async () => {
+                  setCondLoading(true);
+                  setCondStatus('');
+                  const res = await fetch('/api/transactions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type: 'CONDITIONAL TRADE', details: condDescription, fromTeam: condFrom, toTeam: condTo }),
+                  });
+                  setCondLoading(false);
+                  if (res.ok) {
+                    setCondStatus('✅ Conditional trade logged.');
+                    setCondFrom(''); setCondTo(''); setCondDescription('');
+                    onComplete?.();
+                  } else {
+                    setCondStatus('❌ Failed to log conditional trade.');
+                  }
+                }}
+                className="w-full bg-amber-500 text-white p-3 rounded-xl font-black uppercase tracking-widest text-[11px] hover:bg-amber-600 disabled:bg-slate-200 disabled:text-slate-400 transition-all active:scale-95"
+              >
+                {condLoading ? 'Logging…' : 'Log Conditional Trade'}
+              </button>
+              {condStatus && (
+                <p className={`text-xs font-bold text-center ${condStatus.includes('✅') ? 'text-green-600' : 'text-red-600'}`}>
+                  {condStatus}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
     </div>
   );
 }

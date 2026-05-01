@@ -358,6 +358,7 @@ export default function TransactionsPage() {
                 <option value="INJURY PICKUP">Injury Pickup</option>
                 <option value="IR MOVE">IR Move</option>
                 <option value="TRADE">Trade</option>
+                <option value="CONDITIONAL TRADE">Conditional Trade</option>
               </select>
             </div>
             <div className="flex-1 min-w-[160px] relative">
@@ -402,6 +403,7 @@ export default function TransactionsPage() {
                     <td className="px-6 py-5">
                       <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap ${
                         log.type === 'TRADE' ? 'bg-purple-100 text-purple-700' :
+                        log.type === 'CONDITIONAL TRADE' ? 'bg-amber-100 text-amber-700' :
                         log.type === 'WAIVE' || log.type === 'DROP' ? 'bg-red-100 text-red-700' :
                         log.type === 'INJURY PICKUP' ? 'bg-amber-100 text-amber-700' :
                         log.type === 'IR MOVE' ? 'bg-orange-100 text-orange-700' :
