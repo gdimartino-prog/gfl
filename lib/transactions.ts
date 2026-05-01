@@ -75,14 +75,14 @@ export async function getTransactions(leagueId: number = 1) {
   return _getTransactions(leagueId);
 }
 
-export async function updateTransactionStatus(id: number, status: string) {
+export async function updateTransactionStatus(id: number, status: string, leagueId: number = 1) {
   await db.update(transactions)
     .set({ status, touch_id: 'commissioner' })
-    .where(eq(transactions.id, id));
+    .where(and(eq(transactions.id, id), eq(transactions.leagueId, leagueId)));
 }
 
-export async function updateTransactionConditional(id: number, conditionalDetails: string | null) {
+export async function updateTransactionConditional(id: number, conditionalDetails: string | null, leagueId: number = 1) {
   await db.update(transactions)
     .set({ conditionalDetails, touch_id: 'commissioner' })
-    .where(eq(transactions.id, id));
+    .where(and(eq(transactions.id, id), eq(transactions.leagueId, leagueId)));
 }

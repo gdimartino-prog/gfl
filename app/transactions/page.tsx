@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSession } from "next-auth/react";
 import {
   ArrowLeftRight,
@@ -32,7 +31,6 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function TransactionsPage() {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const { selectedTeam, setSelectedTeam } = useTeam();
 
@@ -184,7 +182,6 @@ export default function TransactionsPage() {
   const handleTransactionComplete = async () => {
     await fetchLogs();
     setRefreshKey(prev => prev + 1);
-    router.refresh();
   };
 
   const filteredLogs = useMemo(() => {
