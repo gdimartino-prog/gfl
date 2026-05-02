@@ -64,9 +64,9 @@ export async function GET(req: NextRequest) {
         status,
         draftedPlayer: p.selectedPlayer ?? p.selectedPlayerName ?? '',
         draftedPlayerPosition: p.selectedPlayerPosition ?? '',
-        timestamp: p.pickedAt ? p.pickedAt.toISOString() : '',
+        timestamp: p.pickedAt ? new Date(p.pickedAt).toISOString() : '',
         clockMinutes: status === 'Active' ? clockMinutes : null,
-        scheduledAt: p.scheduledAt ? p.scheduledAt.toISOString() : null,
+        scheduledAt: p.scheduledAt ? new Date(p.scheduledAt).toISOString() : null,
         processedBy: '',
         history: (p.transferHistory && p.transferHistory.length > 0)
           ? p.transferHistory.map(id => teamShortMap[id] ?? '').filter(Boolean).join(',')

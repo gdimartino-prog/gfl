@@ -72,7 +72,7 @@ export async function GET(req: Request) {
       }
 
       // If the pick has a scheduled start time that hasn't arrived yet, skip
-      if (activePick.scheduledAt && activePick.scheduledAt > now) {
+      if (activePick.scheduledAt && new Date(activePick.scheduledAt) > now) {
         results.push({ leagueId, skipped: 'pick not yet scheduled', scheduledAt: activePick.scheduledAt });
         continue;
       }
