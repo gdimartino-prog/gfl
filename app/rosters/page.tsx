@@ -784,8 +784,9 @@ function RosterSection({ title, players, accent, color, onDetails, onToggleTrade
                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Age {p.core?.age || p.age || '??'}</span>
                     {(() => {
                       const pos = (p.pos || '').toUpperCase();
-                      const isOL = ['C', 'G', 'OT', 'OG', 'T', 'OL'].includes(pos);
-                      const isSkill = ['WR', 'TE', 'RB', 'HB', 'FB'].includes(pos);
+                      const posParts = pos.split(/[-/]/).map(s => s.trim());
+                      const isOL = posParts.some(part => ['C', 'G', 'OT', 'OG', 'T', 'OL'].includes(part));
+                      const isSkill = posParts.some(part => ['WR', 'TE', 'RB', 'HB', 'FB'].includes(part));
                       const skillRating = isSkill ? (p as {receiving?: string | null}).receiving : null;
                       const ovrVal = isSkill
                         ? (skillRating && skillRating !== '0' ? skillRating : null)
