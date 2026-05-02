@@ -127,8 +127,46 @@ const POSITION_GROUPS: {
     ],
   },
   {
-    label: 'Offensive Line',
-    positions: ['OL', 'C', 'G', 'T', 'C-G', 'G-T'],
+    label: 'Centers',
+    positions: ['C', 'C-G'],
+    cols: [
+      { key: 'age',  label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
+      { key: 'rblk', label: 'RBlk', numeric: true, getValue: p => s(p, 'run block') },
+      { key: 'pblk', label: 'PBlk', numeric: true, getValue: p => s(p, 'pass block') },
+      { key: 'avgb', label: 'AvgB', numeric: true, getValue: p => {
+          const rb = parseFloat(String(s(p, 'run block'))) || 0;
+          const pb = parseFloat(String(s(p, 'pass block'))) || 0;
+          return rb + pb > 0 ? ((rb + pb) / 2).toFixed(0) : '—';
+        }
+      },
+      { key: 'sy',   label: 'ShYd', numeric: true, getValue: p => s(p, 'short yardage') },
+      { key: 'gms',  label: 'Gms',  numeric: true, getValue: p => s(p, 'games') },
+      { key: 'dur',  label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
+      { key: 'sal',  label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
+    ],
+  },
+  {
+    label: 'Guards',
+    positions: ['G', 'G-T'],
+    cols: [
+      { key: 'age',  label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
+      { key: 'rblk', label: 'RBlk', numeric: true, getValue: p => s(p, 'run block') },
+      { key: 'pblk', label: 'PBlk', numeric: true, getValue: p => s(p, 'pass block') },
+      { key: 'avgb', label: 'AvgB', numeric: true, getValue: p => {
+          const rb = parseFloat(String(s(p, 'run block'))) || 0;
+          const pb = parseFloat(String(s(p, 'pass block'))) || 0;
+          return rb + pb > 0 ? ((rb + pb) / 2).toFixed(0) : '—';
+        }
+      },
+      { key: 'sy',   label: 'ShYd', numeric: true, getValue: p => s(p, 'short yardage') },
+      { key: 'gms',  label: 'Gms',  numeric: true, getValue: p => s(p, 'games') },
+      { key: 'dur',  label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
+      { key: 'sal',  label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
+    ],
+  },
+  {
+    label: 'Tackles',
+    positions: ['T', 'OL'],
     cols: [
       { key: 'age',  label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
       { key: 'rblk', label: 'RBlk', numeric: true, getValue: p => s(p, 'run block') },
