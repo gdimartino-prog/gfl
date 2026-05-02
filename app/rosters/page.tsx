@@ -784,25 +784,29 @@ function RosterSection({ title, players, accent, color, onDetails, onToggleTrade
                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Age {p.core?.age || p.age || '??'}</span>
                     {(() => {
                       const pos = (p.pos || '').toUpperCase();
-                      const posParts = pos.split(/[-/]/).map(s => s.trim());
+                      // Fall back to offensePos when position column is missing
+                      const effectivePos = (pos && pos !== '??')
+                        ? pos
+                        : ((p as {offensePos?: string}).offensePos || '').toUpperCase();
+                      const posParts = effectivePos.split(/[-/]/).map(s => s.trim());
                       const isOL = posParts.some(part => ['C', 'G', 'OT', 'OG', 'T', 'OL'].includes(part));
                       const isSkill = posParts.some(part => ['WR', 'TE', 'RB', 'HB', 'FB'].includes(part));
-                      const skillRating = isSkill ? (p as {receiving?: string | null}).receiving : null;
                       const olRating = (() => {
-                        if (p.overall && Number(p.overall) > 0) return (Number(p.overall) / 2).toFixed(1);
                         const run = Number((p as {run?: string}).run ?? 0);
                         const pass = Number((p as {pass?: string}).pass ?? 0);
                         if (run > 0 && pass > 0) return ((run + pass) / 2).toFixed(1);
                         if (run > 0) return run.toFixed(1);
                         if (pass > 0) return pass.toFixed(1);
+                        if (p.overall && Number(p.overall) > 0) return (Number(p.overall) / 2).toFixed(1);
                         return null;
                       })();
+                      const salaryVal = (p as {salary?: string | null}).salary;
                       const ovrVal = isSkill
-                        ? (skillRating && skillRating !== '0' ? skillRating : null)
+                        ? (salaryVal && salaryVal !== '0' ? `$${salaryVal}` : null)
                         : isOL
                           ? olRating
                           : (p.overall || null);
-                      return ovrVal ? <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">OVR {ovrVal}</span> : null;
+                      return ovrVal ? <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">{isSkill ? ovrVal : `OVR ${ovrVal}`}</span> : null;
                     })()}
                   </div>
                 </div>

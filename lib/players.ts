@@ -36,14 +36,16 @@ const sharedSelect = {
   teamName: teams.name,
   salary: sql<string | null>`${players.scouting}->>'salary'`,
   receiving: sql<string | null>`${players.scouting}->>'receiving'`,
+  runBlockScouting: sql<string | null>`${players.scouting}->>'run block'`,
+  passBlockScouting: sql<string | null>`${players.scouting}->>'pass block'`,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapRow = (p: any) => ({
   ...p,
   team: p.teamShort ?? 'FA',
-  run: p.runBlock ?? '0',
-  pass: p.passBlock ?? '0',
+  run: p.runBlock ?? p.runBlockScouting ?? '0',
+  pass: p.passBlock ?? p.passBlockScouting ?? '0',
   rush: p.rushYards ?? '0',
   int: p.interceptionsVal ?? '0',
   sack: p.sacksVal ?? '0',
