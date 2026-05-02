@@ -17,9 +17,10 @@ const PlayerCard: React.FC<PlayerCardProps> = ({ data, onClose }) => {
   const posDef = data.core?.pos?.def?.toUpperCase() || "";
   const posSpec = data.core?.pos?.spec?.toUpperCase() || "";
 
+  const posOffParts = posOff.split(/[-/]/).map(s => s.trim());
   const isQB = posOff === 'QB';
-  const isOL = ['C', 'G', 'T', 'OL'].includes(posOff);
-  const isSkill = ['WR', 'TE', 'RB', 'HB', 'FB'].includes(posOff);
+  const isOL = posOffParts.some(p => ['C', 'G', 'T', 'OT', 'OG', 'OL'].includes(p));
+  const isSkill = posOffParts.some(p => ['WR', 'TE', 'RB', 'HB', 'FB'].includes(p));
   const isDef = posDef !== "";
 
   // 2. THE STAT MAPPING ENGINE
