@@ -8,6 +8,7 @@ import { logSystemEvent } from '@/lib/db-helpers';
 import { alias } from 'drizzle-orm/pg-core';
 import { auth } from '@/auth';
 import { isAdmin, isCommissioner } from '@/lib/auth';
+import { revalidateTag } from 'next/cache';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -127,6 +128,7 @@ export async function POST(req: NextRequest) {
       .filter(p => !p.playerId)
       .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
+    revalidateTag('draft-picks', 'max');
     logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`, leagueId);
 
     console.log('[draft-selection] notifying pick, leagueId:', leagueId);

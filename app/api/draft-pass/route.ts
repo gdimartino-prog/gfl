@@ -6,6 +6,7 @@ import { eq, and } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { alias } from 'drizzle-orm/pg-core';
+import { revalidateTag } from 'next/cache';
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
       .set({ passed: true, pickedAt: new Date(), touch_id: coachName || 'draft' })
       .where(eq(draftPicks.id, pick.id));
 
+    revalidateTag('draft-picks', 'max');
     logSystemEvent(coachName || '', pick.currentOwner || '', 'DRAFT_PASS', `R${pick.round} #${overallPick}: PASSED`, leagueId);
 
     return NextResponse.json({ success: true });
