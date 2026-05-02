@@ -214,8 +214,23 @@ const POSITION_GROUPS: {
     ],
   },
   {
-    label: 'Defensive Backs',
-    positions: ['DB', 'CB', 'S', 'SAF', 'FS', 'SS'],
+    label: 'Cornerbacks',
+    positions: ['CB'],
+    cols: [
+      { key: 'age',    label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
+      { key: 'tdef',   label: 'TDef', numeric: true, getValue: p => s(p, 'total defense') },
+      { key: 'rdef',   label: 'RDef', numeric: true, getValue: p => s(p, 'run defense') },
+      { key: 'pdef',   label: 'PDef', numeric: true, getValue: p => s(p, 'pass defense') },
+      { key: 'int',    label: 'INT',  numeric: true, getValue: p => s(p, 'interceptions') },
+      { key: 'tkl',    label: 'Tkl',  numeric: true, getValue: p => s(p, 'tackles') },
+      { key: 'audible',label: 'Aud',  numeric: true, getValue: p => s(p, 'audible') },
+      { key: 'dur',    label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
+      { key: 'sal',    label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
+    ],
+  },
+  {
+    label: 'Safeties',
+    positions: ['S', 'SAF', 'FS', 'SS', 'DB'],
     cols: [
       { key: 'age',    label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
       { key: 'tdef',   label: 'TDef', numeric: true, getValue: p => s(p, 'total defense') },
