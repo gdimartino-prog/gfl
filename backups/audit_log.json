@@ -2581,5 +2581,32 @@
     "team": "System",
     "action": "LOGIN",
     "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 288,
+    "leagueId": 1,
+    "timestamp": "2026-05-01T23:57:40.606Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 289,
+    "leagueId": 1,
+    "timestamp": "2026-05-02T00:07:57.011Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 290,
+    "leagueId": 1,
+    "timestamp": "2026-05-02T00:37:53.404Z",
+    "coach": "George Di Martino",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R1 #1: WR - Tetairoa McMillan"
   }
 ]
