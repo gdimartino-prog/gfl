@@ -7,7 +7,7 @@ import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { isAdmin, isCommissioner } from '@/lib/auth';
 import { logSystemEvent } from '@/lib/db-helpers';
-import { getDraftClockMinutes } from '@/lib/draftClock';
+import { getDraftClockMinutes, getDraftStartDate } from '@/lib/draftClock';
 import { revalidateTag } from 'next/cache';
 
 export async function GET(req: NextRequest) {
@@ -29,15 +29,19 @@ export async function GET(req: NextRequest) {
       const isDrafted = !!p.selectedPlayer || isSkipped;
       if (!isDrafted && !p.passed) { activeRound = p.round; break; }
     }
-    const clockMinutes = activeRound !== null ? await getDraftClockMinutes(leagueId, activeRound) : null;
+    // Hold "Active" status until the official draft start date has passed
+    const draftStartDate = await getDraftStartDate(leagueId);
+    const draftHasStarted = !draftStartDate || new Date() >= draftStartDate;
+
+    const clockMinutes = (activeRound !== null && draftHasStarted) ? await getDraftClockMinutes(leagueId, activeRound) : null;
 
     // Build teamId → teamshort map for history resolution
     const allTeams = await db.select({ id: teams.id, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId));
     const teamShortMap: Record<number, string> = Object.fromEntries(allTeams.map(t => [t.id, t.teamshort ?? '']));
 
     const formattedPicks = sorted.map(p => {
-      const isSkipped = !p.selectedPlayer && !!p.pickedAt && !p.passed; // auto-expired, no player
-      const isDrafted = !!p.selectedPlayer || isSkipped;
+      const isSkipped = !p.selectedPlayer && !p.selectedPlayerName && !!p.pickedAt && !p.passed; // auto-expired, no player
+      const isDrafted = !!p.selectedPlayer || !!p.selectedPlayerName || isSkipped;
       const isPassed = !isDrafted && p.passed;
       let status: string;
       if (isSkipped) {
@@ -46,7 +50,7 @@ export async function GET(req: NextRequest) {
         status = 'Drafted';
       } else if (isPassed) {
         status = 'Passed';
-      } else if (!onClockSet) {
+      } else if (!onClockSet && draftHasStarted) {
         status = 'Active';
         onClockSet = true;
       } else {
