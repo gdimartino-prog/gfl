@@ -221,9 +221,12 @@ const handleUndoMyPick = async () => {
     const clockMins = (onClockPick as { clockMinutes?: number | null }).clockMinutes ?? 1440;
     const limitMs = clockMins * 60 * 1000;
     // Clock starts from: scheduledAt (if set and past) > previous pick's timestamp > now
-    const clockStartMs = scheduledAtMs && scheduledAtMs <= Date.now()
+    // Apply draftStartDate as a floor — clock never starts before the official draft start.
+    const draftStartMs = draftStartDate ? draftStartDate.getTime() : 0;
+    const rawClockStartMs = scheduledAtMs && scheduledAtMs <= Date.now()
       ? scheduledAtMs
       : previousPick?.timestamp ? new Date(previousPick.timestamp).getTime() : Date.now();
+    const clockStartMs = (draftStartMs > 0 && rawClockStartMs < draftStartMs) ? draftStartMs : rawClockStartMs;
     const expiryTime = clockStartMs + limitMs;
 
     const computeAndSet = () => {

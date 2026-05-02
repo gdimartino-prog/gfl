@@ -22,12 +22,21 @@ export async function GET(req: NextRequest) {
 
     // Sort by overall pick number then find the first undrafted pick (on the clock)
     const sorted = [...filtered].sort((a, b) => (a.pick ?? 0) - (b.pick ?? 0));
+
+    // Build set of pick numbers that already have a finalized entry — guards against
+    // duplicate pick rows where one copy is drafted and the other is still open.
+    const draftedPickNums = new Set<number>(
+      sorted
+        .filter(p => !!p.selectedPlayer || !!p.selectedPlayerName)
+        .map(p => p.pick ?? -1)
+    );
+
     let onClockSet = false;
     let activeRound: number | null = null;
     for (const p of sorted) {
-      const isSkipped = !p.selectedPlayer && !!p.pickedAt && !p.passed;
-      const isDrafted = !!p.selectedPlayer || isSkipped;
-      if (!isDrafted && !p.passed) { activeRound = p.round; break; }
+      const isSkipped = !p.selectedPlayer && !p.selectedPlayerName && !!p.pickedAt && !p.passed;
+      const isDrafted = !!p.selectedPlayer || !!p.selectedPlayerName || isSkipped;
+      if (!isDrafted && !p.passed && !draftedPickNums.has(p.pick ?? -1)) { activeRound = p.round; break; }
     }
     // Hold "Active" status until the official draft start date has passed
     const draftStartDate = await getDraftStartDate(leagueId);
@@ -50,7 +59,7 @@ export async function GET(req: NextRequest) {
         status = 'Drafted';
       } else if (isPassed) {
         status = 'Passed';
-      } else if (!onClockSet && draftHasStarted) {
+      } else if (!onClockSet && draftHasStarted && !draftedPickNums.has(p.pick ?? -1)) {
         status = 'Active';
         onClockSet = true;
       } else {
