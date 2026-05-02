@@ -788,10 +788,19 @@ function RosterSection({ title, players, accent, color, onDetails, onToggleTrade
                       const isOL = posParts.some(part => ['C', 'G', 'OT', 'OG', 'T', 'OL'].includes(part));
                       const isSkill = posParts.some(part => ['WR', 'TE', 'RB', 'HB', 'FB'].includes(part));
                       const skillRating = isSkill ? (p as {receiving?: string | null}).receiving : null;
+                      const olRating = (() => {
+                        if (p.overall && Number(p.overall) > 0) return (Number(p.overall) / 2).toFixed(1);
+                        const run = Number((p as {run?: string}).run ?? 0);
+                        const pass = Number((p as {pass?: string}).pass ?? 0);
+                        if (run > 0 && pass > 0) return ((run + pass) / 2).toFixed(1);
+                        if (run > 0) return run.toFixed(1);
+                        if (pass > 0) return pass.toFixed(1);
+                        return null;
+                      })();
                       const ovrVal = isSkill
                         ? (skillRating && skillRating !== '0' ? skillRating : null)
                         : isOL
-                          ? (p.overall ? (Number(p.overall) / 2).toFixed(1) : null)
+                          ? olRating
                           : (p.overall || null);
                       return ovrVal ? <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">OVR {ovrVal}</span> : null;
                     })()}
