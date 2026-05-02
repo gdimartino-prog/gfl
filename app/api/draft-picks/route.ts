@@ -7,7 +7,7 @@ import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { isAdmin, isCommissioner } from '@/lib/auth';
 import { logSystemEvent } from '@/lib/db-helpers';
-import { getDraftClockMinutes, getDraftStartDate } from '@/lib/draftClock';
+import { getDraftClockMinutes, getDraftStartDate, getDraftYear } from '@/lib/draftClock';
 import { revalidateTag } from 'next/cache';
 
 export async function GET(req: NextRequest) {
@@ -17,23 +17,30 @@ export async function GET(req: NextRequest) {
   try {
     const leagueId = await getLeagueId();
     const typeFilter = req.nextUrl.searchParams.get('type'); // 'rookie' | 'free_agent' | null = all
-    const allPicks = await getAllDraftPicks(leagueId);
+    const [allPicks, draftYear] = await Promise.all([
+      getAllDraftPicks(leagueId),
+      getDraftYear(leagueId),
+    ]);
     const filtered = typeFilter ? (allPicks as DraftPickRow[]).filter(p => p.draftType === typeFilter) : allPicks as DraftPickRow[];
 
     // Sort by overall pick number then find the first undrafted pick (on the clock)
     const sorted = [...filtered].sort((a, b) => (a.pick ?? 0) - (b.pick ?? 0));
 
-    // Build set of pick numbers that already have a finalized entry — guards against
-    // duplicate pick rows where one copy is drafted and the other is still open.
+    // Scope Active pick determination to the current draft year only.
+    // getAllDraftPicks returns all years; mixing years causes wrong picks to be
+    // marked Active because pick numbers repeat across years.
+    const currentYearSorted = sorted.filter(p => p.year === draftYear);
+
+    // Build set of pick numbers that already have a finalized entry (current year only)
     const draftedPickNums = new Set<number>(
-      sorted
+      currentYearSorted
         .filter(p => !!p.selectedPlayer || !!p.selectedPlayerName)
         .map(p => p.pick ?? -1)
     );
 
     let onClockSet = false;
     let activeRound: number | null = null;
-    for (const p of sorted) {
+    for (const p of currentYearSorted) {
       const isSkipped = !p.selectedPlayer && !p.selectedPlayerName && !!p.pickedAt && !p.passed;
       const isDrafted = !!p.selectedPlayer || !!p.selectedPlayerName || isSkipped;
       if (!isDrafted && !p.passed && !draftedPickNums.has(p.pick ?? -1)) { activeRound = p.round; break; }
@@ -48,6 +55,9 @@ export async function GET(req: NextRequest) {
     const allTeams = await db.select({ id: teams.id, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId));
     const teamShortMap: Record<number, string> = Object.fromEntries(allTeams.map(t => [t.id, t.teamshort ?? '']));
 
+    // Build set of pick IDs that are in the current draft year — only these can be Active
+    const currentYearPickIds = new Set(currentYearSorted.map(p => p.id));
+
     const formattedPicks = sorted.map(p => {
       const isSkipped = !p.selectedPlayer && !p.selectedPlayerName && !!p.pickedAt && !p.passed; // auto-expired, no player
       const isDrafted = !!p.selectedPlayer || !!p.selectedPlayerName || isSkipped;
@@ -59,7 +69,7 @@ export async function GET(req: NextRequest) {
         status = 'Drafted';
       } else if (isPassed) {
         status = 'Passed';
-      } else if (!onClockSet && draftHasStarted && !draftedPickNums.has(p.pick ?? -1)) {
+      } else if (!onClockSet && draftHasStarted && currentYearPickIds.has(p.id) && !draftedPickNums.has(p.pick ?? -1)) {
         status = 'Active';
         onClockSet = true;
       } else {

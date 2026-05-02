@@ -159,10 +159,16 @@ const handleUndoMyPick = async () => {
 
   // --- CLOCK & STATUS LOGIC ---
   const { onClockPick, previousPick } = useMemo(() => {
-    const currentIndex = picks.findIndex(p => p.status === "Active");
+    const activeIndex = picks.findIndex(p => p.status === "Active");
+    const onClockPick = picks[activeIndex];
+    if (!onClockPick) return { onClockPick: undefined as typeof picks[0] | undefined, previousPick: null };
+    // Scope previousPick to the same draft year — multi-year picks are interleaved
+    // in the array and a different-year pick has no timestamp, breaking clock math.
+    const sameYearPicks = picks.filter(p => p.year === onClockPick.year);
+    const activeInYear = sameYearPicks.findIndex(p => p.status === "Active");
     return {
-      onClockPick: picks[currentIndex],
-      previousPick: currentIndex > 0 ? picks[currentIndex - 1] : null
+      onClockPick,
+      previousPick: activeInYear > 0 ? sameYearPicks[activeInYear - 1] : null,
     };
   }, [picks]);
 

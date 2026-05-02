@@ -55,6 +55,20 @@ export function getWarningThresholdMinutes(clockMinutes: number): number {
 }
 
 /**
+ * Get the current draft year for a league from the draft_year rule.
+ * Falls back to the current calendar year if not configured.
+ */
+export async function getDraftYear(leagueId: number): Promise<number> {
+  const row = await db
+    .select({ value: rules.value })
+    .from(rules)
+    .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'draft_year')))
+    .limit(1);
+  const val = parseInt(row[0]?.value ?? '');
+  return isNaN(val) ? new Date().getFullYear() : val;
+}
+
+/**
  * Get the official draft start date for a league.
  * Returns null if not configured or if the date is invalid.
  * The clock does not run until this date/time has passed.
