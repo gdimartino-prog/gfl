@@ -520,7 +520,7 @@ export default function FreeAgentsPage() {
       group,
       players: players.filter(p => {
         const pos = (p.offense || p.defense || p.special || p.position || '').toUpperCase();
-        const inGroup = group.positions.includes(pos);
+        const inGroup = group.positions.some(gp => pos === gp || pos.split('-').includes(gp) || pos.split('/').includes(gp));
         const inPosFilter = posFilter === ALL_POS || posFilter === STARRED || group.label === posFilter;
         return inGroup && inPosFilter;
       }),
@@ -532,7 +532,7 @@ export default function FreeAgentsPage() {
     POSITION_GROUPS.forEach(g => {
       const hasPlayers = players.some(p => {
         const pos = (p.offense || p.defense || p.special || p.position || '').toUpperCase();
-        return g.positions.includes(pos);
+        return g.positions.some(gp => pos === gp || pos.split('-').includes(gp) || pos.split('/').includes(gp));
       });
       if (hasPlayers) seen.add(g.label);
     });
