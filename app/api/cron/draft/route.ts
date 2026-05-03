@@ -30,6 +30,10 @@ export async function GET(req: Request) {
       if (!leagueId) continue;
       const draftYear = parseInt(draftYearRule.value || '0');
       if (!draftYear) continue;
+      if (draftYear > new Date().getFullYear()) {
+        results.push({ leagueId, skipped: `draft_year ${draftYear} is in the future` });
+        continue;
+      }
 
       const originalTeams = alias(teams, 'originalTeams');
       const currentTeams = alias(teams, 'currentTeams');

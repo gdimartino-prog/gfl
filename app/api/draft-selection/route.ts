@@ -34,6 +34,10 @@ export async function POST(req: NextRequest) {
       .limit(1);
     const draftYear = parseInt(draftYearRow[0]?.value || '0') || new Date().getFullYear();
 
+    if (draftYear > new Date().getFullYear()) {
+      return NextResponse.json({ error: `Draft year ${draftYear} is in the future — picks are not allowed until that year begins.` }, { status: 400 });
+    }
+
     // 1. Find the draft pick row by overall pick number, scoped to the current draft year
     const originalTeams = alias(teams, 'originalTeams');
     const currentTeams = alias(teams, 'currentTeams');

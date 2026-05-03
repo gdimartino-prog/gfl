@@ -33,6 +33,10 @@ export async function POST() {
       .limit(1);
     const year = yearRow[0]?.value ? Number(yearRow[0].value) : new Date().getFullYear();
 
+    if (year > new Date().getFullYear()) {
+      return NextResponse.json({ error: `Draft year ${year} is in the future — picks are not allowed until that year begins.` }, { status: 400 });
+    }
+
     // Get the last pick this team made
     const lastPick = await getLastPickForTeam(teamId, leagueId, year);
     if (!lastPick) return NextResponse.json({ error: 'No pick found to undo' }, { status: 400 });

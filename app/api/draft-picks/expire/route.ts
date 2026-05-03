@@ -24,6 +24,7 @@ export async function POST() {
 
     const draftYear = parseInt(draftYearRow[0]?.value || '0');
     if (!draftYear) return NextResponse.json({ skipped: 'no draft_year configured' });
+    if (draftYear > new Date().getFullYear()) return NextResponse.json({ skipped: `draft_year ${draftYear} is in the future` });
 
     const originalTeams = alias(teams, 'originalTeams');
     const currentTeams = alias(teams, 'currentTeams');
