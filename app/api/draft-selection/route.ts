@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { draftPicks, players, teams } from '@/schema';
+import { draftPicks, players, teams, rules } from '@/schema';
 import { eq, and, asc, sql } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyDraftPick } from '@/lib/notify';
@@ -27,7 +27,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden: you do not own this pick' }, { status: 403 });
     }
 
-    // 1. Find the draft pick row by overall pick number
+    // Resolve current draft year so we scope pick lookup to the active year only
+    const draftYearRow = await db.select({ value: rules.value })
+      .from(rules)
+      .where(and(eq(rules.rule, 'draft_year'), eq(rules.leagueId, leagueId)))
+      .limit(1);
+    const draftYear = parseInt(draftYearRow[0]?.value || '0') || new Date().getFullYear();
+
+    // 1. Find the draft pick row by overall pick number, scoped to the current draft year
     const originalTeams = alias(teams, 'originalTeams');
     const currentTeams = alias(teams, 'currentTeams');
 
@@ -43,7 +50,7 @@ export async function POST(req: NextRequest) {
     .from(draftPicks)
     .leftJoin(originalTeams, eq(draftPicks.originalTeamId, originalTeams.id))
     .leftJoin(currentTeams, eq(draftPicks.currentTeamId, currentTeams.id))
-    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.pick, parseInt(String(overallPick)))))
+    .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, draftYear), eq(draftPicks.pick, parseInt(String(overallPick)))))
     .limit(1);
 
     if (!pickRows[0]) {
