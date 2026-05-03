@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { isAdmin } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { nflDraft, draftPicks, rules, teams } from '@/schema';
 import { eq, and, asc, isNotNull, isNull } from 'drizzle-orm';
@@ -21,7 +20,6 @@ function normalizeName(name: string): string {
 export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  if (!(await isAdmin())) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const yearParam = searchParams.get('year');

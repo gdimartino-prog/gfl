@@ -42,7 +42,7 @@ const POSITION_COLORS: Record<string, string> = {
 };
 
 export default function NflDraftPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
   const [picks, setPicks] = useState<NflPick[]>([]);
@@ -59,13 +59,8 @@ export default function NflDraftPage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.replace('/login');
-      return;
     }
-    const role = (session?.user as { role?: string })?.role;
-    if (status === 'authenticated' && role !== 'admin' && role !== 'superuser') {
-      router.replace('/');
-    }
-  }, [status, session, router]);
+  }, [status, router]);
 
   useEffect(() => {
     if (status !== 'authenticated') return;
@@ -92,8 +87,7 @@ export default function NflDraftPage() {
       .catch(() => setDetailLoading(null));
   };
 
-  const role = (session?.user as { role?: string })?.role;
-  if (status === 'loading' || (status === 'authenticated' && role !== 'admin' && role !== 'superuser')) {
+  if (status === 'loading') {
     return null;
   }
 
