@@ -184,8 +184,8 @@ const POSITION_GROUPS: {
     ],
   },
   {
-    label: 'Defensive Line',
-    positions: ['DL', 'DE', 'DT', 'NT'],
+    label: 'Defensive Tackles',
+    positions: ['DT', 'NT'],
     cols: [
       { key: 'age',    label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
       { key: 'tdef',   label: 'TDef', numeric: true, getValue: p => s(p, 'total defense') },
@@ -199,8 +199,38 @@ const POSITION_GROUPS: {
     ],
   },
   {
-    label: 'Linebackers',
-    positions: ['LB', 'OLB', 'ILB', 'MLB'],
+    label: 'Defensive Ends',
+    positions: ['DE', 'DL', 'DE-LB'],
+    cols: [
+      { key: 'age',    label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
+      { key: 'tdef',   label: 'TDef', numeric: true, getValue: p => s(p, 'total defense') },
+      { key: 'rdef',   label: 'RDef', numeric: true, getValue: p => s(p, 'run defense') },
+      { key: 'pdef',   label: 'PDef', numeric: true, getValue: p => s(p, 'pass defense') },
+      { key: 'prsh',   label: 'PRsh', numeric: true, getValue: p => s(p, 'pass rush') },
+      { key: 'sacks',  label: 'Sks',  numeric: true, getValue: p => s(p, 'sacks') },
+      { key: 'stuffs', label: 'Stf',  numeric: true, getValue: p => s(p, 'stuffs') },
+      { key: 'dur',    label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
+      { key: 'sal',    label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
+    ],
+  },
+  {
+    label: 'Inside Linebackers',
+    positions: ['ILB', 'MLB', 'LB'],
+    cols: [
+      { key: 'age',   label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
+      { key: 'tdef',  label: 'TDef', numeric: true, getValue: p => s(p, 'total defense') },
+      { key: 'rdef',  label: 'RDef', numeric: true, getValue: p => s(p, 'run defense') },
+      { key: 'pdef',  label: 'PDef', numeric: true, getValue: p => s(p, 'pass defense') },
+      { key: 'prsh',  label: 'PRsh', numeric: true, getValue: p => s(p, 'pass rush') },
+      { key: 'tkl',   label: 'Tkl',  numeric: true, getValue: p => s(p, 'tackles') },
+      { key: 'sacks', label: 'Sks',  numeric: true, getValue: p => s(p, 'sacks') },
+      { key: 'dur',   label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
+      { key: 'sal',   label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
+    ],
+  },
+  {
+    label: 'Outside Linebackers',
+    positions: ['OLB', 'LB-S'],
     cols: [
       { key: 'age',   label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
       { key: 'tdef',  label: 'TDef', numeric: true, getValue: p => s(p, 'total defense') },
