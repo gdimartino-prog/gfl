@@ -519,8 +519,8 @@ export default function FreeAgentsPage() {
     return POSITION_GROUPS.map(group => ({
       group,
       players: players.filter(p => {
-        const pos = (p.offense || p.defense || p.special || p.position || '').toUpperCase();
-        const inGroup = group.positions.some(gp => pos === gp || pos.split('-').includes(gp) || pos.split('/').includes(gp));
+        const allPos = [p.offense, p.defense, p.special, p.position].filter(Boolean).map(v => v!.toUpperCase());
+        const inGroup = group.positions.some(gp => allPos.some(pos => pos === gp || pos.split('-').includes(gp) || pos.split('/').includes(gp)));
         const inPosFilter = posFilter === ALL_POS || posFilter === STARRED || group.label === posFilter;
         return inGroup && inPosFilter;
       }),
