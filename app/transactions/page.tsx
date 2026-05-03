@@ -14,6 +14,7 @@ import {
   DollarSign,
   RefreshCcw,
   GitMerge,
+  Download,
 } from 'lucide-react';
 import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
@@ -184,6 +185,30 @@ export default function TransactionsPage() {
     }
   };
 
+  const handleExportCsv = () => {
+    const headers = ['Timestamp', 'Type', 'Details', 'Conditional', 'From', 'To', 'Week', 'Fee', 'Status', 'Coach'];
+    const rows = filteredLogs.map(log => [
+      log.timestamp || '',
+      log.type || '',
+      log.details || '',
+      log.conditionalDetails || '',
+      log.fromFull || '',
+      log.toFull || '',
+      log.weekBack || '',
+      log.fee || '',
+      log.status || '',
+      log.coach || '',
+    ].map(v => `"${String(v).replace(/"/g, '""')}"`));
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `transactions${filterTeam ? `-${filterTeam}` : ''}${filterType ? `-${filterType}` : ''}${filterStatus ? `-${filterStatus}` : ''}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleTransactionComplete = async () => {
     await fetchLogs();
     setRefreshKey(prev => prev + 1);
@@ -329,6 +354,14 @@ export default function TransactionsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportCsv}
+              disabled={filteredLogs.length === 0}
+              title="Export to CSV"
+              className="bg-slate-900 text-white p-3 rounded-xl hover:bg-emerald-600 transition-all active:scale-95 shadow-lg disabled:opacity-40"
+            >
+              <Download size={16} />
+            </button>
             <button
               onClick={fetchLogs}
               className="bg-slate-900 text-white p-3 rounded-xl hover:bg-blue-600 transition-all active:scale-95 shadow-lg"
