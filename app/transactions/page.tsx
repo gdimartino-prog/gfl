@@ -134,7 +134,11 @@ export default function TransactionsPage() {
   const openReprocess = (log: Record<string, string>) => {
     const fromShort = teams.find(t => t.name === log.fromFull)?.teamshort || teams.find(t => t.short === log.fromFull)?.short || '';
     const toShort = teams.find(t => t.name === log.toFull)?.teamshort || teams.find(t => t.short === log.toFull)?.short || '';
-    setReprocessForm({ year: new Date().getFullYear(), round: 1, fromTeam: fromShort, toTeam: toShort });
+    const rdMatch = (log.description || '').match(/\brd\s*(\d+)/i);
+    const detectedRound = rdMatch ? parseInt(rdMatch[1]) : 1;
+    const yearMatch = (log.description || '').match(/\b(20\d{2})\b/);
+    const detectedYear = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
+    setReprocessForm({ year: detectedYear, round: detectedRound, fromTeam: fromShort, toTeam: toShort });
     setConditionalId(null);
     setReprocessId(reprocessId === log.id ? null : log.id);
   };
