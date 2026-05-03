@@ -313,13 +313,12 @@ const handleUndoMyPick = async () => {
     if (!originalName) return null;
 
     const historyShorts = pick.history ? pick.history.split(',').filter(Boolean) : [];
-    // Full chain: original → ...history → current, deduped to remove self-trades
-    const rawChain = [
+    // Full chain: original → ...history → current
+    const chain = [
       originalName,
       ...historyShorts.map(code => getFullTeamName(code)),
       getFullTeamName(pick.currentOwner),
     ];
-    const chain = rawChain.filter((name, i) => i === 0 || name !== rawChain[i - 1]);
 
     return (
       <div className="flex flex-col mt-1">
