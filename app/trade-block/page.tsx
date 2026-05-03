@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
-import { Trash2, ShoppingCart, ChevronRight } from 'lucide-react';
+import { Trash2, ShoppingCart, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 import PlayerCard from '@/components/PlayerCard';
 import { useConfirm } from '@/components/ConfirmDialog';
 import { Player } from '../../types';
@@ -24,6 +24,8 @@ export default function TradeBlockPage() {
   const [confirm, ConfirmDialog] = useConfirm();
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
   const [season, setSeason] = useState('');
+  const [sortCol, setSortCol] = useState<'playerName' | 'team' | 'position'>('playerName');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     fetch('/api/rules').then(r => r.json()).then((rules: { setting: string; value: string }[]) => {
@@ -119,6 +121,29 @@ export default function TradeBlockPage() {
     return role === 'admin' || role === 'superuser';
   };
 
+  const handleSort = (col: 'playerName' | 'team' | 'position') => {
+    if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortCol(col); setSortDir('asc'); }
+  };
+
+  const sortedPlayers = useMemo(() => {
+    const valid = players.filter(p => p.playerId);
+    return [...valid].sort((a, b) => {
+      let aVal = sortCol === 'team' ? (teamNameMap[a.team.toUpperCase()] || a.team) : a[sortCol];
+      let bVal = sortCol === 'team' ? (teamNameMap[b.team.toUpperCase()] || b.team) : b[sortCol];
+      aVal = (aVal || '').toLowerCase();
+      bVal = (bVal || '').toLowerCase();
+      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+    });
+  }, [players, sortCol, sortDir, teamNameMap]);
+
+  const SortIcon = ({ col }: { col: 'playerName' | 'team' | 'position' }) => {
+    if (sortCol !== col) return <ChevronUp size={10} className="opacity-20 ml-1 inline" />;
+    return sortDir === 'asc'
+      ? <ChevronUp size={10} className="ml-1 inline" />
+      : <ChevronDown size={10} className="ml-1 inline" />;
+  };
+
   const canManage = (team: string) => {
     if (!session?.user) return false;
     if (isPrivileged() || isCommissioner) return true;
@@ -146,22 +171,25 @@ export default function TradeBlockPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.2em]">
-                  <th className="px-8 py-5">Player</th>
-                  <th className="px-8 py-5">Team</th>
-                  <th className="px-8 py-5">Position</th>
+                  {(['playerName', 'team', 'position'] as const).map(col => (
+                    <th key={col} className="px-8 py-5 cursor-pointer hover:bg-slate-700 transition-colors select-none" onClick={() => handleSort(col)}>
+                      {col === 'playerName' ? 'Player' : col.charAt(0).toUpperCase() + col.slice(1)}
+                      <SortIcon col={col} />
+                    </th>
+                  ))}
                   <th className="px-8 py-5">Asking</th>
                   <th className="px-8 py-5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {players.filter(p => p.playerId).length === 0 && (
+                {sortedPlayers.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-8 py-16 text-center font-black uppercase italic text-slate-400 text-sm tracking-widest">
                       No players on the trade block
                     </td>
                   </tr>
                 )}
-                {players.filter(p => p.playerId).map((player) => (
+                {sortedPlayers.map((player) => (
                   <tr key={player.playerId} className="hover:bg-slate-50 transition-colors group">
                     <td className="px-8 py-6">
                       <a
