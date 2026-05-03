@@ -509,7 +509,7 @@ const handleUndoMyPick = async () => {
                   const isDrafted = !!pick.draftedPlayer && !pick.draftedPlayer.includes("SKIPPED") && pick.draftedPlayer.trim() !== "";
                   const isSkipped = !!pick.draftedPlayer && pick.draftedPlayer.includes("SKIPPED");
                   const isPassed = pick.status === 'Passed';
-                  const isOnClock = onClockPick && pick.overall === onClockPick.overall;
+                  const isOnClock = onClockPick && pick.overall === onClockPick.overall && pick.year === onClockPick.year;
                   const isNewRound = index === 0 || filteredPicks[index - 1].round !== pick.round;
 
                   return (
