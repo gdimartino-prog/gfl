@@ -3168,24 +3168,6 @@
     "touch_id": "George Di Martino"
   },
   {
-    "id": 2337,
-    "leagueId": 1,
-    "year": 2026,
-    "round": 1,
-    "pick": 9,
-    "draftType": "free_agent",
-    "originalTeamId": 51,
-    "currentTeamId": 51,
-    "playerId": null,
-    "scheduledAt": null,
-    "pickedAt": null,
-    "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": null,
-    "touch_dt": "2026-04-03T22:57:34.352Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 2781,
     "leagueId": 1,
     "year": 2027,
@@ -3958,6 +3940,24 @@
     "selectedPlayerName": null,
     "touch_dt": "2026-04-28T21:16:00.330Z",
     "touch_id": "George Di Martino"
+  },
+  {
+    "id": 2337,
+    "leagueId": 1,
+    "year": 2026,
+    "round": 1,
+    "pick": 9,
+    "draftType": "free_agent",
+    "originalTeamId": 51,
+    "currentTeamId": 51,
+    "playerId": 24312,
+    "scheduledAt": null,
+    "pickedAt": "2026-05-04T00:36:53.773Z",
+    "passed": false,
+    "warningSent": false,
+    "selectedPlayerName": "OLB - Jalon Walker",
+    "touch_dt": "2026-04-03T22:57:34.352Z",
+    "touch_id": "Phil Matsikoudis"
   },
   {
     "id": 2384,
@@ -18108,24 +18108,6 @@
     "touch_id": "George Di Martino"
   },
   {
-    "id": 2336,
-    "leagueId": 1,
-    "year": 2026,
-    "round": 1,
-    "pick": 8,
-    "draftType": "free_agent",
-    "originalTeamId": 46,
-    "currentTeamId": 46,
-    "playerId": null,
-    "scheduledAt": null,
-    "pickedAt": null,
-    "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": null,
-    "touch_dt": "2026-04-03T22:57:34.352Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 2338,
     "leagueId": 1,
     "year": 2026,
@@ -18682,6 +18664,24 @@
     "selectedPlayerName": "QB - Jaxson Dart",
     "touch_dt": "2026-04-03T22:57:34.352Z",
     "touch_id": "Mark Mari"
+  },
+  {
+    "id": 2336,
+    "leagueId": 1,
+    "year": 2026,
+    "round": 1,
+    "pick": 8,
+    "draftType": "free_agent",
+    "originalTeamId": 46,
+    "currentTeamId": 46,
+    "playerId": 24199,
+    "scheduledAt": null,
+    "pickedAt": "2026-05-03T14:15:36.967Z",
+    "passed": false,
+    "warningSent": false,
+    "selectedPlayerName": "DT - Mason Graham",
+    "touch_dt": "2026-04-03T22:57:34.352Z",
+    "touch_id": "Bill Matsikoudis"
   },
   {
     "id": 2378,

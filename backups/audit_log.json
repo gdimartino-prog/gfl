@@ -2896,5 +2896,77 @@
     "team": "VV",
     "action": "TRANSACTION_STATUS",
     "details": "Transaction #115 marked Done"
+  },
+  {
+    "id": 323,
+    "leagueId": 1,
+    "timestamp": "2026-05-03T10:55:16.611Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 324,
+    "leagueId": 1,
+    "timestamp": "2026-05-03T10:59:22.588Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 325,
+    "leagueId": 1,
+    "timestamp": "2026-05-03T11:13:11.786Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 326,
+    "leagueId": 1,
+    "timestamp": "2026-05-03T14:15:37.028Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R1 #8: DT - Mason Graham"
+  },
+  {
+    "id": 327,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T00:29:19.846Z",
+    "coach": "Phil Matsikoudis",
+    "team": "Newark Bay",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 328,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T00:36:53.839Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R1 #9: OLB - Jalon Walker"
+  },
+  {
+    "id": 329,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T01:00:56.828Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 330,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T01:16:42.713Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
