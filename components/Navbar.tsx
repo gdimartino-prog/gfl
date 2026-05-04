@@ -53,7 +53,6 @@ export default function Navbar() {
     { name: 'Resources', href: '/resources' },
     { name: 'Directory', href: '/directory' },
     { name: 'Constitution', href: '/rules' },
-    { name: 'Manual', href: '/manual' },
   ];
 
   return (
