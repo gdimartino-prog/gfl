@@ -2968,5 +2968,140 @@
     "team": "Kigali",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 331,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T12:21:49.099Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R1 #10: WR - Emeka Egbuka"
+  },
+  {
+    "id": 332,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T14:15:41.768Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "DRAFT_PICK",
+    "details": "R1 #11: S - Antonio Johnson"
+  },
+  {
+    "id": 333,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T14:47:34.846Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 334,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T16:27:01.819Z",
+    "coach": "Bill Kobus",
+    "team": "Tampa",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 335,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T17:49:23.948Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "TRADE",
+    "details": "DC ↔ Satriale"
+  },
+  {
+    "id": 336,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T17:58:11.601Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 337,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T18:01:02.135Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R1 #12: HB - Tyler Warren"
+  },
+  {
+    "id": 338,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T22:10:42.957Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 339,
+    "leagueId": 1,
+    "timestamp": "2026-05-04T23:01:02.328Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 340,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T01:58:43.843Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 341,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T02:04:44.402Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R1 #13: OLB - James Pearce Jr."
+  },
+  {
+    "id": 342,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T03:11:28.913Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "UPDATE_TEAM",
+    "details": "Updated team id 50"
+  },
+  {
+    "id": 343,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T03:13:13.206Z",
+    "coach": "George Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R1 #14: CB - Nahshon Wright"
+  },
+  {
+    "id": 344,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T03:17:38.245Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 345,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T06:55:51.420Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "TRADE",
+    "details": "Fur Peace ↔ Newark Bay"
   }
 ]

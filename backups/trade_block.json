@@ -154,17 +154,6 @@
     "touch_id": "VV"
   },
   {
-    "id": 22,
-    "leagueId": 1,
-    "playerId": "dominick|puni|25|g||",
-    "playerName": "Dominick Puni",
-    "team": "FPR",
-    "position": "G",
-    "asking": null,
-    "touch_dt": "2026-04-24T08:03:46.614Z",
-    "touch_id": "FPR"
-  },
-  {
     "id": 23,
     "leagueId": 1,
     "playerId": "daquan|jones|34||dt|",
