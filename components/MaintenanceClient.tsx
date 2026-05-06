@@ -13,7 +13,7 @@ type TeamRow = { id: number; name: string; teamshort: string | null; coach: stri
 type TeamForm = { name: string; teamshort: string; coach: string; email: string; mobile: string; nickname: string; isCommissioner: boolean; status: string };
 type GameRow = { id: number; year: number | null; week: string; homeTeamId: number; awayTeamId: number; home: string | null; visitor: string | null; hScore: number | null; vScore: number | null };
 type GameForm = { year: string; week: string; homeTeamId: string; awayTeamId: string; hScore: string; vScore: string };
-type AwardsRow = { id: number; teamId: number; teamName: string | null; teamshort: string | null; nickname: string | null; wins: number; losses: number; ties: number; division: string | null; offPts: number | null; defPts: number | null; isDivWinner: boolean | null; isPlayoff: boolean | null; isSuperBowl: boolean | null; isChampion: boolean | null };
+type AwardsRow = { id: number; teamId: number; teamName: string | null; teamshort: string | null; nickname: string | null; oldTeamName: string | null; wins: number; losses: number; ties: number; division: string | null; offPts: number | null; defPts: number | null; isDivWinner: boolean | null; isPlayoff: boolean | null; isSuperBowl: boolean | null; isChampion: boolean | null };
 
 const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) => {
   const [confirm, ConfirmDialog] = useConfirm();
@@ -1221,7 +1221,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                     <td className="px-6 py-3">
                       <div className="flex items-center gap-2">
                         <span className="bg-slate-100 text-slate-500 font-mono text-[10px] px-2 py-0.5 rounded font-black">{row.teamshort}</span>
-                        <span className="font-black text-slate-900 uppercase italic tracking-tight text-sm">{row.teamName} {row.nickname}</span>
+                        <span className="font-black text-slate-900 uppercase italic tracking-tight text-sm">{row.oldTeamName || row.teamName} {!row.oldTeamName && row.nickname}</span>
                         {row.division && <span className="text-[9px] font-black text-slate-400 uppercase">{row.division}</span>}
                       </div>
                     </td>

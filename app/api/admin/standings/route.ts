@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
     isPlayoff: standings.isPlayoff,
     isSuperBowl: standings.isSuperBowl,
     isChampion: standings.isChampion,
+    oldTeamName: standings.oldTeamName,
   }).from(standings)
     .leftJoin(teams, eq(standings.teamId, teams.id))
     .where(and(eq(standings.leagueId, leagueId), eq(standings.year, year)))
