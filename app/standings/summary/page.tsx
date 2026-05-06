@@ -19,13 +19,14 @@ export default async function SummaryReportPage() {
   const leagueName = leagueRows[0]?.name ?? 'League';
   const season = seasonRows[0]?.value ?? '';
 
-  // Sort data by year ascending to ensure the most recent GM name is captured last during aggregation
+  // Sort data by year ascending so the most recent team name is captured last
   const sortedData = [...allData].sort((a, b) => Number(a.year) - Number(b.year));
 
   interface TeamSummary {
     [key: string]: string | number;
-    team: string;
     gm: string;
+    team: string;
+    allTeams: string;
     wins: number;
     losses: number;
     ties: number;
@@ -39,17 +40,19 @@ export default async function SummaryReportPage() {
     championships: number;
   }
 
-  // Aggregate raw rows into Franchise summaries
+  // Aggregate raw rows into coach/GM summaries
   const summaryMap: Record<string, TeamSummary> = {};
+  const teamNamesTracker: Record<string, Set<string>> = {};
 
   sortedData.forEach((row) => {
-    // 🚀 NORMALIZE: Strip clinching prefixes (x-, y-, *-) for aggregation
-    const teamKey = row.team.replace(/^[a-z*]-/i, '');
+    const gmKey = (row.gm && row.gm !== 'N/A' && row.gm.toLowerCase() !== 'manager') ? row.gm : null;
+    if (!gmKey) return;
 
-    if (!summaryMap[teamKey]) {
-      summaryMap[teamKey] = {
-        team: teamKey,
-        gm: (row.gm && row.gm !== 'N/A' && row.gm.toLowerCase() !== 'manager') ? row.gm : 'N/A',
+    if (!summaryMap[gmKey]) {
+      summaryMap[gmKey] = {
+        gm: gmKey,
+        team: '',
+        allTeams: '',
         wins: 0,
         losses: 0,
         ties: 0,
@@ -62,26 +65,30 @@ export default async function SummaryReportPage() {
         superBowls: 0,
         championships: 0,
       };
+      teamNamesTracker[gmKey] = new Set<string>();
     }
 
-    const t = summaryMap[teamKey];
+    const t = summaryMap[gmKey];
+    const cleanTeam = row.team.replace(/^[a-z*]-/i, '');
+    teamNamesTracker[gmKey].add(cleanTeam);
+    t.team = cleanTeam; // last write (year asc) = most recent team name
+
     t.seasons += 1;
     t.wins += Number(row.won || 0);
     t.losses += Number(row.lost || 0);
     t.ties += Number(row.tie || 0);
     t.offPts += Number(row.offPts || 0);
     t.defPts += Number(row.defPts || 0);
-    
-    // Increment counts for specific achievements
+
     if (row.isDivWinner) t.divWins += 1;
     if (row.isPlayoff) t.postSeason += 1;
     if (row.isSuperBowl) t.superBowls += 1;
     if (row.isChampion) t.championships += 1;
+  });
 
-    // Ensure we have the most recent GM name
-    if (row.gm && row.gm !== 'N/A' && row.gm.toLowerCase() !== 'manager') {
-      t.gm = row.gm;
-    }
+  // Build allTeams string for each coach
+  Object.keys(summaryMap).forEach(gmKey => {
+    summaryMap[gmKey].allTeams = Array.from(teamNamesTracker[gmKey]).join(' / ');
   });
 
   const summaryData = Object.values(summaryMap).map(t => {

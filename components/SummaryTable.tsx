@@ -10,14 +10,14 @@ export default function SummaryTable({ initialData }: { initialData: Record<stri
     const result = initialData.filter(team => {
       const s = searchTerm.toLowerCase();
       return (
-        String(team.team || '').toLowerCase().includes(s) ||
-        String(team.gm || '').toLowerCase().includes(s)
+        String(team.gm || '').toLowerCase().includes(s) ||
+        String(team.allTeams || team.team || '').toLowerCase().includes(s)
       );
     });
 
     result.sort((a, b) => {
       const key = sortConfig.key;
-      if (key === 'team' || key === 'gm') {
+      if (key === 'gm' || key === 'team') {
         const valA = String(a[key] || '').toLowerCase();
         const valB = String(b[key] || '').toLowerCase();
         return sortConfig.direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
@@ -45,7 +45,7 @@ export default function SummaryTable({ initialData }: { initialData: Record<stri
         <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
         <input 
           type="text" 
-          placeholder="Filter by franchise or manager..." 
+          placeholder="Filter by coach or franchise name..."
           value={searchTerm} 
           onChange={(e) => setSearchTerm(e.target.value)} 
           className="w-full bg-white border border-slate-200 rounded-[1.5rem] py-5 pl-16 pr-8 text-slate-800 font-bold focus:ring-2 focus:ring-blue-500 outline-none transition-all text-lg shadow-sm" 
@@ -57,7 +57,7 @@ export default function SummaryTable({ initialData }: { initialData: Record<stri
           <thead className="bg-[#0f172a] text-white">
           <tr className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
             <th className="p-4 w-16">Rank</th>
-            <th className="p-4 cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('team')}>Franchise / GM</th>
+            <th className="p-4 cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('gm')}>Coach / Franchise</th>
             <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('seasons')}>Yrs</th>
             <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('wins')}>Record</th>
             <th className="p-4 text-center cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleSort('winPct')}>
@@ -79,12 +79,12 @@ export default function SummaryTable({ initialData }: { initialData: Record<stri
             const defPPG = totalGames > 0 ? (Number(team.defPts) / totalGames).toFixed(1) : "0.0";
 
             return (
-              <tr key={team.team} className="hover:bg-slate-50/50 transition-colors group">
+              <tr key={team.gm} className="hover:bg-slate-50/50 transition-colors group">
                 <td className="p-4 text-slate-300 font-mono text-lg font-bold">{idx + 1}</td>
                 <td className="p-4">
                   <div className="flex flex-col">
-                    <span className="text-slate-900 uppercase italic font-black text-lg leading-tight group-hover:text-blue-600 transition-colors">{team.team}</span>
-                    <span className="text-blue-600 text-[10px] font-black uppercase tracking-widest">GM: {team.gm}</span>
+                    <span className="text-slate-900 uppercase italic font-black text-lg leading-tight group-hover:text-blue-600 transition-colors">{team.gm}</span>
+                    <span className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{team.allTeams || team.team}</span>
                   </div>
                 </td>
                 <td className="p-4 text-center text-slate-400 font-bold">{team.seasons}</td>
