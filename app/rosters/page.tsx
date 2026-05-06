@@ -620,7 +620,7 @@ function RosterContent() {
             <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden text-left">
               <div className="px-8 py-5 font-black text-white bg-blue-600 uppercase tracking-widest text-[10px]"><span>Schedule</span></div>
               <div className="divide-y divide-slate-50 max-h-[400px] overflow-y-auto custom-scrollbar">
-                {data?.schedule?.filter(g => g.year === data?.stats?.currentYear).map((game, i, arr) => {
+                {data?.schedule?.filter(g => g.year?.toString() === data?.stats?.currentYear).map((game, i, arr) => {
                   const targetIdx = arr.map(g => g.status).lastIndexOf("Final");
                   const teamShort = data?.coachContact?.short?.toUpperCase() || "";
                   const teamName = data?.coachContact?.name?.toUpperCase() || "";
