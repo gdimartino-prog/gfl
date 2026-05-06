@@ -559,15 +559,13 @@ const handleUndoMyPick = async () => {
                             <span className="text-[10px] font-black text-slate-400 italic mt-1">{pick.timestamp ? new Date(pick.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : ''}</span>
                             <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
                           </div>
-                        ) : (
-                          {isOnClock ? (
+                        ) : isOnClock ? (
                             <div className="flex flex-col gap-1">
                               <span className="text-[11px] font-black uppercase tracking-widest text-blue-500 animate-pulse">On the Clock</span>
                               <span className="text-[13px] font-mono font-black text-amber-400 tabular-nums">{timeLeft}</span>
                             </div>
-                          ) : (
-                            <span className="text-[11px] font-black uppercase tracking-widest text-slate-200">Awaiting Turn</span>
-                          )}
+                        ) : (
+                          <span className="text-[11px] font-black uppercase tracking-widest text-slate-200">Awaiting Turn</span>
                         )}
                       </td>
 
