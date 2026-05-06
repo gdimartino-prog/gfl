@@ -560,9 +560,14 @@ const handleUndoMyPick = async () => {
                             <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
                           </div>
                         ) : (
-                          <span className={`text-[11px] font-black uppercase tracking-widest ${isOnClock ? 'text-blue-500 animate-pulse' : 'text-slate-200'}`}>
-                            {isOnClock ? 'On the Clock' : 'Awaiting Turn'}
-                          </span>
+                          {isOnClock ? (
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[11px] font-black uppercase tracking-widest text-blue-500 animate-pulse">On the Clock</span>
+                              <span className="text-[13px] font-mono font-black text-amber-400 tabular-nums">{timeLeft}</span>
+                            </div>
+                          ) : (
+                            <span className="text-[11px] font-black uppercase tracking-widest text-slate-200">Awaiting Turn</span>
+                          )}
                         )}
                       </td>
 
