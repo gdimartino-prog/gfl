@@ -24,7 +24,12 @@ export default function SummaryTable({ initialData }: { initialData: Record<stri
       }
       const aVal = Number(a[key]) || 0;
       const bVal = Number(b[key]) || 0;
-      return sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+      const primary = sortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+      if (primary !== 0) return primary;
+      // Tiebreakers: championships desc, then winPct desc
+      const champDiff = Number(b.championships) - Number(a.championships);
+      if (champDiff !== 0) return champDiff;
+      return Number(b.winPct) - Number(a.winPct);
     });
 
     return result;
