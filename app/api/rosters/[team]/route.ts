@@ -49,7 +49,7 @@ export async function GET(_req: Request, { params }: RouteContext) {
       }));
 
     const picks = allPicks
-      .filter(p => p.currentOwner?.toUpperCase() === teamShort)
+      .filter(p => p.currentOwner?.toUpperCase() === teamShort && !p.pickedAt && !p.selectedPlayer)
       .map(p => ({
         year: p.year,
         round: p.round,
