@@ -31,11 +31,15 @@ export async function POST(request: Request) {
 
     try {
       const lowerName = fileName.toLowerCase();
-      if (lowerName.includes("standings")) {
+      const firstLine = fileContent.split(/\r?\n/)[0]?.toUpperCase() ?? '';
+      const looksLikeSchedule = lowerName.includes("schedule") || firstLine.includes("SCHEDULE");
+      const looksLikeStandings = lowerName.includes("standings") || firstLine.includes("STANDINGS");
+
+      if (looksLikeStandings) {
         const processResult = await processStandingsFile(fileContent, leagueId);
         result = { ...processResult, fileName };
         if (processResult.success) logSystemEvent(actor, actor, 'IMPORT_STANDINGS', `Imported standings: ${fileName}`, leagueId);
-      } else if (lowerName.includes("schedule")) {
+      } else if (looksLikeSchedule) {
         const processResult = await processScheduleFile(fileContent, leagueId);
         result = { ...processResult, fileName };
         if (processResult.success) logSystemEvent(actor, actor, 'IMPORT_SCHEDULE', `Imported schedule: ${fileName}`, leagueId);

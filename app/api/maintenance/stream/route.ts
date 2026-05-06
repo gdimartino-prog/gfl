@@ -34,12 +34,16 @@ export async function POST(request: Request) {
 
           send({ type: 'file_start', file: fileName });
 
+          const firstLine = fileContent.split(/\r?\n/)[0]?.toUpperCase() ?? '';
+          const looksLikeSchedule = lowerName.includes('schedule') || firstLine.includes('SCHEDULE');
+          const looksLikeStandings = lowerName.includes('standings') || firstLine.includes('STANDINGS');
+
           try {
-            if (lowerName.includes('standings')) {
+            if (looksLikeStandings) {
               const result = await processStandingsFile(fileContent, leagueId);
               if (result.success) logSystemEvent('admin', 'admin', 'IMPORT_STANDINGS', `Imported standings: ${fileName}`, leagueId);
               send({ type: 'file_done', file: fileName, success: result.success, message: result.message });
-            } else if (lowerName.includes('schedule')) {
+            } else if (looksLikeSchedule) {
               const result = await processScheduleFile(fileContent, leagueId);
               if (result.success) logSystemEvent('admin', 'admin', 'IMPORT_SCHEDULE', `Imported schedule: ${fileName}`, leagueId);
               send({ type: 'file_done', file: fileName, success: result.success, message: result.message });
