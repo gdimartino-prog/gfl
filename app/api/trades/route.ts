@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { teams } from '@/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { logTransaction } from '@/lib/transactions';
 import { upsertPickTransfer } from '@/lib/draftPicks';
 import { notifyTransaction } from '@/lib/notify';
@@ -34,9 +34,9 @@ export async function POST(req: Request) {
     // Resolve team IDs for pick transfers
     const [fromTeamRow, toTeamRow] = await Promise.all([
       db.select({ id: teams.id }).from(teams)
-        .where(and(eq(teams.leagueId, leagueId), eq(teams.teamshort, fromTeam))).limit(1),
+        .where(and(eq(teams.leagueId, leagueId), sql`lower(${teams.teamshort}) = lower(${fromTeam})`)).limit(1),
       db.select({ id: teams.id }).from(teams)
-        .where(and(eq(teams.leagueId, leagueId), eq(teams.teamshort, toTeam))).limit(1),
+        .where(and(eq(teams.leagueId, leagueId), sql`lower(${teams.teamshort}) = lower(${toTeam})`)).limit(1),
     ]);
 
     const fromTeamId = fromTeamRow[0]?.id;
