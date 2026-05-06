@@ -3103,5 +3103,104 @@
     "team": "FPR",
     "action": "TRADE",
     "details": "Fur Peace ↔ Newark Bay"
+  },
+  {
+    "id": 346,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T12:19:01.992Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R1 #15: G - Tate Ratledge"
+  },
+  {
+    "id": 347,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T14:11:21.221Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R1 #16: TE - Colston Loveland"
+  },
+  {
+    "id": 348,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T14:14:42.798Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R1 #17: S - Nick Emmanwori"
+  },
+  {
+    "id": 349,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T18:03:38.613Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 350,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T20:22:03.798Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 351,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T21:12:06.628Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Urban"
+  },
+  {
+    "id": 352,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T22:20:53.222Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R1 #18: WR/CB - Travis Hunter"
+  },
+  {
+    "id": 353,
+    "leagueId": 1,
+    "timestamp": "2026-05-05T22:38:07.532Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R2 #19: T - Will Campbell"
+  },
+  {
+    "id": 354,
+    "leagueId": 1,
+    "timestamp": "2026-05-06T00:19:40.994Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 355,
+    "leagueId": 1,
+    "timestamp": "2026-05-06T02:20:17.826Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 356,
+    "leagueId": 1,
+    "timestamp": "2026-05-06T03:08:30.787Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R2 #20: T - Warren McClendon Jr."
   }
 ]

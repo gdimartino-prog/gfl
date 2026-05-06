@@ -958,5 +958,43 @@
     "conditionalDetails": null,
     "touch_dt": "2026-05-05T06:55:51.416Z",
     "touch_id": "Jack Wyville"
+  },
+  {
+    "id": 123,
+    "leagueId": 1,
+    "date": "2026-05-05T21:12:06.596Z",
+    "type": "TRADE",
+    "description": "Traded to Urban: Nick Herbig - OLB",
+    "fromTeam": "Crimson",
+    "toTeam": "Urban",
+    "owner": "Bob Glade",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-05T21:12:06.599Z",
+    "touch_id": "Bob Glade"
+  },
+  {
+    "id": 124,
+    "leagueId": 1,
+    "date": "2026-05-05T21:12:06.620Z",
+    "type": "TRADE",
+    "description": "Traded to Crimson: Spencer Brown - T",
+    "fromTeam": "Urban",
+    "toTeam": "Crimson",
+    "owner": "Bob Glade",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-05T21:12:06.621Z",
+    "touch_id": "Bob Glade"
   }
 ]
