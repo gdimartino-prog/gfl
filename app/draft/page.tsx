@@ -199,7 +199,7 @@ const handleUndoMyPick = async () => {
   useEffect(() => {
     if (!onClockRowRef.current || loading) return;
     scrollToOnClock();
-  }, [onClockPick?.overall, loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [onClockPick?.overall, loading]);
 
   const scheduledAtMs = onClockPick?.scheduledAt ? new Date(onClockPick.scheduledAt).getTime() : null;
   const isScheduledFuture = scheduledAtMs !== null && scheduledAtMs > Date.now();
