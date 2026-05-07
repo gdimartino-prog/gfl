@@ -521,6 +521,11 @@ const handleUndoMyPick = async () => {
             onClockPick={onClockPick}
             timeLeft={timeLeft}
             getFullTeamName={getFullTeamName}
+            onPickSelect={session ? (pick) => {
+              setModalSessionId(Date.now());
+              setSelectedPick(pick);
+              setShowSelectionModal(true);
+            } : undefined}
           />
         )}
 

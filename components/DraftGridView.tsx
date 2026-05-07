@@ -8,9 +8,10 @@ interface Props {
   onClockPick: DraftPick | undefined;
   timeLeft: string;
   getFullTeamName: (short: string) => string;
+  onPickSelect?: (pick: DraftPick) => void;
 }
 
-export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onClockPick, timeLeft, getFullTeamName }: Props) {
+export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onClockPick, timeLeft, getFullTeamName, onPickSelect }: Props) {
   const yearPicks = picks.filter(p =>
     String(p.year) === yearFilter &&
     (draftTypeFilter === 'all' || p.draftType === draftTypeFilter)
@@ -61,11 +62,15 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
           return (
             <div key={pick.overall} className={`rounded p-1.5 border text-[9px] leading-tight ${bg}`}>
               {isOnClock ? (
-                <>
+                <button
+                  onClick={() => onPickSelect?.(pick)}
+                  className="w-full text-left cursor-pointer"
+                >
                   <div className="font-black text-white uppercase tracking-tight">⚡ On the Clock</div>
                   <div className="font-mono text-yellow-200 font-bold mt-0.5">{timeLeft}</div>
                   <div className="text-blue-200 mt-0.5">Pick #{pick.overall}</div>
-                </>
+                  {onPickSelect && <div className="text-blue-100 text-[8px] mt-1 uppercase tracking-wide font-black">Tap to pick →</div>}
+                </button>
               ) : isDrafted ? (
                 <>
                   {pick.draftedPlayerPosition && (
