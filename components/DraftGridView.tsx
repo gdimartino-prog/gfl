@@ -50,8 +50,30 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
     }
   }
 
-  const renderCell = (cellPicks: DraftPick[]) => {
+  // Detect slots where this team's original pick was traded away; store destination team name
+  const tradedAwaySlots = new Map<string, string>(); // key: "round:short", value: destination team name
+  for (const pick of yearPicks) {
+    const origShort = ownerShortsInOrder.find(
+      o => getFullTeamName(o).toUpperCase() === (pick.originalTeam ?? '').toUpperCase()
+    );
+    if (origShort && pick.currentOwner !== origShort) {
+      const key = `${pick.round}:${origShort}`;
+      if (!tradedAwaySlots.has(key)) {
+        tradedAwaySlots.set(key, getFullTeamName(pick.currentOwner));
+      }
+    }
+  }
+
+  const renderCell = (cellPicks: DraftPick[], tradedTo: string | undefined) => {
     if (cellPicks.length === 0) {
+      if (tradedTo) {
+        return (
+          <div className="h-full flex flex-col items-center justify-center gap-0.5 py-1">
+            <span className="text-red-500 font-black text-[9px] uppercase tracking-wide">Traded</span>
+            <span className="text-red-400 text-[8px] font-bold text-center leading-tight">to {tradedTo}</span>
+          </div>
+        );
+      }
       return <div className="h-full flex items-center justify-center text-slate-700 text-[10px]">—</div>;
     }
     return (
@@ -152,7 +174,7 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
               </td>
               {ownerShortsInOrder.map(short => (
                 <td key={short} className="px-1.5 py-1.5 align-top border-l border-slate-800 min-w-[110px]">
-                  {renderCell(grid[round][short])}
+                  {renderCell(grid[round][short], tradedAwaySlots.get(`${round}:${short}`))}
                 </td>
               ))}
             </tr>
