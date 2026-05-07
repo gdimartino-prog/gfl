@@ -332,11 +332,45 @@ const handleUndoMyPick = async () => {
     );
   };
 
+  const cachedPlayersRef = useRef<Player[] | null>(null);
+
   const fetchPlayerCard = async (p: Player) => {
     try {
       const r = await fetch(`/api/players/details/${encodeURIComponent(p.identity)}`);
       if (r.ok) setSelectedPlayer(await r.json());
     } catch { /* ignore */ }
+  };
+
+  const handlePlayerNameClick = async (draftedPlayerStr: string) => {
+    // Parse out just the name (format may be "Name - POS" or just "Name")
+    const rawName = draftedPlayerStr.split(' - ')[0].trim();
+    const [first, ...rest] = rawName.split(' ');
+    const last = rest.join(' ');
+
+    // Lazy-load all players once
+    if (!cachedPlayersRef.current) {
+      try {
+        const r = await fetch('/api/players');
+        if (r.ok) cachedPlayersRef.current = await r.json();
+      } catch { /* ignore */ }
+    }
+
+    const players = cachedPlayersRef.current ?? [];
+    const match = players.find(
+      (p) =>
+        p.first?.toLowerCase() === first.toLowerCase() &&
+        p.last?.toLowerCase() === last.toLowerCase()
+    );
+
+    if (match) {
+      fetchPlayerCard(match);
+    } else {
+      window.open(
+        `https://www.google.com/search?q=${encodeURIComponent(rawName)}`,
+        '_blank',
+        'noopener,noreferrer'
+      );
+    }
   };
 
   if (loading) return <div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Syncing Draft Board...</div>;
@@ -556,7 +590,7 @@ const handleUndoMyPick = async () => {
                           </td>
                         </tr>
                       )}
-                      <tr ref={isOnClock ? onClockRowRef : null} className={`transition-all ${isOnClock ? 'bg-blue-50/50' : 'hover:bg-slate-50/50'}`}>
+                      <tr ref={isOnClock ? onClockRowRef : null} className={`transition-all ${isOnClock ? 'bg-blue-100 border-l-[6px] border-blue-500' : 'hover:bg-slate-50/50'}`}>
                       <td className="px-10 py-8">
                         <span className={`text-xl font-black italic tracking-tighter ${isOnClock ? 'text-blue-400' : 'text-slate-400'}`}>
                           {pick.round}
@@ -574,9 +608,12 @@ const handleUndoMyPick = async () => {
                               {pick.draftedPlayerPosition && (
                                 <span className="bg-blue-600 text-white text-[8px] font-black px-2 py-0.5 rounded uppercase shrink-0">{pick.draftedPlayerPosition}</span>
                               )}
-                              <a href={`https://www.google.com/search?q=${encodeURIComponent(pick.draftedPlayer.split(' - ').pop() || pick.draftedPlayer)}`} target="_blank" rel="noopener noreferrer" className="text-base font-black uppercase text-slate-900 hover:text-blue-600 transition-all">
+                              <button
+                                onClick={() => handlePlayerNameClick(pick.draftedPlayer)}
+                                className="text-base font-black uppercase text-blue-700 hover:text-blue-500 hover:underline transition-all text-left"
+                              >
                                 {pick.draftedPlayer}
-                              </a>
+                              </button>
                             </div>
                             <span className="text-[10px] font-black text-slate-400 uppercase italic mt-1">{pick.timestamp ? new Date(pick.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : ''}</span>
                           </div>
