@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, X, ChevronUp, ChevronDown, ChevronsUpDown, Star } from 'lucide-react';
+import { Search, X, ChevronUp, ChevronDown, ChevronsUpDown, Star, Download } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -555,18 +555,59 @@ export default function FreeAgentsPage() {
     [players, watchlist]
   );
 
+  const handleExportCsv = () => {
+    const q = search.toLowerCase();
+    const exportPlayers = groupedPlayers.flatMap(({ group, players: gPlayers }) =>
+      gPlayers
+        .filter(p => {
+          if (starredOnly && !watchlist.has(p.identity)) return false;
+          return !q || p.name.toLowerCase().includes(q);
+        })
+        .map(p => ({ ...p, positionGroup: group.label }))
+    );
+
+    const headers = ['Name', 'Age', 'Position Group', 'Offense', 'Defense', 'Special', 'Overall', 'Durability', 'Salary', 'Run', 'Pass', 'Rush', 'Int', 'Sack'];
+    const rows = exportPlayers.map(p => [
+      p.name, p.age ?? '', p.positionGroup,
+      p.offense ?? '', p.defense ?? '', p.special ?? '',
+      p.overall ?? '', p.dur ?? '', p.salary ?? '',
+      p.run ?? '', p.pass ?? '', p.rush ?? '', p.int ?? '', p.sack ?? '',
+    ].map(v => `"${String(v).replace(/"/g, '""')}"`));
+
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `free-agents${posFilter !== ALL_POS ? `-${posFilter}` : ''}${search ? `-${search}` : ''}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <div className="max-w-7xl mx-auto px-4 py-6">
 
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-black uppercase tracking-tight text-white">
-            Free Agent <span className="text-blue-400">Evaluation</span>
-          </h1>
-          <p className="text-slate-400 text-sm mt-0.5">
-            {loading ? 'Loading...' : `${players.length} free agents available`}
-          </p>
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-white">
+              Free Agent <span className="text-blue-400">Evaluation</span>
+            </h1>
+            <p className="text-slate-400 text-sm mt-0.5">
+              {loading ? 'Loading...' : `${players.length} free agents available`}
+            </p>
+          </div>
+          {!loading && players.length > 0 && (
+            <button
+              onClick={handleExportCsv}
+              className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-bold text-slate-300 hover:text-white transition-colors shrink-0"
+              title="Export to CSV / Excel"
+            >
+              <Download size={14} />
+              Export
+            </button>
+          )}
         </div>
 
         {/* Filters */}
