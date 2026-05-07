@@ -20,24 +20,32 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
   const rounds = [...new Set(yearPicks.map(p => p.round))].sort((a, b) => a - b);
 
   // Order columns by original round 1 draft slot (ignoring trades).
-  // Each team's column position is based on the overall number of the round 1 pick
-  // that originally belonged to them, so trades don't shift column positions.
+  // Iterate round 1 picks in overall order; for each unique originalTeam, find the
+  // matching column (by full name) and place it. Teams with no R1 slot go at the end.
   const ownerShortsInOrder = (() => {
     const allOwners = [...new Set(yearPicks.map(p => p.currentOwner).filter(Boolean))];
-    const round1 = yearPicks.filter(p => p.round === 1).sort((a, b) => (a.overall ?? 0) - (b.overall ?? 0));
+    const round1Sorted = yearPicks.filter(p => p.round === 1).sort((a, b) => (a.overall ?? 0) - (b.overall ?? 0));
 
-    // Map each current owner to their original round 1 slot by matching full name to originalTeam
-    const slotMap = new Map<string, number>();
-    for (const pick of round1) {
-      const owner = allOwners.find(
-        o => getFullTeamName(o).toUpperCase() === (pick.originalTeam ?? '').toUpperCase()
+    const ordered: string[] = [];
+    const placed = new Set<string>();
+
+    for (const pick of round1Sorted) {
+      const origUpper = (pick.originalTeam ?? '').toUpperCase().trim();
+      const match = allOwners.find(
+        o => !placed.has(o) && getFullTeamName(o).toUpperCase().trim() === origUpper
       );
-      if (owner && !slotMap.has(owner)) {
-        slotMap.set(owner, pick.overall ?? 9999);
+      if (match) {
+        ordered.push(match);
+        placed.add(match);
       }
     }
 
-    return [...allOwners].sort((a, b) => (slotMap.get(a) ?? 9999) - (slotMap.get(b) ?? 9999));
+    // Any team not yet placed (no R1 original slot found) goes at the end
+    for (const o of allOwners) {
+      if (!placed.has(o)) ordered.push(o);
+    }
+
+    return ordered;
   })();
 
   // Build grid: grid[round][teamShort] = DraftPick[]
@@ -68,9 +76,9 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
     if (cellPicks.length === 0) {
       if (tradedTo) {
         return (
-          <div className="h-full flex flex-col items-center justify-center gap-0.5 py-1">
-            <span className="text-red-500 font-black text-[9px] uppercase tracking-wide">Traded</span>
-            <span className="text-red-400 text-[8px] font-bold text-center leading-tight">to {tradedTo}</span>
+          <div className="rounded p-1.5 border bg-red-900/80 border-red-700 text-white text-[9px] leading-tight">
+            <div className="font-black uppercase tracking-tight">Traded</div>
+            <div className="text-red-300 text-[8px] mt-0.5">to {tradedTo}</div>
           </div>
         );
       }
