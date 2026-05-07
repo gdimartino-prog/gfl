@@ -5,7 +5,7 @@ import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
-import { Search, RotateCw, Zap, ChevronUp, Trash2, RotateCcw, LayoutList, LayoutGrid } from 'lucide-react';
+import { Search, RotateCw, Zap, ChevronUp, Trash2, RotateCcw, LayoutList, LayoutGrid, Target } from 'lucide-react';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
 import { useConfirm } from '@/components/ConfirmDialog';
 import { Team, Player, DraftPick } from '../../types';
@@ -187,13 +187,19 @@ const handleUndoMyPick = async () => {
     hasCalledExpireRef.current = false;
   }, [onClockPick?.overall]);
 
-  // Scroll to on-clock pick, leaving ~3 rows visible above it
-  useEffect(() => {
-    if (!onClockRowRef.current || loading) return;
+  const scrollToOnClock = () => {
+    if (!onClockRowRef.current) return;
     const el = onClockRowRef.current;
     const rowHeight = el.offsetHeight;
     const top = el.getBoundingClientRect().top + window.scrollY - rowHeight * 3 - 100;
     window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  };
+
+  // Scroll to on-clock pick, leaving ~3 rows visible above it
+  useEffect(() => {
+    if (!onClockRowRef.current || loading) return;
+    scrollToOnClock();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClockPick?.overall, loading]);
 
   const scheduledAtMs = onClockPick?.scheduledAt ? new Date(onClockPick.scheduledAt).getTime() : null;
@@ -491,6 +497,14 @@ const handleUndoMyPick = async () => {
               <LayoutGrid size={13} /> Grid
             </button>
           </div>
+          {viewMode === 'list' && onClockPick && (
+            <button
+              onClick={scrollToOnClock}
+              className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm"
+            >
+              <Target size={13} /> Current Pick
+            </button>
+          )}
         </div>
 
         {/* FILTER BAR */}
