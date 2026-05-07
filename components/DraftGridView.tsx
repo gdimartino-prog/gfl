@@ -52,7 +52,7 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
             pick.originalTeam.toUpperCase() !== getFullTeamName(pick.currentOwner).toUpperCase();
 
           let bg = 'bg-slate-800 border-slate-700 text-slate-300';
-          if (isOnClock) bg = 'bg-blue-900 border-blue-500 text-blue-100';
+          if (isOnClock) bg = 'bg-blue-500 border-blue-300 text-white shadow-[0_0_12px_rgba(59,130,246,0.6)]';
           else if (isDrafted) bg = 'bg-emerald-900/70 border-emerald-700 text-emerald-100';
           else if (isPassed) bg = 'bg-amber-900/60 border-amber-700 text-amber-200';
           else if (isSkipped) bg = 'bg-orange-900/60 border-orange-700 text-orange-200';
@@ -62,16 +62,23 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
             <div key={pick.overall} className={`rounded p-1.5 border text-[9px] leading-tight ${bg}`}>
               {isOnClock ? (
                 <>
-                  <div className="font-black text-blue-300 uppercase tracking-tight">⚡ On the Clock</div>
-                  <div className="font-mono text-amber-400 font-bold mt-0.5">{timeLeft}</div>
-                  <div className="text-slate-400 mt-0.5">Pick #{pick.overall}</div>
+                  <div className="font-black text-white uppercase tracking-tight">⚡ On the Clock</div>
+                  <div className="font-mono text-yellow-200 font-bold mt-0.5">{timeLeft}</div>
+                  <div className="text-blue-200 mt-0.5">Pick #{pick.overall}</div>
                 </>
               ) : isDrafted ? (
                 <>
                   {pick.draftedPlayerPosition && (
                     <span className="font-black text-emerald-400 uppercase mr-1">{pick.draftedPlayerPosition}</span>
                   )}
-                  <span className="font-bold">{pick.draftedPlayer}</span>
+                  <a
+                    href={`https://www.google.com/search?q=${encodeURIComponent(pick.draftedPlayer.split(' - ')[0].trim())}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold hover:text-emerald-300 hover:underline transition-colors"
+                  >
+                    {pick.draftedPlayer}
+                  </a>
                   {isTraded && <div className="text-slate-400 mt-0.5 text-[8px]">via {pick.originalTeam}</div>}
                 </>
               ) : isPassed ? (
