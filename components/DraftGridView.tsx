@@ -19,12 +19,16 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
 
   const rounds = [...new Set(yearPicks.map(p => p.round))].sort((a, b) => a - b);
 
-  // Order columns by first pick overall in the draft (teams that pick first appear first)
+  // Order columns by round 1 pick position; teams without a round 1 pick go at the end
   const ownerShortsInOrder = (() => {
+    const round1 = yearPicks.filter(p => p.round === 1).sort((a, b) => (a.overall ?? 0) - (b.overall ?? 0));
     const seen = new Set<string>();
+    round1.forEach(p => { if (p.currentOwner) seen.add(p.currentOwner); });
+    // Append any teams with no round 1 pick, ordered by their earliest pick overall
     [...yearPicks]
+      .filter(p => p.currentOwner && !seen.has(p.currentOwner))
       .sort((a, b) => (a.overall ?? 0) - (b.overall ?? 0))
-      .forEach(p => { if (p.currentOwner) seen.add(p.currentOwner); });
+      .forEach(p => seen.add(p.currentOwner));
     return Array.from(seen);
   })();
 
