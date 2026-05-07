@@ -266,7 +266,7 @@ const handleUndoMyPick = async () => {
     computeAndSet(); // set immediately so no 1-second blank flash
     const timerInterval = setInterval(computeAndSet, 1000);
     return () => clearInterval(timerInterval);
-  }, [onClockPick, scheduledAtMs, previousPick, loadData]);
+  }, [onClockPick, scheduledAtMs, previousPick, loadData, draftStartDate]);
 
   useEffect(() => {
     if (onClockPick || !draftStartDate) { setPreDraftTimeLeft(''); return; }

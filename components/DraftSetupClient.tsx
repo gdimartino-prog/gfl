@@ -31,8 +31,7 @@ export default function DraftSetupClient() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [draftType, setDraftType] = useState<'free_agent' | 'rookie'>('free_agent');
   const [rounds, setRounds] = useState(10);
-  const [draftStartDate, setDraftStartDate] = useState('');
-  const [draftStartTime, setDraftStartTime] = useState('');
+const [draftStartTime, setDraftStartTime] = useState('');
   const [hoursPerPick, setHoursPerPick] = useState<string>('');
 
   // Step 2 order

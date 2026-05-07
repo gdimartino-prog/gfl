@@ -281,7 +281,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
         const err = await res.json().catch(() => ({}));
         setAwardsMsg({ success: false, text: err.error || `Error ${res.status}` });
       }
-    } catch (e) {
+    } catch {
       setAwardsMsg({ success: false, text: 'Network error loading standings.' });
     }
     finally { setAwardsLoading(false); }
