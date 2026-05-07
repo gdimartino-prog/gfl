@@ -301,14 +301,15 @@ const handleUndoMyPick = async () => {
     return picks.filter(p => {
       const searchStr = searchTerm.toLowerCase();
       const draftedPlayerName = p.draftedPlayer?.toLowerCase() || "";
-      const matchesSearch = p.currentOwner?.toLowerCase().includes(searchStr) || 
+      const matchesSearch = p.currentOwner?.toLowerCase().includes(searchStr) ||
                             draftedPlayerName.includes(searchStr);
       const matchesYear = yearFilter === 'All' || p.year?.toString() === yearFilter;
       const matchesTeam = teamFilter === 'All Teams' || getFullTeamName(p.currentOwner) === teamFilter;
       const matchesRound = roundFilter === 'All' || p.round.toString() === roundFilter;
-      return matchesSearch && matchesYear && matchesTeam && matchesRound;
+      const matchesDraftType = draftTypeFilter === 'all' || p.draftType === draftTypeFilter;
+      return matchesSearch && matchesYear && matchesTeam && matchesRound && matchesDraftType;
     });
-  }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, getFullTeamName]);
+  }, [picks, searchTerm, yearFilter, teamFilter, roundFilter, getFullTeamName, draftTypeFilter]);
 
   // Helper to render trade history logic cleanly
   const renderTradeHistory = (pick: DraftPick) => {
@@ -515,7 +516,7 @@ const handleUndoMyPick = async () => {
         {/* GRID VIEW */}
         {viewMode === 'grid' && (
           <DraftGridView
-            picks={picks}
+            picks={filteredPicks}
             yearFilter={yearFilter}
             draftTypeFilter={draftTypeFilter}
             onClockPick={onClockPick}
