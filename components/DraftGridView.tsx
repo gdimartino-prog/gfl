@@ -52,7 +52,7 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
             pick.originalTeam.toUpperCase() !== getFullTeamName(pick.currentOwner).toUpperCase();
 
           let bg = 'bg-slate-800 border-slate-700 text-slate-300';
-          if (isOnClock) bg = 'bg-blue-500 border-blue-300 text-white shadow-[0_0_12px_rgba(59,130,246,0.6)]';
+          if (isOnClock) bg = 'bg-blue-500 border-blue-300 text-white shadow-[0_0_12px_rgba(59,130,246,0.6)] animate-pulse';
           else if (isDrafted) bg = 'bg-emerald-900/70 border-emerald-700 text-emerald-100';
           else if (isPassed) bg = 'bg-amber-900/60 border-amber-700 text-amber-200';
           else if (isSkipped) bg = 'bg-orange-900/60 border-orange-700 text-orange-200';
