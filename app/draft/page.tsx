@@ -517,6 +517,7 @@ const handleUndoMyPick = async () => {
         {viewMode === 'grid' && (
           <DraftGridView
             picks={filteredPicks}
+            teams={teams}
             yearFilter={yearFilter}
             draftTypeFilter={draftTypeFilter}
             onClockPick={onClockPick}

@@ -1,8 +1,9 @@
 'use client';
-import { DraftPick } from '@/types';
+import { DraftPick, Team } from '@/types';
 
 interface Props {
   picks: DraftPick[];
+  teams: Team[];
   yearFilter: string;
   draftTypeFilter: 'free_agent' | 'rookie' | 'all';
   onClockPick: DraftPick | undefined;
@@ -11,7 +12,7 @@ interface Props {
   onPickSelect?: (pick: DraftPick) => void;
 }
 
-export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onClockPick, timeLeft, getFullTeamName, onPickSelect }: Props) {
+export default function DraftGridView({ picks, teams, yearFilter, draftTypeFilter, onClockPick, timeLeft, getFullTeamName, onPickSelect }: Props) {
   const yearPicks = picks.filter(p =>
     String(p.year) === yearFilter &&
     (draftTypeFilter === 'all' || p.draftType === draftTypeFilter)
@@ -19,11 +20,18 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
 
   const rounds = [...new Set(yearPicks.map(p => p.round))].sort((a, b) => a - b);
 
+  // Build a full name → teamshort map so we can resolve originalTeam names
+  // even for teams that traded all their picks (and thus have no currentOwner entries).
+  const nameToShort = new Map<string, string>();
+  for (const t of teams) {
+    if (t.name && t.short) nameToShort.set(t.name.toUpperCase().trim(), t.short);
+  }
+
   // Order columns by original round 1 draft slot (ignoring trades).
-  // Iterate round 1 picks in overall order; for each unique originalTeam, find the
-  // matching column (by full name) and place it. Teams with no R1 slot go at the end.
+  // We include ALL original slots — even teams that traded every pick away — so
+  // no slot is skipped and column positions match the original draft order exactly.
   const ownerShortsInOrder = (() => {
-    const allOwners = [...new Set(yearPicks.map(p => p.currentOwner).filter(Boolean))];
+    const allCurrentOwners = new Set(yearPicks.map(p => p.currentOwner).filter(Boolean));
     const round1Sorted = yearPicks.filter(p => p.round === 1).sort((a, b) => (a.overall ?? 0) - (b.overall ?? 0));
 
     const ordered: string[] = [];
@@ -31,17 +39,17 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
 
     for (const pick of round1Sorted) {
       const origUpper = (pick.originalTeam ?? '').toUpperCase().trim();
-      const match = allOwners.find(
-        o => !placed.has(o) && getFullTeamName(o).toUpperCase().trim() === origUpper
-      );
-      if (match) {
-        ordered.push(match);
-        placed.add(match);
+      // Prefer looking up via the teams list (works even if the team owns no picks)
+      const short = nameToShort.get(origUpper) ??
+        [...allCurrentOwners].find(o => getFullTeamName(o).toUpperCase().trim() === origUpper);
+      if (short && !placed.has(short)) {
+        ordered.push(short);
+        placed.add(short);
       }
     }
 
-    // Any team not yet placed (no R1 original slot found) goes at the end
-    for (const o of allOwners) {
+    // Any current owner not yet placed (no R1 original slot found) goes at the end
+    for (const o of allCurrentOwners) {
       if (!placed.has(o)) ordered.push(o);
     }
 
@@ -61,9 +69,9 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
   // Detect slots where this team's original pick was traded away; store destination team name
   const tradedAwaySlots = new Map<string, string>(); // key: "round:short", value: destination team name
   for (const pick of yearPicks) {
-    const origShort = ownerShortsInOrder.find(
-      o => getFullTeamName(o).toUpperCase() === (pick.originalTeam ?? '').toUpperCase()
-    );
+    const origUpper = (pick.originalTeam ?? '').toUpperCase().trim();
+    const origShort = nameToShort.get(origUpper) ??
+      ownerShortsInOrder.find(o => getFullTeamName(o).toUpperCase().trim() === origUpper);
     if (origShort && pick.currentOwner !== origShort) {
       const key = `${pick.round}:${origShort}`;
       if (!tradedAwaySlots.has(key)) {
