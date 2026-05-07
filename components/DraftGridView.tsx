@@ -19,17 +19,25 @@ export default function DraftGridView({ picks, yearFilter, draftTypeFilter, onCl
 
   const rounds = [...new Set(yearPicks.map(p => p.round))].sort((a, b) => a - b);
 
-  // Order columns by round 1 pick position; teams without a round 1 pick go at the end
+  // Order columns by original round 1 draft slot (ignoring trades).
+  // Each team's column position is based on the overall number of the round 1 pick
+  // that originally belonged to them, so trades don't shift column positions.
   const ownerShortsInOrder = (() => {
+    const allOwners = [...new Set(yearPicks.map(p => p.currentOwner).filter(Boolean))];
     const round1 = yearPicks.filter(p => p.round === 1).sort((a, b) => (a.overall ?? 0) - (b.overall ?? 0));
-    const seen = new Set<string>();
-    round1.forEach(p => { if (p.currentOwner) seen.add(p.currentOwner); });
-    // Append any teams with no round 1 pick, ordered by their earliest pick overall
-    [...yearPicks]
-      .filter(p => p.currentOwner && !seen.has(p.currentOwner))
-      .sort((a, b) => (a.overall ?? 0) - (b.overall ?? 0))
-      .forEach(p => seen.add(p.currentOwner));
-    return Array.from(seen);
+
+    // Map each current owner to their original round 1 slot by matching full name to originalTeam
+    const slotMap = new Map<string, number>();
+    for (const pick of round1) {
+      const owner = allOwners.find(
+        o => getFullTeamName(o).toUpperCase() === (pick.originalTeam ?? '').toUpperCase()
+      );
+      if (owner && !slotMap.has(owner)) {
+        slotMap.set(owner, pick.overall ?? 9999);
+      }
+    }
+
+    return [...allOwners].sort((a, b) => (slotMap.get(a) ?? 9999) - (slotMap.get(b) ?? 9999));
   })();
 
   // Build grid: grid[round][teamShort] = DraftPick[]
