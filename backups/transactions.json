@@ -760,6 +760,28 @@
     "touch_id": "commissioner"
   },
   {
+    "id": 120,
+    "leagueId": 1,
+    "date": "2026-05-04T17:49:23.941Z",
+    "type": "TRADE",
+    "description": "Traded to DC: 2026 Satriale 1st round pick via Fur Peace (18th overall), 2026 Satriale 2nd round pick (19th overall)",
+    "fromTeam": "Satriale",
+    "toTeam": "DC",
+    "owner": "Alex Matsikoudis",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2346,
+      2347
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-04T17:49:23.941Z",
+    "touch_id": "commissioner"
+  },
+  {
     "id": 113,
     "leagueId": 1,
     "date": "2026-05-01T01:58:17.545Z",
@@ -886,7 +908,7 @@
     "fromTeam": "DC",
     "toTeam": "Satriale",
     "owner": "Alex Matsikoudis",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
@@ -897,29 +919,7 @@
     ],
     "conditionalDetails": null,
     "touch_dt": "2026-05-04T17:49:23.930Z",
-    "touch_id": "Alex Matsikoudis"
-  },
-  {
-    "id": 120,
-    "leagueId": 1,
-    "date": "2026-05-04T17:49:23.941Z",
-    "type": "TRADE",
-    "description": "Traded to DC: 2026 Satriale 1st round pick via Fur Peace (18th overall), 2026 Satriale 2nd round pick (19th overall)",
-    "fromTeam": "Satriale",
-    "toTeam": "DC",
-    "owner": "Alex Matsikoudis",
-    "status": "Pending",
-    "weekBack": null,
-    "season": null,
-    "fee": 0,
-    "emailStatus": null,
-    "pickIds": [
-      2346,
-      2347
-    ],
-    "conditionalDetails": null,
-    "touch_dt": "2026-05-04T17:49:23.941Z",
-    "touch_id": "Alex Matsikoudis"
+    "touch_id": "commissioner"
   },
   {
     "id": 121,
@@ -930,7 +930,7 @@
     "fromTeam": "Fur Peace",
     "toTeam": "Newark Bay",
     "owner": "Jack Wyville",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
@@ -938,7 +938,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-05-05T06:55:51.392Z",
-    "touch_id": "Jack Wyville"
+    "touch_id": "commissioner"
   },
   {
     "id": 122,
@@ -949,7 +949,7 @@
     "fromTeam": "Newark Bay",
     "toTeam": "Fur Peace",
     "owner": "Jack Wyville",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
@@ -957,7 +957,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-05-05T06:55:51.416Z",
-    "touch_id": "Jack Wyville"
+    "touch_id": "commissioner"
   },
   {
     "id": 123,
@@ -968,7 +968,7 @@
     "fromTeam": "Crimson",
     "toTeam": "Urban",
     "owner": "Bob Glade",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
@@ -976,7 +976,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-05-05T21:12:06.599Z",
-    "touch_id": "Bob Glade"
+    "touch_id": "commissioner"
   },
   {
     "id": 124,
@@ -987,7 +987,7 @@
     "fromTeam": "Urban",
     "toTeam": "Crimson",
     "owner": "Bob Glade",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
@@ -995,6 +995,88 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-05-05T21:12:06.621Z",
-    "touch_id": "Bob Glade"
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 125,
+    "leagueId": 1,
+    "date": "2026-05-06T14:49:20.711Z",
+    "type": "TRADE",
+    "description": "Traded to Kigali: 2026 Old Bridge 2nd round pick (22nd overall), 2026 Old Bridge 4th round pick via Carolina (64th overall)",
+    "fromTeam": "Old Bridge",
+    "toTeam": "Kigali",
+    "owner": "Ed Casserly",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2350,
+      2392
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-06T14:49:20.713Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 126,
+    "leagueId": 1,
+    "date": "2026-05-06T14:49:20.723Z",
+    "type": "TRADE",
+    "description": "Traded to Old Bridge: 2026 Kigali 2nd round pick (27th overall), 2026 Kigali 3rd round pick (43rd overall)",
+    "fromTeam": "Kigali",
+    "toTeam": "Old Bridge",
+    "owner": "Ed Casserly",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2355,
+      2371
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-06T14:49:20.725Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 127,
+    "leagueId": 1,
+    "date": "2026-05-06T15:33:50.061Z",
+    "type": "TRADE",
+    "description": "Traded to Carolina: Denzel Ward - CB",
+    "fromTeam": "Pyongyang",
+    "toTeam": "Carolina",
+    "owner": "James Thurlow",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-06T15:33:50.066Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 128,
+    "leagueId": 1,
+    "date": "2026-05-06T15:33:50.138Z",
+    "type": "TRADE",
+    "description": "Traded to Pyongyang: Al-Quadin Muhammad - DE",
+    "fromTeam": "Carolina",
+    "toTeam": "Pyongyang",
+    "owner": "James Thurlow",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-06T15:33:50.142Z",
+    "touch_id": "commissioner"
   }
 ]

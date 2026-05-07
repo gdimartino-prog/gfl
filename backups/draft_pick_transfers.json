@@ -152,6 +152,56 @@
     "touch_id": "commissioner"
   },
   {
+    "id": 115,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 2,
+    "originalTeamId": 52,
+    "currentTeamId": 46,
+    "history": [],
+    "touch_dt": "2026-05-06T15:10:53.694Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 116,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 2,
+    "originalTeamId": 46,
+    "currentTeamId": 52,
+    "history": [],
+    "touch_dt": "2026-05-06T15:10:53.932Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 117,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 3,
+    "originalTeamId": 46,
+    "currentTeamId": 52,
+    "history": [],
+    "touch_dt": "2026-05-06T15:10:53.992Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 56,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 4,
+    "originalTeamId": 42,
+    "currentTeamId": 46,
+    "history": [
+      52
+    ],
+    "touch_dt": "2026-05-06T15:10:54.038Z",
+    "touch_id": "commissioner"
+  },
+  {
     "id": 42,
     "leagueId": 1,
     "year": 2026,
@@ -281,18 +331,6 @@
     "currentTeamId": 41,
     "history": [],
     "touch_dt": "2026-03-20T23:17:35.548Z",
-    "touch_id": "trade-migration"
-  },
-  {
-    "id": 56,
-    "leagueId": 1,
-    "year": 2026,
-    "draftType": "free_agent",
-    "round": 4,
-    "originalTeamId": 42,
-    "currentTeamId": 52,
-    "history": [],
-    "touch_dt": "2026-03-20T23:17:35.594Z",
     "touch_id": "trade-migration"
   },
   {
