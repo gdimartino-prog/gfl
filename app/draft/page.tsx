@@ -5,10 +5,11 @@ import SelectionModal from '@/components/SelectionModal';
 import PlayerCard from '@/components/PlayerCard'; 
 import { useSession } from "next-auth/react";
 import { useRouter } from 'next/navigation';
-import { Search, RotateCw, Zap, ChevronUp, Trash2, RotateCcw } from 'lucide-react';
+import { Search, RotateCw, Zap, ChevronUp, Trash2, RotateCcw, LayoutList, LayoutGrid } from 'lucide-react';
 import RecentPicksTicker from '@/components/RecentPicksTicker';
 import { useConfirm } from '@/components/ConfirmDialog';
 import { Team, Player, DraftPick } from '../../types';
+import DraftGridView from '@/components/DraftGridView';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +30,8 @@ function DraftBoardContent() {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
   const [yearFilter, setYearFilter] = useState('All');
@@ -471,6 +474,24 @@ const handleUndoMyPick = async () => {
           );
         })()}
 
+        {/* VIEW TOGGLE + FILTER BAR */}
+        <div className="flex items-center gap-3">
+          <div className="flex bg-white border border-slate-200 rounded-2xl p-1 shadow-sm shrink-0">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-slate-900 text-white shadow' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              <LayoutList size={13} /> List
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'grid' ? 'bg-slate-900 text-white shadow' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              <LayoutGrid size={13} /> Grid
+            </button>
+          </div>
+        </div>
+
         {/* FILTER BAR */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white p-6 rounded-[2rem] shadow-xl border border-slate-100">
           <FilterSelect label="Season" value={yearFilter} onChange={setYearFilter} options={Array.from(new Set(picks.map(p => p.year))).sort()} />
@@ -491,8 +512,20 @@ const handleUndoMyPick = async () => {
           </div>
         </div>
 
-        {/* DRAFT TABLE */}
-        <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100">
+        {/* GRID VIEW */}
+        {viewMode === 'grid' && (
+          <DraftGridView
+            picks={picks}
+            yearFilter={yearFilter}
+            draftTypeFilter={draftTypeFilter}
+            onClockPick={onClockPick}
+            timeLeft={timeLeft}
+            getFullTeamName={getFullTeamName}
+          />
+        )}
+
+        {/* LIST VIEW */}
+        {viewMode === 'list' && <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-separate border-spacing-0">
               <thead>
@@ -659,7 +692,8 @@ const handleUndoMyPick = async () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </div>}
+
       </main>
 
       {showSelectionModal && selectedPick && (
