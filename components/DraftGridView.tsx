@@ -32,7 +32,7 @@ export default function DraftGridView({ picks, teams, yearFilter, draftTypeFilte
   // no slot is skipped and column positions match the original draft order exactly.
   const ownerShortsInOrder = (() => {
     const allCurrentOwners = new Set(yearPicks.map(p => p.currentOwner).filter(Boolean));
-    const round1Sorted = yearPicks.filter(p => p.round === 1).sort((a, b) => (a.overall ?? 0) - (b.overall ?? 0));
+    const round1Sorted = yearPicks.filter(p => Number(p.round) === 1).sort((a, b) => Number(a.overall ?? 0) - Number(b.overall ?? 0));
 
     const ordered: string[] = [];
     const placed = new Set<string>();
