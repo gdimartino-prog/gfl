@@ -3418,5 +3418,275 @@
     "team": "CK",
     "action": "DRAFT_PICK",
     "details": "R2 #23: S - Xavier Watts"
+  },
+  {
+    "id": 381,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T13:00:41.524Z",
+    "coach": "James Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R2 #24: HB - Harold Fannin Jr."
+  },
+  {
+    "id": 382,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T13:20:15.439Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 383,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T13:37:37.141Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 384,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T16:00:35.524Z",
+    "coach": "James Di Martino",
+    "team": "JJ",
+    "action": "TRADE",
+    "details": "Jefferson ↔ LE"
+  },
+  {
+    "id": 385,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T16:31:54.338Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #130 marked Done"
+  },
+  {
+    "id": 386,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T16:31:55.976Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #129 marked Done"
+  },
+  {
+    "id": 387,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T18:16:11.990Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 388,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T18:22:22.844Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R2 #25: CB - Montaric Brown"
+  },
+  {
+    "id": 389,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T20:05:51.042Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 390,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T20:06:08.912Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team LV"
+  },
+  {
+    "id": 391,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T20:06:25.138Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 392,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T20:06:38.136Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 393,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T20:29:39.656Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 394,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T20:46:38.005Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "TRADE",
+    "details": "Old Bridge ↔ Amalfi"
+  },
+  {
+    "id": 395,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T22:11:25.021Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "DRAFT_PICK",
+    "details": "R2 #26: CB - Jaylen Watson"
+  },
+  {
+    "id": 396,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T22:37:25.964Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #131 marked Done"
+  },
+  {
+    "id": 397,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T22:37:27.319Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #132 marked Done"
+  },
+  {
+    "id": 398,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T23:01:32.566Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 399,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T23:29:22.579Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "TRADE",
+    "details": "Old Bridge ↔ Las Vegas"
+  },
+  {
+    "id": 400,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T23:32:13.121Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #134 marked Done"
+  },
+  {
+    "id": 401,
+    "leagueId": 1,
+    "timestamp": "2026-05-07T23:32:15.053Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #133 marked Done"
+  },
+  {
+    "id": 402,
+    "leagueId": 1,
+    "timestamp": "2026-05-08T00:00:56.542Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R2 #27: WR/KR - Luther Burden III"
+  },
+  {
+    "id": 403,
+    "leagueId": 1,
+    "timestamp": "2026-05-08T00:02:13.542Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 404,
+    "leagueId": 1,
+    "timestamp": "2026-05-08T00:04:42.275Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R2 #28: RB/KR - Omarion Hampton"
+  },
+  {
+    "id": 405,
+    "leagueId": 1,
+    "timestamp": "2026-05-08T01:21:01.423Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R2 #29: QB - Cam Ward"
+  },
+  {
+    "id": 406,
+    "leagueId": 1,
+    "timestamp": "2026-05-08T01:27:07.293Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 407,
+    "leagueId": 1,
+    "timestamp": "2026-05-08T02:00:18.494Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 408,
+    "leagueId": 1,
+    "timestamp": "2026-05-08T02:07:39.202Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 409,
+    "leagueId": 1,
+    "timestamp": "2026-05-08T02:47:11.177Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 410,
+    "leagueId": 1,
+    "timestamp": "2026-05-08T02:55:31.495Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R2 #30: S - Grant Delpit"
   }
 ]

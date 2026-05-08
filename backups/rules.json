@@ -1,15 +1,5 @@
 [
   {
-    "id": 62,
-    "leagueId": 2,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "23",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-05T15:35:08.929Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
     "id": 44,
     "leagueId": 2,
     "year": null,
@@ -180,16 +170,6 @@
     "touch_id": "migration-script"
   },
   {
-    "id": 71,
-    "leagueId": 3,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "23",
-    "desc": null,
-    "touch_dt": "2026-03-25T12:38:20.671Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
     "id": 40,
     "leagueId": 1,
     "year": null,
@@ -218,16 +198,6 @@
     "desc": "How many teams make the playoffs",
     "touch_dt": "2026-03-04T16:08:49.166Z",
     "touch_id": "migration-script"
-  },
-  {
-    "id": 38,
-    "leagueId": 1,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "1",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-04T16:08:49.166Z",
-    "touch_id": "maintenance"
   },
   {
     "id": 48,
@@ -390,16 +360,6 @@
     "touch_id": "initialize"
   },
   {
-    "id": 39,
-    "leagueId": 1,
-    "year": null,
-    "rule": "player_sync",
-    "value": "05/06/2026, 12:26:22 PM",
-    "desc": "The datetime the player tab was updated",
-    "touch_dt": "2026-03-04T16:08:49.166Z",
-    "touch_id": "maintenance"
-  },
-  {
     "id": 69,
     "leagueId": 1,
     "year": null,
@@ -420,6 +380,26 @@
     "touch_id": "seed-draft-clock"
   },
   {
+    "id": 62,
+    "leagueId": 2,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "23",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
+    "id": 38,
+    "leagueId": 1,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "23",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
     "id": 66,
     "leagueId": 1,
     "year": 2023,
@@ -428,6 +408,16 @@
     "desc": null,
     "touch_dt": "2026-03-07T13:38:00.628Z",
     "touch_id": "maintenance"
+  },
+  {
+    "id": 71,
+    "leagueId": 3,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "23",
+    "desc": null,
+    "touch_dt": "2026-03-25T12:38:20.671Z",
+    "touch_id": "cron-nfl-week"
   },
   {
     "id": 37,
@@ -456,6 +446,16 @@
     "rule": "cuts_year",
     "value": "2026",
     "desc": "Current season, this is used for Cuts",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 39,
+    "leagueId": 1,
+    "year": null,
+    "rule": "player_sync",
+    "value": "05/07/2026, 10:00:19 PM",
+    "desc": "The datetime the player tab was updated",
     "touch_dt": "2026-03-04T16:08:49.166Z",
     "touch_id": "maintenance"
   },

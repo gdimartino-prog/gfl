@@ -300,18 +300,6 @@
     "email": "matsikoudi@me.com"
   },
   {
-    "id": 48,
-    "leagueId": 1,
-    "name": "LE",
-    "coach": "Naz Kikta",
-    "teamshort": "LES",
-    "nickname": "Stallions",
-    "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-688-8112",
-    "email": "nkikta@gmail.com"
-  },
-  {
     "id": 49,
     "leagueId": 1,
     "name": "Las Vegas",
@@ -322,6 +310,18 @@
     "status": "active",
     "mobile": "+1-201-892-4919",
     "email": "deemark2320@gmail.com"
+  },
+  {
+    "id": 48,
+    "leagueId": 1,
+    "name": "LE",
+    "coach": "Naz Kikta",
+    "teamshort": "LES",
+    "nickname": "Stallions",
+    "isCommissioner": false,
+    "status": "active",
+    "mobile": "+1-732-688-8112",
+    "email": "nkikta@gmail.com"
   },
   {
     "id": 51,
