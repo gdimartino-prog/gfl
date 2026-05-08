@@ -122,12 +122,9 @@ export async function processPlayersFile(
   // Upsert by identity so draft pick playerId refs remain valid across re-syncs.
   // 1. Fetch existing players
   const existingPlayers = await db
-    .select({ id: players.id, identity: players.identity, teamId: players.teamId })
+    .select({ id: players.id, name: players.name, identity: players.identity, teamId: players.teamId })
     .from(players)
     .where(eq(players.leagueId, leagueId));
-  const existingByIdentity = new Map(
-    existingPlayers.filter(p => p.identity).map(p => [p.identity!, { id: p.id, teamId: p.teamId }])
-  );
 
   // 2. Fetch player IDs currently referenced by draft picks (already drafted)
   const draftedRows = await db
@@ -135,6 +132,50 @@ export async function processPlayersFile(
     .from(draftPicks)
     .where(and(eq(draftPicks.leagueId, leagueId), isNotNull(draftPicks.playerId)));
   const draftedPlayerIds = new Set(draftedRows.map(r => r.playerId!));
+
+  // 2b. Consolidate same-identity duplicates that may have accumulated in the DB
+  // (e.g. a player joins a team but the old FA row was never cleaned up). For each
+  // identity, keep the canonical row — preferring drafted, then team-affiliated, then
+  // lowest id — and delete the rest. Without this, the Map below would silently
+  // collapse duplicates and leave orphan rows untouched.
+  const groupsByIdentity = new Map<string, typeof existingPlayers>();
+  for (const p of existingPlayers) {
+    if (!p.identity) continue;
+    const arr = groupsByIdentity.get(p.identity) ?? [];
+    arr.push(p);
+    groupsByIdentity.set(p.identity, arr);
+  }
+  const orphanIds: number[] = [];
+  const removedDuplicateNames: string[] = [];
+  const canonicalByIdentity = new Map<string, { id: number; teamId: number | null }>();
+  for (const [identity, group] of groupsByIdentity) {
+    if (group.length === 1) {
+      canonicalByIdentity.set(identity, { id: group[0].id, teamId: group[0].teamId });
+      continue;
+    }
+    const ranked = [...group].sort((a, b) => {
+      const aDrafted = draftedPlayerIds.has(a.id) ? 1 : 0;
+      const bDrafted = draftedPlayerIds.has(b.id) ? 1 : 0;
+      if (aDrafted !== bDrafted) return bDrafted - aDrafted;
+      const aTeam = a.teamId !== null ? 1 : 0;
+      const bTeam = b.teamId !== null ? 1 : 0;
+      if (aTeam !== bTeam) return bTeam - aTeam;
+      return a.id - b.id;
+    });
+    const [canonical, ...dupes] = ranked;
+    canonicalByIdentity.set(identity, { id: canonical.id, teamId: canonical.teamId });
+    for (const d of dupes) {
+      if (!draftedPlayerIds.has(d.id)) {
+        orphanIds.push(d.id);
+        if (d.name) removedDuplicateNames.push(d.name);
+      }
+    }
+  }
+  if (orphanIds.length > 0) {
+    console.log(`[sync] removing ${orphanIds.length} orphan duplicate player rows`, orphanIds);
+    await db.delete(players).where(inArray(players.id, orphanIds));
+  }
+  const existingByIdentity = canonicalByIdentity;
 
   // 3. Upsert each player from the file
   const fileIdentities = new Set<string>();
@@ -200,7 +241,12 @@ export async function processPlayersFile(
 
   revalidateTag('players', 'max');
 
-  return { success: true, message: `Successfully synced ${playerValues.length} players.` };
+  let message = `Successfully synced ${playerValues.length} players.`;
+  if (removedDuplicateNames.length > 0) {
+    const uniqueNames = Array.from(new Set(removedDuplicateNames)).sort();
+    message += ` Removed ${uniqueNames.length} duplicate ${uniqueNames.length === 1 ? 'player' : 'players'}: ${uniqueNames.join(', ')}.`;
+  }
+  return { success: true, message };
 }
 
 export async function processScheduleFile(fileContent: string, leagueId: number = 1) {
