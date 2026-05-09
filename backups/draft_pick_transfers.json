@@ -52,20 +52,6 @@
     "touch_id": "commissioner"
   },
   {
-    "id": 50,
-    "leagueId": 1,
-    "year": 2026,
-    "draftType": "free_agent",
-    "round": 3,
-    "originalTeamId": 53,
-    "currentTeamId": 44,
-    "history": [
-      52
-    ],
-    "touch_dt": "2026-05-03T00:51:11.568Z",
-    "touch_id": "commissioner"
-  },
-  {
     "id": 103,
     "leagueId": 1,
     "year": 2026,
@@ -238,6 +224,21 @@
     "history": [],
     "touch_dt": "2026-05-07T23:29:22.538Z",
     "touch_id": "OBG"
+  },
+  {
+    "id": 50,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 3,
+    "originalTeamId": 53,
+    "currentTeamId": 41,
+    "history": [
+      52,
+      44
+    ],
+    "touch_dt": "2026-05-08T16:35:22.315Z",
+    "touch_id": "DC"
   },
   {
     "id": 42,
