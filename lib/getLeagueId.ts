@@ -3,8 +3,21 @@ import { auth } from '@/auth';
 import { db } from './db';
 import { teams } from '@/schema';
 import { eq } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
 
 const DEFAULT_LEAGUE_ID = 1;
+
+const _getLeagueIdsForTeamshort = unstable_cache(
+  async (teamshortUpper: string): Promise<number[]> => {
+    const rows = await db
+      .select({ leagueId: teams.leagueId })
+      .from(teams)
+      .where(eq(teams.teamshort, teamshortUpper));
+    return rows.map(r => r.leagueId).filter(Boolean) as number[];
+  },
+  ['team-leagues'],
+  { revalidate: 300, tags: ['team-leagues'] },
+);
 
 /**
  * Server-side helper: resolves the active leagueId for the current request.
@@ -33,12 +46,7 @@ export async function getLeagueId(): Promise<number> {
 
   // For authenticated users, look up all leagues they belong to
   if (teamshort) {
-    const rows = await db
-      .select({ leagueId: teams.leagueId })
-      .from(teams)
-      .where(eq(teams.teamshort, teamshort.toUpperCase()));
-
-    const leagueIds = rows.map(r => r.leagueId).filter(Boolean) as number[];
+    const leagueIds = await _getLeagueIdsForTeamshort(teamshort.toUpperCase());
 
     if (leagueIds.length > 0) {
       // If cookie points to a valid league for this user, honour it

@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { leagues, teams } from '@/schema';
 import { eq, and, sql } from 'drizzle-orm';
+import { revalidateTag } from 'next/cache';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -90,6 +91,7 @@ export async function POST(req: NextRequest) {
       slug: slugVal,
       touch_id: 'superuser',
     }).returning({ id: leagues.id, name: leagues.name, slug: leagues.slug });
+    revalidateTag('leagues', 'max');
 
     return NextResponse.json({ success: true, league: row });
   } catch (err: unknown) {
@@ -125,6 +127,7 @@ export async function PATCH(req: NextRequest) {
     const [row] = await db.update(leagues).set(updates).where(eq(leagues.id, Number(id)))
       .returning({ id: leagues.id, name: leagues.name, slug: leagues.slug });
     if (!row) return NextResponse.json({ error: 'League not found' }, { status: 404 });
+    revalidateTag('leagues', 'max');
     return NextResponse.json({ success: true, league: row });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);

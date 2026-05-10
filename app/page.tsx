@@ -8,6 +8,20 @@ import { db } from '@/lib/db';
 import { leagues } from '@/schema';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { eq } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
+
+const _getLeagueRow = unstable_cache(
+  async (leagueId: number) => {
+    const rows = await db
+      .select({ name: leagues.name, slug: leagues.slug, legacyUrl: leagues.legacyUrl })
+      .from(leagues)
+      .where(eq(leagues.id, leagueId))
+      .limit(1);
+    return rows[0] ?? null;
+  },
+  ['home-league-row'],
+  { revalidate: 300, tags: ['leagues'] },
+);
 
 export default async function HomePage() {
   const session = await auth();
@@ -19,10 +33,10 @@ export default async function HomePage() {
   if (session) {
     try {
       leagueId = await getLeagueId();
-      const rows = await db.select({ name: leagues.name, slug: leagues.slug, legacyUrl: leagues.legacyUrl }).from(leagues).where(eq(leagues.id, leagueId)).limit(1);
-      if (rows[0]?.name) leagueName = rows[0].name;
-      if (rows[0]?.slug) leagueSlug = rows[0].slug.toUpperCase();
-      legacyUrl = rows[0]?.legacyUrl ?? null;
+      const row = await _getLeagueRow(leagueId);
+      if (row?.name) leagueName = row.name;
+      if (row?.slug) leagueSlug = row.slug.toUpperCase();
+      legacyUrl = row?.legacyUrl ?? null;
     } catch {}
   }
 

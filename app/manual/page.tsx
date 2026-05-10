@@ -8,19 +8,29 @@ import rehypeSlug from 'rehype-slug';
 import rehypeStringify from 'rehype-stringify';
 import { BookOpen } from 'lucide-react';
 
+// The manual MD file is bundled at build time and doesn't change at runtime.
+// Compile once per server instance and reuse the rendered HTML across requests.
+let _contentHtmlPromise: Promise<string> | null = null;
+function getContentHtml(): Promise<string> {
+  if (!_contentHtmlPromise) {
+    _contentHtmlPromise = (async () => {
+      const fullPath = path.resolve(process.cwd(), 'USER_MANUAL.md');
+      const fileContents = fs.readFileSync(fullPath, 'utf8');
+      const processed = await unified()
+        .use(remarkParse)
+        .use(remarkGfm)
+        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeSlug)
+        .use(rehypeStringify, { allowDangerousHtml: true })
+        .process(fileContents);
+      return processed.toString();
+    })();
+  }
+  return _contentHtmlPromise;
+}
+
 export default async function ManualPage() {
-  const fullPath = path.resolve(process.cwd(), 'USER_MANUAL.md');
-  const fileContents = fs.readFileSync(fullPath, 'utf8');
-
-  const processedContent = await unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeSlug)
-    .use(rehypeStringify, { allowDangerousHtml: true })
-    .process(fileContents);
-
-  const contentHtml = processedContent.toString();
+  const contentHtml = await getContentHtml();
 
   const navItems = [
     { href: '#1-getting-started-your-first-steps', label: '1. Getting Started' },

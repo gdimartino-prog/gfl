@@ -57,6 +57,7 @@ export async function POST(req: Request) {
     status: status || 'active',
     touch_id: 'admin',
   }).returning();
+  revalidateTag('team-leagues', 'max');
 
   return NextResponse.json(row, { status: 201 });
 }
@@ -105,6 +106,7 @@ export async function PATCH(req: Request) {
 
   revalidateTag('coaches', 'max');
   revalidateTag('players', 'max');
+  revalidateTag('team-leagues', 'max');
   logSystemEvent(actor, 'admin', 'UPDATE_TEAM', `Updated team id ${id}`, leagueId);
   return NextResponse.json({ success: true });
 }

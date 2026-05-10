@@ -4,6 +4,7 @@ import { teams, leagues } from '@/schema';
 import { eq, and, or, sql } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 import { auth } from '@/auth';
+import { revalidateTag } from 'next/cache';
 
 // Returns { isSuperuser, isCommissioner, leagueId } for the current session
 async function getSessionAccess() {
@@ -79,6 +80,7 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       status: 'pending',
     });
+    revalidateTag('team-leagues', 'max');
 
     return NextResponse.json({ success: true });
   } catch (err) {
@@ -137,6 +139,7 @@ export async function PATCH(req: NextRequest) {
     await db.update(teams).set({ status: 'active' }).where(eq(teams.id, id));
   } else {
     await db.delete(teams).where(eq(teams.id, id));
+    revalidateTag('team-leagues', 'max');
   }
 
   return NextResponse.json({ success: true });
