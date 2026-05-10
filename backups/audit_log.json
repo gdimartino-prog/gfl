@@ -3841,5 +3841,23 @@
     "team": "Amalfi",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 428,
+    "leagueId": 1,
+    "timestamp": "2026-05-09T17:53:54.067Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R2 #35: CB - Will Johnson"
+  },
+  {
+    "id": 429,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T01:29:06.434Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]

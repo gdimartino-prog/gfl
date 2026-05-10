@@ -18126,24 +18126,6 @@
     "touch_id": "George Di Martino"
   },
   {
-    "id": 2363,
-    "leagueId": 1,
-    "year": 2026,
-    "round": 2,
-    "pick": 35,
-    "draftType": "free_agent",
-    "originalTeamId": 41,
-    "currentTeamId": 41,
-    "playerId": null,
-    "scheduledAt": null,
-    "pickedAt": null,
-    "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": null,
-    "touch_dt": "2026-04-03T22:57:34.352Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 2367,
     "leagueId": 1,
     "year": 2026,
@@ -18394,6 +18376,24 @@
     "selectedPlayerName": "G - Tate Ratledge",
     "touch_dt": "2026-04-03T22:57:34.352Z",
     "touch_id": "Mike Fullen"
+  },
+  {
+    "id": 2363,
+    "leagueId": 1,
+    "year": 2026,
+    "round": 2,
+    "pick": 35,
+    "draftType": "free_agent",
+    "originalTeamId": 41,
+    "currentTeamId": 41,
+    "playerId": 24674,
+    "scheduledAt": null,
+    "pickedAt": "2026-05-09T17:53:53.990Z",
+    "passed": false,
+    "warningSent": false,
+    "selectedPlayerName": "CB - Will Johnson",
+    "touch_dt": "2026-04-03T22:57:34.352Z",
+    "touch_id": "Adrian Scherer"
   },
   {
     "id": 2341,
