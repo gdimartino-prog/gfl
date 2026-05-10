@@ -4,15 +4,15 @@ import { db } from '@/lib/db';
 import { leagues, teams } from '@/schema';
 import { eq, and, sql } from 'drizzle-orm';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
   // Public endpoint — returns id+name for all leagues (used on login page)
   if (searchParams.get('public') === 'true') {
     const rows = await db.select({ id: leagues.id, name: leagues.name }).from(leagues).orderBy(leagues.name);
-    return NextResponse.json(rows);
+    return NextResponse.json(rows, {
+      headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
+    });
   }
 
   const session = await auth();
@@ -63,7 +63,9 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json(rows);
+  return NextResponse.json(rows, {
+    headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' },
+  });
 }
 
 export async function POST(req: NextRequest) {

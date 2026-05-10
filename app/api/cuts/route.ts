@@ -6,9 +6,6 @@ import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { auth } from '@/auth';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -80,7 +77,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ summary: leagueSummary, selections, lastUpdated: lastTime }, {
-      headers: { 'Cache-Control': 'no-store, max-age=0, must-revalidate' },
+      headers: { 'Cache-Control': 'private, max-age=30, stale-while-revalidate=60' },
     });
   } catch (err: unknown) {
     console.error('[Cuts GET]', err instanceof Error ? err.message : err);

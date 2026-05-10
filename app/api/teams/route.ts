@@ -24,7 +24,9 @@ export async function GET() {
         ...(session?.user ? { mobile: c.mobile, email: c.email } : {}),
       }));
 
-    return NextResponse.json(activeTeams);
+    return NextResponse.json(activeTeams, {
+      headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' },
+    });
   } catch (error) {
     console.error('API /teams failed:', error);
     return NextResponse.json({ error: 'Failed to load teams' }, { status: 500 });

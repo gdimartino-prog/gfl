@@ -9,8 +9,6 @@ import { leagues } from '@/schema';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { eq } from 'drizzle-orm';
 
-export const dynamic = 'force-dynamic';
-
 export default async function HomePage() {
   const session = await auth();
 

@@ -11,8 +11,6 @@ import { useConfirm } from '@/components/ConfirmDialog';
 import { Team, Player, DraftPick } from '../../types';
 import DraftGridView from '@/components/DraftGridView';
 
-export const dynamic = 'force-dynamic';
-
 export default function DraftPage() {
   return (
     <Suspense fallback={<div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Syncing Draft Board...</div>}>

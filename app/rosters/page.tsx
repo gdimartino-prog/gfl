@@ -19,8 +19,6 @@ interface RosterPlayer extends Player {
   isIR?: boolean;
 }
 
-export const dynamic = 'force-dynamic';
-
 const positionOrder = [
   'QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'
 ];

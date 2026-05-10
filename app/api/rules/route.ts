@@ -19,7 +19,10 @@ export async function GET() {
     const rows = await db.select().from(rules)
       .where(eq(rules.leagueId, leagueId))
       .orderBy(rules.year, rules.rule);
-    return NextResponse.json(rows.map(r => ({ setting: r.rule, value: r.value, desc: r.desc, year: r.year ?? null })));
+    return NextResponse.json(
+      rows.map(r => ({ setting: r.rule, value: r.value, desc: r.desc, year: r.year ?? null })),
+      { headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' } },
+    );
   } catch (error) {
     console.error('Rules API Error:', error);
     return NextResponse.json([], { status: 200 });

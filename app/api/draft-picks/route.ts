@@ -97,7 +97,9 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json(formattedPicks);
+    return NextResponse.json(formattedPicks, {
+      headers: { 'Cache-Control': 'private, max-age=15, stale-while-revalidate=30' },
+    });
   } catch (error) {
     console.error('API /draft-picks GET failed:', error);
     return NextResponse.json({ error: 'Failed to load draft picks' }, { status: 500 });

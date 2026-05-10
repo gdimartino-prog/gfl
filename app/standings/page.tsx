@@ -9,8 +9,6 @@ import Link from 'next/link';
 import { BarChart3 } from 'lucide-react';
 import { StandingRow, ScheduleGame } from '@/types';
 
-export const dynamic = 'force-dynamic';
-
 export default async function StandingsPage() {
   let allData: StandingRow[] = [];
   let allGames: ScheduleGame[] = [];

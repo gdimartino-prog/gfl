@@ -3,8 +3,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, X, ChevronUp, ChevronDown, ChevronsUpDown, Star, Download } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
-
 const WATCHLIST_KEY = 'gfl-draft-watchlist';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

@@ -6,8 +6,6 @@ import { and, eq } from 'drizzle-orm';
 import { CalendarDays } from 'lucide-react';
 import ScheduleClient from '@/components/ScheduleClient';
 
-export const dynamic = 'force-dynamic';
-
 export default async function SchedulePage() {
   const leagueId = await getLeagueId();
   const [leagueRows, seasonRows] = await Promise.all([

@@ -6,21 +6,22 @@ import { and, eq } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyTradeBlock } from '@/lib/notify';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET() {
   try {
     const leagueId = await getLeagueId();
     const rows = await db.select().from(tradeBlock)
       .where(eq(tradeBlock.leagueId, leagueId))
       .orderBy(tradeBlock.touch_dt);
-    return NextResponse.json(rows.map(r => ({
-      playerId: r.playerId,
-      playerName: r.playerName,
-      team: r.team,
-      position: r.position,
-      asking: r.asking,
-    })));
+    return NextResponse.json(
+      rows.map(r => ({
+        playerId: r.playerId,
+        playerName: r.playerName,
+        team: r.team,
+        position: r.position,
+        asking: r.asking,
+      })),
+      { headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' } },
+    );
   } catch (error) {
     console.error("Failed to retrieve trade block:", error);
     return NextResponse.json({ message: "Failed to retrieve trade block" }, { status: 500 });
