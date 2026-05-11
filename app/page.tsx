@@ -4,24 +4,8 @@ import { Suspense } from 'react';
 import WeeklyScheduleWidget from '@/components/WeeklyScheduleWidget';
 import { auth } from "@/auth";
 import LogoutButton from '@/components/LogoutButton';
-import { db } from '@/lib/db';
-import { leagues } from '@/schema';
 import { getLeagueId } from '@/lib/getLeagueId';
-import { eq } from 'drizzle-orm';
-import { unstable_cache } from 'next/cache';
-
-const _getLeagueRow = unstable_cache(
-  async (leagueId: number) => {
-    const rows = await db
-      .select({ name: leagues.name, slug: leagues.slug, legacyUrl: leagues.legacyUrl })
-      .from(leagues)
-      .where(eq(leagues.id, leagueId))
-      .limit(1);
-    return rows[0] ?? null;
-  },
-  ['home-league-row'],
-  { revalidate: 300, tags: ['leagues'] },
-);
+import { getLeagueRow } from '@/lib/getLeagueInfo';
 
 export default async function HomePage() {
   const session = await auth();
@@ -33,7 +17,7 @@ export default async function HomePage() {
   if (session) {
     try {
       leagueId = await getLeagueId();
-      const row = await _getLeagueRow(leagueId);
+      const row = await getLeagueRow(leagueId);
       if (row?.name) leagueName = row.name;
       if (row?.slug) leagueSlug = row.slug.toUpperCase();
       legacyUrl = row?.legacyUrl ?? null;

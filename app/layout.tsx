@@ -7,10 +7,8 @@ import { Analytics } from '@vercel/analytics/react';
 import { TeamProvider } from "@/context/TeamContext";
 import { LeagueProvider } from "@/context/LeagueContext";
 import { SessionProvider } from "next-auth/react";
-import { db } from '@/lib/db';
-import { rules } from '@/schema';
-import { eq, and } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
+import { getLeagueRuleValue } from '@/lib/getLeagueInfo';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,11 +23,7 @@ const geistMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const leagueId = await getLeagueId();
-    const row = await db.select({ value: rules.value })
-      .from(rules)
-      .where(and(eq(rules.rule, 'league_name'), eq(rules.leagueId, leagueId)))
-      .limit(1);
-    const leagueName = row[0]?.value || 'GFL';
+    const leagueName = (await getLeagueRuleValue(leagueId, 'league_name')) || 'GFL';
     return {
       title: `${leagueName} League Manager`,
       description: `Manage rosters, trades, and more for the ${leagueName}.`,

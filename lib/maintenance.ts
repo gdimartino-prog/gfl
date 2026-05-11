@@ -240,6 +240,7 @@ export async function processPlayersFile(
     .where(and(eq(rules.rule, 'player_sync'), eq(rules.leagueId, leagueId)));
 
   revalidateTag('players', 'max');
+  revalidateTag('rules', 'max');
 
   let message = `Successfully synced ${playerValues.length} players.`;
   if (removedDuplicateNames.length > 0) {

@@ -1,8 +1,6 @@
-import { db } from '@/lib/db';
-import { leagues, rules } from '@/schema';
-import { eq, and } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { getLeagueId } from '@/lib/getLeagueId';
+import { getLeagueRow, getLeagueRuleValue } from '@/lib/getLeagueInfo';
 
 const APP_BUILD_TIME = new Date().toLocaleString('en-US', {
   month: 'short',
@@ -21,18 +19,12 @@ export default async function Footer() {
 
   if (session) {
     const leagueId = await getLeagueId();
-    const [syncRows, leagueRows] = await Promise.all([
-      db.select({ value: rules.value })
-        .from(rules)
-        .where(and(eq(rules.rule, 'player_sync'), eq(rules.leagueId, leagueId)))
-        .limit(1),
-      db.select({ name: leagues.name })
-        .from(leagues)
-        .where(eq(leagues.id, leagueId))
-        .limit(1),
+    const [sync, row] = await Promise.all([
+      getLeagueRuleValue(leagueId, 'player_sync'),
+      getLeagueRow(leagueId),
     ]);
-    syncTime = syncRows[0]?.value || null;
-    if (leagueRows[0]?.name) leagueName = leagueRows[0].name;
+    syncTime = sync;
+    if (row?.name) leagueName = row.name;
   }
 
   const displayDate = syncTime ? syncTime.toUpperCase() : 'Player Synced date unavailable';
