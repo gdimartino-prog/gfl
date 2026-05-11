@@ -3859,5 +3859,158 @@
     "team": "Satriale",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 430,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T15:19:40.685Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R2 #36: TE - Oronde Gadsden"
+  },
+  {
+    "id": 431,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T16:17:50.332Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 432,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T18:06:47.743Z",
+    "coach": "James Di Martino",
+    "team": "Jefferson",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 433,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T18:10:35.825Z",
+    "coach": "James Di Martino",
+    "team": "Jefferson",
+    "action": "WAIVE",
+    "details": "WR/RET - Anthony Gould"
+  },
+  {
+    "id": 434,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T18:38:53.025Z",
+    "coach": "James Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R3 #37: LB - Drake Thomas"
+  },
+  {
+    "id": 435,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T19:19:35.990Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #139 marked Done"
+  },
+  {
+    "id": 436,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T19:19:38.201Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #140 marked Done"
+  },
+  {
+    "id": 437,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T19:21:05.807Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #141 marked Done"
+  },
+  {
+    "id": 438,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T20:16:36.640Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 439,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T20:17:48.287Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R3 #38: LB - Jihaad Campbell"
+  },
+  {
+    "id": 440,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T22:18:42.512Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R3 #39: LB - Devin White"
+  },
+  {
+    "id": 441,
+    "leagueId": 1,
+    "timestamp": "2026-05-10T22:38:06.094Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R3 #40: S - Malaki Starks"
+  },
+  {
+    "id": 442,
+    "leagueId": 1,
+    "timestamp": "2026-05-11T00:18:02.618Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 443,
+    "leagueId": 1,
+    "timestamp": "2026-05-11T01:13:21.732Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R3 #41: RB/KR - RJ Harvey"
+  },
+  {
+    "id": 444,
+    "leagueId": 1,
+    "timestamp": "2026-05-11T03:56:27.787Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R3 #42: RB - Cam Skattebo"
+  },
+  {
+    "id": 445,
+    "leagueId": 1,
+    "timestamp": "2026-05-11T04:29:42.627Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Old Bridge"
+  },
+  {
+    "id": 446,
+    "leagueId": 1,
+    "timestamp": "2026-05-11T04:30:56.584Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R3 #43: ILB - Divine Deablo"
   }
 ]

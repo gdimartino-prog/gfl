@@ -1288,7 +1288,7 @@
     "fromTeam": "Crimson",
     "toTeam": "Las Vegas",
     "owner": "Bob Glade",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
@@ -1296,7 +1296,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-05-08T23:09:58.106Z",
-    "touch_id": "Bob Glade"
+    "touch_id": "commissioner"
   },
   {
     "id": 140,
@@ -1307,7 +1307,7 @@
     "fromTeam": "Las Vegas",
     "toTeam": "Crimson",
     "owner": "Bob Glade",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
@@ -1315,6 +1315,65 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-05-08T23:09:58.128Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 141,
+    "leagueId": 1,
+    "date": "2026-05-10T18:10:35.812Z",
+    "type": "WAIVE",
+    "description": "WR/RET - Anthony Gould",
+    "fromTeam": "Jefferson",
+    "toTeam": "FA",
+    "owner": "James Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-10T18:10:35.812Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 142,
+    "leagueId": 1,
+    "date": "2026-05-11T04:29:42.610Z",
+    "type": "TRADE",
+    "description": "Traded to Old Bridge: Tre Tucker - WR/RET",
+    "fromTeam": "Crimson",
+    "toTeam": "Old Bridge",
+    "owner": "Bob Glade",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-11T04:29:42.609Z",
+    "touch_id": "Bob Glade"
+  },
+  {
+    "id": 143,
+    "leagueId": 1,
+    "date": "2026-05-11T04:29:42.623Z",
+    "type": "TRADE",
+    "description": "Traded to Crimson: 2026 Old Bridge 3rd round pick via Kigali (43rd overall)",
+    "fromTeam": "Old Bridge",
+    "toTeam": "Crimson",
+    "owner": "Bob Glade",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2371
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-11T04:29:42.622Z",
     "touch_id": "Bob Glade"
   }
 ]
