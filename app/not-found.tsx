@@ -1,21 +1,6 @@
-import { headers } from 'next/headers';
 import Link from 'next/link';
 
-// Diagnostic logging — capture what's actually 404-ing so we can decide
-// whether to block more paths in proxy.ts or accept the traffic.
-// Remove this once we have data.
-export default async function NotFound() {
-  const h = await headers();
-  const path =
-    h.get('x-invoke-path') ??
-    h.get('x-matched-path') ??
-    h.get('next-url') ??
-    h.get('x-forwarded-uri') ??
-    'unknown';
-  const referer = h.get('referer') ?? '';
-  const userAgent = h.get('user-agent') ?? '';
-  console.log('[404]', JSON.stringify({ path, referer, userAgent }));
-
+export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center p-12">
