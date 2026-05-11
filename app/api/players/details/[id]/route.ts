@@ -3,8 +3,6 @@ import { getPlayersWithScouting } from '@/lib/players';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -84,11 +82,13 @@ export async function GET(
           att: getVal('pass attempts'), comp: getVal('completions'), 
           yds: getVal('pass yards'), int: getVal('pass interceptions'), td: getVal('pass TD') 
         },
-        defense: { 
-          int: getVal('interceptions'), tackles: getVal('tackles'), 
-          sacks: getVal('sacks'), stuffs: getVal('stuffs') 
+        defense: {
+          int: getVal('interceptions'), tackles: getVal('tackles'),
+          sacks: getVal('sacks'), stuffs: getVal('stuffs')
         }
       }
+    }, {
+      headers: { 'Cache-Control': 'private, max-age=120, stale-while-revalidate=300' },
     });
 
   } catch (error: unknown) {

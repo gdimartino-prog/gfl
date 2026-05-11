@@ -59,7 +59,9 @@ export async function GET(_req: Request, { params }: RouteContext) {
       }))
       .sort((a, b) => (a.year ?? 0) - (b.year ?? 0) || (a.round ?? 0) - (b.round ?? 0) || (a.overall ?? 0) - (b.overall ?? 0));
 
-    return NextResponse.json({ roster, picks });
+    return NextResponse.json({ roster, picks }, {
+      headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' },
+    });
   } catch (error: unknown) {
     console.error("Roster API Error:", error);
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });

@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
         p.team?.toString().toUpperCase() === teamFilter.toUpperCase()
       );
       return NextResponse.json(filtered, {
-        headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=60' },
+        headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' },
       });
     }
 
