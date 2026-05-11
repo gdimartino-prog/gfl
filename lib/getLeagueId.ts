@@ -4,6 +4,7 @@ import { db } from './db';
 import { teams } from '@/schema';
 import { eq } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 
 const DEFAULT_LEAGUE_ID = 1;
 
@@ -27,8 +28,11 @@ const _getLeagueIdsForTeamshort = unstable_cache(
  *  2. Authenticated user: use the cookie if it matches one of their leagues,
  *     otherwise fall back to their natural (first) league from DB
  *  3. Unauthenticated: cookie → default 1
+ *
+ * Wrapped in React's cache() so layout/metadata/footer/page all share one
+ * resolution per request instead of each running auth + cookies + DB.
  */
-export async function getLeagueId(): Promise<number> {
+export const getLeagueId = cache(async function getLeagueIdImpl(): Promise<number> {
   const session = await auth();
   const user = session?.user as { id?: string; role?: string } | undefined;
   const teamshort = user?.id;
@@ -61,4 +65,4 @@ export async function getLeagueId(): Promise<number> {
   // Unauthenticated: cookie → default
   if (cookieLeagueId && !isNaN(cookieLeagueId)) return cookieLeagueId;
   return DEFAULT_LEAGUE_ID;
-}
+});

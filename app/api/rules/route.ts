@@ -6,10 +6,21 @@ import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { isAdmin } from '@/lib/auth';
 import { auth } from '@/auth';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, unstable_cache } from 'next/cache';
 
 const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
 const isGlobalOnlyRule = (r: string) => GLOBAL_ONLY_RULES.has(r) || r.startsWith('draft_clock_');
+
+const _getAllRules = unstable_cache(
+  async (leagueId: number) => {
+    const rows = await db.select().from(rules)
+      .where(eq(rules.leagueId, leagueId))
+      .orderBy(rules.year, rules.rule);
+    return rows.map(r => ({ setting: r.rule, value: r.value, desc: r.desc, year: r.year ?? null }));
+  },
+  ['rules-list'],
+  { revalidate: 60, tags: ['rules'] },
+);
 
 export async function GET() {
   const session = await auth();
@@ -17,13 +28,10 @@ export async function GET() {
 
   try {
     const leagueId = await getLeagueId();
-    const rows = await db.select().from(rules)
-      .where(eq(rules.leagueId, leagueId))
-      .orderBy(rules.year, rules.rule);
-    return NextResponse.json(
-      rows.map(r => ({ setting: r.rule, value: r.value, desc: r.desc, year: r.year ?? null })),
-      { headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' } },
-    );
+    const data = await _getAllRules(leagueId);
+    return NextResponse.json(data, {
+      headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' },
+    });
   } catch (error) {
     console.error('Rules API Error:', error);
     return NextResponse.json([], { status: 200 });
