@@ -444,23 +444,20 @@ Two dispatchers, split by cadence:
 
 | Dispatcher | Workflow / Job | Schedule | Route |
 |------------|----------------|----------|-------|
-| **cron-job.org** (primary) | "GFL Draft Clock" | Every 5 min | `/api/cron/draft` |
-| GitHub Actions (backup, redundant) | `.github/workflows/draft-clock.yml` | Every 5 min | `/api/cron/draft` |
+| **cron-job.org** | "GFL Draft Clock" | Every 5 min | `/api/cron/draft` |
 | GitHub Actions | `.github/workflows/crons.yml` — `nfl-week` | Daily 12:00 UTC | `/api/cron/nfl-week` |
 | GitHub Actions | `.github/workflows/crons.yml` — `cuts-alert` | Daily 12:00 UTC | `/api/cron/cuts-alert` |
 | GitHub Actions | `.github/workflows/crons.yml` — `schedule-reminder` | Mondays 14:00 UTC | `/api/cron/schedule-reminder` |
 
 All cron routes require `Authorization: Bearer CRON_SECRET` header.
 
-### Why split between two dispatchers
+### Why cron-job.org for the draft clock
 
-GitHub Actions' `*/5 * * * *` schedule is heavily throttled in practice — observed firing only every 2–4 hours instead of every 5 minutes. That's documented behavior: GitHub deprioritizes high-frequency scheduled crons during platform load. For low-frequency crons (daily, weekly) the throttling doesn't matter, so those stay on GitHub Actions.
+GitHub Actions' `*/5 * * * *` schedule is heavily throttled in practice — observed firing only every 2–4 hours instead of every 5 minutes. That's documented behavior: GitHub deprioritizes high-frequency scheduled crons during platform load.
 
-For the draft clock — where missed ticks mean missed 1-hour warnings — the primary dispatcher is **cron-job.org** (free external service, runs every 5 min reliably). GitHub Actions still fires the same endpoint via `draft-clock.yml` as a redundant backup. The endpoint is idempotent (the `warning_sent` flag prevents duplicate warnings), so dual-firing is harmless.
+For the draft clock — where missed ticks mean missed warnings — the dispatcher is **cron-job.org** (free external service, runs every 5 min reliably). For low-frequency crons (daily, weekly) the throttling doesn't matter, so those stay on GitHub Actions.
 
-### Why `draft-clock.yml` lives in its own workflow file
-
-When multiple schedules share one GitHub Actions workflow file, every schedule trigger dispatches one workflow run, and each job's `if: github.event.schedule == '...'` guard decides which jobs execute. So when a delayed daily/weekly trigger fires, the `*/5` job is skipped even though it could have run. Splitting the `*/5` schedule into its own workflow file (no `if` guard needed) ensures the draft-clock job runs whenever GitHub does dispatch it.
+A redundant GitHub Actions backup (`draft-clock.yml`) was tried briefly. It was removed because (a) GitHub's `*/5` throttling made the "backup" effectively no-op most of the time anyway, and (b) when it did fire close to a cron-job.org tick, it doubled the function invocation cost on Vercel without adding meaningful coverage.
 
 ### Retry-safe warning notifications
 
