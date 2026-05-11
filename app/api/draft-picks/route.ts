@@ -8,6 +8,7 @@ import { auth } from '@/auth';
 import { isAdmin, isCommissioner } from '@/lib/auth';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { getDraftClockMinutes, getDraftStartDate, getDraftYear } from '@/lib/draftClock';
+import { getTeamShortMap } from '@/lib/config';
 import { revalidateTag } from 'next/cache';
 
 export async function GET(req: NextRequest) {
@@ -45,15 +46,16 @@ export async function GET(req: NextRequest) {
       const isDrafted = !!p.selectedPlayer || !!p.selectedPlayerName || isSkipped;
       if (!isDrafted && !p.passed && !draftedPickNums.has(p.pick ?? -1)) { activeRound = p.round; break; }
     }
-    // Hold "Active" status until the official draft start date has passed
-    const draftStartDate = await getDraftStartDate(leagueId);
+    // Hold "Active" status until the official draft start date has passed.
+    // Run start-date, clock-minutes, and team-short-map lookups in parallel since
+    // each used to be its own sequential DB call.
+    const [draftStartDate, clockMinutes, teamShortMap] = await Promise.all([
+      getDraftStartDate(leagueId),
+      activeRound !== null ? getDraftClockMinutes(leagueId, activeRound) : Promise.resolve(null),
+      getTeamShortMap(leagueId),
+    ]);
     const draftHasStarted = !draftStartDate || new Date() >= draftStartDate;
-
-    const clockMinutes = (activeRound !== null && draftHasStarted) ? await getDraftClockMinutes(leagueId, activeRound) : null;
-
-    // Build teamId → teamshort map for history resolution
-    const allTeams = await db.select({ id: teams.id, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId));
-    const teamShortMap: Record<number, string> = Object.fromEntries(allTeams.map(t => [t.id, t.teamshort ?? '']));
+    const effectiveClockMinutes = draftHasStarted ? clockMinutes : null;
 
     // Build set of pick IDs that are in the current draft year — only these can be Active
     const currentYearPickIds = new Set(currentYearSorted.map(p => p.id));
@@ -88,7 +90,7 @@ export async function GET(req: NextRequest) {
         draftedPlayer: p.selectedPlayer ?? p.selectedPlayerName ?? '',
         draftedPlayerPosition: p.selectedPlayerPosition ?? '',
         timestamp: p.pickedAt ? new Date(p.pickedAt).toISOString() : '',
-        clockMinutes: status === 'Active' ? clockMinutes : null,
+        clockMinutes: status === 'Active' ? effectiveClockMinutes : null,
         scheduledAt: p.scheduledAt ? new Date(p.scheduledAt).toISOString() : null,
         processedBy: '',
         history: (p.transferHistory && p.transferHistory.length > 0)

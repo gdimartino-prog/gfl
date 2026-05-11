@@ -50,6 +50,25 @@ export async function getCoaches(leagueId: number = 1): Promise<Coach[]> {
   return _getCoaches(leagueId);
 }
 
+const _getTeamShortMap = unstable_cache(
+  async (leagueId: number): Promise<Record<number, string>> => {
+    const rows = await db.select({ id: teams.id, teamshort: teams.teamshort })
+      .from(teams)
+      .where(eq(teams.leagueId, leagueId));
+    return Object.fromEntries(rows.map(t => [t.id, t.teamshort ?? '']));
+  },
+  ['team-short-map'],
+  { revalidate: 300, tags: ['coaches'] },
+);
+
+/**
+ * Cached map of team id → teamshort for the given league.
+ * Reuses the 'coaches' tag for invalidation on team mutations.
+ */
+export function getTeamShortMap(leagueId: number = 1): Promise<Record<number, string>> {
+  return _getTeamShortMap(leagueId);
+}
+
 export async function getCoachByTeamCode(teamCode: string) {
     const team = await db.select().from(teams).where(eq(teams.id, parseInt(teamCode)));
     if (team.length === 0) return null;

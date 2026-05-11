@@ -1,6 +1,41 @@
 import { db } from './db';
 import { rules } from '@/schema';
 import { and, eq, sql } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
+
+const _getDraftClockMinutes = unstable_cache(
+  async (leagueId: number, round: number): Promise<number> => {
+    const clockRules = await db
+      .select({ rule: rules.rule, value: rules.value })
+      .from(rules)
+      .where(
+        and(
+          eq(rules.leagueId, leagueId),
+          sql`${rules.rule} LIKE 'draft_clock_%'`
+        )
+      );
+
+    const roundEntries = clockRules
+      .map(r => {
+        const match = r.rule.match(/^draft_clock_round_(\d+)$/);
+        return match ? { round: parseInt(match[1]), minutes: parseInt(r.value) } : null;
+      })
+      .filter((e): e is { round: number; minutes: number } => e !== null);
+
+    const applicable = roundEntries
+      .filter(e => e.round <= round)
+      .sort((a, b) => b.round - a.round);
+
+    if (applicable.length > 0) return applicable[0].minutes;
+
+    const defaultRule = clockRules.find(r => r.rule === 'draft_clock_default');
+    if (defaultRule?.value) return parseInt(defaultRule.value);
+
+    return 1440;
+  },
+  ['draft-clock-minutes'],
+  { revalidate: 60, tags: ['rules'] },
+);
 
 /**
  * Get the clock duration in minutes for a given league and round.
@@ -9,42 +44,9 @@ import { and, eq, sql } from 'drizzle-orm';
  * - Find the highest configured round number <= current round
  * - Fall back to draft_clock_default if no round rules exist
  * - Fall back to 1440 minutes (24 hours) if nothing configured
- *
- * Example config: round_1=1440, round_3=720
- *   Round 1 → 1440, Round 2 → 1440, Round 3 → 720, Round 4+ → 720
  */
-export async function getDraftClockMinutes(leagueId: number, round: number): Promise<number> {
-  const clockRules = await db
-    .select({ rule: rules.rule, value: rules.value })
-    .from(rules)
-    .where(
-      and(
-        eq(rules.leagueId, leagueId),
-        sql`${rules.rule} LIKE 'draft_clock_%'`
-      )
-    );
-
-  // Parse round-specific entries
-  const roundEntries = clockRules
-    .map(r => {
-      const match = r.rule.match(/^draft_clock_round_(\d+)$/);
-      return match ? { round: parseInt(match[1]), minutes: parseInt(r.value) } : null;
-    })
-    .filter((e): e is { round: number; minutes: number } => e !== null);
-
-  // Highest configured round <= current round (cascading default)
-  const applicable = roundEntries
-    .filter(e => e.round <= round)
-    .sort((a, b) => b.round - a.round);
-
-  if (applicable.length > 0) return applicable[0].minutes;
-
-  // Fall back to draft_clock_default
-  const defaultRule = clockRules.find(r => r.rule === 'draft_clock_default');
-  if (defaultRule?.value) return parseInt(defaultRule.value);
-
-  // Ultimate fallback: 24 hours
-  return 1440;
+export function getDraftClockMinutes(leagueId: number, round: number): Promise<number> {
+  return _getDraftClockMinutes(leagueId, round);
 }
 
 /**
@@ -54,19 +56,40 @@ export function getWarningThresholdMinutes(clockMinutes: number): number {
   return Math.max(1, Math.min(60, Math.floor(clockMinutes * 0.25)));
 }
 
+const _getDraftYear = unstable_cache(
+  async (leagueId: number): Promise<number> => {
+    const row = await db
+      .select({ value: rules.value })
+      .from(rules)
+      .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'draft_year')))
+      .limit(1);
+    const val = parseInt(row[0]?.value ?? '');
+    return isNaN(val) ? new Date().getFullYear() : val;
+  },
+  ['draft-year'],
+  { revalidate: 60, tags: ['rules'] },
+);
+
 /**
  * Get the current draft year for a league from the draft_year rule.
  * Falls back to the current calendar year if not configured.
  */
-export async function getDraftYear(leagueId: number): Promise<number> {
-  const row = await db
-    .select({ value: rules.value })
-    .from(rules)
-    .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'draft_year')))
-    .limit(1);
-  const val = parseInt(row[0]?.value ?? '');
-  return isNaN(val) ? new Date().getFullYear() : val;
+export function getDraftYear(leagueId: number): Promise<number> {
+  return _getDraftYear(leagueId);
 }
+
+const _getDraftStartDateRaw = unstable_cache(
+  async (leagueId: number): Promise<string | null> => {
+    const row = await db
+      .select({ value: rules.value })
+      .from(rules)
+      .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'draft_start_date')))
+      .limit(1);
+    return row[0]?.value ?? null;
+  },
+  ['draft-start-date'],
+  { revalidate: 60, tags: ['rules'] },
+);
 
 /**
  * Get the official draft start date for a league.
@@ -74,12 +97,7 @@ export async function getDraftYear(leagueId: number): Promise<number> {
  * The clock does not run until this date/time has passed.
  */
 export async function getDraftStartDate(leagueId: number): Promise<Date | null> {
-  const row = await db
-    .select({ value: rules.value })
-    .from(rules)
-    .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'draft_start_date')))
-    .limit(1);
-  const val = row[0]?.value;
+  const val = await _getDraftStartDateRaw(leagueId);
   if (!val) return null;
   const d = new Date(val);
   return isNaN(d.getTime()) ? null : d;
