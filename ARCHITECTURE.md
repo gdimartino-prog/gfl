@@ -427,7 +427,7 @@ Players originate from the **Action** simulation game. Sync flow:
 |----------|---------|---------|
 | `notifyTransaction()` | ADD / DROP / TRADE / IR | Email + WhatsApp (GFL only) |
 | `notifyDraftPick(type='PICK')` | Draft selection | Email + WhatsApp (GFL only) |
-| `notifyDraftPick(type='WARNING')` | 1hr before clock expires | Email + WhatsApp (GFL only) |
+| `notifyDraftPick(type='WARNING')` | Clock-warning threshold reached (= 25% of round's clock, capped at 60 min; e.g. 60 min for a 24h clock, 15 min for a 1h clock) | Email + WhatsApp (GFL only) |
 | `notifyDraftPick(type='EXPIRATION')` | Pick clock expired | Email + WhatsApp (GFL only) |
 | `notifyTradeBlock()` | Player listed on trade block | Email + WhatsApp (GFL only) |
 | Cron email | Cuts alert, schedule reminder | Email only |
@@ -440,16 +440,31 @@ Players originate from the **Action** simulation game. Sync flow:
 
 ## Cron Jobs & Automation
 
-Cron jobs run via **GitHub Actions**.
+Two dispatchers, split by cadence:
 
-| Workflow | Schedule | Route |
-|----------|----------|-------|
-| `draft-cron.yml` | Every 5 minutes | `/api/cron/draft` |
-| `crons.yml` — nfl-week | Daily noon UTC | `/api/cron/nfl-week` |
-| `crons.yml` — cuts-alert | Daily noon UTC | `/api/cron/cuts-alert` |
-| `crons.yml` — schedule-reminder | Mondays 2pm UTC | `/api/cron/schedule-reminder` |
+| Dispatcher | Workflow / Job | Schedule | Route |
+|------------|----------------|----------|-------|
+| **cron-job.org** (primary) | "GFL Draft Clock" | Every 5 min | `/api/cron/draft` |
+| GitHub Actions (backup, redundant) | `.github/workflows/draft-clock.yml` | Every 5 min | `/api/cron/draft` |
+| GitHub Actions | `.github/workflows/crons.yml` — `nfl-week` | Daily 12:00 UTC | `/api/cron/nfl-week` |
+| GitHub Actions | `.github/workflows/crons.yml` — `cuts-alert` | Daily 12:00 UTC | `/api/cron/cuts-alert` |
+| GitHub Actions | `.github/workflows/crons.yml` — `schedule-reminder` | Mondays 14:00 UTC | `/api/cron/schedule-reminder` |
 
 All cron routes require `Authorization: Bearer CRON_SECRET` header.
+
+### Why split between two dispatchers
+
+GitHub Actions' `*/5 * * * *` schedule is heavily throttled in practice — observed firing only every 2–4 hours instead of every 5 minutes. That's documented behavior: GitHub deprioritizes high-frequency scheduled crons during platform load. For low-frequency crons (daily, weekly) the throttling doesn't matter, so those stay on GitHub Actions.
+
+For the draft clock — where missed ticks mean missed 1-hour warnings — the primary dispatcher is **cron-job.org** (free external service, runs every 5 min reliably). GitHub Actions still fires the same endpoint via `draft-clock.yml` as a redundant backup. The endpoint is idempotent (the `warning_sent` flag prevents duplicate warnings), so dual-firing is harmless.
+
+### Why `draft-clock.yml` lives in its own workflow file
+
+When multiple schedules share one GitHub Actions workflow file, every schedule trigger dispatches one workflow run, and each job's `if: github.event.schedule == '...'` guard decides which jobs execute. So when a delayed daily/weekly trigger fires, the `*/5` job is skipped even though it could have run. Splitting the `*/5` schedule into its own workflow file (no `if` guard needed) ensures the draft-clock job runs whenever GitHub does dispatch it.
+
+### Retry-safe warning notifications
+
+`/api/cron/draft` sends the 1-hour-warning notification **before** flipping `warning_sent=true`. If the email/WhatsApp send fails for any reason, the flag stays `false` so the next cron tick retries — preventing transient failures from silently swallowing a warning.
 
 ---
 
@@ -486,11 +501,18 @@ All cron routes require `Authorization: Bearer CRON_SECRET` header.
 | `standings-data` | `standings` | 60s | Season standings |
 | `resources-data` | `resources` | 60s | League resources |
 | `coaches-data` | `coaches` | 300s | Teams/coaches list |
+| `team-short-map` | `coaches` | 300s | `teamId → teamshort` lookup map (used by /api/draft-picks) |
 | `all-draft-picks` | `draft-picks` | 30s | Full draft pick board |
+| `rules-list` | `rules` | 60s | All rules for a league (used by `/api/rules` GET) |
+| `draft-year` | `rules` | 60s | `draft_year` rule lookup |
+| `draft-start-date` | `rules` | 60s | `draft_start_date` rule lookup |
+| `draft-clock-minutes` | `rules` | 60s | Per-round clock duration (LIKE-pattern rule lookup) |
 
 `getPlayersWithScouting` exceeds the 2MB `unstable_cache` limit — not cached; uses CDN `Cache-Control: s-maxage=300` at the API route level instead.
 
-Cache invalidation via `revalidateTag(tag, 'max')` in mutation routes. When a team is renamed/updated, both `coaches` and `players` tags are invalidated so rosters reflect the new teamshort immediately.
+`getLeagueId()` is wrapped in React's `cache()` so the auth + cookie + DB resolution runs at most once per request (layout, footer, page, and API routes all call it). The inner `teamshort → leagueIds` DB lookup is also `unstable_cache`'d for cross-request reuse.
+
+Cache invalidation via `revalidateTag(tag, 'max')` in mutation routes. When a team is renamed/updated, both `coaches` and `players` tags are invalidated so rosters reflect the new teamshort immediately. Rule writes invalidate the `rules` tag, which busts all four rules-tagged caches simultaneously.
 
 Pattern:
 ```ts
