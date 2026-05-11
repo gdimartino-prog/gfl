@@ -4,8 +4,13 @@ on:
   schedule:
     - cron: '0 12 * * *'    # Daily at noon UTC
     - cron: '0 14 * * 1'    # Mondays at 2pm UTC
-    - cron: '*/5 * * * *'   # Every 5 minutes (draft clock)
   workflow_dispatch:  # Allow manual trigger
+
+# Note: draft-clock cron lives in its own workflow file (.github/workflows/draft-clock.yml)
+# so its */5 schedule doesn't share a workflow run with the daily/Monday crons.
+# When schedules share a workflow, only the job matching the firing schedule's `if`
+# actually executes — which previously meant draft-clock got skipped whenever the
+# daily/Monday cron triggered the run instead of the */5 one.
 
 jobs:
   nfl-week:
@@ -38,12 +43,3 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | cat
 
-  draft-clock:
-    runs-on: ubuntu-latest
-    if: github.event.schedule == '*/5 * * * *' || github.event_name == 'workflow_dispatch'
-    steps:
-      - name: Check draft clock and auto-skip expired picks
-        run: |
-          curl -s -X GET "https://afl.gddevco.com/api/cron/draft" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            | cat

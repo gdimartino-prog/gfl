@@ -126,21 +126,27 @@ export async function GET(req: Request) {
       }
 
       if (diffMinutes <= warningMinutes && !activePick.warningSent) {
-        await db.update(draftPicks)
-          .set({ warningSent: true })
-          .where(eq(draftPicks.id, activePick.id));
-
-        await notifyDraftPick({
-          round: activePick.round,
-          overallPick: activePick.pick,
-          currentOwner: activePick.currentOwner || '',
-          originalOwner: activePick.originalTeam || '',
-          recentPicks, onDeck,
-          type: 'WARNING',
-          leagueId,
-        });
-
-        results.push({ leagueId, action: 'warning', pick: activePick.pick, minutesRemaining: diffMinutes.toFixed(1) });
+        // Send notification FIRST; only flip the flag if it succeeds so a
+        // transient SMTP/WhatsApp failure can retry on the next tick instead
+        // of being silently lost.
+        try {
+          await notifyDraftPick({
+            round: activePick.round,
+            overallPick: activePick.pick,
+            currentOwner: activePick.currentOwner || '',
+            originalOwner: activePick.originalTeam || '',
+            recentPicks, onDeck,
+            type: 'WARNING',
+            leagueId,
+          });
+          await db.update(draftPicks)
+            .set({ warningSent: true })
+            .where(eq(draftPicks.id, activePick.id));
+          results.push({ leagueId, action: 'warning', pick: activePick.pick, minutesRemaining: diffMinutes.toFixed(1) });
+        } catch (e) {
+          console.error('[cron/draft] warning notify failed, leaving warning_sent=false to retry:', e);
+          results.push({ leagueId, action: 'warning_failed', pick: activePick.pick, error: String(e) });
+        }
         continue;
       }
 
