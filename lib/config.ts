@@ -2,7 +2,7 @@
 import { db } from './db';
 import { teams } from '@/schema';
 import { eq } from 'drizzle-orm';
-import { unstable_cache } from 'next/cache';
+import { unstable_cache, revalidateTag } from 'next/cache';
 
 export type Coach = {
   coach: string;
@@ -103,6 +103,7 @@ export async function updateCoachContact(
         if (nickname !== undefined) fields.nickname = nickname;
         if (team !== undefined) fields.name = team;
         await db.update(teams).set(fields).where(eq(teams.teamshort, teamCode.toUpperCase()));
+        revalidateTag('coaches', 'max');
         return { success: true };
     } catch (error) {
         console.error("❌ Failed to update coach contact:", error);
@@ -116,6 +117,7 @@ export async function updateCoachContact(
 export async function updateCoachSync(teamCode: string) {
     try {
         await db.update(teams).set({ touch_dt: new Date() }).where(eq(teams.teamshort, teamCode.toUpperCase()));
+        revalidateTag('coaches', 'max');
         return { success: true, timestamp: new Date() };
     } catch (error) {
         console.error("❌ Failed to update coach sync timestamp:", error);

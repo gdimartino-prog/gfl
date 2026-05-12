@@ -79,7 +79,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: "Player added to trade block" });
   } catch (error) {
-    console.error("Failed to add player to trade block:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
+    console.error("[trade-block POST]", JSON.stringify({ msg, stack }));
     return NextResponse.json({ message: "Failed to add player to trade block" }, { status: 500 });
   }
 }
@@ -127,7 +129,9 @@ export async function DELETE(req: NextRequest) {
     );
     return NextResponse.json({ message: "Player removed from trade block" });
   } catch (error) {
-    console.error("Failed to remove player from trade block:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    const stack = error instanceof Error ? error.stack : undefined;
+    console.error("[trade-block DELETE]", JSON.stringify({ msg, stack }));
     return NextResponse.json({ message: "Failed to remove player from trade block" }, { status: 500 });
   }
 }
