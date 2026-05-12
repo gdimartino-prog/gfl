@@ -1345,7 +1345,7 @@
     "fromTeam": "Crimson",
     "toTeam": "Old Bridge",
     "owner": "Bob Glade",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
@@ -1353,7 +1353,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-05-11T04:29:42.609Z",
-    "touch_id": "Bob Glade"
+    "touch_id": "commissioner"
   },
   {
     "id": 143,
@@ -1364,7 +1364,7 @@
     "fromTeam": "Old Bridge",
     "toTeam": "Crimson",
     "owner": "Bob Glade",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
@@ -1374,6 +1374,6 @@
     ],
     "conditionalDetails": null,
     "touch_dt": "2026-05-11T04:29:42.622Z",
-    "touch_id": "Bob Glade"
+    "touch_id": "commissioner"
   }
 ]
