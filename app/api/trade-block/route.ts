@@ -60,8 +60,8 @@ export async function POST(req: NextRequest) {
       asking: asking || null,
       touch_id: touchId,
     }).onConflictDoUpdate({
-      target: tradeBlock.playerId,
-      set: { leagueId, playerName, team, position, asking, touch_id: touchId },
+      target: [tradeBlock.leagueId, tradeBlock.playerId],
+      set: { playerName, team, position, asking, touch_id: touchId },
     });
 
     const fullBlock = await db.select({
