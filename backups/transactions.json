@@ -1375,5 +1375,48 @@
     "conditionalDetails": null,
     "touch_dt": "2026-05-11T04:29:42.622Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 144,
+    "leagueId": 1,
+    "date": "2026-05-12T17:26:50.571Z",
+    "type": "TRADE",
+    "description": "Traded to Kigali: 2026 DC 3rd round pick (49th overall)",
+    "fromTeam": "DC",
+    "toTeam": "Kigali",
+    "owner": "Alex Matsikoudis",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2377
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-12T17:26:50.566Z",
+    "touch_id": "Alex Matsikoudis"
+  },
+  {
+    "id": 145,
+    "leagueId": 1,
+    "date": "2026-05-12T17:26:50.584Z",
+    "type": "TRADE",
+    "description": "Traded to DC: 2026 Kigali 4th round pick via Carolina (64th overall), 2026 Kigali 5th round pick (81st overall)",
+    "fromTeam": "Kigali",
+    "toTeam": "DC",
+    "owner": "Alex Matsikoudis",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2392,
+      2409
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-12T17:26:50.579Z",
+    "touch_id": "Alex Matsikoudis"
   }
 ]
