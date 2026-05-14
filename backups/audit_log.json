@@ -4291,5 +4291,86 @@
     "team": "LBI",
     "action": "DRAFT_PICK",
     "details": "R3 #52: RB - Kyle Monangai"
+  },
+  {
+    "id": 478,
+    "leagueId": 1,
+    "timestamp": "2026-05-13T13:03:41.959Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R3 #53: WR/PR - Matthew Golden"
+  },
+  {
+    "id": 479,
+    "leagueId": 1,
+    "timestamp": "2026-05-13T13:04:04.217Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R3 #54: DT - Tyleik Williams"
+  },
+  {
+    "id": 480,
+    "leagueId": 1,
+    "timestamp": "2026-05-13T15:02:49.708Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 481,
+    "leagueId": 1,
+    "timestamp": "2026-05-13T23:39:43.241Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 482,
+    "leagueId": 1,
+    "timestamp": "2026-05-14T00:26:33.794Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R4 #55: OLB - Nic Scourton"
+  },
+  {
+    "id": 483,
+    "leagueId": 1,
+    "timestamp": "2026-05-14T00:33:40.403Z",
+    "coach": "Phil Matsikoudis",
+    "team": "Newark Bay",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 484,
+    "leagueId": 1,
+    "timestamp": "2026-05-14T00:55:05.992Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 485,
+    "leagueId": 1,
+    "timestamp": "2026-05-14T02:06:09.508Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 486,
+    "leagueId": 1,
+    "timestamp": "2026-05-14T02:53:36.280Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
