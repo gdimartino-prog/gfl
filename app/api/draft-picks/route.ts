@@ -71,6 +71,14 @@ export async function GET(req: NextRequest) {
       draftStartDate,
     );
 
+    // Count time-expired skips per current-owner teamshort in the current draft year
+    const strikesByTeam = new Map<string, number>();
+    for (const p of currentYearSorted) {
+      if (typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED') && p.currentOwner) {
+        strikesByTeam.set(p.currentOwner, (strikesByTeam.get(p.currentOwner) ?? 0) + 1);
+      }
+    }
+
     const formattedPicks = sorted.map(p => {
       const isSkipped = !p.selectedPlayer && !p.selectedPlayerName && !!p.pickedAt && !p.passed; // auto-expired, no player
       const isDrafted = !!p.selectedPlayer || !!p.selectedPlayerName || isSkipped;
@@ -104,6 +112,7 @@ export async function GET(req: NextRequest) {
         clockMinutes: status === 'Active' ? effectiveClockMinutes : null,
         scheduledAt: p.scheduledAt ? new Date(p.scheduledAt).toISOString() : null,
         wasLate: timings.get(p.id)?.wasLate ?? false,
+        currentOwnerStrikes: p.currentOwner ? strikesByTeam.get(p.currentOwner) ?? 0 : 0,
         processedBy: '',
         history: (p.transferHistory && p.transferHistory.length > 0)
           ? p.transferHistory.map(id => teamShortMap[id] ?? '').filter(Boolean).join(',')

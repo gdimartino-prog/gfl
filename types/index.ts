@@ -119,6 +119,7 @@ export interface DraftPick {
   timestamp: string;
   scheduledAt?: string | null;
   wasLate?: boolean;
+  currentOwnerStrikes?: number;
   via: string | null;
   history?: string;
   draftType?: string;

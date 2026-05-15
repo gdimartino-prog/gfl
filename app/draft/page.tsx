@@ -622,8 +622,22 @@ const handleUndoMyPick = async () => {
 
                       <td className="px-10 py-4">
                         <div className="flex flex-col">
-                          <span className="text-sm font-black uppercase tracking-tight text-slate-700">
+                          <span className="text-sm font-black uppercase tracking-tight text-slate-700 inline-flex items-center gap-2">
                             {getFullTeamName(pick.currentOwner)}
+                            {pick.currentOwnerStrikes != null && pick.currentOwnerStrikes >= 1 && (
+                              <span
+                                title={`${pick.currentOwnerStrikes} time-expired skip${pick.currentOwnerStrikes === 1 ? '' : 's'} this draft (3 = auto-skip)`}
+                                className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${
+                                  pick.currentOwnerStrikes >= 3
+                                    ? 'text-red-700 border-red-300 bg-red-50'
+                                    : pick.currentOwnerStrikes === 2
+                                    ? 'text-orange-700 border-orange-300 bg-orange-50'
+                                    : 'text-amber-700 border-amber-200 bg-amber-50'
+                                }`}
+                              >
+                                {pick.currentOwnerStrikes >= 3 ? `${pick.currentOwnerStrikes} strikes — auto-skip` : `${pick.currentOwnerStrikes} strike${pick.currentOwnerStrikes === 1 ? '' : 's'}`}
+                              </span>
+                            )}
                           </span>
                           {renderTradeHistory(pick)}
                           {!isDrafted && !isSkipped && !isOnClock && pick.scheduledAt && (
