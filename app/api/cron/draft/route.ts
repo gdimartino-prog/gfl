@@ -67,10 +67,15 @@ export async function GET(req: Request) {
 
       const activePick = allPicks[activeIdx];
 
-      // If the official draft start date hasn't arrived yet, hold the clock
+      // If draft_start_date isn't configured, the draft hasn't been set up —
+      // do NOT process picks for this league.
       const draftStartDate = await getDraftStartDate(leagueId);
+      if (!draftStartDate) {
+        results.push({ leagueId, skipped: 'draft_start_date not configured' });
+        continue;
+      }
       const now = new Date();
-      if (draftStartDate && now < draftStartDate) {
+      if (now < draftStartDate) {
         results.push({ leagueId, skipped: 'before draft start date', draftStartDate });
         continue;
       }
