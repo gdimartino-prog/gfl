@@ -400,18 +400,6 @@
     "touch_id": "trade-migration"
   },
   {
-    "id": 58,
-    "leagueId": 1,
-    "year": 2026,
-    "draftType": "free_agent",
-    "round": 4,
-    "originalTeamId": 45,
-    "currentTeamId": 53,
-    "history": [],
-    "touch_dt": "2026-03-20T23:17:35.689Z",
-    "touch_id": "trade-migration"
-  },
-  {
     "id": 59,
     "leagueId": 1,
     "year": 2026,
@@ -518,5 +506,31 @@
     "history": [],
     "touch_dt": "2026-05-12T17:26:50.541Z",
     "touch_id": "DC"
+  },
+  {
+    "id": 58,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 4,
+    "originalTeamId": 45,
+    "currentTeamId": 42,
+    "history": [
+      53
+    ],
+    "touch_dt": "2026-05-14T20:59:51.698Z",
+    "touch_id": "SG"
+  },
+  {
+    "id": 129,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 4,
+    "originalTeamId": 42,
+    "currentTeamId": 53,
+    "history": [],
+    "touch_dt": "2026-05-14T20:59:51.701Z",
+    "touch_id": "SG"
   }
 ]

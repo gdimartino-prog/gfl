@@ -722,6 +722,70 @@
     "touch_id": "commissioner"
   },
   {
+    "id": 145,
+    "leagueId": 1,
+    "date": "2026-05-12T17:26:50.584Z",
+    "type": "TRADE",
+    "description": "Traded to DC: 2026 Kigali 4th round pick via Carolina (64th overall), 2026 Kigali 5th round pick (81st overall)",
+    "fromTeam": "Kigali",
+    "toTeam": "DC",
+    "owner": "Alex Matsikoudis",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2392,
+      2409
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-12T17:26:50.579Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 148,
+    "leagueId": 1,
+    "date": "2026-05-14T20:59:51.973Z",
+    "type": "TRADE",
+    "description": "Traded to Carolina: 2026 Satriale 4th round pick via Fur Peace (72nd overall)",
+    "fromTeam": "Satriale",
+    "toTeam": "Carolina",
+    "owner": "Tom Fusillo",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2400
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-14T20:59:51.978Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 149,
+    "leagueId": 1,
+    "date": "2026-05-14T20:59:51.988Z",
+    "type": "TRADE",
+    "description": "Traded to Satriale: 2027 Carolina 4th round pick (56th overall)",
+    "fromTeam": "Carolina",
+    "toTeam": "Satriale",
+    "owner": "Tom Fusillo",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2834
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-14T20:59:51.993Z",
+    "touch_id": "commissioner"
+  },
+  {
     "id": 108,
     "leagueId": 1,
     "date": "2026-04-29T14:08:21.988Z",
@@ -1385,7 +1449,7 @@
     "fromTeam": "DC",
     "toTeam": "Kigali",
     "owner": "Alex Matsikoudis",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
@@ -1395,28 +1459,44 @@
     ],
     "conditionalDetails": null,
     "touch_dt": "2026-05-12T17:26:50.566Z",
-    "touch_id": "Alex Matsikoudis"
+    "touch_id": "commissioner"
   },
   {
-    "id": 145,
+    "id": 147,
     "leagueId": 1,
-    "date": "2026-05-12T17:26:50.584Z",
+    "date": "2026-05-14T18:00:11.323Z",
     "type": "TRADE",
-    "description": "Traded to DC: 2026 Kigali 4th round pick via Carolina (64th overall), 2026 Kigali 5th round pick (81st overall)",
-    "fromTeam": "Kigali",
-    "toTeam": "DC",
-    "owner": "Alex Matsikoudis",
-    "status": "Pending",
+    "description": "Traded to Crimson: Ed Ingram - G, Dax Hill - CB",
+    "fromTeam": "LE",
+    "toTeam": "Crimson",
+    "owner": "Bob Glade",
+    "status": "Done",
     "weekBack": null,
     "season": null,
     "fee": 0,
     "emailStatus": null,
-    "pickIds": [
-      2392,
-      2409
-    ],
+    "pickIds": null,
     "conditionalDetails": null,
-    "touch_dt": "2026-05-12T17:26:50.579Z",
-    "touch_id": "Alex Matsikoudis"
+    "touch_dt": "2026-05-14T18:00:11.322Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 146,
+    "leagueId": 1,
+    "date": "2026-05-14T18:00:11.287Z",
+    "type": "TRADE",
+    "description": "Traded to LE: O'Cyrus Torrence - G, Rasheed Walker - T, Spencer Brown - T",
+    "fromTeam": "Crimson",
+    "toTeam": "LE",
+    "owner": "Bob Glade",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-14T18:00:11.287Z",
+    "touch_id": "commissioner"
   }
 ]
