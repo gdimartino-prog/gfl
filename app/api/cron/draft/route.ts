@@ -111,14 +111,15 @@ export async function GET(req: Request) {
         .filter(p => !p.playerId && !p.passed)
         .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
-      // 3-strike rule: if this team has been auto-skipped 3+ times earlier in
-      // this draft year, immediately skip without waiting for the clock.
-      const teamStrikes = activePick.currentTeamId == null ? 0 : allPicks.filter(p =>
-        p.id !== activePick.id &&
-        p.currentTeamId === activePick.currentTeamId &&
-        typeof p.selectedPlayerName === 'string' &&
-        p.selectedPlayerName.startsWith('SKIPPED')
-      ).length;
+      // 3-strike rule: if this team has had time expire 3+ times earlier in
+      // this draft year (auto-skip OR late submission), immediately skip
+      // without waiting for the clock.
+      const teamStrikes = activePick.currentTeamId == null ? 0 : allPicks.filter(p => {
+        if (p.id === activePick.id) return false;
+        if (p.currentTeamId !== activePick.currentTeamId) return false;
+        const isSkippedRow = typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED');
+        return isSkippedRow || (timings.get(p.id)?.wasLate ?? false);
+      }).length;
 
       if (teamStrikes >= 3) {
         await db.update(draftPicks)

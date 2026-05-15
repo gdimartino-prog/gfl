@@ -71,10 +71,13 @@ export async function GET(req: NextRequest) {
       draftStartDate,
     );
 
-    // Count time-expired skips per current-owner teamshort in the current draft year
+    // Strikes: count picks where time expired — either auto-skipped or submitted late
     const strikesByTeam = new Map<string, number>();
     for (const p of currentYearSorted) {
-      if (typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED') && p.currentOwner) {
+      if (!p.currentOwner) continue;
+      const isSkippedRow = typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED');
+      const wasLate = timings.get(p.id)?.wasLate ?? false;
+      if (isSkippedRow || wasLate) {
         strikesByTeam.set(p.currentOwner, (strikesByTeam.get(p.currentOwner) ?? 0) + 1);
       }
     }
