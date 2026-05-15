@@ -232,12 +232,16 @@ const handleUndoMyPick = async () => {
 
     const clockMins = (onClockPick as { clockMinutes?: number | null }).clockMinutes ?? 1440;
     const limitMs = clockMins * 60 * 1000;
-    // Clock starts from: scheduledAt (if set and past) > previous pick's timestamp > now
-    // Apply draftStartDate as a floor — clock never starts before the official draft start.
+    // Prefer the API-computed effective clock start (already clamped against
+    // the previous pick's deadline so late submissions don't leak time into
+    // the active clock). Fall back to scheduledAt or previous pickedAt.
+    const apiClockStart = (onClockPick as { effectiveClockStart?: string | null }).effectiveClockStart;
     const draftStartMs = draftStartDate ? draftStartDate.getTime() : 0;
-    const rawClockStartMs = scheduledAtMs && scheduledAtMs <= Date.now()
-      ? scheduledAtMs
-      : previousPick?.timestamp ? new Date(previousPick.timestamp).getTime() : Date.now();
+    const rawClockStartMs = apiClockStart
+      ? new Date(apiClockStart).getTime()
+      : scheduledAtMs && scheduledAtMs <= Date.now()
+        ? scheduledAtMs
+        : previousPick?.timestamp ? new Date(previousPick.timestamp).getTime() : Date.now();
     const clockStartMs = (draftStartMs > 0 && rawClockStartMs < draftStartMs) ? draftStartMs : rawClockStartMs;
     const expiryTime = clockStartMs + limitMs;
 

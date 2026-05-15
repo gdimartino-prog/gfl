@@ -114,6 +114,7 @@ export async function GET(req: NextRequest) {
         timestamp: p.pickedAt ? new Date(p.pickedAt).toISOString() : '',
         clockMinutes: status === 'Active' ? effectiveClockMinutes : null,
         scheduledAt: p.scheduledAt ? new Date(p.scheduledAt).toISOString() : null,
+        effectiveClockStart: status === 'Active' ? timings.get(p.id)?.clockStart.toISOString() ?? null : null,
         wasLate: timings.get(p.id)?.wasLate ?? false,
         currentOwnerStrikes: p.currentOwner ? strikesByTeam.get(p.currentOwner) ?? 0 : 0,
         processedBy: '',
