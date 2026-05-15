@@ -20,13 +20,6 @@ export async function POST(req: NextRequest) {
 
     const leagueId = await getLeagueId();
 
-    // Verify caller owns the pick or is admin/commissioner
-    const callerTeamshort = (session.user as { id?: string }).id || '';
-    const privileged = await isAdmin() || await isCommissioner();
-    if (!privileged && callerTeamshort.toLowerCase() !== (newOwnerCode || '').toLowerCase()) {
-      return NextResponse.json({ error: 'Forbidden: you do not own this pick' }, { status: 403 });
-    }
-
     // Resolve current draft year so we scope pick lookup to the active year only
     const draftYearRow = await db.select({ value: rules.value })
       .from(rules)
@@ -50,6 +43,7 @@ export async function POST(req: NextRequest) {
       originalTeam: originalTeams.name,
       currentOwner: currentTeams.name,
       pickedAt: draftPicks.pickedAt,
+      passed: draftPicks.passed,
     })
     .from(draftPicks)
     .leftJoin(originalTeams, eq(draftPicks.originalTeamId, originalTeams.id))
@@ -62,6 +56,18 @@ export async function POST(req: NextRequest) {
     }
 
     const pickRow = pickRows[0];
+
+    // A pick is a "late selection" once it's been auto-skipped or voluntarily
+    // passed — any authenticated user may submit it to help the owner. For
+    // still-active picks, restrict to owner or admin/commissioner.
+    const isLateSelection = pickRow.pickedAt !== null || pickRow.passed === true;
+    if (!isLateSelection) {
+      const callerTeamshort = (session.user as { id?: string }).id || '';
+      const privileged = await isAdmin() || await isCommissioner();
+      if (!privileged && callerTeamshort.toLowerCase() !== (newOwnerCode || '').toLowerCase()) {
+        return NextResponse.json({ error: 'Forbidden: you do not own this pick' }, { status: 403 });
+      }
+    }
 
     // 2. Find the player in DB
     const playerRows = await db.select({ id: players.id })
