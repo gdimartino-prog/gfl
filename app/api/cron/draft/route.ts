@@ -42,6 +42,7 @@ export async function GET(req: Request) {
         id: draftPicks.id,
         round: draftPicks.round,
         pick: draftPicks.pick,
+        currentTeamId: draftPicks.currentTeamId,
         playerId: draftPicks.playerId,
         passed: draftPicks.passed,
         selectedPlayerName: draftPicks.selectedPlayerName,
@@ -110,9 +111,40 @@ export async function GET(req: Request) {
         .filter(p => !p.playerId && !p.passed)
         .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
-      if (diffMs <= 0) {
+      // 3-strike rule: if this team has been auto-skipped 3+ times earlier in
+      // this draft year, immediately skip without waiting for the clock.
+      const teamStrikes = activePick.currentTeamId == null ? 0 : allPicks.filter(p =>
+        p.id !== activePick.id &&
+        p.currentTeamId === activePick.currentTeamId &&
+        typeof p.selectedPlayerName === 'string' &&
+        p.selectedPlayerName.startsWith('SKIPPED')
+      ).length;
+
+      if (teamStrikes >= 3) {
         await db.update(draftPicks)
-          .set({ selectedPlayerName: 'SKIPPED (Time Expired)', pickedAt: now, touch_id: 'cron-auto-skip' })
+          .set({ selectedPlayerName: 'SKIPPED (3-strike rule)', pickedAt: now, touch_id: 'cron-3strike' })
+          .where(eq(draftPicks.id, activePick.id));
+
+        await notifyDraftPick({
+          round: activePick.round,
+          overallPick: activePick.pick,
+          currentOwner: activePick.currentOwner || '',
+          originalOwner: activePick.originalTeam || '',
+          recentPicks, onDeck,
+          type: 'EXPIRATION',
+          leagueId,
+        });
+
+        results.push({ leagueId, action: 'auto_skip_3strike', pick: activePick.pick, strikes: teamStrikes });
+        continue;
+      }
+
+      if (diffMs <= 0) {
+        // Use the actual deadline as pickedAt (not "now") so the display and
+        // downstream-clock math both reflect when the pick truly expired,
+        // not when the cron happened to tick.
+        await db.update(draftPicks)
+          .set({ selectedPlayerName: 'SKIPPED (Time Expired)', pickedAt: expiryTime, touch_id: 'cron-auto-skip' })
           .where(eq(draftPicks.id, activePick.id));
 
         await notifyDraftPick({
