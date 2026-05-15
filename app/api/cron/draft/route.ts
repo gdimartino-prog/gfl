@@ -4,7 +4,7 @@ import { draftPicks, teams, rules } from '@/schema';
 import { eq, and, asc, isNull } from 'drizzle-orm';
 import { notifyDraftPick } from '@/lib/notify';
 import { alias } from 'drizzle-orm/pg-core';
-import { getDraftClockMinutes, getWarningThresholdMinutes, getDraftStartDate } from '@/lib/draftClock';
+import { getDraftClockMinutes, getWarningThresholdMinutes, getDraftStartDate, computePickTimings } from '@/lib/draftClock';
 
 function isAuthorized(req: Request) {
   const auth = req.headers.get('authorization');
@@ -65,7 +65,6 @@ export async function GET(req: Request) {
       }
 
       const activePick = allPicks[activeIdx];
-      const prevPick = activeIdx > 0 ? allPicks[activeIdx - 1] : null;
 
       // If the official draft start date hasn't arrived yet, hold the clock
       const draftStartDate = await getDraftStartDate(leagueId);
@@ -81,18 +80,23 @@ export async function GET(req: Request) {
         continue;
       }
 
-      const rawClockStart = prevPick?.pickedAt ? new Date(prevPick.pickedAt) : activePick.scheduledAt ? new Date(activePick.scheduledAt) : null;
-      if (!rawClockStart) {
+      const timings = await computePickTimings(
+        allPicks.map(p => ({
+          id: p.id, round: p.round, pick: p.pick,
+          scheduledAt: p.scheduledAt ? new Date(p.scheduledAt) : null,
+          pickedAt: p.pickedAt ? new Date(p.pickedAt) : null,
+        })),
+        leagueId,
+        draftStartDate,
+      );
+      const activeTiming = timings.get(activePick.id);
+      if (!activeTiming) {
         results.push({ leagueId, skipped: 'no clock start time' });
         continue;
       }
-      // Clock starts from the later of: when previous pick was made OR the official start date
-      const clockStart = draftStartDate && rawClockStart < draftStartDate ? draftStartDate : rawClockStart;
-
       const clockMinutes = await getDraftClockMinutes(leagueId, activePick.round);
       const warningMinutes = getWarningThresholdMinutes(clockMinutes);
-
-      const expiryTime = new Date(clockStart.getTime() + clockMinutes * 60 * 1000);
+      const expiryTime = activeTiming.deadline;
       const diffMs = expiryTime.getTime() - now.getTime();
       const diffMinutes = diffMs / (1000 * 60);
 

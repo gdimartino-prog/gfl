@@ -102,3 +102,63 @@ export async function getDraftStartDate(leagueId: number): Promise<Date | null> 
   const d = new Date(val);
   return isNaN(d.getTime()) ? null : d;
 }
+
+export type PickTimingInput = {
+  id: number;
+  round: number;
+  pick: number;
+  scheduledAt: Date | null;
+  pickedAt: Date | null;
+};
+
+export type PickTiming = {
+  clockStart: Date;
+  deadline: Date;
+  wasLate: boolean;
+};
+
+/**
+ * Compute per-pick clock-start and deadline for a sorted sequence of picks.
+ *
+ * The next pick's clock starts at min(prevPick.pickedAt, prevPick.deadline) —
+ * never later than the previous deadline. This prevents a late submission
+ * from leaking bonus time downstream.
+ */
+export async function computePickTimings(
+  picks: PickTimingInput[],
+  leagueId: number,
+  draftStartDate: Date | null,
+): Promise<Map<number, PickTiming>> {
+  const sorted = [...picks].sort((a, b) => a.pick - b.pick);
+  const distinctRounds = Array.from(new Set(sorted.map(p => p.round)));
+  const clockByRound = new Map<number, number>(
+    await Promise.all(distinctRounds.map(async r => [r, await getDraftClockMinutes(leagueId, r)] as const)),
+  );
+
+  const result = new Map<number, PickTiming>();
+  let prevEnd: Date | null = null;
+
+  for (const p of sorted) {
+    let clockStart: Date;
+    if (prevEnd === null) {
+      clockStart = p.scheduledAt ?? draftStartDate ?? new Date(0);
+    } else {
+      clockStart = p.scheduledAt && p.scheduledAt > prevEnd ? p.scheduledAt : prevEnd;
+    }
+    if (draftStartDate && clockStart < draftStartDate) clockStart = draftStartDate;
+
+    const clockMinutes = clockByRound.get(p.round) ?? 1440;
+    const deadline = new Date(clockStart.getTime() + clockMinutes * 60 * 1000);
+    const wasLate = !!p.pickedAt && p.pickedAt > deadline;
+    result.set(p.id, { clockStart, deadline, wasLate });
+
+    if (p.pickedAt) {
+      const effEnd = p.pickedAt > deadline ? deadline : p.pickedAt;
+      prevEnd = effEnd;
+    } else {
+      prevEnd = deadline;
+    }
+  }
+
+  return result;
+}

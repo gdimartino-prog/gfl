@@ -7,7 +7,7 @@ import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
 import { isAdmin, isCommissioner } from '@/lib/auth';
 import { logSystemEvent } from '@/lib/db-helpers';
-import { getDraftClockMinutes, getDraftStartDate, getDraftYear } from '@/lib/draftClock';
+import { getDraftClockMinutes, getDraftStartDate, getDraftYear, computePickTimings } from '@/lib/draftClock';
 import { getTeamShortMap } from '@/lib/config';
 import { revalidateTag } from 'next/cache';
 
@@ -60,6 +60,17 @@ export async function GET(req: NextRequest) {
     // Build set of pick IDs that are in the current draft year — only these can be Active
     const currentYearPickIds = new Set(currentYearSorted.map(p => p.id));
 
+    // Compute deadline / wasLate per pick for the current draft year
+    const timings = await computePickTimings(
+      currentYearSorted.map(p => ({
+        id: p.id, round: p.round ?? 0, pick: p.pick ?? 0,
+        scheduledAt: p.scheduledAt ? new Date(p.scheduledAt) : null,
+        pickedAt: p.pickedAt ? new Date(p.pickedAt) : null,
+      })),
+      leagueId,
+      draftStartDate,
+    );
+
     const formattedPicks = sorted.map(p => {
       const isSkipped = !p.selectedPlayer && !p.selectedPlayerName && !!p.pickedAt && !p.passed; // auto-expired, no player
       const isDrafted = !!p.selectedPlayer || !!p.selectedPlayerName || isSkipped;
@@ -92,6 +103,7 @@ export async function GET(req: NextRequest) {
         timestamp: p.pickedAt ? new Date(p.pickedAt).toISOString() : '',
         clockMinutes: status === 'Active' ? effectiveClockMinutes : null,
         scheduledAt: p.scheduledAt ? new Date(p.scheduledAt).toISOString() : null,
+        wasLate: timings.get(p.id)?.wasLate ?? false,
         processedBy: '',
         history: (p.transferHistory && p.transferHistory.length > 0)
           ? p.transferHistory.map(id => teamShortMap[id] ?? '').filter(Boolean).join(',')

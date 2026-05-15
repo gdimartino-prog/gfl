@@ -637,7 +637,11 @@ const handleUndoMyPick = async () => {
                       <td className="px-10 py-4 text-right pr-16">
                         {isDrafted ? (
                           <div className="flex items-center justify-end gap-3">
-                            <span className="text-emerald-500 font-black text-[10px] uppercase border border-emerald-100 bg-emerald-50 px-4 py-2 rounded-full tracking-widest">Finalized</span>
+                            {pick.wasLate && !isSkipped ? (
+                              <span className="text-orange-600 font-black text-[10px] uppercase border border-orange-200 bg-orange-50 px-4 py-2 rounded-full tracking-widest">Late Pick</span>
+                            ) : (
+                              <span className="text-emerald-500 font-black text-[10px] uppercase border border-emerald-100 bg-emerald-50 px-4 py-2 rounded-full tracking-widest">Finalized</span>
+                            )}
                             {isAdminUser && (
                               <button
                                 onClick={() => handleDeletePick(pick.id)}

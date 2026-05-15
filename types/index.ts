@@ -118,6 +118,7 @@ export interface DraftPick {
   draftedPlayerPosition?: string;
   timestamp: string;
   scheduledAt?: string | null;
+  wasLate?: boolean;
   via: string | null;
   history?: string;
   draftType?: string;
