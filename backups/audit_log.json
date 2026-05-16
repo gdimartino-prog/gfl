@@ -4534,5 +4534,113 @@
     "team": "Pyongyang",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 505,
+    "leagueId": 1,
+    "timestamp": "2026-05-15T11:19:37.413Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 506,
+    "leagueId": 1,
+    "timestamp": "2026-05-15T11:45:12.041Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R4 #62: DE-LB - Derick Hall"
+  },
+  {
+    "id": 507,
+    "leagueId": 1,
+    "timestamp": "2026-05-15T19:01:54.484Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R4 #63: T - Josh Conerly Jr."
+  },
+  {
+    "id": 508,
+    "leagueId": 1,
+    "timestamp": "2026-05-15T19:02:13.424Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R4 #64: RB - Quinshon Judkins"
+  },
+  {
+    "id": 509,
+    "leagueId": 1,
+    "timestamp": "2026-05-15T20:41:06.624Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 510,
+    "leagueId": 1,
+    "timestamp": "2026-05-15T20:41:34.168Z",
+    "coach": "John Yurchak",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R4 #65: C - Jalen Sundell"
+  },
+  {
+    "id": 511,
+    "leagueId": 1,
+    "timestamp": "2026-05-15T20:41:35.076Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 512,
+    "leagueId": 1,
+    "timestamp": "2026-05-15T20:42:59.668Z",
+    "coach": "James Di Martino",
+    "team": "Jefferson",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 513,
+    "leagueId": 1,
+    "timestamp": "2026-05-15T23:03:18.367Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 514,
+    "leagueId": 1,
+    "timestamp": "2026-05-15T23:50:39.141Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R4 #66: TE - Gunnar Helm"
+  },
+  {
+    "id": 515,
+    "leagueId": 1,
+    "timestamp": "2026-05-16T00:31:22.979Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 516,
+    "leagueId": 1,
+    "timestamp": "2026-05-16T04:40:44.785Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R4 #67: G - Dylan Fairchild"
   }
 ]
