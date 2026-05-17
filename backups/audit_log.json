@@ -4642,5 +4642,77 @@
     "team": "AFL",
     "action": "DRAFT_PICK",
     "details": "R4 #67: G - Dylan Fairchild"
+  },
+  {
+    "id": 517,
+    "leagueId": 1,
+    "timestamp": "2026-05-16T10:53:04.926Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 518,
+    "leagueId": 1,
+    "timestamp": "2026-05-16T15:25:32.839Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R4 #68: DL - Derrick Harmon"
+  },
+  {
+    "id": 519,
+    "leagueId": 1,
+    "timestamp": "2026-05-16T18:01:02.304Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R4 #69: DE-LB - Dre'Mont Jones"
+  },
+  {
+    "id": 520,
+    "leagueId": 1,
+    "timestamp": "2026-05-16T20:53:36.303Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "DRAFT_PICK",
+    "details": "R4 #70: S - Jonas Sanker"
+  },
+  {
+    "id": 521,
+    "leagueId": 1,
+    "timestamp": "2026-05-16T21:42:44.374Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "TRADE",
+    "details": "Old Bridge ↔ Amalfi"
+  },
+  {
+    "id": 522,
+    "leagueId": 1,
+    "timestamp": "2026-05-16T21:43:43.035Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R4 #71: WR - Mack Hollins"
+  },
+  {
+    "id": 523,
+    "leagueId": 1,
+    "timestamp": "2026-05-17T01:07:35.475Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R4 #72: CB - Jacob Parrish"
+  },
+  {
+    "id": 524,
+    "leagueId": 1,
+    "timestamp": "2026-05-17T04:03:19.277Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R5 #73: T - Aireontae Ersery"
   }
 ]

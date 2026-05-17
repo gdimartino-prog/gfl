@@ -339,27 +339,5 @@
     "asking": null,
     "touch_dt": "2026-04-27T12:27:03.237Z",
     "touch_id": "CT"
-  },
-  {
-    "id": 47,
-    "leagueId": 1,
-    "playerId": "brandon|jones|27||s|",
-    "playerName": "Brandon Jones",
-    "team": "CT",
-    "position": "S",
-    "asking": null,
-    "touch_dt": "2026-04-27T12:27:11.515Z",
-    "touch_id": "CT"
-  },
-  {
-    "id": 48,
-    "leagueId": 1,
-    "playerId": "bryan|cook|26||s|",
-    "playerName": "Bryan Cook",
-    "team": "CT",
-    "position": "S",
-    "asking": null,
-    "touch_dt": "2026-04-27T12:27:16.181Z",
-    "touch_id": "CT"
   }
 ]

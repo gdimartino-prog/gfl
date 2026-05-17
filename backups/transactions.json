@@ -19,6 +19,50 @@
     "touch_id": "Frank Vitale"
   },
   {
+    "id": 150,
+    "leagueId": 1,
+    "date": "2026-05-16T21:42:44.336Z",
+    "type": "TRADE",
+    "description": "Traded to Amalfi: 2026 Old Bridge 5th round pick (75th overall), 2026 Old Bridge 6th round pick (94th overall)",
+    "fromTeam": "Old Bridge",
+    "toTeam": "Amalfi",
+    "owner": "Ed Casserly",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2403,
+      2422
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-16T21:42:44.338Z",
+    "touch_id": "Ed Casserly"
+  },
+  {
+    "id": 151,
+    "leagueId": 1,
+    "date": "2026-05-16T21:42:44.365Z",
+    "type": "TRADE",
+    "description": "Traded to Old Bridge: 2026 Amalfi 4th round pick (71st overall), 2026 Amalfi 6th round pick (107th overall)",
+    "fromTeam": "Amalfi",
+    "toTeam": "Old Bridge",
+    "owner": "Ed Casserly",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2399,
+      2435
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-16T21:42:44.366Z",
+    "touch_id": "Ed Casserly"
+  },
+  {
     "id": 51,
     "leagueId": 1,
     "date": "2026-03-20T00:00:00.000Z",
