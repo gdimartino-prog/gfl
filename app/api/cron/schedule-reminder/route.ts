@@ -32,6 +32,16 @@ export async function GET(req: Request) {
       ? rawNflWeek
       : String(parseInt(rawNflWeek) - offset);
 
+    // Skip during preseason / before GFL season starts. When NFL is in
+    // preseason (current_nfl_week=0) or hasn't progressed past the
+    // schedule_due offset, GFL week is 0 or negative — no real games are
+    // due yet and we'd otherwise spam a "Week 1 PAST DUE" reminder.
+    const parsedLeagueWeek = parseInt(currentLeagueWeek);
+    if (!isNaN(parsedLeagueWeek) && parsedLeagueWeek <= 0) {
+      results.push({ leagueId, skipped: 'GFL season not yet started', currentLeagueWeek });
+      continue;
+    }
+
     const playoffOrder = ['WC', 'CONF', 'SB'];
 
     // Get schedule with team names

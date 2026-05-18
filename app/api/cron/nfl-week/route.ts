@@ -16,13 +16,20 @@ export async function GET(req: Request) {
     const res = await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard');
     const data = await res.json();
 
+    // ESPN seasonType: 1=preseason, 2=regular, 3=postseason, 4=off-season
     const seasonType: number = data.season.type;
     let currentWeek: number = data.week.number;
     const REGULAR_SEASON_WEEKS = 18;
 
-    if (seasonType === 3) {
+    if (seasonType === 1 || seasonType === 4) {
+      // Pre-season or off-season: regular season hasn't started, so any
+      // GFL week-based logic that depends on this value should treat it
+      // as "not yet in season". Store 0 to make that explicit.
+      currentWeek = 0;
+    } else if (seasonType === 3) {
       currentWeek = REGULAR_SEASON_WEEKS + currentWeek;
     }
+    // seasonType === 2: regular season — use ESPN's week number as-is
 
     // Update all leagues
     const allLeagues = await db.select({ id: leagues.id }).from(leagues);
