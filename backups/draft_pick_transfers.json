@@ -400,18 +400,6 @@
     "touch_id": "trade-migration"
   },
   {
-    "id": 59,
-    "leagueId": 1,
-    "year": 2026,
-    "draftType": "free_agent",
-    "round": 5,
-    "originalTeamId": 43,
-    "currentTeamId": 47,
-    "history": [],
-    "touch_dt": "2026-03-20T23:17:35.735Z",
-    "touch_id": "trade-migration"
-  },
-  {
     "id": 60,
     "leagueId": 1,
     "year": 2026,

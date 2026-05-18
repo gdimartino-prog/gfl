@@ -405,25 +405,6 @@
     "touch_id": "trade-migration"
   },
   {
-    "id": 69,
-    "leagueId": 1,
-    "date": "2026-03-20T00:00:00.000Z",
-    "type": "TRADE",
-    "description": "Traded to LBI: 2026 FA Draft Pick Rd 5",
-    "fromTeam": "Crimson",
-    "toTeam": "LBI",
-    "owner": null,
-    "status": "Done",
-    "weekBack": null,
-    "season": null,
-    "fee": 0,
-    "emailStatus": null,
-    "pickIds": null,
-    "conditionalDetails": null,
-    "touch_dt": "2026-03-20T23:19:07.500Z",
-    "touch_id": "trade-migration"
-  },
-  {
     "id": 70,
     "leagueId": 1,
     "date": "2026-03-20T00:00:00.000Z",
@@ -555,6 +536,25 @@
     "conditionalDetails": null,
     "touch_dt": "2026-03-20T23:19:07.716Z",
     "touch_id": "trade-migration"
+  },
+  {
+    "id": 69,
+    "leagueId": 1,
+    "date": "2026-03-20T00:00:00.000Z",
+    "type": "TRADE",
+    "description": "Traded to LBI: 2025 FA Draft Pick Rd 5",
+    "fromTeam": "Crimson",
+    "toTeam": "LBI",
+    "owner": null,
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-03-20T23:19:07.500Z",
+    "touch_id": "manual-fix-typo"
   },
   {
     "id": 96,

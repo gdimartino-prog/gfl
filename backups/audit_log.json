@@ -4714,5 +4714,59 @@
     "team": "LES",
     "action": "DRAFT_PICK",
     "details": "R5 #73: T - Aireontae Ersery"
+  },
+  {
+    "id": 525,
+    "leagueId": 1,
+    "timestamp": "2026-05-17T14:26:15.714Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R5 #74: QB - Aaron Rodgers"
+  },
+  {
+    "id": 526,
+    "leagueId": 1,
+    "timestamp": "2026-05-17T16:19:28.209Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R5 #75: DT - Deone Walker"
+  },
+  {
+    "id": 527,
+    "leagueId": 1,
+    "timestamp": "2026-05-17T19:35:54.725Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R5 #76: DL - Kenneth Grant"
+  },
+  {
+    "id": 528,
+    "leagueId": 1,
+    "timestamp": "2026-05-17T19:36:58.012Z",
+    "coach": "James Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R5 #77: K - Will Reichard"
+  },
+  {
+    "id": 529,
+    "leagueId": 1,
+    "timestamp": "2026-05-18T02:07:08.216Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R5 #78: TE - Jackson Hawes"
+  },
+  {
+    "id": 530,
+    "leagueId": 1,
+    "timestamp": "2026-05-18T10:03:42.988Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R5 #79: DL - Justin Eboigbe"
   }
 ]

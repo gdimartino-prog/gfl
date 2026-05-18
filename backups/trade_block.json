@@ -339,5 +339,27 @@
     "asking": null,
     "touch_dt": "2026-04-27T12:27:03.237Z",
     "touch_id": "CT"
+  },
+  {
+    "id": 49,
+    "leagueId": 1,
+    "playerId": "kayvon|thibodeaux|25||de-lb|",
+    "playerName": "Kayvon Thibodeaux",
+    "team": "OBG",
+    "position": "DE-LB",
+    "asking": "",
+    "touch_dt": "2026-05-18T01:56:30.477Z",
+    "touch_id": "OBG"
+  },
+  {
+    "id": 51,
+    "leagueId": 1,
+    "playerId": "renardo|green|25||cb|",
+    "playerName": "Renardo Green",
+    "team": "OBG",
+    "position": "CB",
+    "asking": "",
+    "touch_dt": "2026-05-18T01:57:28.797Z",
+    "touch_id": "OBG"
   }
 ]
