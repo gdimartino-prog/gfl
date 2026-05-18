@@ -3,6 +3,23 @@ import { rules } from '@/schema';
 import { and, eq, sql } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 
+const _getClockRulesRaw = unstable_cache(
+  async (leagueId: number) => {
+    const rows = await db
+      .select({ rule: rules.rule, value: rules.value })
+      .from(rules)
+      .where(
+        and(
+          eq(rules.leagueId, leagueId),
+          sql`${rules.rule} LIKE 'draft_clock_%'`,
+        ),
+      );
+    return rows.map(r => ({ rule: r.rule, value: r.value ?? '' }));
+  },
+  ['draft-clock-rules'],
+  { revalidate: 60, tags: ['rules'] },
+);
+
 const _getDraftClockMinutes = unstable_cache(
   async (leagueId: number, round: number): Promise<number> => {
     const clockRules = await db
@@ -130,10 +147,27 @@ export async function computePickTimings(
   draftStartDate: Date | null,
 ): Promise<Map<number, PickTiming>> {
   const sorted = [...picks].sort((a, b) => a.pick - b.pick);
+
+  // Fetch ALL draft_clock_* rules in one query, then resolve per-round
+  // locally. Previously this called getDraftClockMinutes per distinct round
+  // (~25 calls), each going through unstable_cache with a separate key and
+  // a separate DB roundtrip — a major CPU/latency cost on every cron tick.
+  const clockRules = await _getClockRulesRaw(leagueId);
+  const roundEntries = clockRules
+    .map(r => {
+      const m = r.rule.match(/^draft_clock_round_(\d+)$/);
+      return m ? { round: parseInt(m[1]), minutes: parseInt(r.value) } : null;
+    })
+    .filter((e): e is { round: number; minutes: number } => e !== null)
+    .sort((a, b) => a.round - b.round);
+  const defaultEntry = clockRules.find(r => r.rule === 'draft_clock_default');
+  const defaultMinutes = defaultEntry?.value ? parseInt(defaultEntry.value) : 1440;
   const distinctRounds = Array.from(new Set(sorted.map(p => p.round)));
-  const clockByRound = new Map<number, number>(
-    await Promise.all(distinctRounds.map(async r => [r, await getDraftClockMinutes(leagueId, r)] as const)),
-  );
+  const clockByRound = new Map<number, number>();
+  for (const round of distinctRounds) {
+    const applicable = [...roundEntries].reverse().find(e => e.round <= round);
+    clockByRound.set(round, applicable?.minutes ?? defaultMinutes);
+  }
 
   const result = new Map<number, PickTiming>();
   let prevEnd: Date | null = null;
