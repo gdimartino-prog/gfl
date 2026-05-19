@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
-import { teams } from '@/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { teams, players } from '@/schema';
+import { eq, and, sql, inArray } from 'drizzle-orm';
 import { logTransaction } from '@/lib/transactions';
 import { upsertPickTransfer } from '@/lib/draftPicks';
 import { notifyTransaction } from '@/lib/notify';
@@ -21,6 +21,7 @@ export async function POST(req: Request) {
       fromTeam, toTeam, fromFull, toFull,
       playersFrom, playersTo,
       draftPicksFrom, draftPicksTo, rawPicksFrom, rawPicksTo,
+      rawIdentitiesFrom, rawIdentitiesTo,
     } = body;
 
     const callerTeamshort = (session.user as { id?: string }).id || '';
@@ -66,6 +67,33 @@ export async function POST(req: Request) {
     }
     await Promise.all(transferUpserts);
 
+    // Move players to their new teams immediately. Reverting a rejected
+    // trade requires the commissioner to manually correct rosters (or
+    // re-sync from the Action game file).
+    const touchId = callerTeamshort || 'trade';
+    const playerMoves: Promise<unknown>[] = [];
+    if (Array.isArray(rawIdentitiesFrom) && rawIdentitiesFrom.length > 0 && toTeamId) {
+      playerMoves.push(
+        db.update(players)
+          .set({ teamId: toTeamId, touch_id: touchId })
+          .where(and(
+            eq(players.leagueId, leagueId),
+            inArray(players.identity, rawIdentitiesFrom as string[]),
+          ))
+      );
+    }
+    if (Array.isArray(rawIdentitiesTo) && rawIdentitiesTo.length > 0 && fromTeamId) {
+      playerMoves.push(
+        db.update(players)
+          .set({ teamId: fromTeamId, touch_id: touchId })
+          .where(and(
+            eq(players.leagueId, leagueId),
+            inArray(players.identity, rawIdentitiesTo as string[]),
+          ))
+      );
+    }
+    await Promise.all(playerMoves);
+
     // Log transactions as Pending — player moves happen in the Action game
     const actorName = session.user.name || callerTeamshort || 'Coach';
     const proposerAssets = [...(playersFrom || []), ...(draftPicksFrom || [])].join(', ');
@@ -94,6 +122,7 @@ export async function POST(req: Request) {
 
     revalidateTag('transactions', 'max');
     revalidateTag('draft-picks', 'max');
+    revalidateTag('players', 'max');
     await logSystemEvent(actorName, fromTeam, 'TRADE', `${fromFull} ↔ ${toFull}`, leagueId);
 
     // Notify league
