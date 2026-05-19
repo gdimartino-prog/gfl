@@ -4768,5 +4768,68 @@
     "team": "NBT",
     "action": "DRAFT_PICK",
     "details": "R5 #79: DL - Justin Eboigbe"
+  },
+  {
+    "id": 531,
+    "leagueId": 1,
+    "timestamp": "2026-05-18T12:21:28.391Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "DRAFT_PICK",
+    "details": "R5 #80: LB - Teddye Buchanan"
+  },
+  {
+    "id": 532,
+    "leagueId": 1,
+    "timestamp": "2026-05-18T13:57:59.552Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R5 #81: WR/RET - Isaiah Williams"
+  },
+  {
+    "id": 533,
+    "leagueId": 1,
+    "timestamp": "2026-05-18T18:15:52.052Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 534,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T00:51:11.390Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R5 #82: CB - Darien Porter"
+  },
+  {
+    "id": 535,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T01:27:18.247Z",
+    "coach": "George Di Martino",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R5 #83: CB - Jack Jones"
+  },
+  {
+    "id": 536,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T04:37:10.214Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 537,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T04:37:36.623Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
