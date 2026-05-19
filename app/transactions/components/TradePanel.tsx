@@ -14,7 +14,10 @@ interface Player {
   rec?: string; recYds?: string; recTD?: string;
   totalDef?: string; runDef?: string; passDef?: string; passRush?: string; tackles?: string; games?: string;
 }
-interface DraftPick { id: number; year: number; round: number; currentOwner: string; overall: number; originalTeam: string; via?: string | null; }
+interface DraftPick { id: number; year: number; round: number; currentOwner: string; overall: number; originalTeam: string; via?: string | null; status?: string; }
+
+// Statuses that mean the pick has already been used and can't be traded.
+const USED_PICK_STATUSES = new Set(['Drafted', 'Skipped', 'Passed']);
 
 function ToggleList<T extends string>({
   items,
@@ -180,11 +183,17 @@ export default function TradePanel({
   ), [players, partnerCode, toSearch, toPlayers]);
 
   const fromTeamDraftPicks = useMemo(() => sortPicks(
-    draftPicks.filter(p => resolveCode(p.currentOwner) === activeCode)
+    draftPicks.filter(p =>
+      resolveCode(p.currentOwner) === activeCode &&
+      !USED_PICK_STATUSES.has(p.status ?? '')
+    )
   ), [draftPicks, activeCode]);
 
   const toTeamDraftPicks = useMemo(() => sortPicks(
-    draftPicks.filter(p => resolveCode(p.currentOwner) === partnerCode)
+    draftPicks.filter(p =>
+      resolveCode(p.currentOwner) === partnerCode &&
+      !USED_PICK_STATUSES.has(p.status ?? '')
+    )
   ), [draftPicks, partnerCode]);
 
   const handleTrade = async () => {
