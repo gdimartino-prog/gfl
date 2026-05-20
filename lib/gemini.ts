@@ -73,6 +73,102 @@ Write a compelling 4-5 paragraph sports column that's entertaining and funny!`;
   }
 }
 
+type ScoutRoster = { name: string; position: string | null; overall: string | null; age: number | null }[];
+type ScoutPool = { name: string; position: string | null; age: number | null; overall: string | null; runBlock: string | null; passBlock: string | null; rushYards: string | null; interceptionsVal: string | null; sacksVal: string | null; durability: string | null; scouting?: Record<string, string> | null }[];
+
+export type ScoutContext = {
+  teamName: string;
+  teamShort: string;
+  draftYear: number;
+  currentRound: number | null;
+  picksUntilNext: number | null;
+  recentPicks: { round: number; pick: number; team: string; player: string }[];
+  roster: ScoutRoster;
+  pool: ScoutPool;
+  rulesSummary: string;
+  needsText: string;
+};
+
+export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<string> {
+  const genAI = getGeminiClient();
+  // Enable Google Search grounding so the model can pull current depth charts,
+  // injury news, beat-reporter takes, etc.
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-2.5-flash',
+    tools: [{ googleSearch: {} } as unknown as never],
+  });
+
+  const rosterTable = ctx.roster
+    .map(p => `  ${p.position ?? '?'} | ${p.name} | OVR ${p.overall ?? '?'} | age ${p.age ?? '?'}`)
+    .join('\n');
+
+  const poolTable = ctx.pool.slice(0, 200)
+    .map(p => {
+      const subs = [p.overall && `OVR ${p.overall}`, p.runBlock && `RB ${p.runBlock}`, p.passBlock && `PB ${p.passBlock}`, p.rushYards && `RY ${p.rushYards}`, p.interceptionsVal && `INT ${p.interceptionsVal}`, p.sacksVal && `SK ${p.sacksVal}`, p.durability && `DUR ${p.durability}`].filter(Boolean).join(' / ');
+      const scout = p.scouting ? ' | ' + Object.entries(p.scouting).map(([k, v]) => `${k}:${v}`).join(', ') : '';
+      return `  ${p.position ?? '?'} | ${p.name} | age ${p.age ?? '?'} | ${subs}${scout}`;
+    })
+    .join('\n');
+
+  const recent = ctx.recentPicks
+    .map(p => `  R${p.round} #${p.pick}: ${p.team} → ${p.player}`)
+    .join('\n');
+
+  const prompt = `You are an expert NFL scout and Action Football League (AFL) strategist. The user is drafting players in an ongoing AFL draft and wants your recommendations for who to target with their next pick.
+
+EVALUATE EACH CANDIDATE ON:
+1. AFL in-game ratings shown below (Overall + position sub-ratings — these directly drive simulation outcomes)
+2. Real-world NFL context — current depth chart standing, projected role, injury history, scheme fit. USE GOOGLE SEARCH to confirm current information when relevant (e.g. "is X currently the starter for team Y", "recent injury status", "is X being phased out").
+3. User's stated team needs and strategy
+4. Roster gaps relative to the user's existing roster
+5. Draft context (current round, picks until next selection — adjust scarcity calculus accordingly)
+
+TEAM: ${ctx.teamName} (${ctx.teamShort})
+DRAFT YEAR: ${ctx.draftYear}
+CURRENT ROUND: ${ctx.currentRound ?? '?'}
+PICKS UNTIL THEIR NEXT TURN: ${ctx.picksUntilNext ?? '?'}
+
+USER'S STATED NEEDS / STRATEGY:
+${ctx.needsText || '(none provided)'}
+
+CURRENT ROSTER (${ctx.roster.length} players):
+${rosterTable || '(empty)'}
+
+RECENT PICKS:
+${recent || '(none)'}
+
+AFL SCORING / RULES SUMMARY:
+${ctx.rulesSummary || '(no rules provided)'}
+
+UNDRAFTED PLAYER POOL (showing up to 200; rated subs: OVR=Overall, RB=Run Block, PB=Pass Block, RY=Rush Yards, INT=Interceptions, SK=Sacks, DUR=Durability):
+${poolTable || '(empty)'}
+
+RESPOND WITH:
+**TOP 5 RECOMMENDATIONS** — for each, in this exact format:
+
+### N. [Player Name] — [Position]
+**AFL fit**: <1-2 sentences citing specific ratings>
+**NFL outlook**: <1-2 sentences from web context — be specific about current role/depth chart/injury>
+**Why for THIS team**: <1-2 sentences tied to needs/roster gaps>
+**Risk**: <1 sentence: age, depth-chart, injury, scheme>
+
+**THEN: 2-3 DEEPER SLEEPERS** the user might miss — same format, briefer.
+
+Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    if (!text) throw new Error('No content generated from Gemini');
+    return text;
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Gemini scout error:', msg);
+    throw error;
+  }
+}
+
 export function extractTextFromHtml(html: string): string {
   let text = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
   text = text.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
