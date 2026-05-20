@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Sparkles } from 'lucide-react';
 
 type Meta = { teamName: string; currentRound: number | null; picksUntilNext: number | null; poolSize: number; rosterSize: number };
+type TeamOption = { teamshort: string; team: string };
 
 export default function ScoutPage() {
   const { data: session, status } = useSession();
@@ -17,10 +18,23 @@ export default function ScoutPage() {
   const [recommendations, setRecommendations] = useState<string | null>(null);
   const [meta, setMeta] = useState<Meta | null>(null);
   const [teamShort, setTeamShort] = useState('');
+  const [teamOptions, setTeamOptions] = useState<TeamOption[]>([]);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace('/login');
   }, [status, router]);
+
+  useEffect(() => {
+    if (status !== 'authenticated') return;
+    fetch('/api/teams')
+      .then(r => r.json())
+      .then((data: TeamOption[]) => {
+        if (Array.isArray(data)) {
+          setTeamOptions([...data].sort((a, b) => (a.team || a.teamshort).localeCompare(b.team || b.teamshort)));
+        }
+      })
+      .catch(() => { /* ignore — dropdown stays empty, user can re-select */ });
+  }, [status]);
 
   useEffect(() => {
     if (session?.user) {
@@ -71,13 +85,18 @@ export default function ScoutPage() {
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
           <label className="block mb-3 text-xs font-black uppercase tracking-widest text-slate-500">Team</label>
-          <input
-            type="text"
+          <select
             value={teamShort}
-            onChange={(e) => setTeamShort(e.target.value.toUpperCase())}
-            className="mb-5 w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm font-mono"
-            placeholder="e.g. SG"
-          />
+            onChange={(e) => setTeamShort(e.target.value)}
+            className="mb-5 w-full max-w-sm rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
+          >
+            {teamOptions.length === 0 && <option value={teamShort}>{teamShort || '(loading)'}</option>}
+            {teamOptions.map(t => (
+              <option key={t.teamshort} value={t.teamshort.toUpperCase()}>
+                {t.team || t.teamshort} ({t.teamshort})
+              </option>
+            ))}
+          </select>
 
           <label className="block mb-3 text-xs font-black uppercase tracking-widest text-slate-500">What do you need?</label>
           <textarea
