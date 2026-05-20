@@ -114,10 +114,10 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<s
     .map(p => `  R${p.round} #${p.pick}: ${p.team} → ${p.player}`)
     .join('\n');
 
-  const prompt = `You are an expert NFL scout and Action Football League (AFL) strategist. The user is drafting players in an ongoing AFL draft and wants your recommendations for who to target with their next pick.
+  const prompt = `You are an expert NFL scout and Gridiron Football League (GFL) strategist. The user is drafting players in an ongoing GFL draft and wants your recommendations for who to target with their next pick.
 
 EVALUATE EACH CANDIDATE ON:
-1. AFL in-game ratings shown below (Overall + position sub-ratings — these directly drive simulation outcomes)
+1. GFL in-game ratings shown below (Overall + position sub-ratings — these directly drive simulation outcomes)
 2. Real-world NFL context — current depth chart standing, projected role, injury history, scheme fit. USE GOOGLE SEARCH to confirm current information when relevant (e.g. "is X currently the starter for team Y", "recent injury status", "is X being phased out").
 3. User's stated team needs and strategy
 4. Roster gaps relative to the user's existing roster
@@ -137,7 +137,7 @@ ${rosterTable || '(empty)'}
 RECENT PICKS:
 ${recent || '(none)'}
 
-AFL SCORING / RULES SUMMARY:
+GFL SCORING / RULES SUMMARY:
 ${ctx.rulesSummary || '(no rules provided)'}
 
 UNDRAFTED PLAYER POOL (showing up to 200; rated subs: OVR=Overall, RB=Run Block, PB=Pass Block, RY=Rush Yards, INT=Interceptions, SK=Sacks, DUR=Durability):
@@ -147,7 +147,7 @@ RESPOND WITH:
 **TOP 5 RECOMMENDATIONS** — for each, in this exact format:
 
 ### N. [Player Name] — [Position]
-**AFL fit**: <1-2 sentences citing specific ratings>
+**GFL fit**: <1-2 sentences citing specific ratings>
 **NFL outlook**: <1-2 sentences from web context — be specific about current role/depth chart/injury>
 **Why for THIS team**: <1-2 sentences tied to needs/roster gaps>
 **Risk**: <1 sentence: age, depth-chart, injury, scheme>

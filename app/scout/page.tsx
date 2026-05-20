@@ -66,7 +66,7 @@ export default function ScoutPage() {
           <h1 className="text-3xl font-black tracking-tight text-slate-900">Draft Scout</h1>
         </div>
         <p className="text-slate-600 text-sm mb-8 max-w-2xl">
-          An expert NFL scout that considers your AFL ratings, current roster gaps, draft context, and live NFL news to recommend who to target with your next pick.
+          An expert NFL scout that considers your GFL ratings, current roster gaps, draft context, and live NFL news to recommend who to target with your next pick.
         </p>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
