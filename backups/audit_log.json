@@ -4831,5 +4831,185 @@
     "team": "Pyongyang",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 538,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T11:49:40.084Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRADE",
+    "details": "Vico ↔ Carolina"
+  },
+  {
+    "id": 539,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T11:51:27.647Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "TRADE",
+    "details": "Carolina ↔ Vico"
+  },
+  {
+    "id": 540,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T11:52:43.512Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #155 deleted"
+  },
+  {
+    "id": 541,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T11:52:46.606Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #154 deleted (reverted 1 pick transfer(s))"
+  },
+  {
+    "id": 542,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T11:52:56.725Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #151 marked Done"
+  },
+  {
+    "id": 543,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T11:53:26.132Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #150 marked Done"
+  },
+  {
+    "id": 544,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T11:53:44.925Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #150 marked Done"
+  },
+  {
+    "id": 545,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T13:05:21.357Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 546,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T13:05:32.858Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #153 marked Done"
+  },
+  {
+    "id": 547,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T13:05:34.986Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #152 marked Done"
+  },
+  {
+    "id": 548,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T13:44:30.078Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R5 #85: CB - Jahdae Barron"
+  },
+  {
+    "id": 549,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T14:18:03.021Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R5 #86: CB - Maxwell Hairston"
+  },
+  {
+    "id": 550,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T14:42:50.513Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 551,
+    "leagueId": 1,
+    "timestamp": "2026-05-19T16:59:44.040Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R5 #84: DL - Bryan Bresee"
+  },
+  {
+    "id": 552,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T01:24:03.898Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 553,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T01:35:43.491Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 554,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T02:35:09.508Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "DRAFT_PICK",
+    "details": "R5 #88: DE-LB - Jacob Martin"
+  },
+  {
+    "id": 555,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T02:50:28.460Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R5 #89: K - Ka'imi Fairbairn"
+  },
+  {
+    "id": 556,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T03:20:12.477Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R5 #90: CB - Rock Ya-Sin"
+  },
+  {
+    "id": 557,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T05:26:20.903Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R5 #87: TE - David Njoku"
   }
 ]

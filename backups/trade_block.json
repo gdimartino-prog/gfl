@@ -198,17 +198,6 @@
     "touch_id": "CT"
   },
   {
-    "id": 30,
-    "leagueId": 1,
-    "playerId": "christian|harris|24||lb|",
-    "playerName": "Christian Harris",
-    "team": "CT",
-    "position": "LB",
-    "asking": null,
-    "touch_dt": "2026-04-24T15:09:53.988Z",
-    "touch_id": "CT"
-  },
-  {
     "id": 31,
     "leagueId": 1,
     "playerId": "alvin|kamara|30|rb||",
@@ -319,28 +308,6 @@
     "touch_id": "CT"
   },
   {
-    "id": 45,
-    "leagueId": 1,
-    "playerId": "mike|hughes|28||cb|",
-    "playerName": "Mike Hughes",
-    "team": "CT",
-    "position": "CB",
-    "asking": null,
-    "touch_dt": "2026-04-27T12:26:57.225Z",
-    "touch_id": "CT"
-  },
-  {
-    "id": 46,
-    "leagueId": 1,
-    "playerId": "greg|newsome ii|25||cb|",
-    "playerName": "Greg Newsome II",
-    "team": "CT",
-    "position": "CB",
-    "asking": null,
-    "touch_dt": "2026-04-27T12:27:03.237Z",
-    "touch_id": "CT"
-  },
-  {
     "id": 49,
     "leagueId": 1,
     "playerId": "kayvon|thibodeaux|25||de-lb|",
@@ -352,14 +319,36 @@
     "touch_id": "OBG"
   },
   {
-    "id": 51,
+    "id": 53,
     "leagueId": 1,
-    "playerId": "renardo|green|25||cb|",
-    "playerName": "Renardo Green",
+    "playerId": "tykee|smith|24||s|",
+    "playerName": "Tykee Smith",
     "team": "OBG",
-    "position": "CB",
+    "position": "S",
     "asking": "",
-    "touch_dt": "2026-05-18T01:57:28.797Z",
+    "touch_dt": "2026-05-19T13:13:37.175Z",
+    "touch_id": "OBG"
+  },
+  {
+    "id": 55,
+    "leagueId": 1,
+    "playerId": "ji'ayir|brown|25||s|",
+    "playerName": "Ji'Ayir Brown",
+    "team": "OBG",
+    "position": "S",
+    "asking": "",
+    "touch_dt": "2026-05-19T13:13:43.874Z",
+    "touch_id": "OBG"
+  },
+  {
+    "id": 57,
+    "leagueId": 1,
+    "playerId": "ty|okada|26||s|",
+    "playerName": "Ty Okada",
+    "team": "OBG",
+    "position": "S",
+    "asking": "",
+    "touch_dt": "2026-05-19T13:13:52.421Z",
     "touch_id": "OBG"
   }
 ]
