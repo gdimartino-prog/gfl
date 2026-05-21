@@ -247,11 +247,25 @@ Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
     // spellings at runtime.
     const candidate = response.candidates?.[0] as { groundingMetadata?: unknown } | undefined;
     const gm = (candidate?.groundingMetadata ?? {}) as Record<string, unknown>;
-    const chunks = (Array.isArray(gm.groundingChunks) ? gm.groundingChunks : []) as Array<{ web?: { uri?: string; title?: string } }>;
-    const supportsRaw = (Array.isArray(gm.groundingSupports) ? gm.groundingSupports : []) as Array<Record<string, unknown>>;
 
-    console.log('[scout] FULL grounding metadata:', JSON.stringify(gm).slice(0, 2000));
+    // Probe every plausible spelling — the SDK doesn't normalise field names
+    // and the wire format sometimes uses snake_case.
+    const chunksAny =
+      gm.groundingChunks ??
+      gm.grounding_chunks ??
+      gm.groundingChunksList ??
+      gm.chunks ??
+      [];
+    const supportsAny =
+      gm.groundingSupports ??
+      gm.grounding_supports ??
+      [];
+    const chunks = (Array.isArray(chunksAny) ? chunksAny : []) as Array<{ web?: { uri?: string; title?: string } }>;
+    const supportsRaw = (Array.isArray(supportsAny) ? supportsAny : []) as Array<Record<string, unknown>>;
+
+    console.log('[scout] grounding metadata keys:', Object.keys(gm));
     console.log('[scout] grounding chunks:', chunks.length, 'supports:', supportsRaw.length);
+    console.log('[scout] grounding metadata FULL (10k):', JSON.stringify(gm).slice(0, 10000));
 
     // Dedup chunks by URI and build a chunkIndex → finalSourceIndex map
     const finalSources: { uri: string; title: string | undefined }[] = [];
