@@ -117,11 +117,12 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<s
   const prompt = `You are an expert NFL scout and Gridiron Football League (GFL) strategist. The user is drafting players in an ongoing GFL draft and wants your recommendations for who to target with their next pick.
 
 EVALUATE EACH CANDIDATE ON:
-1. GFL in-game ratings shown below (Overall + position sub-ratings — these directly drive simulation outcomes)
-2. Real-world NFL context — current depth chart standing, projected role, injury history, scheme fit. USE GOOGLE SEARCH to confirm current information when relevant (e.g. "is X currently the starter for team Y", "recent injury status", "is X being phased out").
-3. User's stated team needs and strategy
-4. Roster gaps relative to the user's existing roster
-5. Draft context (current round, picks until next selection — adjust scarcity calculus accordingly)
+1. GFL position-specific sub-ratings (Run Block, Pass Block, Rush Yards, Interceptions, Sacks, Durability) and the scouting blob — these reflect actual player quality and drive simulation outcomes most.
+2. IMPORTANT: do NOT over-weight the "Overall" rating — in the Action Football game engine that number functions essentially as a salary/cost indicator, not a quality score. A lower Overall with strong position-specific sub-ratings can be a much better pick than a high-Overall player with mediocre sub-ratings.
+3. Real-world NFL context — current depth chart standing, projected role, injury history, scheme fit. USE GOOGLE SEARCH to confirm current information when relevant (e.g. "is X currently the starter for team Y", "recent injury status", "is X being phased out").
+4. User's stated team needs and strategy
+5. Roster gaps relative to the user's existing roster
+6. Draft context (current round, picks until next selection — adjust scarcity calculus accordingly)
 
 TEAM: ${ctx.teamName} (${ctx.teamShort})
 DRAFT YEAR: ${ctx.draftYear}
@@ -140,14 +141,14 @@ ${recent || '(none)'}
 GFL SCORING / RULES SUMMARY:
 ${ctx.rulesSummary || '(no rules provided)'}
 
-UNDRAFTED PLAYER POOL (showing up to 200; rated subs: OVR=Overall, RB=Run Block, PB=Pass Block, RY=Rush Yards, INT=Interceptions, SK=Sacks, DUR=Durability):
+UNDRAFTED PLAYER POOL (showing up to 200; OVR=Overall (treat as salary/cost, NOT quality), RB=Run Block, PB=Pass Block, RY=Rush Yards, INT=Interceptions, SK=Sacks, DUR=Durability — the position-specific subs and scouting blob are the real quality signal):
 ${poolTable || '(empty)'}
 
 RESPOND WITH:
 **TOP 5 RECOMMENDATIONS** — for each, in this exact format:
 
 ### N. [Player Name] — [Position]
-**GFL fit**: <1-2 sentences citing specific ratings>
+**GFL fit**: <1-2 sentences citing specific position sub-ratings and scouting attributes; only mention Overall if it's an unusually good value (low Overall + strong subs)>
 **NFL outlook**: <1-2 sentences from web context — be specific about current role/depth chart/injury>
 **Why for THIS team**: <1-2 sentences tied to needs/roster gaps>
 **Risk**: <1 sentence: age, depth-chart, injury, scheme>
