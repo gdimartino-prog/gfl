@@ -138,8 +138,15 @@ You MUST ONLY recommend, research, or discuss players whose names appear in the 
 
 Your Google Search usage MUST be restricted to looking up information on players that appear in the pool. Do NOT search for or surface NFL news about players outside the pool. If a current NFL player is not in the pool, he is irrelevant to this analysis even if he is in the news.
 
+RANKING PRIORITY ORDER (apply in this sequence when ordering the Top 5):
+1. **CURRENT NFL ROLE — STARTERS FIRST**: Players who are the current Week-1 / Week-now starter on their NFL team rank highest. Then primary rotational players (RB2 with regular touches, WR2/WR3 with consistent snaps, nickel CB, 3rd-down LB). Then backups with a clear path to playing time. Then deep backups (WR4/RB3/practice-squad) only as sleepers. If two candidates look equal on GFL ratings, take the starter every time. Do NOT lead the Top 5 with a QB3 or WR4 unless you've explicitly noted there are no better-positioned players in the pool.
+2. GFL fit and team-need alignment.
+3. Age / long-term upside.
+4. Risk profile.
+
 EVALUATE EACH CANDIDATE ON:
-1. GFL position-specific sub-ratings and the scouting blob — these reflect actual player quality and drive simulation outcomes most.
+1. **NFL depth-chart position** — confirmed via your Ourlads / depth-chart search (see MANDATORY GOOGLE SEARCH USAGE above). This is the dominant signal for ranking.
+2. GFL position-specific sub-ratings and the scouting blob — these reflect actual player quality and drive simulation outcomes most.
 2. IMPORTANT: do NOT over-weight the "Overall" rating — in the Action Football game engine that number functions essentially as a salary/cost indicator, not a quality score. A lower Overall with strong position-specific sub-ratings can be a much better pick than a high-Overall player with mediocre sub-ratings.
 3. Real-world NFL context — current depth chart standing, projected role, injury history, scheme fit. USE GOOGLE SEARCH to confirm current information when relevant (e.g. "is X currently the starter for team Y", "recent injury status", "is X being phased out").
 4. User's stated team needs and strategy
@@ -263,9 +270,18 @@ Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
     const chunks = (Array.isArray(chunksAny) ? chunksAny : []) as Array<{ web?: { uri?: string; title?: string } }>;
     const supportsRaw = (Array.isArray(supportsAny) ? supportsAny : []) as Array<Record<string, unknown>>;
 
-    console.log('[scout] grounding metadata keys:', Object.keys(gm));
-    console.log('[scout] grounding chunks:', chunks.length, 'supports:', supportsRaw.length);
-    console.log('[scout] grounding metadata FULL (10k):', JSON.stringify(gm).slice(0, 10000));
+    // Vercel only surfaces the first console.log per invocation in `vercel logs`,
+    // so pack everything into one line. Also probe the candidate root for chunks
+    // in case they're a sibling of groundingMetadata, not nested under it.
+    const candidateRoot = (candidate ?? {}) as Record<string, unknown>;
+    const diag = {
+      gmKeys: Object.keys(gm),
+      candidateKeys: Object.keys(candidateRoot),
+      chunksFound: chunks.length,
+      supportsFound: supportsRaw.length,
+      gmFull: JSON.stringify(gm).slice(0, 6000),
+    };
+    console.log('[scout] grounding diag:', JSON.stringify(diag));
 
     // Dedup chunks by URI and build a chunkIndex → finalSourceIndex map
     const finalSources: { uri: string; title: string | undefined }[] = [];
