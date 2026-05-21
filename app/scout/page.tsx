@@ -3,8 +3,30 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, X } from 'lucide-react';
 import { POSITION_GROUPS } from '@/lib/positionGroups';
+
+const RECENT_NEEDS_KEY = 'gfl-scout-recent-needs';
+const RECENT_NEEDS_TTL_MS = 24 * 60 * 60 * 1000;
+type RecentNeed = { text: string; ts: number };
+
+function loadRecentNeeds(): RecentNeed[] {
+  try {
+    const raw = localStorage.getItem(RECENT_NEEDS_KEY);
+    if (!raw) return [];
+    const parsed: RecentNeed[] = JSON.parse(raw);
+    const cutoff = Date.now() - RECENT_NEEDS_TTL_MS;
+    return parsed.filter(e => e && typeof e.text === 'string' && typeof e.ts === 'number' && e.ts >= cutoff);
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentNeeds(entries: RecentNeed[]) {
+  try {
+    localStorage.setItem(RECENT_NEEDS_KEY, JSON.stringify(entries.slice(0, 20)));
+  } catch { /* quota or disabled */ }
+}
 
 type Meta = { teamName: string; currentRound: number | null; picksUntilNext: number | null; poolSize: number; rosterSize: number; maxAge?: number | null; rookiesOnly?: boolean };
 type TeamOption = { teamshort: string; team: string };
@@ -24,6 +46,11 @@ export default function ScoutPage() {
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
   const [maxAge, setMaxAge] = useState<string>('');
   const [rookiesOnly, setRookiesOnly] = useState(false);
+  const [recentNeeds, setRecentNeeds] = useState<RecentNeed[]>([]);
+
+  useEffect(() => {
+    setRecentNeeds(loadRecentNeeds());
+  }, []);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace('/login');
@@ -76,6 +103,16 @@ export default function ScoutPage() {
       setRecommendations(data.recommendations);
       setRecommendationsHtml(data.recommendationsHtml || null);
       setMeta(data.meta);
+
+      const submitted = needs.trim();
+      if (submitted) {
+        setRecentNeeds(prev => {
+          const dedup = prev.filter(e => e.text.toLowerCase() !== submitted.toLowerCase());
+          const next = [{ text: submitted, ts: Date.now() }, ...dedup].slice(0, 20);
+          saveRecentNeeds(next);
+          return next;
+        });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -176,6 +213,39 @@ export default function ScoutPage() {
           </div>
 
           <label className="block mb-3 text-xs font-black uppercase tracking-widest text-slate-500">What do you need?</label>
+          {recentNeeds.length > 0 && (
+            <div className="mb-3 flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mr-1">Recent:</span>
+              {recentNeeds.map(r => (
+                <span
+                  key={r.ts}
+                  className="group inline-flex items-center gap-1 max-w-xs rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs pl-3 pr-1 py-1 transition-colors"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setNeeds(r.text)}
+                    className="truncate text-left"
+                    title={r.text}
+                  >
+                    {r.text.length > 60 ? r.text.slice(0, 57) + '…' : r.text}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRecentNeeds(prev => {
+                      const next = prev.filter(e => e.ts !== r.ts);
+                      saveRecentNeeds(next);
+                      return next;
+                    })}
+                    className="rounded-full p-0.5 hover:bg-slate-300 text-slate-500"
+                    title="Remove"
+                    aria-label="Remove recent search"
+                  >
+                    <X size={11} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
           <textarea
             value={needs}
             onChange={(e) => setNeeds(e.target.value)}
