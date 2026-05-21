@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       .from(players)
       .where(and(eq(players.leagueId, leagueId), isNull(players.teamId)))
       .orderBy(sql`COALESCE(NULLIF(${players.overall}, '')::numeric, 0) DESC`)
-      .limit(200);
+      .limit(400);
 
     // Active-draft context: current round, next pick for this team
     const originalTeams = alias(teams, 'originalTeams');

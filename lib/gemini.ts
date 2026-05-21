@@ -111,13 +111,16 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<s
   };
 
   const rosterTable = ctx.roster.map(formatPlayerRow).join('\n');
-  const poolTable = ctx.pool.slice(0, 200).map(formatPlayerRow).join('\n');
+  const poolTable = ctx.pool.slice(0, 400).map(formatPlayerRow).join('\n');
 
   const recent = ctx.recentPicks
     .map(p => `  R${p.round} #${p.pick}: ${p.team} → ${p.player}`)
     .join('\n');
 
   const prompt = `You are an expert NFL scout and Gridiron Football League (GFL) strategist. The user is drafting players in an ongoing GFL draft and wants your recommendations for who to target with their next pick.
+
+HARD RULE — READ THIS FIRST:
+You MUST ONLY recommend players whose names appear in the "UNDRAFTED PLAYER POOL" section below. Do NOT recommend any player listed in the "CURRENT ROSTER" — they are already on the team. Do NOT recommend any player that is not in the pool, even if you remember them from training data — they are not available to be drafted. If you cannot find a good fit in the pool, say so honestly; do not invent or recall players from outside the pool list.
 
 EVALUATE EACH CANDIDATE ON:
 1. GFL position-specific sub-ratings (Run Block, Pass Block, Rush Yards, Interceptions, Sacks, Durability) and the scouting blob — these reflect actual player quality and drive simulation outcomes most.
@@ -144,11 +147,11 @@ ${recent || '(none)'}
 GFL SCORING / RULES SUMMARY:
 ${ctx.rulesSummary || '(no rules provided)'}
 
-UNDRAFTED PLAYER POOL (showing up to 200; OVR=Overall (treat as salary/cost, NOT quality), RB=Run Block, PB=Pass Block, RY=Rush Yards, INT=Interceptions, SK=Sacks, DUR=Durability — the position-specific subs and scouting blob are the real quality signal):
+UNDRAFTED PLAYER POOL (showing up to 400; OVR=Overall (treat as salary/cost, NOT quality), RB=Run Block, PB=Pass Block, RY=Rush Yards, INT=Interceptions, SK=Sacks, DUR=Durability — the position-specific subs and scouting blob are the real quality signal):
 ${poolTable || '(empty)'}
 
 RESPOND WITH:
-**TOP 5 RECOMMENDATIONS** — for each, in this exact format:
+**TOP 5 RECOMMENDATIONS** — for each, only choose names that appear verbatim in the UNDRAFTED PLAYER POOL above. Format each one:
 
 ### N. [Player Name] — [Position]
 **GFL fit**: <1-2 sentences citing specific position sub-ratings and scouting attributes; only mention Overall if it's an unusually good value (low Overall + strong subs)>
