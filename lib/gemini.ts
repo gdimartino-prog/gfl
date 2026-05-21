@@ -206,7 +206,8 @@ RESPOND WITH:
 
 ### N. [Player Name] — [Position], Age [age]
 **Ratings**: <render the matching position template above as a single line of "Label: value" pairs separated by " | ", e.g. for a QB: "Age: 24 | Att: 530 | C%: 64.2% | Yds: 4,210 | Int: 12 | TD: 31 | Sk: 28 | Dur: 8 | Sal: 84". Use ONLY the columns from the template for this position — no extras.>
-**NFL scouting report**: <THIS IS THE PRIMARY OUTPUT — 4-6 substantive sentences of real-world scouting based on Google Search research. Cover, where applicable: current NFL team and 2025-2026 depth-chart position (starter / rotational / backup / practice squad), recent target share / snap share / touches / usage trends, injury history over the last 12 months and any current durability concerns, scheme fit and playstyle (run/pass scheme, route tree, coverage scheme, blocking style), notable strengths and weaknesses as described by beat writers or analysts, college background only if recent (rookie/sophomore), and projected trajectory for the rest of the 2026 season. Be specific — name the team, the players above/below him on the depth chart, the coordinator's scheme if relevant. You MUST cite at least one real source for each player; render citations as inline markdown links inside the prose (e.g. "[ESPN depth chart](https://www.espn.com/nfl/team/depth/_/name/jax) lists him as WR3 behind Brian Thomas Jr. and Gabe Davis"). If you genuinely could not find any web source for this player, end the section with "(no current web source — base knowledge only)" so the user knows it isn't from research.>
+**Depth chart**: <ONE line, formatted as "TEAM — POSITION ROLE (STATUS) [source link]". For example: "Jacksonville Jaguars — WR3 behind Brian Thomas Jr. and Gabe Davis (active) [[Ourlads](https://www.ourlads.com/nfldepthcharts/depthchart/JAX)]" or "Cleveland Browns — RB2 / rotational, splits carries with Jerome Ford (questionable, ankle) [[Ourlads](https://www.ourlads.com/nfldepthcharts/depthchart/CLE)]". The role MUST be one of: Starter / WR2 (or RB2/TE2/etc.) / WR3 (or equivalent) / Rotational / Backup / Practice Squad / IR / Released / Free Agent. **PREFERRED SOURCE for depth charts: https://www.ourlads.com/nfldepthcharts/ — search this site first via Google Search (e.g. site:ourlads.com [player name]). Fall back to ESPN, NFL.com, or team beat writers only if Ourlads doesn't have the player.** If you cannot find a current depth chart anywhere, write "Depth chart unknown — last known role: <X> (no current source)".>
+**NFL scouting report**: <THIS IS THE PRIMARY OUTPUT — 4-6 substantive sentences of real-world scouting based on Google Search research. Cover, where applicable: recent target share / snap share / touches / usage trends, injury history over the last 12 months and any current durability concerns, scheme fit and playstyle (run/pass scheme, route tree, coverage scheme, blocking style), notable strengths and weaknesses as described by beat writers or analysts, college background only if recent (rookie/sophomore), and projected trajectory for the rest of the 2026 season. Be specific — name the coordinator's scheme if relevant. Do NOT repeat the depth-chart info from the line above — assume the reader has it. You MUST cite at least one real source for each player; render citations as inline markdown links inside the prose (e.g. "[ProFootballTalk](https://...) reported he led the team in red-zone targets last week"). If you genuinely could not find any web source for this player, end the section with "(no current web source — base knowledge only)" so the user knows it isn't from research.>
 **GFL fit**: <1 short sentence citing 1-2 specific position sub-ratings or scouting-blob attributes that stand out; only mention Overall if it's an unusually good value (low Overall + strong subs)>
 **Team fit**: <1 short sentence tying to user's stated needs/roster gaps — keep this brief, this is secondary to the NFL scouting report>
 **Risk**: <1 sentence: age, depth-chart, injury, scheme>
@@ -215,7 +216,7 @@ RESPOND WITH:
 
 OUTPUT EMPHASIS: roughly 60-70% of each recommendation's word count should live in the **NFL scouting report** section. The GFL-fit and Team-fit lines are short supporting context, not the main event. If you find yourself writing more about why the player fits the team than about who the player actually is in the NFL, you are doing it wrong — rewrite to lead with the NFL scouting depth.
 
-When you cite NFL news/depth-chart/injury info pulled from the web, render it as an inline markdown link "[label](https://...)" pointing to the actual page you used (NOT a vertexaisearch redirect — use the underlying publisher URL). Prefer site names like ESPN, NFL.com, ProFootballTalk, The Athletic, team beat writers, etc. Do not invent URLs — only link to pages you actually consulted via Google Search this turn. Every recommendation's NFL scouting report MUST either contain at least one such inline link or end with the explicit "(no current web source — base knowledge only)" tag.
+When you cite NFL news/depth-chart/injury info pulled from the web, render it as an inline markdown link "[label](https://...)" pointing to the actual page you used (NOT a vertexaisearch redirect — use the underlying publisher URL). Preferred sources, in order: **Ourlads.com (https://www.ourlads.com/nfldepthcharts/) for depth charts**, then ESPN, NFL.com, ProFootballTalk, The Athletic, team beat writers. Do not invent URLs — only link to pages you actually consulted via Google Search this turn. Every recommendation's NFL scouting report MUST either contain at least one such inline link or end with the explicit "(no current web source — base knowledge only)" tag.
 
 Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
 
@@ -235,9 +236,15 @@ Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
     const chunks = (Array.isArray(gm.groundingChunks) ? gm.groundingChunks : []) as Array<{ web?: { uri?: string; title?: string } }>;
     const supportsRaw = (Array.isArray(gm.groundingSupports) ? gm.groundingSupports : []) as Array<Record<string, unknown>>;
 
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('[scout] grounding chunks:', chunks.length, 'supports:', supportsRaw.length);
-      if (supportsRaw.length > 0) console.log('[scout] first support keys:', Object.keys(supportsRaw[0]));
+    console.log('[scout] grounding metadata keys:', Object.keys(gm));
+    console.log('[scout] grounding chunks:', chunks.length, 'supports:', supportsRaw.length);
+    if (supportsRaw.length > 0) {
+      console.log('[scout] first support full shape:', JSON.stringify(supportsRaw[0]).slice(0, 500));
+    }
+    if (chunks.length > 0) {
+      console.log('[scout] first chunk:', JSON.stringify(chunks[0]).slice(0, 300));
+    } else {
+      console.log('[scout] NO GROUNDING CHUNKS — Google Search did not return results for this query, or grounding was not invoked.');
     }
 
     // Dedup chunks by URI and build a chunkIndex → finalSourceIndex map
