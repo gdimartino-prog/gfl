@@ -226,21 +226,19 @@ Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
     if (!text) throw new Error('No content generated from Gemini');
 
     // Pull grounding metadata: chunks (the cited pages) + supports (which text
-    // spans cite which chunks). We use the supports to inject inline numbered
-    // citations into the model's response, then list the sources at the bottom.
-    type GroundingChunk = { web?: { uri?: string; title?: string } };
-    type GroundingSupport = {
-      segment?: { startIndex?: number; endIndex?: number; text?: string };
-      groundingChunkIndices?: number[];
-    };
-    const candidate = response.candidates?.[0] as {
-      groundingMetadata?: {
-        groundingChunks?: GroundingChunk[];
-        groundingSupports?: GroundingSupport[];
-      };
-    } | undefined;
-    const chunks = candidate?.groundingMetadata?.groundingChunks ?? [];
-    const supports = candidate?.groundingMetadata?.groundingSupports ?? [];
+    // spans cite which chunks). The SDK's type definitions have known issues
+    // (typo'd "groundingChunckIndices" and segment typed as string instead of
+    // an object), so we read everything as `unknown` and defensively probe both
+    // spellings at runtime.
+    const candidate = response.candidates?.[0] as { groundingMetadata?: unknown } | undefined;
+    const gm = (candidate?.groundingMetadata ?? {}) as Record<string, unknown>;
+    const chunks = (Array.isArray(gm.groundingChunks) ? gm.groundingChunks : []) as Array<{ web?: { uri?: string; title?: string } }>;
+    const supportsRaw = (Array.isArray(gm.groundingSupports) ? gm.groundingSupports : []) as Array<Record<string, unknown>>;
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[scout] grounding chunks:', chunks.length, 'supports:', supportsRaw.length);
+      if (supportsRaw.length > 0) console.log('[scout] first support keys:', Object.keys(supportsRaw[0]));
+    }
 
     // Dedup chunks by URI and build a chunkIndex → finalSourceIndex map
     const finalSources: { uri: string; title: string | undefined }[] = [];
@@ -258,24 +256,39 @@ Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
       chunkIdxToFinal.set(i, finalIdx);
     });
 
-    // Inject inline citations at each grounding-support segment's endIndex.
+    // Normalise each support: pick whichever spelling of the indices field is
+    // present, and accept segment as either an object or (per stale SDK types)
+    // a JSON string.
+    type NormalisedSupport = { endIndex: number; indices: number[] };
+    const supports: NormalisedSupport[] = supportsRaw.flatMap(s => {
+      const segRaw = s.segment;
+      let seg: { endIndex?: number } | null = null;
+      if (segRaw && typeof segRaw === 'object') {
+        seg = segRaw as { endIndex?: number };
+      } else if (typeof segRaw === 'string') {
+        try { seg = JSON.parse(segRaw); } catch { seg = null; }
+      }
+      const endIndex = seg?.endIndex;
+      const indices = (s.groundingChunkIndices ?? s.groundingChunckIndices ?? s.grounding_chunk_indices) as number[] | undefined;
+      if (typeof endIndex !== 'number' || !Array.isArray(indices) || indices.length === 0) return [];
+      return [{ endIndex, indices }];
+    });
+
+    // Inject inline citations at each support's endIndex.
     // Walk in descending endIndex order so earlier insertions don't shift later indices.
     let annotated = text;
-    const sortedSupports = [...supports]
-      .filter(s => s.segment?.endIndex != null && (s.groundingChunkIndices?.length ?? 0) > 0)
-      .sort((a, b) => (b.segment!.endIndex! - a.segment!.endIndex!));
+    const sortedSupports = [...supports].sort((a, b) => b.endIndex - a.endIndex);
     for (const sup of sortedSupports) {
       const seen = new Set<number>();
       const markers: string[] = [];
-      for (const i of sup.groundingChunkIndices!) {
+      for (const i of sup.indices) {
         const finalIdx = chunkIdxToFinal.get(i);
         if (finalIdx == null || seen.has(finalIdx)) continue;
         seen.add(finalIdx);
         markers.push(`[[${finalIdx + 1}]](${finalSources[finalIdx].uri})`);
       }
       if (markers.length === 0) continue;
-      const end = sup.segment!.endIndex!;
-      const safeEnd = Math.min(Math.max(0, end), annotated.length);
+      const safeEnd = Math.min(Math.max(0, sup.endIndex), annotated.length);
       annotated = annotated.slice(0, safeEnd) + ' ' + markers.join(' ') + annotated.slice(safeEnd);
     }
 
