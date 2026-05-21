@@ -6,6 +6,9 @@ import { and, asc, eq, isNull, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getDraftScoutRecommendations, type ScoutContext } from '@/lib/gemini';
+import { remark } from 'remark';
+import remarkHtml from 'remark-html';
+import remarkGfm from 'remark-gfm';
 
 export const maxDuration = 60;
 
@@ -42,9 +45,14 @@ export async function POST(req: NextRequest) {
       .limit(1);
     const draftYear = parseInt(draftYearRow[0]?.value || '0') || new Date().getFullYear();
 
-    // Roster: players currently on this team
+    // Roster: players currently on this team (full rating set — same as the pool)
     const roster = await db
-      .select({ name: players.name, position: players.position, overall: players.overall, age: players.age })
+      .select({
+        name: players.name, position: players.position, age: players.age,
+        overall: players.overall, runBlock: players.runBlock, passBlock: players.passBlock,
+        rushYards: players.rushYards, interceptionsVal: players.interceptionsVal,
+        sacksVal: players.sacksVal, durability: players.durability, scouting: players.scouting,
+      })
       .from(players)
       .where(and(eq(players.leagueId, leagueId), eq(players.teamId, team.id)));
 
@@ -108,15 +116,18 @@ export async function POST(req: NextRequest) {
       currentRound,
       picksUntilNext,
       recentPicks,
-      roster: roster.map(r => ({ name: r.name, position: r.position, overall: r.overall, age: r.age })),
+      roster: roster.map(r => ({ ...r, scouting: r.scouting ?? null })),
       pool: pool.map(p => ({ ...p, scouting: p.scouting ?? null })),
       rulesSummary,
       needsText,
     };
 
     const recommendations = await getDraftScoutRecommendations(ctx);
+    const processed = await remark().use(remarkGfm).use(remarkHtml, { sanitize: false }).process(recommendations);
+    const recommendationsHtml = String(processed);
     return NextResponse.json({
       recommendations,
+      recommendationsHtml,
       meta: { teamName: ctx.teamName, currentRound, picksUntilNext, poolSize: pool.length, rosterSize: roster.length },
     });
   } catch (error) {

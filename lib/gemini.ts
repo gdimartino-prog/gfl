@@ -73,8 +73,14 @@ Write a compelling 4-5 paragraph sports column that's entertaining and funny!`;
   }
 }
 
-type ScoutRoster = { name: string; position: string | null; overall: string | null; age: number | null }[];
-type ScoutPool = { name: string; position: string | null; age: number | null; overall: string | null; runBlock: string | null; passBlock: string | null; rushYards: string | null; interceptionsVal: string | null; sacksVal: string | null; durability: string | null; scouting?: Record<string, string> | null }[];
+type PlayerRatings = {
+  name: string; position: string | null; age: number | null; overall: string | null;
+  runBlock: string | null; passBlock: string | null; rushYards: string | null;
+  interceptionsVal: string | null; sacksVal: string | null; durability: string | null;
+  scouting?: Record<string, string> | null;
+};
+type ScoutRoster = PlayerRatings[];
+type ScoutPool = PlayerRatings[];
 
 export type ScoutContext = {
   teamName: string;
@@ -98,17 +104,14 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<s
     tools: [{ googleSearch: {} } as unknown as never],
   });
 
-  const rosterTable = ctx.roster
-    .map(p => `  ${p.position ?? '?'} | ${p.name} | OVR ${p.overall ?? '?'} | age ${p.age ?? '?'}`)
-    .join('\n');
+  const formatPlayerRow = (p: PlayerRatings) => {
+    const subs = [p.overall && `OVR ${p.overall}`, p.runBlock && `RB ${p.runBlock}`, p.passBlock && `PB ${p.passBlock}`, p.rushYards && `RY ${p.rushYards}`, p.interceptionsVal && `INT ${p.interceptionsVal}`, p.sacksVal && `SK ${p.sacksVal}`, p.durability && `DUR ${p.durability}`].filter(Boolean).join(' / ');
+    const scout = p.scouting ? ' | ' + Object.entries(p.scouting).map(([k, v]) => `${k}:${v}`).join(', ') : '';
+    return `  ${p.position ?? '?'} | ${p.name} | age ${p.age ?? '?'} | ${subs}${scout}`;
+  };
 
-  const poolTable = ctx.pool.slice(0, 200)
-    .map(p => {
-      const subs = [p.overall && `OVR ${p.overall}`, p.runBlock && `RB ${p.runBlock}`, p.passBlock && `PB ${p.passBlock}`, p.rushYards && `RY ${p.rushYards}`, p.interceptionsVal && `INT ${p.interceptionsVal}`, p.sacksVal && `SK ${p.sacksVal}`, p.durability && `DUR ${p.durability}`].filter(Boolean).join(' / ');
-      const scout = p.scouting ? ' | ' + Object.entries(p.scouting).map(([k, v]) => `${k}:${v}`).join(', ') : '';
-      return `  ${p.position ?? '?'} | ${p.name} | age ${p.age ?? '?'} | ${subs}${scout}`;
-    })
-    .join('\n');
+  const rosterTable = ctx.roster.map(formatPlayerRow).join('\n');
+  const poolTable = ctx.pool.slice(0, 200).map(formatPlayerRow).join('\n');
 
   const recent = ctx.recentPicks
     .map(p => `  R${p.round} #${p.pick}: ${p.team} → ${p.player}`)
@@ -155,6 +158,8 @@ RESPOND WITH:
 
 **THEN: 2-3 DEEPER SLEEPERS** the user might miss — same format, briefer.
 
+When you cite NFL news/depth-chart/injury info pulled from the web, mark it inline like (Source: ESPN) or (Source: ProFootballTalk) so the user can see what came from research vs. base knowledge.
+
 Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
 
   try {
@@ -162,7 +167,18 @@ Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
     const response = await result.response;
     const text = response.text();
     if (!text) throw new Error('No content generated from Gemini');
-    return text;
+
+    // Append a Sources section from the grounding metadata if present
+    const candidate = response.candidates?.[0] as { groundingMetadata?: { groundingChunks?: Array<{ web?: { uri?: string; title?: string } }> } } | undefined;
+    const chunks = candidate?.groundingMetadata?.groundingChunks ?? [];
+    const sources = chunks
+      .map(c => ({ uri: c?.web?.uri, title: c?.web?.title }))
+      .filter((s): s is { uri: string; title: string | undefined } => !!s.uri);
+    const dedup = Array.from(new Map(sources.map(s => [s.uri, s])).values());
+
+    if (dedup.length === 0) return text;
+    const list = dedup.map((s, i) => `${i + 1}. [${s.title || s.uri}](${s.uri})`).join('\n');
+    return `${text}\n\n---\n**Sources**\n${list}`;
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error('Gemini scout error:', msg);

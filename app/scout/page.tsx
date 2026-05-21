@@ -16,6 +16,7 @@ export default function ScoutPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recommendations, setRecommendations] = useState<string | null>(null);
+  const [recommendationsHtml, setRecommendationsHtml] = useState<string | null>(null);
   const [meta, setMeta] = useState<Meta | null>(null);
   const [teamShort, setTeamShort] = useState('');
   const [teamOptions, setTeamOptions] = useState<TeamOption[]>([]);
@@ -52,6 +53,7 @@ export default function ScoutPage() {
     setLoading(true);
     setError(null);
     setRecommendations(null);
+    setRecommendationsHtml(null);
     setMeta(null);
     try {
       const res = await fetch('/api/scout/recommend', {
@@ -62,6 +64,7 @@ export default function ScoutPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Request failed');
       setRecommendations(data.recommendations);
+      setRecommendationsHtml(data.recommendationsHtml || null);
       setMeta(data.meta);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -135,11 +138,16 @@ export default function ScoutPage() {
           </div>
         )}
 
-        {recommendations && (
+        {recommendationsHtml ? (
+          <article
+            className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 prose prose-slate prose-sm max-w-none prose-a:text-blue-600 prose-a:underline"
+            dangerouslySetInnerHTML={{ __html: recommendationsHtml }}
+          />
+        ) : recommendations ? (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 prose prose-slate prose-sm max-w-none whitespace-pre-wrap">
             {recommendations}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
