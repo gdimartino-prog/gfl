@@ -189,13 +189,14 @@ ${poolTable || '(empty)'}
 RESPOND WITH:
 **TOP 5 RECOMMENDATIONS** — for each, only choose names that appear verbatim in the UNDRAFTED PLAYER POOL above. Format each one:
 
-### N. [Player Name] — [Position]
+### N. [Player Name] — [Position], Age [age]
+**Ratings**: <copy the player's row from the pool verbatim: OVR / position sub-ratings (RB, PB, RY, INT, SK, DUR as applicable) / DUR / and any scouting blob entries — exactly as shown in the pool table so the user can see what you're recommending on>
 **GFL fit**: <1-2 sentences citing specific position sub-ratings and scouting attributes; only mention Overall if it's an unusually good value (low Overall + strong subs)>
 **NFL outlook**: <1-2 sentences from web context — be specific about current role/depth chart/injury>
 **Why for THIS team**: <1-2 sentences tied to needs/roster gaps>
 **Risk**: <1 sentence: age, depth-chart, injury, scheme>
 
-**THEN: 2-3 DEEPER SLEEPERS** the user might miss — same format, briefer.
+**THEN: 2-3 DEEPER SLEEPERS** the user might miss — same format (include Age and the Ratings line verbatim from the pool), briefer.
 
 When you cite NFL news/depth-chart/injury info pulled from the web, mark it inline like (Source: ESPN) or (Source: ProFootballTalk) so the user can see what came from research vs. base knowledge.
 
