@@ -5011,5 +5011,158 @@
     "team": "TT",
     "action": "DRAFT_PICK",
     "details": "R5 #87: TE - David Njoku"
+  },
+  {
+    "id": 558,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T15:01:43.549Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 559,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T15:02:45.443Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R6 #91: DL - Bryan Bresee"
+  },
+  {
+    "id": 560,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T15:06:38.216Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R6 #92: QB - Jacoby Brissett"
+  },
+  {
+    "id": 561,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T15:08:48.962Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_DELETE_PICK",
+    "details": "Deleted pick #2419"
+  },
+  {
+    "id": 562,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T15:13:45.693Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 563,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T15:14:21.320Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R6 #91: LB-S - Jamal Adams"
+  },
+  {
+    "id": 564,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T18:28:21.829Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R6 #93: DE - Shemar Stewart"
+  },
+  {
+    "id": 565,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T18:31:43.089Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R6 #94: TE - Isaiah Likely"
+  },
+  {
+    "id": 566,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T21:06:42.008Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R6 #95: WR/RET - Malik Washington"
+  },
+  {
+    "id": 567,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T22:54:42.237Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 568,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T23:49:42.207Z",
+    "coach": "James Di Martino",
+    "team": "Jefferson",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 569,
+    "leagueId": 1,
+    "timestamp": "2026-05-20T23:51:27.639Z",
+    "coach": "James Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R6 #96: QB - Shedeur Sanders"
+  },
+  {
+    "id": 570,
+    "leagueId": 1,
+    "timestamp": "2026-05-21T00:23:13.620Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 571,
+    "leagueId": 1,
+    "timestamp": "2026-05-21T00:34:57.607Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 572,
+    "leagueId": 1,
+    "timestamp": "2026-05-21T00:49:56.143Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 573,
+    "leagueId": 1,
+    "timestamp": "2026-05-21T00:51:55.793Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R6 #97: S - Craig Woodson"
+  },
+  {
+    "id": 574,
+    "leagueId": 1,
+    "timestamp": "2026-05-21T04:27:21.199Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R6 #98: C - Jake Andrews"
   }
 ]
