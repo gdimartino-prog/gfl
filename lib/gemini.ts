@@ -120,7 +120,9 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<s
   const prompt = `You are an expert NFL scout and Gridiron Football League (GFL) strategist. The user is drafting players in an ongoing GFL draft and wants your recommendations for who to target with their next pick.
 
 HARD RULE — READ THIS FIRST:
-You MUST ONLY recommend players whose names appear in the "UNDRAFTED PLAYER POOL" section below. Do NOT recommend any player listed in the "CURRENT ROSTER" — they are already on the team. Do NOT recommend any player that is not in the pool, even if you remember them from training data — they are not available to be drafted. If you cannot find a good fit in the pool, say so honestly; do not invent or recall players from outside the pool list.
+You MUST ONLY recommend, research, or discuss players whose names appear in the "UNDRAFTED PLAYER POOL" section below. Do NOT recommend any player listed in the "CURRENT ROSTER" — they are already on the team. Do NOT recommend any player that is not in the pool, even if you remember them from training data — they are not available to be drafted. If you cannot find a good fit in the pool, say so honestly; do not invent or recall players from outside the pool list.
+
+Your Google Search usage MUST be restricted to looking up information on players that appear in the pool. Do NOT search for or surface NFL news about players outside the pool. If a current NFL player is not in the pool, he is irrelevant to this analysis even if he is in the news.
 
 EVALUATE EACH CANDIDATE ON:
 1. GFL position-specific sub-ratings and the scouting blob — these reflect actual player quality and drive simulation outcomes most.
