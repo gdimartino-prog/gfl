@@ -223,17 +223,63 @@ Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
     const text = response.text();
     if (!text) throw new Error('No content generated from Gemini');
 
-    // Append a Sources section from the grounding metadata if present
-    const candidate = response.candidates?.[0] as { groundingMetadata?: { groundingChunks?: Array<{ web?: { uri?: string; title?: string } }> } } | undefined;
+    // Pull grounding metadata: chunks (the cited pages) + supports (which text
+    // spans cite which chunks). We use the supports to inject inline numbered
+    // citations into the model's response, then list the sources at the bottom.
+    type GroundingChunk = { web?: { uri?: string; title?: string } };
+    type GroundingSupport = {
+      segment?: { startIndex?: number; endIndex?: number; text?: string };
+      groundingChunkIndices?: number[];
+    };
+    const candidate = response.candidates?.[0] as {
+      groundingMetadata?: {
+        groundingChunks?: GroundingChunk[];
+        groundingSupports?: GroundingSupport[];
+      };
+    } | undefined;
     const chunks = candidate?.groundingMetadata?.groundingChunks ?? [];
-    const sources = chunks
-      .map(c => ({ uri: c?.web?.uri, title: c?.web?.title }))
-      .filter((s): s is { uri: string; title: string | undefined } => !!s.uri);
-    const dedup = Array.from(new Map(sources.map(s => [s.uri, s])).values());
+    const supports = candidate?.groundingMetadata?.groundingSupports ?? [];
 
-    if (dedup.length === 0) return text;
-    const list = dedup.map((s, i) => `${i + 1}. [${s.title || s.uri}](${s.uri})`).join('\n');
-    return `${text}\n\n---\n**Sources**\n${list}`;
+    // Dedup chunks by URI and build a chunkIndex → finalSourceIndex map
+    const finalSources: { uri: string; title: string | undefined }[] = [];
+    const uriToFinal = new Map<string, number>();
+    const chunkIdxToFinal = new Map<number, number>();
+    chunks.forEach((c, i) => {
+      const uri = c?.web?.uri;
+      if (!uri) return;
+      let finalIdx = uriToFinal.get(uri);
+      if (finalIdx == null) {
+        finalIdx = finalSources.length;
+        finalSources.push({ uri, title: c.web?.title });
+        uriToFinal.set(uri, finalIdx);
+      }
+      chunkIdxToFinal.set(i, finalIdx);
+    });
+
+    // Inject inline citations at each grounding-support segment's endIndex.
+    // Walk in descending endIndex order so earlier insertions don't shift later indices.
+    let annotated = text;
+    const sortedSupports = [...supports]
+      .filter(s => s.segment?.endIndex != null && (s.groundingChunkIndices?.length ?? 0) > 0)
+      .sort((a, b) => (b.segment!.endIndex! - a.segment!.endIndex!));
+    for (const sup of sortedSupports) {
+      const seen = new Set<number>();
+      const markers: string[] = [];
+      for (const i of sup.groundingChunkIndices!) {
+        const finalIdx = chunkIdxToFinal.get(i);
+        if (finalIdx == null || seen.has(finalIdx)) continue;
+        seen.add(finalIdx);
+        markers.push(`[[${finalIdx + 1}]](${finalSources[finalIdx].uri})`);
+      }
+      if (markers.length === 0) continue;
+      const end = sup.segment!.endIndex!;
+      const safeEnd = Math.min(Math.max(0, end), annotated.length);
+      annotated = annotated.slice(0, safeEnd) + ' ' + markers.join(' ') + annotated.slice(safeEnd);
+    }
+
+    if (finalSources.length === 0) return annotated;
+    const list = finalSources.map((s, i) => `${i + 1}. [${s.title || s.uri}](${s.uri})`).join('\n');
+    return `${annotated}\n\n---\n**Sources**\n${list}`;
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error('Gemini scout error:', msg);
