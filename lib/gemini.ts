@@ -186,17 +186,32 @@ ${ctx.rulesSummary || '(no rules provided)'}
 UNDRAFTED PLAYER POOL (showing up to 400; OVR=Overall (treat as salary/cost, NOT quality), RB=Run Block, PB=Pass Block, RY=Rush Yards, INT=Interceptions, SK=Sacks, DUR=Durability — the position-specific subs and scouting blob are the real quality signal):
 ${poolTable || '(empty)'}
 
+## POSITION-SPECIFIC RATING TEMPLATES (use for the Ratings line below)
+
+For each recommended player, the Ratings line MUST report ONLY the columns shown for their position group — these match the league's Free Agent Evaluation page exactly. Pull the values from the scouting blob (and the top-level OVR/DUR when listed). If a value is missing from the data, show "—". Do NOT include extra ratings outside the template.
+
+- **QB** → Age | Att (pass attempts) | C% (completions / pass attempts as a %) | Yds (pass yards) | Int (pass interceptions) | TD (pass TD) | Sk (sacks) | Dur | Sal (= Overall)
+- **RB / FB** → Age | Att (rush attempts) | RYds (rush yards) | YPC (rush yards / rush attempts) | RTD (rush TD) | Rec (receptions) | RcYd (receiving yards) | Dur | Sal
+- **WR** → Age | Rec | Yds (receiving yards) | YPR (receiving yards / receptions) | Lng (receiving long) | TD (receiving TD) | Rcv (receiving) | Dur | Sal
+- **TE / HB** → Age | Rec | Yds (receiving yards) | YPR | TD (receiving TD) | Rcv (receiving) | BkAv (breakaway) | Dur | Sal
+- **C / G / T / OL / C-G / G-T** → Age | RBlk (run block) | PBlk (pass block) | AvgB ((RBlk + PBlk) / 2) | ShYd (short yardage) | Gms (games) | Dur | Sal
+- **DT / NT / DE / DL / DE-LB** → Age | TDef (total defense) | RDef (run defense) | PDef (pass defense) | PRsh (pass rush) | Sks (sacks) | Stf (stuffs) | Dur | Sal
+- **ILB / MLB / LB / OLB / LB-S** → Age | TDef | RDef | PDef | PRsh | Tkl (tackles) | Sks (sacks) | Dur | Sal
+- **CB / S / SAF / FS / SS / DB** → Age | TDef | RDef | PDef | INT (interceptions) | Tkl (tackles) | Aud (audible) | Dur | Sal
+- **K / K-P** → Age | FGA (field goal attempts) | FG% (field goals made / FGA as %) | Lg (field goals long) | XPA (extra point attempts) | XP% (extra points made / XPA as %) | Dur | Sal
+- **P** → Age | Punts | Yds (punt yards) | Avg (punt yards / punts) | Lng (punt long) | In20 (punt inside 20) | Dur | Sal
+
 RESPOND WITH:
 **TOP 5 RECOMMENDATIONS** — for each, only choose names that appear verbatim in the UNDRAFTED PLAYER POOL above. Format each one:
 
 ### N. [Player Name] — [Position], Age [age]
-**Ratings**: <copy the player's row from the pool verbatim: OVR / position sub-ratings (RB, PB, RY, INT, SK, DUR as applicable) / DUR / and any scouting blob entries — exactly as shown in the pool table so the user can see what you're recommending on>
+**Ratings**: <render the matching position template above as a single line of "Label: value" pairs separated by " | ", e.g. for a QB: "Age: 24 | Att: 530 | C%: 64.2% | Yds: 4,210 | Int: 12 | TD: 31 | Sk: 28 | Dur: 8 | Sal: 84". Use ONLY the columns from the template for this position — no extras.>
 **GFL fit**: <1-2 sentences citing specific position sub-ratings and scouting attributes; only mention Overall if it's an unusually good value (low Overall + strong subs)>
 **NFL outlook**: <1-2 sentences from web context — be specific about current role/depth chart/injury>
 **Why for THIS team**: <1-2 sentences tied to needs/roster gaps>
 **Risk**: <1 sentence: age, depth-chart, injury, scheme>
 
-**THEN: 2-3 DEEPER SLEEPERS** the user might miss — same format (include Age and the Ratings line verbatim from the pool), briefer.
+**THEN: 2-3 DEEPER SLEEPERS** the user might miss — same format (include Age and a Ratings line built from the player's position template), briefer.
 
 When you cite NFL news/depth-chart/injury info pulled from the web, mark it inline like (Source: ESPN) or (Source: ProFootballTalk) so the user can see what came from research vs. base knowledge.
 
