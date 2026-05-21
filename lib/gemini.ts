@@ -99,9 +99,16 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<s
   const genAI = getGeminiClient();
   // Enable Google Search grounding so the model can pull current depth charts,
   // injury news, beat-reporter takes, etc.
+  // Gemini 2.5+ uses the `google_search` tool (snake_case in the REST payload;
+  // camelCase variants are rejected silently). The legacy SDK ships types for
+  // `googleSearchRetrieval` only, so we bypass with `as unknown as never` and
+  // pass both spellings to maximize the chance one is honored.
   const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-flash',
-    tools: [{ googleSearch: {} } as unknown as never],
+    tools: [
+      { google_search: {} },
+      { googleSearch: {} },
+    ] as unknown as never,
   });
 
   const formatPlayerRow = (p: PlayerRatings) => {
@@ -118,6 +125,13 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<s
     .join('\n');
 
   const prompt = `You are an expert NFL scout and Gridiron Football League (GFL) strategist. The user is drafting players in an ongoing GFL draft and wants your recommendations for who to target with their next pick.
+
+MANDATORY GOOGLE SEARCH USAGE:
+Before writing ANY recommendation, you MUST perform Google Search queries for each player you plan to recommend. Your training data is stale and will not reflect the current 2026 NFL season. Do not rely on training data for depth charts, injury status, or current team — these MUST come from live web search results. At a minimum, for each of the 5 top recs and 2-3 sleepers, run these searches:
+  1. "site:ourlads.com [player full name]" — for current depth chart position
+  2. "[player full name] depth chart 2026" — fallback for current depth chart
+  3. "[player full name] injury news" OR "[player full name] 2026 season" — for current status
+If a search returns zero results, try the player's full name plus their college (for rookies) or NFL team (for veterans). Only after at least one productive search may you write that player's recommendation.
 
 HARD RULE — READ THIS FIRST:
 You MUST ONLY recommend, research, or discuss players whose names appear in the "UNDRAFTED PLAYER POOL" section below. Do NOT recommend any player listed in the "CURRENT ROSTER" — they are already on the team. Do NOT recommend any player that is not in the pool, even if you remember them from training data — they are not available to be drafted. If you cannot find a good fit in the pool, say so honestly; do not invent or recall players from outside the pool list.
@@ -236,16 +250,8 @@ Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
     const chunks = (Array.isArray(gm.groundingChunks) ? gm.groundingChunks : []) as Array<{ web?: { uri?: string; title?: string } }>;
     const supportsRaw = (Array.isArray(gm.groundingSupports) ? gm.groundingSupports : []) as Array<Record<string, unknown>>;
 
-    console.log('[scout] grounding metadata keys:', Object.keys(gm));
+    console.log('[scout] FULL grounding metadata:', JSON.stringify(gm).slice(0, 2000));
     console.log('[scout] grounding chunks:', chunks.length, 'supports:', supportsRaw.length);
-    if (supportsRaw.length > 0) {
-      console.log('[scout] first support full shape:', JSON.stringify(supportsRaw[0]).slice(0, 500));
-    }
-    if (chunks.length > 0) {
-      console.log('[scout] first chunk:', JSON.stringify(chunks[0]).slice(0, 300));
-    } else {
-      console.log('[scout] NO GROUNDING CHUNKS — Google Search did not return results for this query, or grounding was not invoked.');
-    }
 
     // Dedup chunks by URI and build a chunkIndex → finalSourceIndex map
     const finalSources: { uri: string; title: string | undefined }[] = [];
