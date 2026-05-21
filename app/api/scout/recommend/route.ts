@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { draftPicks, players, rules, teams } from '@/schema';
-import { and, asc, eq, isNull, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull, or, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getDraftScoutRecommendations, type ScoutContext } from '@/lib/gemini';
+import { expandPositionGroups } from '@/lib/positionGroups';
 import { remark } from 'remark';
 import remarkHtml from 'remark-html';
 import remarkGfm from 'remark-gfm';
@@ -20,6 +21,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const needsText: string = (body.needs || '').toString().slice(0, 4000);
     const teamShortIn: string | null = body.teamShort ? String(body.teamShort).toUpperCase() : null;
+    const positionGroupsIn: string[] = Array.isArray(body.positionGroups)
+      ? body.positionGroups.map((s: unknown) => String(s)).slice(0, 20)
+      : [];
+    const positionsFilter = expandPositionGroups(positionGroupsIn);
 
     const leagueId = await getLeagueId();
 
@@ -56,7 +61,15 @@ export async function POST(req: NextRequest) {
       .from(players)
       .where(and(eq(players.leagueId, leagueId), eq(players.teamId, team.id)));
 
-    // Undrafted pool: players not on any team
+    // Undrafted pool: players not on any team, optionally filtered by position group
+    const positionFilter = positionsFilter.length > 0
+      ? or(
+          inArray(players.position, positionsFilter),
+          inArray(players.offense, positionsFilter),
+          inArray(players.defense, positionsFilter),
+          inArray(players.special, positionsFilter),
+        )
+      : undefined;
     const pool = await db
       .select({
         name: players.name, position: players.position, age: players.age,
@@ -65,7 +78,7 @@ export async function POST(req: NextRequest) {
         sacksVal: players.sacksVal, durability: players.durability, scouting: players.scouting,
       })
       .from(players)
-      .where(and(eq(players.leagueId, leagueId), isNull(players.teamId)))
+      .where(and(eq(players.leagueId, leagueId), isNull(players.teamId), positionFilter))
       .orderBy(sql`COALESCE(NULLIF(${players.overall}, '')::numeric, 0) DESC`)
       .limit(400);
 

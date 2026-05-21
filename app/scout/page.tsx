@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Loader2, Sparkles } from 'lucide-react';
+import { POSITION_GROUPS } from '@/lib/positionGroups';
 
 type Meta = { teamName: string; currentRound: number | null; picksUntilNext: number | null; poolSize: number; rosterSize: number };
 type TeamOption = { teamshort: string; team: string };
@@ -20,6 +21,7 @@ export default function ScoutPage() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [teamShort, setTeamShort] = useState('');
   const [teamOptions, setTeamOptions] = useState<TeamOption[]>([]);
+  const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace('/login');
@@ -59,7 +61,11 @@ export default function ScoutPage() {
       const res = await fetch('/api/scout/recommend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ needs: needs.trim(), teamShort: teamShort || undefined }),
+        body: JSON.stringify({
+          needs: needs.trim(),
+          teamShort: teamShort || undefined,
+          positionGroups: selectedGroups,
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Request failed');
@@ -100,6 +106,40 @@ export default function ScoutPage() {
               </option>
             ))}
           </select>
+
+          <label className="block mb-3 text-xs font-black uppercase tracking-widest text-slate-500">Positions to scout</label>
+          <div className="mb-5 flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              onClick={() => setSelectedGroups([])}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                selectedGroups.length === 0
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              All
+            </button>
+            {POSITION_GROUPS.map(g => {
+              const active = selectedGroups.includes(g.label);
+              return (
+                <button
+                  key={g.label}
+                  type="button"
+                  onClick={() => setSelectedGroups(prev =>
+                    active ? prev.filter(l => l !== g.label) : [...prev, g.label]
+                  )}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    active
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {g.label}
+                </button>
+              );
+            })}
+          </div>
 
           <label className="block mb-3 text-xs font-black uppercase tracking-widest text-slate-500">What do you need?</label>
           <textarea
