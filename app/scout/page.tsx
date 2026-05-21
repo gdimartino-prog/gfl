@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Sparkles } from 'lucide-react';
 import { POSITION_GROUPS } from '@/lib/positionGroups';
 
-type Meta = { teamName: string; currentRound: number | null; picksUntilNext: number | null; poolSize: number; rosterSize: number };
+type Meta = { teamName: string; currentRound: number | null; picksUntilNext: number | null; poolSize: number; rosterSize: number; maxAge?: number | null; rookiesOnly?: boolean };
 type TeamOption = { teamshort: string; team: string };
 
 export default function ScoutPage() {
@@ -22,6 +22,8 @@ export default function ScoutPage() {
   const [teamShort, setTeamShort] = useState('');
   const [teamOptions, setTeamOptions] = useState<TeamOption[]>([]);
   const [selectedGroups, setSelectedGroups] = useState<string[]>([]);
+  const [maxAge, setMaxAge] = useState<string>('');
+  const [rookiesOnly, setRookiesOnly] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace('/login');
@@ -65,6 +67,8 @@ export default function ScoutPage() {
           needs: needs.trim(),
           teamShort: teamShort || undefined,
           positionGroups: selectedGroups,
+          maxAge: maxAge ? Number(maxAge) : undefined,
+          rookiesOnly,
         }),
       });
       const data = await res.json();
@@ -141,6 +145,36 @@ export default function ScoutPage() {
             })}
           </div>
 
+          <div className="mb-5 flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label htmlFor="scout-max-age" className="text-xs font-black uppercase tracking-widest text-slate-500">
+                Age ≤
+              </label>
+              <input
+                id="scout-max-age"
+                type="number"
+                min={18}
+                max={50}
+                value={maxAge}
+                onChange={(e) => setMaxAge(e.target.value)}
+                placeholder="any"
+                className="w-20 rounded-lg border border-slate-300 px-3 py-1.5 text-sm bg-white"
+              />
+            </div>
+
+            <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rookiesOnly}
+                onChange={(e) => setRookiesOnly(e.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span className="text-xs font-black uppercase tracking-widest text-slate-500">
+                Rookies only <span className="text-slate-400 font-normal normal-case tracking-normal">(current NFL draft class still in pool)</span>
+              </span>
+            </label>
+          </div>
+
           <label className="block mb-3 text-xs font-black uppercase tracking-widest text-slate-500">What do you need?</label>
           <textarea
             value={needs}
@@ -174,6 +208,8 @@ export default function ScoutPage() {
             {meta.currentRound != null && <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600">Round {meta.currentRound}</span>}
             {meta.picksUntilNext != null && <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600">{meta.picksUntilNext === 0 ? 'On the clock' : `${meta.picksUntilNext} picks until your turn`}</span>}
             <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600">{meta.poolSize} candidates considered</span>
+            {meta.maxAge != null && <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600">Age ≤ {meta.maxAge}</span>}
+            {meta.rookiesOnly && <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700">Rookies only</span>}
             <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600">Roster: {meta.rosterSize}</span>
           </div>
         )}

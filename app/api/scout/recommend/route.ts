@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
-import { draftPicks, players, rules, teams } from '@/schema';
-import { and, asc, eq, inArray, isNull, or, sql } from 'drizzle-orm';
+import { draftPicks, nflDraft, players, rules, teams } from '@/schema';
+import { and, asc, eq, inArray, isNull, lte, or, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getDraftScoutRecommendations, type ScoutContext } from '@/lib/gemini';
@@ -12,6 +12,15 @@ import remarkHtml from 'remark-html';
 import remarkGfm from 'remark-gfm';
 
 export const maxDuration = 60;
+
+function normalizeName(name: string): string {
+  const stripped = name.includes(' - ') ? name.split(' - ').slice(1).join(' - ') : name;
+  return stripped
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -25,6 +34,9 @@ export async function POST(req: NextRequest) {
       ? body.positionGroups.map((s: unknown) => String(s)).slice(0, 20)
       : [];
     const positionsFilter = expandPositionGroups(positionGroupsIn);
+    const maxAgeRaw = Number(body.maxAge);
+    const maxAge = Number.isFinite(maxAgeRaw) && maxAgeRaw > 0 && maxAgeRaw < 100 ? Math.floor(maxAgeRaw) : null;
+    const rookiesOnly = body.rookiesOnly === true;
 
     const leagueId = await getLeagueId();
 
@@ -61,7 +73,25 @@ export async function POST(req: NextRequest) {
       .from(players)
       .where(and(eq(players.leagueId, leagueId), eq(players.teamId, team.id)));
 
-    // Undrafted pool: players not on any team, optionally filtered by position group
+    // Optional rookie filter: build a normalized-name set from the most recent NFL draft class
+    let rookieNames: Set<string> | null = null;
+    if (rookiesOnly) {
+      const maxYearRow = await db
+        .select({ y: sql<number>`MAX(${nflDraft.year})` })
+        .from(nflDraft);
+      const rookieYear = maxYearRow[0]?.y;
+      if (rookieYear) {
+        const rookies = await db
+          .select({ name: nflDraft.playerName })
+          .from(nflDraft)
+          .where(eq(nflDraft.year, rookieYear));
+        rookieNames = new Set(rookies.map(r => normalizeName(r.name)));
+      } else {
+        rookieNames = new Set();
+      }
+    }
+
+    // Undrafted pool: players not on any team, optionally filtered by position group / age
     const positionFilter = positionsFilter.length > 0
       ? or(
           inArray(players.position, positionsFilter),
@@ -70,17 +100,30 @@ export async function POST(req: NextRequest) {
           inArray(players.special, positionsFilter),
         )
       : undefined;
-    const pool = await db
+    const ageFilter = maxAge != null ? lte(players.age, maxAge) : undefined;
+    const poolRows = await db
       .select({
-        name: players.name, position: players.position, age: players.age,
+        name: players.name, first: players.first, last: players.last,
+        position: players.position, age: players.age,
         overall: players.overall, runBlock: players.runBlock, passBlock: players.passBlock,
         rushYards: players.rushYards, interceptionsVal: players.interceptionsVal,
         sacksVal: players.sacksVal, durability: players.durability, scouting: players.scouting,
       })
       .from(players)
-      .where(and(eq(players.leagueId, leagueId), isNull(players.teamId), positionFilter))
+      .where(and(eq(players.leagueId, leagueId), isNull(players.teamId), positionFilter, ageFilter))
       .orderBy(sql`COALESCE(NULLIF(${players.overall}, '')::numeric, 0) DESC`)
-      .limit(400);
+      .limit(rookieNames ? 2000 : 400);
+
+    const filteredRows = rookieNames
+      ? poolRows.filter(p => rookieNames!.has(normalizeName(`${p.first ?? ''} ${p.last ?? ''}`)))
+      : poolRows;
+
+    const pool = filteredRows.slice(0, 400).map(r => ({
+      name: r.name, position: r.position, age: r.age,
+      overall: r.overall, runBlock: r.runBlock, passBlock: r.passBlock,
+      rushYards: r.rushYards, interceptionsVal: r.interceptionsVal,
+      sacksVal: r.sacksVal, durability: r.durability, scouting: r.scouting,
+    }));
 
     // Active-draft context: current round, next pick for this team
     const originalTeams = alias(teams, 'originalTeams');
@@ -141,7 +184,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       recommendations,
       recommendationsHtml,
-      meta: { teamName: ctx.teamName, currentRound, picksUntilNext, poolSize: pool.length, rosterSize: roster.length },
+      meta: {
+        teamName: ctx.teamName, currentRound, picksUntilNext,
+        poolSize: pool.length, rosterSize: roster.length,
+        maxAge, rookiesOnly,
+      },
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
