@@ -207,13 +207,13 @@ RESPOND WITH:
 ### N. [Player Name] — [Position], Age [age]
 **Ratings**: <render the matching position template above as a single line of "Label: value" pairs separated by " | ", e.g. for a QB: "Age: 24 | Att: 530 | C%: 64.2% | Yds: 4,210 | Int: 12 | TD: 31 | Sk: 28 | Dur: 8 | Sal: 84". Use ONLY the columns from the template for this position — no extras.>
 **GFL fit**: <1-2 sentences citing specific position sub-ratings and scouting attributes; only mention Overall if it's an unusually good value (low Overall + strong subs)>
-**NFL outlook**: <1-2 sentences from web context — be specific about current role/depth chart/injury>
+**NFL outlook**: <1-2 sentences about current NFL role/depth-chart/injury. You MUST cite at least one source for each player you research — render it as an inline markdown link in the sentence itself (e.g. "[ESPN depth chart](https://www.espn.com/nfl/team/depth/_/name/jax) shows him as the WR3"). If you genuinely could not find or did not use any web source for this player, end the sentence with "(no current web source — base knowledge only)" so the user knows it isn't from research.>
 **Why for THIS team**: <1-2 sentences tied to needs/roster gaps>
 **Risk**: <1 sentence: age, depth-chart, injury, scheme>
 
 **THEN: 2-3 DEEPER SLEEPERS** the user might miss — same format (include Age and a Ratings line built from the player's position template), briefer.
 
-When you cite NFL news/depth-chart/injury info pulled from the web, mark it inline like (Source: ESPN) or (Source: ProFootballTalk) so the user can see what came from research vs. base knowledge.
+When you cite NFL news/depth-chart/injury info pulled from the web, render it as an inline markdown link "[label](https://...)" pointing to the actual page you used (NOT a vertexaisearch redirect — use the underlying publisher URL). Prefer site names like ESPN, NFL.com, ProFootballTalk, The Athletic, team beat writers, etc. Do not invent URLs — only link to pages you actually consulted via Google Search this turn. Every recommendation's NFL outlook MUST either contain at least one such inline link or end with the explicit "(no current web source — base knowledge only)" tag.
 
 Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
 
