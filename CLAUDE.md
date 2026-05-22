@@ -42,11 +42,13 @@ node --env-file=.env.local --import tsx scripts/foo.ts
 
 Before pushing any non-trivial code change (API routes, DB queries, auth, external API calls, user input handling, file uploads, background jobs), run the **secops** and **finops** agents in parallel on the uncommitted diff. Both agents are user-level (installed under `~/.claude/agents/`) — available in every project, no per-project setup needed.
 
-Brief each with: files changed, what changed, and any prior findings if this is a re-review. Ask for severity-tagged findings and an explicit approve / block verdict.
+**Also include the `qa` agent in the parallel review when the change touches UI, auth, login flow, or interactive elements** (page edits, components, forms, navigation, session handling). Skip qa for pure backend, prompt, utility, schema, or docs changes — the pre-push hook (lint + build) plus secops/finops already cover those, and qa runs a 5–15 min Playwright browser session that's overkill for backend-only edits.
 
-Only push if both approve. If either flags a blocker, fix and re-review. If both independently flag the same minor cleanup, fold it in before pushing — two independent agents converging on the same suggestion is a strong signal.
+Brief each agent with: files changed, what changed, and any prior findings if this is a re-review. Ask for severity-tagged findings and an explicit approve / block verdict.
 
-Pure UI refactors with no behavior change can skip the review. Don't bypass by amending an existing commit — make a new commit and re-review.
+Only push if every invoked agent approves. If any flags a blocker, fix and re-review. If two or more independently flag the same minor cleanup, fold it in before pushing — converging independent suggestions are a strong signal.
+
+Pure UI refactors with no behavior change can skip the review entirely. Don't bypass by amending an existing commit — make a new commit and re-review.
 
 ---
 
