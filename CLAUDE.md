@@ -38,6 +38,18 @@ node --env-file=.env.local --import tsx scripts/foo.ts
 
 ---
 
+## Pre-push code review
+
+Before pushing any non-trivial code change (API routes, DB queries, auth, external API calls, user input handling, file uploads, background jobs), run the **secops** and **finops** agents in parallel on the uncommitted diff. Both agents are user-level (installed under `~/.claude/agents/`) — available in every project, no per-project setup needed.
+
+Brief each with: files changed, what changed, and any prior findings if this is a re-review. Ask for severity-tagged findings and an explicit approve / block verdict.
+
+Only push if both approve. If either flags a blocker, fix and re-review. If both independently flag the same minor cleanup, fold it in before pushing — two independent agents converging on the same suggestion is a strong signal.
+
+Pure UI refactors with no behavior change can skip the review. Don't bypass by amending an existing commit — make a new commit and re-review.
+
+---
+
 ## Code Conventions
 
 ### Multi-league tenancy
