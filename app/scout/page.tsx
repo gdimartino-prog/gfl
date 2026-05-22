@@ -98,8 +98,15 @@ export default function ScoutPage() {
           rookiesOnly,
         }),
       });
+      // Vercel returns an HTML 504 page when the function exceeds maxDuration,
+      // so guard JSON parsing — show a friendly message instead of a parser error.
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        if (res.status === 504) throw new Error('Scout timed out (60s). Try narrowing the position group, lowering the age, or enabling "Rookies only" so there are fewer players to research.');
+        throw new Error(`Scout failed with HTTP ${res.status}. Try again in a moment.`);
+      }
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Request failed');
+      if (!res.ok) throw new Error(data.error || `Request failed (HTTP ${res.status})`);
       setRecommendations(data.recommendations);
       setRecommendationsHtml(data.recommendationsHtml || null);
       setMeta(data.meta);

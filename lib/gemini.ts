@@ -250,7 +250,7 @@ RESPOND WITH:
 
 **THEN: 2-3 DEEPER SLEEPERS** the user might miss — same format (include Tier and Analytical Score). The NFL scouting report stays the focus (still 3-5 sentences with at least one inline source link); GFL fit and Team fit can be a single short sentence each.
 
-**FINALLY: TRAP PLAYS — 1-3 PLAYERS TO AVOID** despite looking attractive on paper. Pick names from the UNDRAFTED PLAYER POOL that someone scanning GFL ratings alone might be tempted by, but which have NFL-side red flags (Tier C role with no path to snaps, recent injury, scheme mismatch, holdout/roster bubble, age cliff). One bullet each: "**[Player Name] ([Position])**: [1-2 sentences citing the specific real-world red flag, with an inline source link]". Skip this section only if you genuinely see no trap players in the pool — then write "No notable traps in the current pool." once.
+**FINALLY: TRAP PLAYS — 1-2 PLAYERS TO AVOID** (cap at 2 — do NOT exceed). Pick the most obvious traps from the UNDRAFTED PLAYER POOL — players someone scanning GFL ratings alone might be tempted by, but which have NFL-side red flags (Tier C with no path to snaps, recent injury, scheme mismatch, roster bubble, age cliff). One bullet each: "**[Player Name] ([Position])**: [1 sentence citing the specific real-world red flag, with one inline source link]". If you can't think of an obvious trap in the pool quickly, write "No notable traps in the current pool." and move on — do not spend time searching for borderline cases.
 
 OUTPUT EMPHASIS: roughly 60-70% of each recommendation's word count should live in the **NFL scouting report** section. The GFL-fit and Team-fit lines are short supporting context, not the main event. If you find yourself writing more about why the player fits the team than about who the player actually is in the NFL, you are doing it wrong — rewrite to lead with the NFL scouting depth.
 
@@ -261,7 +261,14 @@ When you cite NFL news/depth-chart/injury info pulled from the web, render it as
 Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
 
   try {
-    const result = await model.generateContent(prompt);
+    // Race against a 55s deadline so we return a real error to the client
+    // before Vercel's 60s maxDuration kills the whole function (which would
+    // yield an HTML 504 page that fails JSON parsing on the frontend).
+    const generation = model.generateContent(prompt);
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Scout timed out — Gemini took longer than 55s. Try a more specific filter (position group, age, or rookies only) so the model has less ground to cover.')), 55_000),
+    );
+    const result = await Promise.race([generation, timeout]);
     const response = await result.response;
     const text = response.text();
     if (!text) throw new Error('No content generated from Gemini');
