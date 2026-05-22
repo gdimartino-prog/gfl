@@ -78,6 +78,11 @@ type PlayerRatings = {
   runBlock: string | null; passBlock: string | null; rushYards: string | null;
   interceptionsVal: string | null; sacksVal: string | null; durability: string | null;
   scouting?: Record<string, string> | null;
+  // Optional depth-chart annotations from Ourlads (only on pool rows that matched).
+  nflTeam?: string;
+  nflPosition?: string;
+  nflDepthRank?: number;
+  nflRoleLabel?: string;
 };
 type ScoutRoster = PlayerRatings[];
 type ScoutPool = PlayerRatings[];
@@ -114,7 +119,8 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<s
   const formatPlayerRow = (p: PlayerRatings) => {
     const subs = [p.overall && `OVR ${p.overall}`, p.runBlock && `RB ${p.runBlock}`, p.passBlock && `PB ${p.passBlock}`, p.rushYards && `RY ${p.rushYards}`, p.interceptionsVal && `INT ${p.interceptionsVal}`, p.sacksVal && `SK ${p.sacksVal}`, p.durability && `DUR ${p.durability}`].filter(Boolean).join(' / ');
     const scout = p.scouting ? ' | ' + Object.entries(p.scouting).map(([k, v]) => `${k}:${v}`).join(', ') : '';
-    return `  ${p.position ?? '?'} | ${p.name} | age ${p.age ?? '?'} | ${subs}${scout}`;
+    const dc = p.nflTeam ? ` | NFL: ${p.nflTeam} ${p.nflRoleLabel ?? `${p.nflPosition ?? ''} #${p.nflDepthRank ?? '?'}`}` : '';
+    return `  ${p.position ?? '?'} | ${p.name} | age ${p.age ?? '?'} | ${subs}${scout}${dc}`;
   };
 
   const rosterTable = ctx.roster.map(formatPlayerRow).join('\n');
@@ -126,12 +132,15 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<s
 
   const prompt = `You are an expert NFL scout and Gridiron Football League (GFL) strategist. The user is drafting players in an ongoing GFL draft and wants your recommendations for who to target with their next pick.
 
-MANDATORY GOOGLE SEARCH USAGE:
-Before writing ANY recommendation, you MUST perform Google Search queries for each player you plan to recommend. Your training data is stale and will not reflect the current 2026 NFL season. Do not rely on training data for depth charts, injury status, or current team — these MUST come from live web search results. At a minimum, for each of the 5 top recs and 2-3 sleepers, run these searches:
-  1. "site:ourlads.com [player full name]" — for current depth chart position
-  2. "[player full name] depth chart 2026" — fallback for current depth chart
-  3. "[player full name] injury news" OR "[player full name] 2026 season" — for current status
-If a search returns zero results, try the player's full name plus their college (for rookies) or NFL team (for veterans). Only after at least one productive search may you write that player's recommendation.
+DEPTH CHART DATA IS PRE-PROVIDED:
+Many pool rows have a trailing "NFL: <Team> <role>" tag already attached (e.g. "NFL: Cleveland Browns Starter (RB1)" or "NFL: Green Bay Packers WR2 / rotational"). This data was scraped from Ourlads.com hours ago and is CURRENT. Use it as the authoritative depth chart for those players. DO NOT run Google Search to re-confirm what's already in the pool row.
+
+GOOGLE SEARCH BUDGET — KEEP IT TIGHT:
+You have a strict time budget. Use Google Search only when it adds information that isn't already in the pool row. Reserve Search for:
+  1. Players in the pool with NO "NFL:" tag attached → search "[player full name] depth chart 2026" once.
+  2. Injury news / recent game-week status — ONLY when it materially changes the recommendation.
+  3. Scheme/coordinator changes, holdout/contract issues, recent trades.
+Do NOT search the same player twice. Do NOT search for general scouting reports already covered by your training data.
 
 HARD RULE — READ THIS FIRST:
 You MUST ONLY recommend, research, or discuss players whose names appear in the "UNDRAFTED PLAYER POOL" section below. Do NOT recommend any player listed in the "CURRENT ROSTER" — they are already on the team. Do NOT recommend any player that is not in the pool, even if you remember them from training data — they are not available to be drafted. If you cannot find a good fit in the pool, say so honestly; do not invent or recall players from outside the pool list.
@@ -240,7 +249,7 @@ RESPOND WITH:
 
 ### N. [Player Name] — [Position], Age [age]
 **Ratings**: <render the matching position template above as a single line of "Label: value" pairs separated by " | ", e.g. for a QB: "Age: 24 | Att: 530 | C%: 64.2% | Yds: 4,210 | Int: 12 | TD: 31 | Sk: 28 | Dur: 8 | Sal: 84". Use ONLY the columns from the template for this position — no extras.>
-**Depth chart**: <ONE line, formatted as "TEAM — POSITION ROLE (STATUS) [source link]". For example: "Jacksonville Jaguars — WR3 behind Brian Thomas Jr. and Gabe Davis (active) [[Ourlads](https://www.ourlads.com/nfldepthcharts/depthchart/JAX)]" or "Cleveland Browns — RB2 / rotational, splits carries with Jerome Ford (questionable, ankle) [[Ourlads](https://www.ourlads.com/nfldepthcharts/depthchart/CLE)]". The role MUST be one of: Starter / WR2 (or RB2/TE2/etc.) / WR3 (or equivalent) / Rotational / Backup / Practice Squad / IR / Released / Free Agent. **PREFERRED SOURCE for depth charts: https://www.ourlads.com/nfldepthcharts/ — search this site first via Google Search (e.g. site:ourlads.com [player name]). Fall back to ESPN, NFL.com, or team beat writers only if Ourlads doesn't have the player.** If you cannot find a current depth chart anywhere, write "Depth chart unknown — last known role: <X> (no current source)".>
+**Depth chart**: <ONE line. If the pool row has an "NFL:" tag, use that data directly — render as "TEAM — ROLE" (e.g. "Jacksonville Jaguars — WR3 / depth" or "Cleveland Browns — Starter (RB1)"). If the pool row has NO NFL tag, do a single Google Search and write "TEAM — ROLE (per [source link])". If you still can't find one, write "Depth chart unknown — last known role: <X>".>
 **NFL scouting report**: <THIS IS THE PRIMARY OUTPUT — 4-6 substantive sentences of real-world scouting based on Google Search research. Cover, where applicable: recent target share / snap share / touches / usage trends, injury history over the last 12 months and any current durability concerns, scheme fit and playstyle (run/pass scheme, route tree, coverage scheme, blocking style), notable strengths and weaknesses as described by beat writers or analysts, college background only if recent (rookie/sophomore), and projected trajectory for the rest of the 2026 season. Be specific — name the coordinator's scheme if relevant. Do NOT repeat the depth-chart info from the line above — assume the reader has it. You MUST cite at least one real source for each player; render citations as inline markdown links inside the prose (e.g. "[ProFootballTalk](https://...) reported he led the team in red-zone targets last week"). If you genuinely could not find any web source for this player, end the section with "(no current web source — base knowledge only)" so the user knows it isn't from research.>
 **GFL fit**: <1 short sentence citing 1-2 specific position sub-ratings or scouting-blob attributes that stand out; only mention Overall if it's an unusually good value (low Overall + strong subs)>
 **Team fit**: <1 short sentence tying to user's stated needs/roster gaps — keep this brief, this is secondary to the NFL scouting report>

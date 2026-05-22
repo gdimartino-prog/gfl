@@ -8,6 +8,7 @@ import { getLeagueId } from '@/lib/getLeagueId';
 import { getDraftScoutRecommendations, type ScoutContext } from '@/lib/gemini';
 import { expandPositionGroups } from '@/lib/positionGroups';
 import { tokenBucket } from '@/lib/rateLimit';
+import { buildDepthChartIndex, depthRankLabel } from '@/lib/ourlads';
 import { remark } from 'remark';
 import remarkHtml from 'remark-html';
 import remarkGfm from 'remark-gfm';
@@ -173,6 +174,32 @@ export async function POST(req: NextRequest) {
       .map(r => `${r.rule}: ${r.value}${r.desc ? ` (${r.desc})` : ''}`)
       .join('\n');
 
+    // Annotate the pool with cached Ourlads depth-chart info so Gemini can
+    // skip the Google Search round-trips that were timing the function out.
+    // If the cache miss takes too long (cold start), fall back gracefully.
+    let depthIdx: Awaited<ReturnType<typeof buildDepthChartIndex>> | null = null;
+    try {
+      const timeout = new Promise<null>(resolve => setTimeout(() => resolve(null), 12000));
+      depthIdx = await Promise.race([buildDepthChartIndex(), timeout]);
+    } catch {
+      depthIdx = null;
+    }
+    const annotatedPool = pool.map(p => {
+      const scouting = p.scouting ?? null;
+      if (!depthIdx) return { ...p, scouting };
+      const key = (`${p.name ?? ''}`).toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+      const dc = depthIdx.get(key);
+      if (!dc) return { ...p, scouting };
+      return {
+        ...p,
+        scouting,
+        nflTeam: dc.teamName,
+        nflPosition: dc.position,
+        nflDepthRank: dc.depthRank,
+        nflRoleLabel: depthRankLabel(dc.position, dc.depthRank),
+      };
+    });
+
     const ctx: ScoutContext = {
       teamName: team.name ?? targetTeamshort,
       teamShort: targetTeamshort,
@@ -181,7 +208,7 @@ export async function POST(req: NextRequest) {
       picksUntilNext,
       recentPicks,
       roster: roster.map(r => ({ ...r, scouting: r.scouting ?? null })),
-      pool: pool.map(p => ({ ...p, scouting: p.scouting ?? null })),
+      pool: annotatedPool,
       rulesSummary,
       needsText,
     };
