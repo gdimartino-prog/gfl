@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { draftPicks, teams, rules } from '@/schema';
 import { eq, and, asc, isNull } from 'drizzle-orm';
-import { notifyDraftPick } from '@/lib/notify';
+import { notifyDraftPick, notifyDraftComplete } from '@/lib/notify';
 import { alias } from 'drizzle-orm/pg-core';
 import { getDraftClockMinutes, getWarningThresholdMinutes, getDraftStartDate, computePickTimings } from '@/lib/draftClock';
 
@@ -35,6 +35,19 @@ export async function GET(req: Request) {
         continue;
       }
 
+      // Fast-skip: if we've already marked this draft year complete in a prior
+      // tick, don't even query the picks. One rule read per league per tick.
+      const completeRuleKey = `draft_complete_${draftYear}`;
+      const completeRow = await db
+        .select({ value: rules.value })
+        .from(rules)
+        .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, completeRuleKey), isNull(rules.year)))
+        .limit(1);
+      if (completeRow[0]?.value === '1') {
+        results.push({ leagueId, skipped: 'draft already complete' });
+        continue;
+      }
+
       const originalTeams = alias(teams, 'originalTeams');
       const currentTeams = alias(teams, 'currentTeams');
 
@@ -61,7 +74,31 @@ export async function GET(req: Request) {
       // Active pick: first pick with no player, no pickedAt, and not passed
       const activeIdx = allPicks.findIndex(p => !p.playerId && !p.pickedAt && !p.passed);
       if (activeIdx === -1) {
-        results.push({ leagueId, skipped: 'draft complete or not started' });
+        // Either the draft never started (no picks at all touched) or it just
+        // completed on this tick. Distinguish by checking whether any pick has
+        // pickedAt. If any do, mark complete and fire the one-time notification.
+        const draftStarted = allPicks.some(p => !!p.pickedAt);
+        if (!draftStarted) {
+          results.push({ leagueId, skipped: 'draft not started (no picks yet)' });
+          continue;
+        }
+        // Persist the completion marker so future ticks fast-skip without
+        // re-querying picks. onConflictDoNothing makes this idempotent even
+        // if two ticks race.
+        await db.insert(rules)
+          .values({
+            leagueId,
+            rule: completeRuleKey,
+            value: '1',
+            desc: `Draft year ${draftYear} marked complete by cron at ${new Date().toISOString()}`,
+          })
+          .onConflictDoNothing();
+        try {
+          await notifyDraftComplete({ leagueId, draftYear, totalPicks: allPicks.length });
+        } catch (e) {
+          console.error('[cron/draft] notifyDraftComplete failed (rule still written, will not re-fire):', e);
+        }
+        results.push({ leagueId, action: 'draft_complete', totalPicks: allPicks.length });
         continue;
       }
 

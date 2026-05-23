@@ -141,6 +141,30 @@ export async function notifyDraftPick({
   }
 }
 
+export async function notifyDraftComplete({
+  leagueId, draftYear, totalPicks,
+}: {
+  leagueId: number;
+  draftYear: number;
+  totalPicks: number;
+}) {
+  const leagueName = leagueId === 1 ? 'GFL' : `League ${leagueId}`;
+  const subject = `${leagueName} ${draftYear} Draft Complete`;
+  const html = `
+    <h2>${leagueName} ${draftYear} Draft Complete</h2>
+    <p>All ${totalPicks} picks have been finalized. Congrats on a successful draft.</p>
+    <p><a href="${GFL_URL}/draft">View the final draft board</a></p>
+  `;
+  const text = `${leagueName} ${draftYear} Draft Complete. All ${totalPicks} picks finalized. ${GFL_URL}/draft`;
+
+  await sendEmail({ subject, html, text });
+  if (leagueId === 1) {
+    await sendWhatsApp(text);
+  } else {
+    console.log('[notify] skipping WhatsApp for leagueId:', leagueId);
+  }
+}
+
 export async function notifyTransaction({
   type, directions, leagueId,
 }: {

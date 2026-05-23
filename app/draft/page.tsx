@@ -315,6 +315,25 @@ const handleUndoMyPick = async () => {
     return team ? team.name : shortCode;
   }, [teams]);
 
+  // Draft is "complete" when every pick in the most-recently-active draft
+  // year has a terminal status (Drafted / Skipped / Passed) AND at least one
+  // pick was actually drafted (so we don't show the banner on a draft that
+  // hasn't started yet).
+  const draftCompletionInfo = useMemo(() => {
+    if (picks.length === 0) return null;
+    const years = Array.from(new Set(picks.map(p => String(p.year)))).filter(Boolean).sort();
+    const latestYear = years[years.length - 1];
+    if (!latestYear) return null;
+    const yearPicks = picks.filter(p => String(p.year) === latestYear);
+    if (yearPicks.length === 0) return null;
+    const anyDrafted = yearPicks.some(p => p.status === 'Drafted');
+    const allTerminal = yearPicks.every(p =>
+      p.status === 'Drafted' || p.status === 'Skipped' || p.status === 'Passed'
+    );
+    if (!anyDrafted || !allTerminal) return null;
+    return { year: latestYear, totalPicks: yearPicks.length };
+  }, [picks]);
+
   const filteredPicks = useMemo(() => {
     return picks.filter(p => {
       const searchStr = searchTerm.toLowerCase();
@@ -390,6 +409,20 @@ const handleUndoMyPick = async () => {
           </button>
         </div>
       </header>
+
+      {draftCompletionInfo && (
+        <div className="mb-8 rounded-2xl border-2 border-emerald-200 bg-emerald-50 px-6 py-4 flex items-center gap-4 shadow-sm">
+          <div className="text-3xl" aria-hidden>🏈</div>
+          <div className="flex-1">
+            <div className="text-sm font-black uppercase tracking-widest text-emerald-700">
+              {draftCompletionInfo.year} Draft Complete
+            </div>
+            <div className="text-xs text-emerald-600 mt-0.5">
+              All {draftCompletionInfo.totalPicks} picks finalized — congrats on a successful draft.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 🚀 TICKER PLACEMENT */}
       <RecentPicksTicker picks={picks} teams={teams} draftStartDate={draftStartDate} />
