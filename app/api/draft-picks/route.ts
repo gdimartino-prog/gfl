@@ -73,6 +73,10 @@ export async function GET(req: NextRequest) {
 
     // Strikes: count picks where time expired — either auto-skipped or submitted late
     const strikesByTeam = new Map<string, number>();
+    // Average pick time: time spent deliberating per real pick, averaged by team.
+    // Only counts actual selections — auto-skipped / passed picks don't reflect
+    // deliberation time. Time = min(pickedAt, deadline) - clockStart, clamped >= 0.
+    const pickTimeByTeam = new Map<string, { totalMs: number; count: number }>();
     for (const p of currentYearSorted) {
       if (!p.currentOwner) continue;
       const isSkippedRow = typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED');
@@ -80,6 +84,23 @@ export async function GET(req: NextRequest) {
       if (isSkippedRow || wasLate) {
         strikesByTeam.set(p.currentOwner, (strikesByTeam.get(p.currentOwner) ?? 0) + 1);
       }
+      // Only count picks that resulted in a real selection on time.
+      const wasPassed = !!p.passed && !p.selectedPlayerName;
+      const madeRealPick = !!p.pickedAt && !isSkippedRow && !wasPassed;
+      if (!madeRealPick) continue;
+      const t = timings.get(p.id);
+      if (!t) continue;
+      const pickedMs = new Date(p.pickedAt!).getTime();
+      const effectiveEnd = Math.min(pickedMs, t.deadline.getTime());
+      const elapsed = Math.max(0, effectiveEnd - t.clockStart.getTime());
+      const cur = pickTimeByTeam.get(p.currentOwner) ?? { totalMs: 0, count: 0 };
+      cur.totalMs += elapsed;
+      cur.count += 1;
+      pickTimeByTeam.set(p.currentOwner, cur);
+    }
+    const avgPickMsByTeam = new Map<string, number>();
+    for (const [team, { totalMs, count }] of pickTimeByTeam) {
+      if (count > 0) avgPickMsByTeam.set(team, Math.round(totalMs / count));
     }
 
     const formattedPicks = sorted.map(p => {
@@ -117,6 +138,7 @@ export async function GET(req: NextRequest) {
         effectiveClockStart: status === 'Active' ? timings.get(p.id)?.clockStart.toISOString() ?? null : null,
         wasLate: timings.get(p.id)?.wasLate ?? false,
         currentOwnerStrikes: p.currentOwner ? strikesByTeam.get(p.currentOwner) ?? 0 : 0,
+        currentOwnerAvgPickMs: p.currentOwner ? avgPickMsByTeam.get(p.currentOwner) ?? null : null,
         processedBy: '',
         history: (p.transferHistory && p.transferHistory.length > 0)
           ? p.transferHistory.map(id => teamShortMap[id] ?? '').filter(Boolean).join(',')

@@ -11,6 +11,17 @@ import { useConfirm } from '@/components/ConfirmDialog';
 import { Team, Player, DraftPick } from '../../types';
 import DraftGridView from '@/components/DraftGridView';
 
+function formatAvgPickTime(ms: number): string {
+  if (!Number.isFinite(ms)) return '—';
+  const totalSec = Math.max(0, Math.round(ms / 1000));
+  if (totalSec < 60) return `${totalSec}s`;
+  const totalMin = Math.round(totalSec / 60);
+  if (totalMin < 60) return `${totalMin}m`;
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+}
+
 export default function DraftPage() {
   return (
     <Suspense fallback={<div className="p-20 text-center font-black animate-pulse text-slate-400 uppercase italic">Syncing Draft Board...</div>}>
@@ -640,6 +651,14 @@ const handleUndoMyPick = async () => {
                                 }`}
                               >
                                 {pick.currentOwnerStrikes >= 3 ? `${pick.currentOwnerStrikes} strikes — auto-skip` : `${pick.currentOwnerStrikes} strike${pick.currentOwnerStrikes === 1 ? '' : 's'}`}
+                              </span>
+                            )}
+                            {pick.currentOwnerAvgPickMs != null && (
+                              <span
+                                title="Average time this team has taken to make a pick in the current draft (real selections only — skipped / auto-expired picks excluded)"
+                                className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border text-slate-600 border-slate-300 bg-slate-50"
+                              >
+                                avg {formatAvgPickTime(pick.currentOwnerAvgPickMs)}
                               </span>
                             )}
                           </span>

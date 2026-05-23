@@ -121,6 +121,7 @@ export interface DraftPick {
   effectiveClockStart?: string | null;
   wasLate?: boolean;
   currentOwnerStrikes?: number;
+  currentOwnerAvgPickMs?: number | null;
   via: string | null;
   history?: string;
   draftType?: string;
