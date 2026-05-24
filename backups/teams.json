@@ -324,6 +324,18 @@
     "email": "nkikta@gmail.com"
   },
   {
+    "id": 57,
+    "leagueId": 1,
+    "name": "Urban",
+    "coach": "John Yurchak",
+    "teamshort": "UF",
+    "nickname": "FUBAR Giants",
+    "isCommissioner": false,
+    "status": "active",
+    "mobile": "+1-201-933-4031",
+    "email": "urbanfubar@gmail.com"
+  },
+  {
     "id": 51,
     "leagueId": 1,
     "name": "Newark Bay",
@@ -382,18 +394,6 @@
     "status": "active",
     "mobile": "+1-732-890-6323",
     "email": "fullen.michael@gmail.com"
-  },
-  {
-    "id": 57,
-    "leagueId": 1,
-    "name": "Urban",
-    "coach": "John Yurchak",
-    "teamshort": "UF",
-    "nickname": "FUBAR Giants",
-    "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-201-933-4031",
-    "email": "urbanfubar@gmail.com"
   },
   {
     "id": 58,

@@ -5353,5 +5353,86 @@
     "team": "CK",
     "action": "DRAFT_PICK",
     "details": "R7 #114: G - Dalton Risner"
+  },
+  {
+    "id": 596,
+    "leagueId": 1,
+    "timestamp": "2026-05-23T12:25:20.436Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 597,
+    "leagueId": 1,
+    "timestamp": "2026-05-23T13:26:14.040Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "DRAFT_PICK",
+    "details": "R7 #115: DL - Jordan Phillips"
+  },
+  {
+    "id": 598,
+    "leagueId": 1,
+    "timestamp": "2026-05-23T19:26:18.936Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 599,
+    "leagueId": 1,
+    "timestamp": "2026-05-23T19:29:56.247Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R7 #116: ILB - Pete Werner"
+  },
+  {
+    "id": 600,
+    "leagueId": 1,
+    "timestamp": "2026-05-23T19:39:52.140Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 601,
+    "leagueId": 1,
+    "timestamp": "2026-05-23T21:05:50.074Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 602,
+    "leagueId": 1,
+    "timestamp": "2026-05-23T21:06:24.674Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team UF"
+  },
+  {
+    "id": 603,
+    "leagueId": 1,
+    "timestamp": "2026-05-23T21:07:56.397Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 604,
+    "leagueId": 1,
+    "timestamp": "2026-05-23T21:27:16.248Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
