@@ -5434,5 +5434,113 @@
     "team": "Amalfi",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 605,
+    "leagueId": 1,
+    "timestamp": "2026-05-24T13:31:46.271Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R7 #118: T - Taylor Decker"
+  },
+  {
+    "id": 606,
+    "leagueId": 1,
+    "timestamp": "2026-05-24T15:27:21.800Z",
+    "coach": "George Di Martino",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R7 #119: DL - Cory Durden"
+  },
+  {
+    "id": 607,
+    "leagueId": 1,
+    "timestamp": "2026-05-24T16:25:15.240Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R7 #120: HB - Reggie Gilliam"
+  },
+  {
+    "id": 608,
+    "leagueId": 1,
+    "timestamp": "2026-05-24T17:28:42.814Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R7 #117: WR/RET - Jaylin Noel"
+  },
+  {
+    "id": 609,
+    "leagueId": 1,
+    "timestamp": "2026-05-24T20:46:12.485Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 610,
+    "leagueId": 1,
+    "timestamp": "2026-05-24T20:46:53.754Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 611,
+    "leagueId": 1,
+    "timestamp": "2026-05-24T20:48:55.791Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 612,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T01:32:58.379Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 613,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T01:54:49.455Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 614,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T04:27:50.291Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R7 #121: DL - Lukas Van Ness"
+  },
+  {
+    "id": 615,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T04:51:26.644Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R7 #122: G - Jared Wilson"
+  },
+  {
+    "id": 616,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T04:53:10.944Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]

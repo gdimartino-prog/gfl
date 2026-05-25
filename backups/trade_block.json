@@ -143,17 +143,6 @@
     "touch_id": "VV"
   },
   {
-    "id": 23,
-    "leagueId": 1,
-    "playerId": "daquan|jones|34||dt|",
-    "playerName": "DaQuan Jones",
-    "team": "FPR",
-    "position": "DT",
-    "asking": null,
-    "touch_dt": "2026-04-24T08:04:09.045Z",
-    "touch_id": "FPR"
-  },
-  {
     "id": 27,
     "leagueId": 1,
     "playerId": "drew|dalman|26|c||",
