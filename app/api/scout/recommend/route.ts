@@ -9,6 +9,7 @@ import { getDraftScoutRecommendations, type ScoutContext } from '@/lib/gemini';
 import { expandPositionGroups } from '@/lib/positionGroups';
 import { tokenBucket } from '@/lib/rateLimit';
 import { buildDepthChartIndex, depthRankLabel } from '@/lib/ourlads';
+import { logSystemEvent } from '@/lib/db-helpers';
 import { remark } from 'remark';
 import remarkHtml from 'remark-html';
 import remarkGfm from 'remark-gfm';
@@ -214,6 +215,20 @@ export async function POST(req: NextRequest) {
     };
 
     const recommendations = await getDraftScoutRecommendations(ctx);
+
+    // Audit log Gemini usage so per-user costs can be reconciled against
+    // Google Cloud billing. Captures the filter context (most expensive scouts
+    // are the wide-pool / many-search-queries ones). Failures are swallowed
+    // inside logSystemEvent.
+    const callerCoachName = session.user.name || 'Unknown Coach';
+    const callerTeamshortForLog = (session.user as { id?: string }).id || '';
+    await logSystemEvent(
+      callerCoachName,
+      callerTeamshortForLog,
+      'SCOUT_RECOMMEND',
+      `team=${targetTeamshort} pool=${pool.length} positions=${positionGroupsIn.length ? positionGroupsIn.join(',') : 'all'} rookiesOnly=${rookiesOnly} maxAge=${maxAge ?? 'none'} needsChars=${needsText.length}`,
+      leagueId,
+    );
     // sanitize: true strips raw HTML / javascript: URLs from Gemini output.
     // Markdown links/headings/bold etc still render — only inline HTML is removed.
     const processed = await remark().use(remarkGfm).use(remarkHtml, { sanitize: true }).process(recommendations);
