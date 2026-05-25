@@ -28,7 +28,8 @@ function saveRecentNeeds(entries: RecentNeed[]) {
   } catch { /* quota or disabled */ }
 }
 
-type Meta = { teamName: string; currentRound: number | null; picksUntilNext: number | null; poolSize: number; rosterSize: number; maxAge?: number | null; rookiesOnly?: boolean };
+type ScoutMode = 'fast' | 'full' | 'copy';
+type Meta = { teamName: string; currentRound: number | null; picksUntilNext: number | null; poolSize: number; rosterSize: number; maxAge?: number | null; rookiesOnly?: boolean; mode?: ScoutMode };
 type TeamOption = { teamshort: string; team: string };
 
 export default function ScoutPage() {
@@ -47,6 +48,9 @@ export default function ScoutPage() {
   const [maxAge, setMaxAge] = useState<string>('');
   const [rookiesOnly, setRookiesOnly] = useState(false);
   const [recentNeeds, setRecentNeeds] = useState<RecentNeed[]>([]);
+  const [mode, setMode] = useState<ScoutMode>('fast');
+  const [copyPromptText, setCopyPromptText] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setRecentNeeds(loadRecentNeeds());
@@ -85,6 +89,8 @@ export default function ScoutPage() {
     setError(null);
     setRecommendations(null);
     setRecommendationsHtml(null);
+    setCopyPromptText(null);
+    setCopied(false);
     setMeta(null);
     try {
       const res = await fetch('/api/scout/recommend', {
@@ -96,6 +102,7 @@ export default function ScoutPage() {
           positionGroups: selectedGroups,
           maxAge: maxAge ? Number(maxAge) : undefined,
           rookiesOnly,
+          mode,
         }),
       });
       // Vercel returns an HTML 504 page when the function exceeds maxDuration,
@@ -107,8 +114,12 @@ export default function ScoutPage() {
       }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Request failed (HTTP ${res.status})`);
-      setRecommendations(data.recommendations);
-      setRecommendationsHtml(data.recommendationsHtml || null);
+      if (data.mode === 'copy' && data.promptText) {
+        setCopyPromptText(data.promptText);
+      } else {
+        setRecommendations(data.recommendations);
+        setRecommendationsHtml(data.recommendationsHtml || null);
+      }
       setMeta(data.meta);
 
       const submitted = needs.trim();
@@ -261,14 +272,40 @@ export default function ScoutPage() {
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
+          <div className="mt-5 mb-4">
+            <label className="block mb-2 text-xs font-black uppercase tracking-widest text-slate-500">Mode</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {([
+                { id: 'fast', label: 'Fast', sub: 'No web search — ~$0.02/call', desc: 'Uses pre-fetched depth chart + training knowledge. Default.' },
+                { id: 'full', label: 'Full', sub: 'With web search — ~$0.30/call', desc: 'Live injury news, snap counts, beat-writer takes. Slower.' },
+                { id: 'copy', label: 'Copy to chat', sub: 'No API call — $0', desc: 'Returns the assembled prompt to paste into gemini.google.com.' },
+              ] as const).map(opt => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setMode(opt.id)}
+                  className={`text-left rounded-lg border px-3 py-2 transition-colors ${
+                    mode === opt.id
+                      ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                      : 'border-slate-200 bg-white hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="text-xs font-black uppercase tracking-widest text-slate-700">{opt.label}</div>
+                  <div className="text-[10px] font-bold text-slate-500 mt-0.5">{opt.sub}</div>
+                  <div className="text-[10px] text-slate-400 mt-1 leading-snug">{opt.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="mt-5 flex items-center justify-between">
-            <p className="text-xs text-slate-400">Considers ratings, roster, draft context, and live NFL info via web search.</p>
+            <p className="text-xs text-slate-400">Considers ratings, roster, draft context{mode === 'full' ? ', and live NFL info via web search' : mode === 'fast' ? ', and pre-fetched depth charts' : ''}.</p>
             <button
               type="submit"
               disabled={loading || !needs.trim()}
               className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white text-sm font-black uppercase tracking-widest px-6 py-3 rounded-xl shadow transition-colors"
             >
-              {loading ? (<><Loader2 size={16} className="animate-spin" />Scouting…</>) : (<>Get Recommendations</>)}
+              {loading ? (<><Loader2 size={16} className="animate-spin" />{mode === 'copy' ? 'Building prompt…' : 'Scouting…'}</>) : (<>{mode === 'copy' ? 'Build Prompt' : 'Get Recommendations'}</>)}
             </button>
           </div>
         </form>
@@ -287,11 +324,58 @@ export default function ScoutPage() {
             <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600">{meta.poolSize} candidates considered</span>
             {meta.maxAge != null && <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600">Age ≤ {meta.maxAge}</span>}
             {meta.rookiesOnly && <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700">Rookies only</span>}
+            {meta.mode && (
+              <span className={`px-3 py-1 rounded-full ${
+                meta.mode === 'full' ? 'bg-violet-100 text-violet-700' :
+                meta.mode === 'copy' ? 'bg-emerald-100 text-emerald-700' :
+                'bg-slate-100 text-slate-600'
+              }`}>
+                {meta.mode === 'full' ? 'Full (web search)' : meta.mode === 'copy' ? 'Copy to chat' : 'Fast (no search)'}
+              </span>
+            )}
             <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600">Roster: {meta.rosterSize}</span>
           </div>
         )}
 
-        {recommendationsHtml ? (
+        {copyPromptText ? (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-start justify-between gap-4 mb-3">
+              <div>
+                <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Prompt ready</h2>
+                <p className="text-xs text-slate-500 mt-1 max-w-xl">
+                  Click <strong>Copy</strong>, then paste into{' '}
+                  <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">gemini.google.com</a>{' '}
+                  (free with a Google account). No API cost.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(copyPromptText);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2500);
+                  } catch {
+                    setError('Copy failed — select the text below and copy manually.');
+                  }
+                }}
+                className="shrink-0 inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest px-4 py-2 rounded-lg shadow transition-colors"
+              >
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <textarea
+              readOnly
+              value={copyPromptText}
+              onFocus={(e) => e.currentTarget.select()}
+              rows={18}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-mono bg-slate-50 resize-y"
+            />
+            <p className="text-[10px] text-slate-400 mt-2">
+              Prompt length: {copyPromptText.length.toLocaleString()} chars. Heads-up: consumer Gemini chat may use your conversation for training (unlike the API). Don&apos;t paste anything sensitive.
+            </p>
+          </div>
+        ) : recommendationsHtml ? (
           <article
             className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 prose prose-slate prose-sm max-w-none prose-a:text-blue-600 prose-a:underline"
             dangerouslySetInnerHTML={{ __html: recommendationsHtml }}

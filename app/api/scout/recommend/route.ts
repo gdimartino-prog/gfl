@@ -5,7 +5,7 @@ import { draftPicks, nflDraft, players, rules, teams } from '@/schema';
 import { and, asc, eq, inArray, isNull, lte, or, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
-import { getDraftScoutRecommendations, type ScoutContext } from '@/lib/gemini';
+import { getDraftScoutRecommendations, buildScoutPrompt, type ScoutContext } from '@/lib/gemini';
 import { expandPositionGroups } from '@/lib/positionGroups';
 import { tokenBucket } from '@/lib/rateLimit';
 import { buildDepthChartIndex, depthRankLabel } from '@/lib/ourlads';
@@ -51,6 +51,11 @@ export async function POST(req: NextRequest) {
     const maxAgeRaw = Number(body.maxAge);
     const maxAge = Number.isFinite(maxAgeRaw) && maxAgeRaw > 0 && maxAgeRaw < 100 ? Math.floor(maxAgeRaw) : null;
     const rookiesOnly = body.rookiesOnly === true;
+    // Mode: fast (no Search grounding, ~$0.02/call), full (with Search, ~$0.30/call),
+    // copy (return assembled prompt only, $0/call — user pastes into Gemini chat).
+    const modeIn = typeof body.mode === 'string' ? body.mode : 'fast';
+    const mode: 'fast' | 'full' | 'copy' =
+      modeIn === 'full' ? 'full' : modeIn === 'copy' ? 'copy' : 'fast';
 
     const leagueId = await getLeagueId();
 
@@ -214,32 +219,43 @@ export async function POST(req: NextRequest) {
       needsText,
     };
 
-    const recommendations = await getDraftScoutRecommendations(ctx);
-
-    // Audit log Gemini usage so per-user costs can be reconciled against
-    // Google Cloud billing. Captures the filter context (most expensive scouts
-    // are the wide-pool / many-search-queries ones). Failures are swallowed
-    // inside logSystemEvent.
     const callerCoachName = session.user.name || 'Unknown Coach';
     const callerTeamshortForLog = (session.user as { id?: string }).id || '';
-    await logSystemEvent(
-      callerCoachName,
-      callerTeamshortForLog,
-      'SCOUT_RECOMMEND',
-      `team=${targetTeamshort} pool=${pool.length} positions=${positionGroupsIn.length ? positionGroupsIn.join(',') : 'all'} rookiesOnly=${rookiesOnly} maxAge=${maxAge ?? 'none'} needsChars=${needsText.length}`,
-      leagueId,
-    );
+    const auditDetails = `team=${targetTeamshort} pool=${pool.length} positions=${positionGroupsIn.length ? positionGroupsIn.join(',') : 'all'} rookiesOnly=${rookiesOnly} maxAge=${maxAge ?? 'none'} needsChars=${needsText.length} mode=${mode}`;
+
+    if (mode === 'copy') {
+      // Free path: assemble the prompt server-side, return it as text, and
+      // skip the Gemini call entirely. User pastes into gemini.google.com.
+      const promptText = buildScoutPrompt(ctx, { useSearch: false });
+      await logSystemEvent(callerCoachName, callerTeamshortForLog, 'SCOUT_COPY_PROMPT', auditDetails, leagueId);
+      return NextResponse.json({
+        mode,
+        promptText,
+        meta: {
+          teamName: ctx.teamName, currentRound, picksUntilNext,
+          poolSize: pool.length, rosterSize: roster.length,
+          maxAge, rookiesOnly, mode,
+        },
+      });
+    }
+
+    const recommendations = await getDraftScoutRecommendations(ctx, { useSearch: mode === 'full' });
+
+    // Audit log Gemini usage so per-user costs can be reconciled against
+    // Google Cloud billing. Captures filter context + which mode was used.
+    await logSystemEvent(callerCoachName, callerTeamshortForLog, 'SCOUT_RECOMMEND', auditDetails, leagueId);
     // sanitize: true strips raw HTML / javascript: URLs from Gemini output.
     // Markdown links/headings/bold etc still render — only inline HTML is removed.
     const processed = await remark().use(remarkGfm).use(remarkHtml, { sanitize: true }).process(recommendations);
     const recommendationsHtml = String(processed);
     return NextResponse.json({
+      mode,
       recommendations,
       recommendationsHtml,
       meta: {
         teamName: ctx.teamName, currentRound, picksUntilNext,
         poolSize: pool.length, rosterSize: roster.length,
-        maxAge, rookiesOnly,
+        maxAge, rookiesOnly, mode,
       },
     });
   } catch (error) {

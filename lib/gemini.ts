@@ -100,22 +100,19 @@ export type ScoutContext = {
   needsText: string;
 };
 
-export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<string> {
-  const genAI = getGeminiClient();
-  // Enable Google Search grounding so the model can pull current depth charts,
-  // injury news, beat-reporter takes, etc.
-  // Gemini 2.5+ uses the `google_search` tool (snake_case in the REST payload;
-  // camelCase variants are rejected silently). The legacy SDK ships types for
-  // `googleSearchRetrieval` only, so we bypass with `as unknown as never` and
-  // pass both spellings to maximize the chance one is honored.
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
-    tools: [
-      { google_search: {} },
-      { googleSearch: {} },
-    ] as unknown as never,
-  });
+export type ScoutOptions = {
+  /** When true (default), enable Google Search grounding — gives live NFL
+   *  context but adds ~$0.25-0.35 per call in Search grounding fees.
+   *  When false, the model relies on the pre-fetched Ourlads depth-chart data
+   *  + training knowledge only — drops per-call cost to ~$0.01-0.02. */
+  useSearch?: boolean;
+};
 
+/** Build the assembled scout prompt string for the given context.
+ *  Exported so the /api/scout/recommend route can return it for "copy to
+ *  Gemini chat" mode without spending any Gemini API tokens. */
+export function buildScoutPrompt(ctx: ScoutContext, opts: ScoutOptions = {}): string {
+  const useSearch = opts.useSearch !== false;
   const formatPlayerRow = (p: PlayerRatings) => {
     const subs = [p.overall && `OVR ${p.overall}`, p.runBlock && `RB ${p.runBlock}`, p.passBlock && `PB ${p.passBlock}`, p.rushYards && `RY ${p.rushYards}`, p.interceptionsVal && `INT ${p.interceptionsVal}`, p.sacksVal && `SK ${p.sacksVal}`, p.durability && `DUR ${p.durability}`].filter(Boolean).join(' / ');
     const scout = p.scouting ? ' | ' + Object.entries(p.scouting).map(([k, v]) => `${k}:${v}`).join(', ') : '';
@@ -132,7 +129,8 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext): Promise<s
 
   const prompt = `You are an expert NFL scout and Gridiron Football League (GFL) strategist. The user is drafting players in an ongoing GFL draft and wants your recommendations for who to target with their next pick.
 
-DEPTH CHART DATA IS PRE-PROVIDED:
+${useSearch
+  ? `DEPTH CHART DATA IS PRE-PROVIDED:
 Many pool rows have a trailing "NFL: <Team> <role>" tag already attached (e.g. "NFL: Cleveland Browns Starter (RB1)" or "NFL: Green Bay Packers WR2 / rotational"). This data was scraped from Ourlads.com hours ago and is CURRENT. Use it as the authoritative depth chart for those players. DO NOT run Google Search to re-confirm what's already in the pool row.
 
 GOOGLE SEARCH BUDGET — KEEP IT TIGHT:
@@ -140,15 +138,17 @@ You have a strict time budget. Use Google Search only when it adds information t
   1. Players in the pool with NO "NFL:" tag attached → search "[player full name] depth chart 2026" once.
   2. Injury news / recent game-week status — ONLY when it materially changes the recommendation.
   3. Scheme/coordinator changes, holdout/contract issues, recent trades.
-Do NOT search the same player twice. Do NOT search for general scouting reports already covered by your training data.
+Do NOT search the same player twice. Do NOT search for general scouting reports already covered by your training data.`
+  : `NO WEB ACCESS — DATA IS ALL INLINE:
+You have NO Google Search tool available this turn. All depth-chart information you need is already attached to pool rows as a trailing "NFL: <Team> <role>" tag (scraped from Ourlads.com hours ago — treat as current). Do NOT attempt to search the web; do NOT pretend to have searched. For anything not covered by the inline data (injury news, recent usage trends, scheme changes), rely on your training knowledge and explicitly note when you are doing so.`}
 
 HARD RULE — READ THIS FIRST:
-You MUST ONLY recommend, research, or discuss players whose names appear in the "UNDRAFTED PLAYER POOL" section below. Do NOT recommend any player listed in the "CURRENT ROSTER" — they are already on the team. Do NOT recommend any player that is not in the pool, even if you remember them from training data — they are not available to be drafted. If you cannot find a good fit in the pool, say so honestly; do not invent or recall players from outside the pool list.
+You MUST ONLY recommend, research, or discuss players whose names appear in the "UNDRAFTED PLAYER POOL" section below. Do NOT recommend any player listed in the "CURRENT ROSTER" — they are already on the team. Do NOT recommend any player that is not in the pool, even if you remember them from training data — they are not available to be drafted. If you cannot find a good fit in the pool, say so honestly; do not invent or recall players from outside the pool list.${useSearch ? `
 
-Your Google Search usage MUST be restricted to looking up information on players that appear in the pool. Do NOT search for or surface NFL news about players outside the pool. If a current NFL player is not in the pool, he is irrelevant to this analysis even if he is in the news.
+Your Google Search usage MUST be restricted to looking up information on players that appear in the pool. Do NOT search for or surface NFL news about players outside the pool. If a current NFL player is not in the pool, he is irrelevant to this analysis even if he is in the news.` : ''}
 
 RANKING PRIORITY ORDER (apply in this sequence when ordering the Top 5):
-1. **CURRENT NFL ROLE — STARTERS FIRST**: Classify every candidate into one of three tiers based on Google-Search-verified depth chart info. The tier is the dominant ranking signal:
+1. **CURRENT NFL ROLE — STARTERS FIRST**: Classify every candidate into one of three tiers based on ${useSearch ? 'Google-Search-verified depth chart info' : 'the inline "NFL: <Team> <role>" tags on each pool row (and your training knowledge for any player without a tag)'}. The tier is the dominant ranking signal:
    - **Tier A — Lock-and-key Day-1 starters** on their current NFL franchise. The simulation engine relies on real-life volume, so Tier A gets a massive boost. Top-rotation players with starter-equivalent snap share (true-committee RB1, 3-WR set's regular WR3, every-down nickel) also belong here.
    - **Tier B — Heavy rotational / competing for starting role** (RB2 with regular touches, swing tackle in rotation, edge rotational pass-rusher, dime/sub-package LB). Real value but not the lock-in.
    - **Tier C — Depth, developmental, injury-risk, holdout-penalized, or roster-bubble** (deep backups, practice squad, rookies on IR). Apply a strict ratings penalty.
@@ -159,16 +159,16 @@ RANKING PRIORITY ORDER (apply in this sequence when ordering the Top 5):
 4. Risk profile.
 
 WEIGHTED EVALUATION (use these weights when computing the Analytical Score in the output):
-- **40% — NFL Starter Status & Snap Projection** (Tier A/B/C from above, verified via Google Search)
+- **40% — NFL Starter Status & Snap Projection** (Tier A/B/C from above, ${useSearch ? 'verified via Google Search' : 'derived from the inline NFL tags + training knowledge'})
 - **30% — GFL position-specific sub-ratings & scouting blob** (the in-game simulation signal)
 - **20% — Team needs & roster-gap fit** (user's stated needs, age curve of incumbents)
 - **10% — Long-term upside** (age, durability, scheme/coordinator stability)
 
 EVALUATE EACH CANDIDATE ON:
-1. **NFL depth-chart position** — confirmed via your Ourlads / depth-chart search (see MANDATORY GOOGLE SEARCH USAGE above). This is the dominant signal for ranking.
+1. **NFL depth-chart position** — ${useSearch ? 'confirmed via the inline "NFL:" tag if present, or Ourlads / depth-chart search otherwise' : 'read from the inline "NFL: <Team> <role>" tag on each pool row (Ourlads-sourced, current)'}. This is the dominant signal for ranking.
 2. GFL position-specific sub-ratings and the scouting blob — these reflect actual player quality and drive simulation outcomes most.
 3. IMPORTANT: do NOT over-weight the "Overall" rating — in the Action Football game engine that number functions essentially as a salary/cost indicator, not a quality score. A lower Overall with strong position-specific sub-ratings can be a much better pick than a high-Overall player with mediocre sub-ratings.
-4. Real-world NFL context — current depth chart standing, projected role, injury history, scheme fit. USE GOOGLE SEARCH to confirm current information when relevant (e.g. "is X currently the starter for team Y", "recent injury status", "is X being phased out").
+4. Real-world NFL context — current depth chart standing, projected role, injury history, scheme fit.${useSearch ? ' USE GOOGLE SEARCH to confirm current information when relevant (e.g. "is X currently the starter for team Y", "recent injury status", "is X being phased out").' : ''}
 5. User's stated team needs and strategy
 6. Roster gaps relative to the user's existing roster
 7. Draft context (current round, picks until next selection — adjust scarcity calculus accordingly)
@@ -250,7 +250,7 @@ RESPOND WITH:
 ### N. [Player Name] — [Position], Age [age]
 **Ratings**: <render the matching position template above as a single line of "Label: value" pairs separated by " | ", e.g. for a QB: "Age: 24 | Att: 530 | C%: 64.2% | Yds: 4,210 | Int: 12 | TD: 31 | Sk: 28 | Dur: 8 | Sal: 84". Use ONLY the columns from the template for this position — no extras.>
 **Depth chart**: <ONE line. If the pool row has an "NFL:" tag, use that data directly — render as "TEAM — ROLE" (e.g. "Jacksonville Jaguars — WR3 / depth" or "Cleveland Browns — Starter (RB1)"). If the pool row has NO NFL tag, do a single Google Search and write "TEAM — ROLE (per [source link])". If you still can't find one, write "Depth chart unknown — last known role: <X>".>
-**NFL scouting report**: <THIS IS THE PRIMARY OUTPUT — 4-6 substantive sentences of real-world scouting based on Google Search research. Cover, where applicable: recent target share / snap share / touches / usage trends, injury history over the last 12 months and any current durability concerns, scheme fit and playstyle (run/pass scheme, route tree, coverage scheme, blocking style), notable strengths and weaknesses as described by beat writers or analysts, college background only if recent (rookie/sophomore), and projected trajectory for the rest of the 2026 season. Be specific — name the coordinator's scheme if relevant. Do NOT repeat the depth-chart info from the line above — assume the reader has it. You MUST cite at least one real source for each player; render citations as inline markdown links inside the prose (e.g. "[ProFootballTalk](https://...) reported he led the team in red-zone targets last week"). If you genuinely could not find any web source for this player, end the section with "(no current web source — base knowledge only)" so the user knows it isn't from research.>
+**NFL scouting report**: <THIS IS THE PRIMARY OUTPUT — 4-6 substantive sentences of real-world scouting. Cover, where applicable: recent target share / snap share / touches / usage trends, injury history over the last 12 months and any current durability concerns, scheme fit and playstyle (run/pass scheme, route tree, coverage scheme, blocking style), notable strengths and weaknesses, college background only if recent (rookie/sophomore), and projected trajectory for the rest of the 2026 season. Be specific — name the coordinator's scheme if relevant. Do NOT repeat the depth-chart info from the line above — assume the reader has it.${useSearch ? ' You MUST cite at least one real source for each player; render citations as inline markdown links inside the prose (e.g. "[ProFootballTalk](https://...) reported he led the team in red-zone targets last week"). If you genuinely could not find any web source for this player, end the section with "(no current web source — base knowledge only)" so the user knows it isn\'t from research.' : ' You have no web access this turn — derive the report from the inline data and your training knowledge. Do NOT fabricate URLs or pretend to cite sources. End each report with "(no web source — training knowledge + inline data only)" so the user knows the provenance.'}>
 **GFL fit**: <1 short sentence citing 1-2 specific position sub-ratings or scouting-blob attributes that stand out; only mention Overall if it's an unusually good value (low Overall + strong subs)>
 **Team fit**: <1 short sentence tying to user's stated needs/roster gaps — keep this brief, this is secondary to the NFL scouting report>
 **Risk**: <1 sentence: age, depth-chart, injury, scheme>
@@ -259,15 +259,35 @@ RESPOND WITH:
 
 **THEN: 2-3 DEEPER SLEEPERS** the user might miss — same format (include Tier and Analytical Score). The NFL scouting report stays the focus (still 3-5 sentences with at least one inline source link); GFL fit and Team fit can be a single short sentence each.
 
-**FINALLY: TRAP PLAYS — 1-2 PLAYERS TO AVOID** (cap at 2 — do NOT exceed). Pick the most obvious traps from the UNDRAFTED PLAYER POOL — players someone scanning GFL ratings alone might be tempted by, but which have NFL-side red flags (Tier C with no path to snaps, recent injury, scheme mismatch, roster bubble, age cliff). One bullet each: "**[Player Name] ([Position])**: [1 sentence citing the specific real-world red flag, with one inline source link]". If you can't think of an obvious trap in the pool quickly, write "No notable traps in the current pool." and move on — do not spend time searching for borderline cases.
+**FINALLY: TRAP PLAYS — 1-2 PLAYERS TO AVOID** (cap at 2 — do NOT exceed). Pick the most obvious traps from the UNDRAFTED PLAYER POOL — players someone scanning GFL ratings alone might be tempted by, but which have NFL-side red flags (Tier C with no path to snaps, recent injury, scheme mismatch, roster bubble, age cliff). One bullet each: "**[Player Name] ([Position])**: [1 sentence citing the specific real-world red flag${useSearch ? ', with one inline source link' : ''}]". If you can't think of an obvious trap in the pool quickly, write "No notable traps in the current pool." and move on — do not spend time searching for borderline cases.
 
 OUTPUT EMPHASIS: roughly 60-70% of each recommendation's word count should live in the **NFL scouting report** section. The GFL-fit and Team-fit lines are short supporting context, not the main event. If you find yourself writing more about why the player fits the team than about who the player actually is in the NFL, you are doing it wrong — rewrite to lead with the NFL scouting depth.
 
 TONE: strictly analytical, hype-free. No "highly regarded prospect", "elite athletic profile", "tremendous upside" filler. Lead with the specific fact (depth-chart position, snap share, scheme detail, sub-rating value) and let the conclusion follow from it. If you can't cite something concrete, don't claim it.
 
-When you cite NFL news/depth-chart/injury info pulled from the web, render it as an inline markdown link "[label](https://...)" pointing to the actual page you used (NOT a vertexaisearch redirect — use the underlying publisher URL). Preferred sources, in order: **Ourlads.com (https://www.ourlads.com/nfldepthcharts/) for depth charts**, then ESPN, NFL.com, ProFootballTalk, The Athletic, team beat writers. Do not invent URLs — only link to pages you actually consulted via Google Search this turn. Every recommendation's NFL scouting report MUST either contain at least one such inline link or end with the explicit "(no current web source — base knowledge only)" tag.
+${useSearch ? `When you cite NFL news/depth-chart/injury info pulled from the web, render it as an inline markdown link "[label](https://...)" pointing to the actual page you used (NOT a vertexaisearch redirect — use the underlying publisher URL). Preferred sources, in order: **Ourlads.com (https://www.ourlads.com/nfldepthcharts/) for depth charts**, then ESPN, NFL.com, ProFootballTalk, The Athletic, team beat writers. Do not invent URLs — only link to pages you actually consulted via Google Search this turn. Every recommendation's NFL scouting report MUST either contain at least one such inline link or end with the explicit "(no current web source — base knowledge only)" tag.
 
-Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
+` : ''}Be opinionated. Don't hedge. Rank in order of who you'd take first.`;
+  return prompt;
+}
+
+export async function getDraftScoutRecommendations(ctx: ScoutContext, opts: ScoutOptions = {}): Promise<string> {
+  const useSearch = opts.useSearch !== false;
+  const genAI = getGeminiClient();
+  // Gemini 2.5+ uses the `google_search` tool (snake_case in the REST payload;
+  // camelCase variants are rejected silently). The legacy SDK ships types for
+  // `googleSearchRetrieval` only, so we bypass with `as unknown as never` and
+  // pass both spellings to maximize the chance one is honored. When useSearch
+  // is false we skip the tools array entirely — drops per-call cost from
+  // ~$0.25-0.40 (Search grounding fees) to ~$0.01-0.02 (pure tokens).
+  const model = useSearch
+    ? genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash',
+        tools: [{ google_search: {} }, { googleSearch: {} }] as unknown as never,
+      })
+    : genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  const prompt = buildScoutPrompt(ctx, opts);
 
   try {
     // Race against a 55s deadline so we return a real error to the client
