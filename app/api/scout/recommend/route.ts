@@ -225,8 +225,10 @@ export async function POST(req: NextRequest) {
 
     if (mode === 'copy') {
       // Free path: assemble the prompt server-side, return it as text, and
-      // skip the Gemini call entirely. User pastes into gemini.google.com.
-      const promptText = buildScoutPrompt(ctx, { useSearch: false });
+      // skip the Gemini call entirely. User pastes into gemini.google.com,
+      // which has Google Search built in — so we build the prompt with the
+      // Search-enabled instructions (depth-chart citations, source links, etc).
+      const promptText = buildScoutPrompt(ctx, { useSearch: true });
       await logSystemEvent(callerCoachName, callerTeamshortForLog, 'SCOUT_COPY_PROMPT', auditDetails, leagueId);
       return NextResponse.json({
         mode,
