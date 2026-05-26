@@ -180,6 +180,24 @@ export async function POST(req: NextRequest) {
       .map(r => `${r.rule}: ${r.value}${r.desc ? ` (${r.desc})` : ''}`)
       .join('\n');
 
+    // Defensive: cross-reference the pool against this year's completed picks
+    // and drop anyone already selected. The DB pool query filters by
+    // players.teamId IS NULL, but the players.teamId update sometimes lags
+    // behind the draft_picks.selectedPlayerName write — so a freshly drafted
+    // player like Jack Bech can briefly appear in both lists. Use normalized
+    // name matching so the "POS - Player Name" pick format aligns with the
+    // pool's "First Last".
+    const alreadyDraftedNames = new Set<string>();
+    for (const p of allPicks) {
+      const spn = p.selectedPlayerName;
+      if (!spn) continue;
+      if (spn.startsWith('SKIPPED')) continue;
+      alreadyDraftedNames.add(normalizeName(spn));
+    }
+    const filteredPool = alreadyDraftedNames.size > 0
+      ? pool.filter(pl => !alreadyDraftedNames.has(normalizeName(pl.name)))
+      : pool;
+
     // Annotate the pool with cached Ourlads depth-chart info so Gemini can
     // skip the Google Search round-trips that were timing the function out.
     // If the cache miss takes too long (cold start), fall back gracefully.
@@ -190,7 +208,7 @@ export async function POST(req: NextRequest) {
     } catch {
       depthIdx = null;
     }
-    const annotatedPool = pool.map(p => {
+    const annotatedPool = filteredPool.map(p => {
       const scouting = p.scouting ?? null;
       if (!depthIdx) return { ...p, scouting };
       const key = (`${p.name ?? ''}`).toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
@@ -221,7 +239,7 @@ export async function POST(req: NextRequest) {
 
     const callerCoachName = session.user.name || 'Unknown Coach';
     const callerTeamshortForLog = (session.user as { id?: string }).id || '';
-    const auditDetails = `team=${targetTeamshort} pool=${pool.length} positions=${positionGroupsIn.length ? positionGroupsIn.join(',') : 'all'} rookiesOnly=${rookiesOnly} maxAge=${maxAge ?? 'none'} needsChars=${needsText.length} mode=${mode}`;
+    const auditDetails = `team=${targetTeamshort} pool=${filteredPool.length} positions=${positionGroupsIn.length ? positionGroupsIn.join(',') : 'all'} rookiesOnly=${rookiesOnly} maxAge=${maxAge ?? 'none'} needsChars=${needsText.length} mode=${mode}`;
 
     if (mode === 'copy') {
       // Free path: assemble the prompt server-side, return it as text, and
@@ -235,7 +253,7 @@ export async function POST(req: NextRequest) {
         promptText,
         meta: {
           teamName: ctx.teamName, currentRound, picksUntilNext,
-          poolSize: pool.length, rosterSize: roster.length,
+          poolSize: filteredPool.length, rosterSize: roster.length,
           maxAge, rookiesOnly, mode,
         },
       });
@@ -256,7 +274,7 @@ export async function POST(req: NextRequest) {
       recommendationsHtml,
       meta: {
         teamName: ctx.teamName, currentRound, picksUntilNext,
-        poolSize: pool.length, rosterSize: roster.length,
+        poolSize: filteredPool.length, rosterSize: roster.length,
         maxAge, rookiesOnly, mode,
       },
     });
