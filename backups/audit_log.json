@@ -5542,5 +5542,347 @@
     "team": "Pyongyang",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 617,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T13:10:51.674Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R7 #123: RB/KR - Jerome Ford"
+  },
+  {
+    "id": 618,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T13:53:03.460Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ LBI"
+  },
+  {
+    "id": 619,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T14:19:11.716Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R7 #124: TE - Greg Dulcich"
+  },
+  {
+    "id": 620,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T15:38:01.207Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #157 marked Done"
+  },
+  {
+    "id": 621,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T15:38:06.143Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #156 marked Done"
+  },
+  {
+    "id": 622,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T15:39:55.224Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 623,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T15:49:06.454Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 624,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T15:51:09.822Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 625,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T15:53:24.795Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 626,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T15:54:14.222Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 627,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T15:54:54.167Z",
+    "coach": "Administrator",
+    "team": "SUPER",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=400 positions=all rookiesOnly=false maxAge=none needsChars=25 mode=copy"
+  },
+  {
+    "id": 628,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T15:57:07.681Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 629,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T15:58:43.829Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 630,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T16:38:57.151Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R7 #125: WR - Tre' Harris"
+  },
+  {
+    "id": 631,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T16:43:49.829Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "IR MOVE",
+    "details": "Placed on IR: WR - Brandon Aiyuk"
+  },
+  {
+    "id": 632,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T16:59:22.191Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R7 #126: LB - DeMarvion Overshown"
+  },
+  {
+    "id": 633,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T17:43:29.493Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 634,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T17:44:52.178Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R8 #127: WR - JuJu Smith-Schuster"
+  },
+  {
+    "id": 635,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T18:39:08.827Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "IR MOVE",
+    "details": "Placed on IR: T - Kaleb McGary"
+  },
+  {
+    "id": 636,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T20:08:49.251Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R8 #128: WR - Tez Johnson"
+  },
+  {
+    "id": 637,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T20:47:51.694Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_RECOMMEND",
+    "details": "team=VV pool=3 positions=Guards rookiesOnly=true maxAge=none needsChars=62 mode=fast"
+  },
+  {
+    "id": 638,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T20:50:45.844Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=3 positions=Guards rookiesOnly=true maxAge=none needsChars=149 mode=copy"
+  },
+  {
+    "id": 639,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T20:52:14.034Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R8 #129: G-T - Anthony Belton"
+  },
+  {
+    "id": 640,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T20:54:05.053Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R8 #130: T - Ozzy Trapilo"
+  },
+  {
+    "id": 641,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T20:54:57.068Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #158 marked Done"
+  },
+  {
+    "id": 642,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T20:55:41.534Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #159 marked Done"
+  },
+  {
+    "id": 643,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T21:14:22.747Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R8 #131: DL - Ashton Gillotte"
+  },
+  {
+    "id": 644,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T21:16:30.141Z",
+    "coach": "James Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R8 #132: DL - Nathan Shepherd"
+  },
+  {
+    "id": 645,
+    "leagueId": 1,
+    "timestamp": "2026-05-25T22:58:06.593Z",
+    "coach": "Phil Matsikoudis",
+    "team": "Newark Bay",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 646,
+    "leagueId": 1,
+    "timestamp": "2026-05-26T01:16:35.161Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R8 #133: P - Daniel Whelan"
+  },
+  {
+    "id": 647,
+    "leagueId": 1,
+    "timestamp": "2026-05-26T01:30:04.489Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "DRAFT_PICK",
+    "details": "R8 #134: WR - Pat Bryant"
+  },
+  {
+    "id": 648,
+    "leagueId": 1,
+    "timestamp": "2026-05-26T01:34:01.962Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 649,
+    "leagueId": 1,
+    "timestamp": "2026-05-26T02:11:59.245Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 650,
+    "leagueId": 1,
+    "timestamp": "2026-05-26T02:22:11.964Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R8 #135: DL - Jer'Zhan Newton"
+  },
+  {
+    "id": 651,
+    "leagueId": 1,
+    "timestamp": "2026-05-26T03:04:42.560Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R8 #136: P - Tress Way"
+  },
+  {
+    "id": 652,
+    "leagueId": 1,
+    "timestamp": "2026-05-26T03:19:56.065Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 653,
+    "leagueId": 1,
+    "timestamp": "2026-05-26T03:39:56.586Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 654,
+    "leagueId": 1,
+    "timestamp": "2026-05-26T09:56:13.265Z",
+    "coach": "George Di Martino",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R8 #137: DE-LB - Charles Snowden"
   }
 ]

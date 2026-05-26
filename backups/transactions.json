@@ -578,6 +578,25 @@
     "touch_id": "commissioner"
   },
   {
+    "id": 156,
+    "leagueId": 1,
+    "date": "2026-05-25T13:53:03.438Z",
+    "type": "TRADE",
+    "description": "Traded to LBI: Will Fries - G",
+    "fromTeam": "Crimson",
+    "toTeam": "LBI",
+    "owner": "Bob Glade",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-25T13:53:03.439Z",
+    "touch_id": "commissioner"
+  },
+  {
     "id": 96,
     "leagueId": 1,
     "date": "2026-04-27T16:39:35.599Z",
@@ -784,6 +803,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-04-27T16:39:35.578Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 159,
+    "leagueId": 1,
+    "date": "2026-05-25T18:39:08.802Z",
+    "type": "IR MOVE",
+    "description": "Placed on IR: T - Kaleb McGary",
+    "fromTeam": "Old Bridge",
+    "toTeam": "IR",
+    "owner": "Ed Casserly",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-25T18:39:08.808Z",
     "touch_id": "commissioner"
   },
   {
@@ -1581,6 +1619,46 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-05-14T18:00:11.287Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 157,
+    "leagueId": 1,
+    "date": "2026-05-25T13:53:03.453Z",
+    "type": "TRADE",
+    "description": "Traded to Crimson: 2026 LBI 7th round pick (124th overall)",
+    "fromTeam": "LBI",
+    "toTeam": "Crimson",
+    "owner": "Bob Glade",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2452
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-25T13:53:03.454Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 158,
+    "leagueId": 1,
+    "date": "2026-05-25T16:43:49.812Z",
+    "type": "IR MOVE",
+    "description": "Placed on IR: WR - Brandon Aiyuk",
+    "fromTeam": "Amalfi",
+    "toTeam": "IR",
+    "owner": "Adrian Scherer",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-25T16:43:49.813Z",
     "touch_id": "commissioner"
   }
 ]
