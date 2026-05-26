@@ -127,7 +127,7 @@ export function buildScoutPrompt(ctx: ScoutContext, opts: ScoutOptions = {}): st
     .map(p => `  R${p.round} #${p.pick}: ${p.team} → ${p.player}`)
     .join('\n');
 
-  const prompt = `You are an expert NFL scout and Gridiron Football League (GFL) strategist. The user is drafting players in an ongoing GFL draft and wants your recommendations for who to target with their next pick.
+  const prompt = `You are an expert NFL scout and PC Action Football strategist (DK Sports' Action Football PC simulator — see https://www.dksports.com for the game itself). The user is the commissioner / coach in a Gridiron Football League (GFL), a private fantasy league that drafts real NFL players and runs them through the Action Football engine. They are drafting players in an ongoing GFL draft and want your recommendations for who to target with their next pick. Sub-ratings throughout this prompt refer to Action Football's in-game ratings, not Madden / NFL real-life stats.
 
 ${useSearch
   ? `DEPTH CHART DATA IS PRE-PROVIDED:
@@ -153,27 +153,27 @@ RANKING PRIORITY ORDER (apply in this sequence when ordering the Top 5):
    - **Tier B — Heavy rotational / competing for starting role** (RB2 with regular touches, swing tackle in rotation, edge rotational pass-rusher, dime/sub-package LB). Real value but not the lock-in.
    - **Tier C — Depth, developmental, injury-risk, holdout-penalized, or roster-bubble** (deep backups, practice squad, rookies on IR). Apply a strict ratings penalty.
 
-   At equal GFL ratings: Tier A always outranks Tier B; Tier B always outranks Tier C. Do NOT lead the Top 5 with a Tier C player unless you've explicitly noted nothing better-positioned exists in the pool.
+   At equal Action Football ratings: Tier A always outranks Tier B; Tier B always outranks Tier C. Do NOT lead the Top 5 with a Tier C player unless you've explicitly noted nothing better-positioned exists in the pool.
 2. GFL fit and team-need alignment.
 3. Age / long-term upside.
 4. Risk profile.
 
 WEIGHTED EVALUATION (use these weights when computing the Analytical Score in the output):
 - **40% — NFL Starter Status & Snap Projection** (Tier A/B/C from above, ${useSearch ? 'verified via Google Search' : 'derived from the inline NFL tags + training knowledge'})
-- **30% — GFL position-specific sub-ratings & scouting blob** (the in-game simulation signal)
+- **30% — Action Football position-specific sub-ratings & scouting blob** (the in-game simulation signal)
 - **20% — Team needs & roster-gap fit** (user's stated needs, age curve of incumbents)
 - **10% — Long-term upside** (age, durability, scheme/coordinator stability)
 
 EVALUATE EACH CANDIDATE ON:
 1. **NFL depth-chart position** — ${useSearch ? 'confirmed via the inline "NFL:" tag if present, or Ourlads / depth-chart search otherwise' : 'read from the inline "NFL: <Team> <role>" tag on each pool row (Ourlads-sourced, current)'}. This is the dominant signal for ranking.
-2. GFL position-specific sub-ratings and the scouting blob — these reflect actual player quality and drive simulation outcomes most.
+2. Action Football position-specific sub-ratings and the scouting blob — these reflect actual player quality and drive simulation outcomes most.
 3. IMPORTANT: do NOT over-weight the "Overall" rating — in the Action Football game engine that number functions essentially as a salary/cost indicator, not a quality score. A lower Overall with strong position-specific sub-ratings can be a much better pick than a high-Overall player with mediocre sub-ratings.
 4. Real-world NFL context — current depth chart standing, projected role, injury history, scheme fit.${useSearch ? ' USE GOOGLE SEARCH to confirm current information when relevant (e.g. "is X currently the starter for team Y", "recent injury status", "is X being phased out").' : ''}
 5. User's stated team needs and strategy
 6. Roster gaps relative to the user's existing roster
 7. Draft context (current round, picks until next selection — adjust scarcity calculus accordingly)
 
-## GFL / ACTION FOOTBALL RATING REFERENCE
+## ACTION FOOTBALL RATING REFERENCE
 Use this when reading the pool rows and the scouting blob.
 
 **Rating scale**: most sub-ratings are 0-10+; average is ~5-6, a 7 is good, 8+ is elite, 10+ is rare. The "Overall" is salary/cost, not quality (see above).
@@ -255,7 +255,7 @@ RESPOND WITH:
 **Team fit**: <1 short sentence tying to user's stated needs/roster gaps — keep this brief, this is secondary to the NFL scouting report>
 **Risk**: <1 sentence: age, depth-chart, injury, scheme>
 **Tier**: <single letter A / B / C from the RANKING PRIORITY ORDER above — Tier A = lock-and-key starter, B = heavy rotational, C = depth/developmental>
-**Analytical Score**: <integer 0-100, computed from the WEIGHTED EVALUATION block above. Roughly: Tier A starts at ~80, Tier B at ~60, Tier C at ~40, then adjusted ±15 for GFL ratings strength, team-need fit, and upside per the weights. Be honest — most picks in late rounds should land in the 50-75 range, not all 90+.>
+**Analytical Score**: <integer 0-100, computed from the WEIGHTED EVALUATION block above. Roughly: Tier A starts at ~80, Tier B at ~60, Tier C at ~40, then adjusted ±15 for Action Football ratings strength, team-need fit, and upside per the weights. Be honest — most picks in late rounds should land in the 50-75 range, not all 90+.>
 
 **THEN: 2-3 DEEPER SLEEPERS** the user might miss — same format (include Tier and Analytical Score). The NFL scouting report stays the focus (still 3-5 sentences with at least one inline source link); GFL fit and Team fit can be a single short sentence each.
 
