@@ -166,38 +166,49 @@ export default function ScoutPage() {
             ))}
           </select>
 
-          <label className="block mb-3 text-xs font-black uppercase tracking-widest text-slate-500">Positions to scout</label>
-          <div className="mb-5 flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              onClick={() => setSelectedGroups([])}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                selectedGroups.length === 0
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              All
-            </button>
-            {POSITION_GROUPS.map(g => {
-              const active = selectedGroups.includes(g.label);
-              return (
-                <button
-                  key={g.label}
-                  type="button"
-                  onClick={() => setSelectedGroups(prev =>
-                    active ? prev.filter(l => l !== g.label) : [...prev, g.label]
-                  )}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                    active
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {g.label}
-                </button>
-              );
-            })}
+          <div className="mb-5 rounded-xl border-2 border-blue-100 bg-blue-50/50 px-4 py-3">
+            <div className="flex items-baseline justify-between gap-3 mb-2">
+              <label className="block text-xs font-black uppercase tracking-widest text-blue-700">
+                Filter pool by position
+              </label>
+              <span className="text-[10px] text-slate-500">
+                {selectedGroups.length === 0
+                  ? 'No filter — top 400 players across all positions will be sent.'
+                  : `Filtering to ${selectedGroups.length} position group${selectedGroups.length === 1 ? '' : 's'}.`}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => setSelectedGroups([])}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  selectedGroups.length === 0
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                All
+              </button>
+              {POSITION_GROUPS.map(g => {
+                const active = selectedGroups.includes(g.label);
+                return (
+                  <button
+                    key={g.label}
+                    type="button"
+                    onClick={() => setSelectedGroups(prev =>
+                      active ? prev.filter(l => l !== g.label) : [...prev, g.label]
+                    )}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                      active
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    {g.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="mb-5 flex flex-wrap items-center gap-4">
