@@ -2,14 +2,33 @@ import { getSchedule } from '@/lib/getSchedule';
 import Link from 'next/link';
 import { ScheduleGame } from '@/types';
 
+// A score is "missing" only when null/undefined/empty-string. The literal
+// number 0 is a valid result (shutout) — treating it as missing caused the
+// widget to anchor the home page on an old year's shutout game.
+function isScoreMissing(s: ScheduleGame['vScore']): boolean {
+  if (s == null) return true;
+  if (typeof s === 'string') return s.trim() === '';
+  return false;
+}
+
 export default async function WeeklyScheduleWidget({ leagueId = 1 }: { leagueId?: number }) {
   const allGames: ScheduleGame[] = await getSchedule(leagueId);
-  
-  const currentWeekGame = allGames.find(g => !g.vScore || g.vScore === '');
-  const displayWeek = currentWeekGame ? currentWeekGame.week : allGames[allGames.length - 1]?.week;
-  const displayYear = currentWeekGame ? currentWeekGame.year : allGames[allGames.length - 1]?.year;
 
-  const weeklyGames = allGames.filter(g => g.week === displayWeek && g.year === displayYear);
+  // Restrict to the latest year in the schedule so a prior-season game with
+  // a real 0 score (or a stale partial row) can never mask the current week.
+  const years = allGames
+    .map(g => (typeof g.year === 'string' ? parseInt(g.year) : g.year))
+    .filter((y): y is number => typeof y === 'number' && !isNaN(y));
+  const latestYear = years.length > 0 ? Math.max(...years) : undefined;
+  const yearGames = latestYear != null
+    ? allGames.filter(g => Number(g.year) === latestYear)
+    : allGames;
+
+  const currentWeekGame = yearGames.find(g => isScoreMissing(g.vScore) || isScoreMissing(g.hScore));
+  const displayWeek = currentWeekGame ? currentWeekGame.week : yearGames[yearGames.length - 1]?.week;
+  const displayYear = currentWeekGame ? currentWeekGame.year : yearGames[yearGames.length - 1]?.year;
+
+  const weeklyGames = yearGames.filter(g => g.week === displayWeek && g.year === displayYear);
 
   return (
     <div className="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden">
