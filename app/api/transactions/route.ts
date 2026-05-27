@@ -151,6 +151,15 @@ export async function POST(req: Request) {
       await logTransaction({ type, details, fromTeam, toTeam, coach: actorName, leagueId, season });
       revalidateTag('transactions', 'max');
       await logSystemEvent(actorName, fromTeam, 'CONDITIONAL_TRADE', `${fromTeam} → ${toTeam}: ${details.slice(0, 240)}`, leagueId);
+      // Send notification so coaches see the conditional in their inbox /
+      // WhatsApp the same way they'd see a regular trade. The details string
+      // (capped at 2000 chars above) is the asset/condition description.
+      const directionKey = `${fromTeam} ➔ ${toTeam}`;
+      await notifyTransaction({
+        type,
+        directions: { [directionKey]: [details] },
+        leagueId,
+      }).catch(e => console.error('Conditional trade notify failed:', e));
       return Response.json({ success: true });
     }
 
