@@ -126,7 +126,38 @@ export async function POST(req: Request) {
 
     const leagueId = await getLeagueId();
 
-    // Find player by identity
+    // CONDITIONAL TRADE is a record-keeping entry only — no player moves, no
+    // team-id update, no trade-block cleanup. The standard player-lookup path
+    // 404s for this type because the request body has no `identity`. Branch
+    // early so the audit/transaction row gets written.
+    if (type === 'CONDITIONAL TRADE') {
+      if (!details || typeof details !== 'string' || !details.trim()) {
+        return Response.json({ error: 'Conditional trade details required' }, { status: 400 });
+      }
+      if (details.length > 2000) {
+        return Response.json({ error: 'Conditional trade details too long (max 2000 characters)' }, { status: 400 });
+      }
+      if (!fromTeam || !toTeam) {
+        return Response.json({ error: 'fromTeam and toTeam required' }, { status: 400 });
+      }
+      if (typeof fromTeam !== 'string' || typeof toTeam !== 'string' || fromTeam.length > 100 || toTeam.length > 100) {
+        return Response.json({ error: 'fromTeam/toTeam must be strings ≤ 100 chars' }, { status: 400 });
+      }
+      const seasonRule = await db.select({ value: rules.value }).from(rules)
+        .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'cuts_year'), isNull(rules.year))).limit(1);
+      const seasonNum = seasonRule[0] ? parseInt(seasonRule[0].value) : NaN;
+      const season = Number.isFinite(seasonNum) ? seasonNum : undefined;
+      const actorName = session.user.name || callerTeamshort || 'Commissioner';
+      await logTransaction({ type, details, fromTeam, toTeam, coach: actorName, leagueId, season });
+      revalidateTag('transactions', 'max');
+      await logSystemEvent(actorName, fromTeam, 'CONDITIONAL_TRADE', `${fromTeam} → ${toTeam}: ${details.slice(0, 240)}`, leagueId);
+      return Response.json({ success: true });
+    }
+
+    // Find player by identity (required for all non-CONDITIONAL types)
+    if (!identity) {
+      return Response.json({ error: 'identity required' }, { status: 400 });
+    }
     const playerRows = await db.select({
       id: players.id,
       teamId: players.teamId,
