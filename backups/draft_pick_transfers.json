@@ -50,6 +50,18 @@
     "touch_id": "VV"
   },
   {
+    "id": 137,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 3,
+    "originalTeamId": 43,
+    "currentTeamId": 58,
+    "history": [],
+    "touch_dt": "2026-05-27T22:19:59.683Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 102,
     "leagueId": 1,
     "year": 2027,

@@ -6082,5 +6082,86 @@
     "team": "AFL",
     "action": "DRAFT_PICK",
     "details": "R8 #143: RB/KR - Bhayshul Tuten"
+  },
+  {
+    "id": 677,
+    "leagueId": 1,
+    "timestamp": "2026-05-27T15:45:22.084Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R8 #144: RB - Nick Chubb"
+  },
+  {
+    "id": 678,
+    "leagueId": 1,
+    "timestamp": "2026-05-27T21:21:30.321Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R9 #145: T - DJ Glaze"
+  },
+  {
+    "id": 679,
+    "leagueId": 1,
+    "timestamp": "2026-05-27T22:15:45.165Z",
+    "coach": "George Di Martino",
+    "team": "Crimson",
+    "action": "CONDITIONAL_TRADE",
+    "details": "Crimson → Vico: Vico will get the 2027 3rd round pick if CB - Kenny Moore II is signed by a team in the 2026 NFL season.  Otherwise, Vico will get the 2027 4th round pick."
+  },
+  {
+    "id": 680,
+    "leagueId": 1,
+    "timestamp": "2026-05-27T22:19:59.775Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRADE",
+    "details": "Vico ↔ Crimson"
+  },
+  {
+    "id": 681,
+    "leagueId": 1,
+    "timestamp": "2026-05-27T22:20:28.480Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #167 marked Done"
+  },
+  {
+    "id": 682,
+    "leagueId": 1,
+    "timestamp": "2026-05-27T22:20:32.070Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #166 marked Done"
+  },
+  {
+    "id": 683,
+    "leagueId": 1,
+    "timestamp": "2026-05-28T01:42:14.736Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=228 positions=Wide Receivers,Tight Ends,Running Backs,Cornerbacks rookiesOnly=false maxAge=25 needsChars=97 mode=copy"
+  },
+  {
+    "id": 684,
+    "leagueId": 1,
+    "timestamp": "2026-05-28T09:52:07.498Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 685,
+    "leagueId": 1,
+    "timestamp": "2026-05-28T09:52:56.945Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R9 #146: P - Bryan Anger"
   }
 ]
