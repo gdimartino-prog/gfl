@@ -6163,5 +6163,77 @@
     "team": "SG",
     "action": "DRAFT_PICK",
     "details": "R9 #146: P - Bryan Anger"
+  },
+  {
+    "id": 686,
+    "leagueId": 1,
+    "timestamp": "2026-05-28T10:51:18.299Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R9 #147: HB - Charlie Woerner"
+  },
+  {
+    "id": 687,
+    "leagueId": 1,
+    "timestamp": "2026-05-28T10:57:18.744Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=74 positions=Centers,Running Backs rookiesOnly=false maxAge=25 needsChars=88 mode=copy"
+  },
+  {
+    "id": 688,
+    "leagueId": 1,
+    "timestamp": "2026-05-28T10:58:08.865Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_RECOMMEND",
+    "details": "team=VV pool=74 positions=Centers,Running Backs rookiesOnly=false maxAge=25 needsChars=88 mode=full"
+  },
+  {
+    "id": 689,
+    "leagueId": 1,
+    "timestamp": "2026-05-28T11:06:18.332Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R9 #148: WR/PR - Jahan Dotson"
+  },
+  {
+    "id": 690,
+    "leagueId": 1,
+    "timestamp": "2026-05-28T14:37:17.754Z",
+    "coach": "James Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R9 #149: S - Andrew Mukuba"
+  },
+  {
+    "id": 691,
+    "leagueId": 1,
+    "timestamp": "2026-05-28T19:00:26.042Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R9 #150: OLB - Jack Sawyer"
+  },
+  {
+    "id": 692,
+    "leagueId": 1,
+    "timestamp": "2026-05-28T19:46:11.402Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 693,
+    "leagueId": 1,
+    "timestamp": "2026-05-29T00:18:06.732Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
