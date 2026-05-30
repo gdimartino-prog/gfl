@@ -6235,5 +6235,50 @@
     "team": "Pyongyang",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 694,
+    "leagueId": 1,
+    "timestamp": "2026-05-29T11:29:09.032Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R9 #151: K - Evan McPherson"
+  },
+  {
+    "id": 695,
+    "leagueId": 1,
+    "timestamp": "2026-05-29T20:08:05.846Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R9 #152: RB/KR - Keaton Mitchell"
+  },
+  {
+    "id": 696,
+    "leagueId": 1,
+    "timestamp": "2026-05-29T21:54:45.126Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "DRAFT_PICK",
+    "details": "R9 #153: TE - Noah Fant"
+  },
+  {
+    "id": 697,
+    "leagueId": 1,
+    "timestamp": "2026-05-29T22:41:11.447Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R9 #154: TE - Cole Kmet"
+  },
+  {
+    "id": 698,
+    "leagueId": 1,
+    "timestamp": "2026-05-29T22:44:04.419Z",
+    "coach": "George Di Martino",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R9 #155: DL - Da'Shawn Hand"
   }
 ]
