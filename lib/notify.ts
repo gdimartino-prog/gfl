@@ -84,7 +84,7 @@ export async function notifyDraftPick({
   playerName?: string;
   timeTakenMs?: number;
   recentPicks: { round: number; pick: number; player: string; owner: string; originalOwner?: string }[];
-  onDeck: { round: number; pick: number; owner: string; originalOwner?: string }[];
+  onDeck: { round: number; pick: number; owner: string; originalOwner?: string; strikes?: number }[];
   type: 'PICK' | 'WARNING' | 'EXPIRATION';
   leagueId?: number;
 }) {
@@ -105,7 +105,14 @@ export async function notifyDraftPick({
 
   const onDeckStr = onDeck.map(p => {
     const via = p.originalOwner && p.originalOwner !== p.owner ? ` (via ${p.originalOwner})` : '';
-    return `   R${p.round} #${p.pick}: ${p.owner}${via}`;
+    const strikes = p.strikes ?? 0;
+    let strikeNote = '';
+    if (strikes >= 3) {
+      strikeNote = `  ⚠ ${strikes} strikes — auto-skip when up`;
+    } else if (strikes >= 1) {
+      strikeNote = `  (${strikes} strike${strikes === 1 ? '' : 's'})`;
+    }
+    return `   R${p.round} #${p.pick}: ${p.owner}${via}${strikeNote}`;
   }).join('\n');
 
   const nextOwner = onDeck[0]?.owner || '';

@@ -148,20 +148,43 @@ export async function GET(req: Request) {
         .reverse()
         .map(p => ({ round: p.round, pick: p.pick, player: p.selectedPlayerName || 'Skipped', owner: p.currentOwner || '' }));
 
+      // Pre-compute strikes per team for this draft year — used for both the
+      // active team's 3-strike check AND each on-deck team's heads-up in the
+      // notification (so coaches see "⚠ 3 strikes — auto-skip when up" next
+      // to a team about to be force-skipped).
+      const strikesByTeamId = new Map<number, number>();
+      for (const p of allPicks) {
+        if (p.currentTeamId == null) continue;
+        const isSkippedRow = typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED');
+        const wasLate = timings.get(p.id)?.wasLate ?? false;
+        if (isSkippedRow || wasLate) {
+          strikesByTeamId.set(p.currentTeamId, (strikesByTeamId.get(p.currentTeamId) ?? 0) + 1);
+        }
+      }
+
       const onDeck = allPicks
         .slice(activeIdx + 1, activeIdx + 4)
         .filter(p => !p.playerId && !p.passed)
-        .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
+        .map(p => ({
+          round: p.round,
+          pick: p.pick,
+          owner: p.currentOwner || '',
+          originalOwner: p.originalTeam || '',
+          strikes: p.currentTeamId != null ? (strikesByTeamId.get(p.currentTeamId) ?? 0) : 0,
+        }));
 
       // 3-strike rule: if this team has had time expire 3+ times earlier in
       // this draft year (auto-skip OR late submission), immediately skip
-      // without waiting for the clock.
-      const teamStrikes = activePick.currentTeamId == null ? 0 : allPicks.filter(p => {
-        if (p.id === activePick.id) return false;
-        if (p.currentTeamId !== activePick.currentTeamId) return false;
-        const isSkippedRow = typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED');
-        return isSkippedRow || (timings.get(p.id)?.wasLate ?? false);
-      }).length;
+      // without waiting for the clock. Subtract 1 if the active pick itself
+      // was already counted (e.g. mid-pick state shouldn't count itself).
+      const activeIsCountedAsStrike = activePick.currentTeamId != null && (() => {
+        const isSkippedRow = typeof activePick.selectedPlayerName === 'string' && activePick.selectedPlayerName.startsWith('SKIPPED');
+        const wasLate = timings.get(activePick.id)?.wasLate ?? false;
+        return isSkippedRow || wasLate;
+      })();
+      const teamStrikes = activePick.currentTeamId == null
+        ? 0
+        : (strikesByTeamId.get(activePick.currentTeamId) ?? 0) - (activeIsCountedAsStrike ? 1 : 0);
 
       if (teamStrikes >= 3) {
         await db.update(draftPicks)
