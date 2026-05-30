@@ -12,7 +12,10 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [leagueOpen, setLeagueOpen] = useState(false);
-  const [currentSeason, setCurrentSeason] = useState<string>('2025');
+  // Empty string until /api/rules resolves so we don't briefly render a stale
+  // hardcoded year (the previous default flashed "2025" before the effect
+  // swapped it to the real current season).
+  const [currentSeason, setCurrentSeason] = useState<string>('');
   const { currentLeague, availableLeagues, setLeague } = useLeague();
   const leagueName = currentLeague?.slug.toUpperCase() ?? 'Football League';
 
@@ -129,11 +132,13 @@ export default function Navbar() {
               </Link>
             ) : null}
 
-            <div className="bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700 hidden lg:block">
-              <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">
-                {currentSeason}
-              </span>
-            </div>
+            {currentSeason && (
+              <div className="bg-slate-800 px-2 py-0.5 rounded-full border border-slate-700 hidden lg:block">
+                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">
+                  {currentSeason}
+                </span>
+              </div>
+            )}
 
             {/* League Switcher — only visible when user has multiple leagues */}
             {availableLeagues.length > 1 && currentLeague && (

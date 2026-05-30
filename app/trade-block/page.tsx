@@ -203,7 +203,11 @@ export default function TradeBlockPage() {
                     </td>
                     <td className="px-8 py-6 text-slate-500 font-bold text-xs uppercase">{teamNameMap[player.team.toUpperCase()] || player.team}</td>
                     <td className="px-8 py-6 text-slate-500 font-bold text-xs uppercase">{player.position}</td>
-                    <td className="px-8 py-6 text-slate-500 font-bold text-xs">{player.asking}</td>
+                    <td className="px-8 py-6 text-xs font-bold">
+                      {player.asking?.trim()
+                        ? <span className="text-slate-500">{player.asking}</span>
+                        : <span className="text-slate-300">—</span>}
+                    </td>
                     <td className="px-8 py-6">
                       <div className="flex items-center justify-end gap-2">
                         {canManage(player.team) && (
