@@ -105,22 +105,80 @@ export default function ScoutPage() {
           mode,
         }),
       });
-      // Vercel returns an HTML 504 page when the function exceeds maxDuration,
-      // so guard JSON parsing — show a friendly message instead of a parser error.
       const ct = res.headers.get('content-type') || '';
-      if (!ct.includes('application/json')) {
+
+      // copy mode is a normal JSON response — no streaming
+      if (ct.includes('application/json')) {
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || `Request failed (HTTP ${res.status})`);
+        if (data.mode === 'copy' && data.promptText) {
+          setCopyPromptText(data.promptText);
+        } else {
+          setRecommendations(data.recommendations);
+          setRecommendationsHtml(data.recommendationsHtml || null);
+        }
+        setMeta(data.meta);
+      } else if (ct.includes('application/x-ndjson')) {
+        // fast + full modes stream NDJSON line-by-line. Each line is one event:
+        //   {type:'start', meta} → set meta chip row right away
+        //   {type:'text', value} → append to the in-progress recommendations
+        //   {type:'complete', annotated, html} → swap streamed text for the
+        //     citation-annotated HTML (inline [[N]] markers + Sources)
+        //   {type:'error', error} → bubble up to the error banner
+        if (!res.body) throw new Error('Scout response has no body to stream.');
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let sawComplete = false;
+        let streamErrorMsg: string | null = null;
+        let streamingText = '';
+        // Sanity cap so a hostile / buggy upstream that never emits \n can't
+        // exhaust client memory by accumulating one giant "line."
+        const MAX_BUFFER = 1_000_000;
+        const consumeLine = (line: string) => {
+          if (!line.trim()) return;
+          let event: { type: string; [k: string]: unknown };
+          try { event = JSON.parse(line) as { type: string; [k: string]: unknown }; } catch { return; }
+          if (event.type === 'start') {
+            setMeta(event.meta as Meta);
+          } else if (event.type === 'text') {
+            streamingText += String(event.value ?? '');
+            setRecommendations(streamingText);
+          } else if (event.type === 'complete') {
+            sawComplete = true;
+            setRecommendations(String(event.annotated ?? streamingText));
+            setRecommendationsHtml(String(event.html ?? ''));
+          } else if (event.type === 'error') {
+            streamErrorMsg = String(event.error ?? 'Scout failed mid-stream.');
+          }
+        };
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          if (buffer.length > MAX_BUFFER) {
+            throw new Error('Scout stream exceeded buffer limit — aborting.');
+          }
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+          for (const line of lines) consumeLine(line);
+          if (streamErrorMsg) break;
+        }
+        if (buffer.trim()) consumeLine(buffer);
+        if (streamErrorMsg) throw new Error(streamErrorMsg);
+        if (!sawComplete && !streamingText) {
+          if (res.status === 504) throw new Error('Scout timed out (60s). Try narrowing the position group, lowering the age, or enabling "Rookies only" so there are fewer players to research.');
+          throw new Error('Scout ended before producing any output.');
+        }
+        if (!sawComplete) {
+          // Stream ended mid-flight (likely the 60s Vercel cap). Show what
+          // we have and tell the user it's partial.
+          setError('Scout was cut off at the 60s Vercel cap — showing what streamed. Try Fast mode or narrower filters for a complete response.');
+        }
+      } else {
         if (res.status === 504) throw new Error('Scout timed out (60s). Try narrowing the position group, lowering the age, or enabling "Rookies only" so there are fewer players to research.');
         throw new Error(`Scout failed with HTTP ${res.status}. Try again in a moment.`);
       }
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `Request failed (HTTP ${res.status})`);
-      if (data.mode === 'copy' && data.promptText) {
-        setCopyPromptText(data.promptText);
-      } else {
-        setRecommendations(data.recommendations);
-        setRecommendationsHtml(data.recommendationsHtml || null);
-      }
-      setMeta(data.meta);
 
       const submitted = needs.trim();
       if (submitted) {

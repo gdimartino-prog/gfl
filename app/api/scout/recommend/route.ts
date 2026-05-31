@@ -5,7 +5,7 @@ import { draftPicks, nflDraft, players, rules, teams } from '@/schema';
 import { and, asc, eq, inArray, isNull, lte, or, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
-import { getDraftScoutRecommendations, buildScoutPrompt, type ScoutContext } from '@/lib/gemini';
+import { streamScoutRecommendations, buildScoutPrompt, type ScoutContext } from '@/lib/gemini';
 import { expandPositionGroups } from '@/lib/positionGroups';
 import { tokenBucket } from '@/lib/rateLimit';
 import { buildDepthChartIndex, depthRankLabel } from '@/lib/ourlads';
@@ -259,23 +259,72 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const recommendations = await getDraftScoutRecommendations(ctx, { useSearch: mode === 'full' });
+    // fast + full modes stream Gemini output as NDJSON so the user sees text
+    // progressively instead of waiting for the full ~30-50s response. Each
+    // line is one JSON event:
+    //   {"type":"start", mode, meta} — sent immediately so the client can render meta chips
+    //   {"type":"text", value}       — one or more text chunks as Gemini streams
+    //   {"type":"complete", annotated, html} — final citation-annotated text + sanitized HTML
+    //   {"type":"error", error}      — fatal during streaming
+    const encoder = new TextEncoder();
+    const meta = {
+      teamName: ctx.teamName, currentRound, picksUntilNext,
+      poolSize: filteredPool.length, rosterSize: roster.length,
+      maxAge, rookiesOnly, mode,
+    };
 
-    // Audit log Gemini usage so per-user costs can be reconciled against
-    // Google Cloud billing. Captures filter context + which mode was used.
-    await logSystemEvent(callerCoachName, callerTeamshortForLog, 'SCOUT_RECOMMEND', auditDetails, leagueId);
-    // sanitize: true strips raw HTML / javascript: URLs from Gemini output.
-    // Markdown links/headings/bold etc still render — only inline HTML is removed.
-    const processed = await remark().use(remarkGfm).use(remarkHtml, { sanitize: true }).process(recommendations);
-    const recommendationsHtml = String(processed);
-    return NextResponse.json({
-      mode,
-      recommendations,
-      recommendationsHtml,
-      meta: {
-        teamName: ctx.teamName, currentRound, picksUntilNext,
-        poolSize: filteredPool.length, rosterSize: roster.length,
-        maxAge, rookiesOnly, mode,
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        const send = (ev: Record<string, unknown>) => {
+          controller.enqueue(encoder.encode(JSON.stringify(ev) + '\n'));
+        };
+        let success = false;
+        try {
+          send({ type: 'start', mode, meta });
+          for await (const ev of streamScoutRecommendations(ctx, { useSearch: mode === 'full' })) {
+            if (ev.type === 'text') {
+              send(ev);
+            } else if (ev.type === 'complete') {
+              // sanitize: true strips raw HTML / javascript: URLs while keeping
+              // markdown links/headings/bold. Same protection as the old path.
+              const processed = await remark().use(remarkGfm).use(remarkHtml, { sanitize: true }).process(ev.annotated);
+              send({ type: 'complete', annotated: ev.annotated, html: String(processed) });
+              success = true;
+            } else {
+              send(ev);
+            }
+          }
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          console.error('[scout/recommend stream]', msg);
+          send({ type: 'error', error: msg });
+        } finally {
+          // Audit log Gemini usage so per-user costs can be reconciled
+          // against Google Cloud billing. Failures still bill Gemini partial
+          // tokens, so we log them too (with a different action name) so the
+          // billing trail isn't missing partial-cost runs.
+          try {
+            await logSystemEvent(
+              callerCoachName,
+              callerTeamshortForLog,
+              success ? 'SCOUT_RECOMMEND' : 'SCOUT_RECOMMEND_FAILED',
+              auditDetails,
+              leagueId,
+            );
+          } catch (e) {
+            console.error('[scout/recommend audit]', e);
+          }
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'application/x-ndjson; charset=utf-8',
+        'Cache-Control': 'no-cache, no-transform',
+        // Disable Nginx/CDN response buffering so chunks reach the client live.
+        'X-Accel-Buffering': 'no',
       },
     });
   } catch (error) {

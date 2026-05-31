@@ -271,8 +271,7 @@ ${useSearch ? `When you cite NFL news/depth-chart/injury info pulled from the we
   return prompt;
 }
 
-export async function getDraftScoutRecommendations(ctx: ScoutContext, opts: ScoutOptions = {}): Promise<string> {
-  const useSearch = opts.useSearch !== false;
+function buildScoutModel(useSearch: boolean) {
   const genAI = getGeminiClient();
   // Gemini 2.5+ uses the `google_search` tool (snake_case in the REST payload;
   // camelCase variants are rejected silently). The legacy SDK ships types for
@@ -280,13 +279,112 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext, opts: Scou
   // pass both spellings to maximize the chance one is honored. When useSearch
   // is false we skip the tools array entirely — drops per-call cost from
   // ~$0.25-0.40 (Search grounding fees) to ~$0.01-0.02 (pure tokens).
-  const model = useSearch
+  return useSearch
     ? genAI.getGenerativeModel({
         model: 'gemini-2.5-flash',
         tools: [{ google_search: {} }, { googleSearch: {} }] as unknown as never,
       })
     : genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+}
 
+/** Process Gemini's final response object: pull grounding metadata, inject
+ *  inline [[n]](uri) citation markers at each support's text span, append a
+ *  numbered Sources list at the bottom. Shared between streaming + non-stream. */
+function annotateWithGroundingMetadata(text: string, response: unknown): string {
+  const candidate = (response as { candidates?: Array<{ groundingMetadata?: unknown }> })?.candidates?.[0];
+  const gm = (candidate?.groundingMetadata ?? {}) as Record<string, unknown>;
+
+  // Probe every plausible spelling — the SDK doesn't normalise field names
+  // and the wire format sometimes uses snake_case.
+  const chunksAny =
+    gm.groundingChunks ??
+    gm.grounding_chunks ??
+    gm.groundingChunksList ??
+    gm.chunks ??
+    [];
+  const supportsAny =
+    gm.groundingSupports ??
+    gm.grounding_supports ??
+    [];
+  const chunks = (Array.isArray(chunksAny) ? chunksAny : []) as Array<{ web?: { uri?: string; title?: string } }>;
+  const supportsRaw = (Array.isArray(supportsAny) ? supportsAny : []) as Array<Record<string, unknown>>;
+
+  // Compact one-liner so we can verify inline-citation injection in prod.
+  const supportsSample = supportsRaw.slice(0, 2).map(s => ({
+    segKind: typeof s.segment,
+    segKeys: s.segment && typeof s.segment === 'object' ? Object.keys(s.segment as object) : null,
+    indicesKey: ['groundingChunkIndices','groundingChunckIndices','grounding_chunk_indices']
+      .find(k => Array.isArray((s as Record<string, unknown>)[k])) ?? null,
+  }));
+  console.log('[scout] grounding:', JSON.stringify({
+    chunks: chunks.length, supports: supportsRaw.length, supportsSample,
+  }));
+  if (process.env.SCOUT_DEBUG === '1') {
+    console.log('[scout] grounding full:', JSON.stringify({
+      gmKeys: Object.keys(gm),
+      gmFull: JSON.stringify(gm).slice(0, 6000),
+    }));
+  }
+
+  // Dedup chunks by URI and build a chunkIndex → finalSourceIndex map
+  const finalSources: { uri: string; title: string | undefined }[] = [];
+  const uriToFinal = new Map<string, number>();
+  const chunkIdxToFinal = new Map<number, number>();
+  chunks.forEach((c, i) => {
+    const uri = c?.web?.uri;
+    if (!uri) return;
+    let finalIdx = uriToFinal.get(uri);
+    if (finalIdx == null) {
+      finalIdx = finalSources.length;
+      finalSources.push({ uri, title: c.web?.title });
+      uriToFinal.set(uri, finalIdx);
+    }
+    chunkIdxToFinal.set(i, finalIdx);
+  });
+
+  // Normalise each support: pick whichever spelling of the indices field is
+  // present, and accept segment as either an object or (per stale SDK types)
+  // a JSON string.
+  type NormalisedSupport = { endIndex: number; indices: number[] };
+  const supports: NormalisedSupport[] = supportsRaw.flatMap(s => {
+    const segRaw = s.segment;
+    let seg: { endIndex?: number } | null = null;
+    if (segRaw && typeof segRaw === 'object') {
+      seg = segRaw as { endIndex?: number };
+    } else if (typeof segRaw === 'string') {
+      try { seg = JSON.parse(segRaw); } catch { seg = null; }
+    }
+    const endIndex = seg?.endIndex;
+    const indices = (s.groundingChunkIndices ?? s.groundingChunckIndices ?? s.grounding_chunk_indices) as number[] | undefined;
+    if (typeof endIndex !== 'number' || !Array.isArray(indices) || indices.length === 0) return [];
+    return [{ endIndex, indices }];
+  });
+
+  // Inject inline citations at each support's endIndex.
+  // Walk in descending endIndex order so earlier insertions don't shift later indices.
+  let annotated = text;
+  const sortedSupports = [...supports].sort((a, b) => b.endIndex - a.endIndex);
+  for (const sup of sortedSupports) {
+    const seen = new Set<number>();
+    const markers: string[] = [];
+    for (const i of sup.indices) {
+      const finalIdx = chunkIdxToFinal.get(i);
+      if (finalIdx == null || seen.has(finalIdx)) continue;
+      seen.add(finalIdx);
+      markers.push(`[[${finalIdx + 1}]](${finalSources[finalIdx].uri})`);
+    }
+    if (markers.length === 0) continue;
+    const safeEnd = Math.min(Math.max(0, sup.endIndex), annotated.length);
+    annotated = annotated.slice(0, safeEnd) + ' ' + markers.join(' ') + annotated.slice(safeEnd);
+  }
+
+  if (finalSources.length === 0) return annotated;
+  const list = finalSources.map((s, i) => `${i + 1}. [${s.title || s.uri}](${s.uri})`).join('\n');
+  return `${annotated}\n\n---\n**Sources**\n${list}`;
+}
+
+export async function getDraftScoutRecommendations(ctx: ScoutContext, opts: ScoutOptions = {}): Promise<string> {
+  const model = buildScoutModel(opts.useSearch !== false);
   const prompt = buildScoutPrompt(ctx, opts);
 
   try {
@@ -301,109 +399,54 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext, opts: Scou
     const response = await result.response;
     const text = response.text();
     if (!text) throw new Error('No content generated from Gemini');
-
-    // Pull grounding metadata: chunks (the cited pages) + supports (which text
-    // spans cite which chunks). The SDK's type definitions have known issues
-    // (typo'd "groundingChunckIndices" and segment typed as string instead of
-    // an object), so we read everything as `unknown` and defensively probe both
-    // spellings at runtime.
-    const candidate = response.candidates?.[0] as { groundingMetadata?: unknown } | undefined;
-    const gm = (candidate?.groundingMetadata ?? {}) as Record<string, unknown>;
-
-    // Probe every plausible spelling — the SDK doesn't normalise field names
-    // and the wire format sometimes uses snake_case.
-    const chunksAny =
-      gm.groundingChunks ??
-      gm.grounding_chunks ??
-      gm.groundingChunksList ??
-      gm.chunks ??
-      [];
-    const supportsAny =
-      gm.groundingSupports ??
-      gm.grounding_supports ??
-      [];
-    const chunks = (Array.isArray(chunksAny) ? chunksAny : []) as Array<{ web?: { uri?: string; title?: string } }>;
-    const supportsRaw = (Array.isArray(supportsAny) ? supportsAny : []) as Array<Record<string, unknown>>;
-
-    // Always log a compact one-liner so we can verify inline-citation injection
-    // is working in prod. Full dump still gated behind SCOUT_DEBUG=1.
-    const supportsSample = supportsRaw.slice(0, 2).map(s => ({
-      segKind: typeof s.segment,
-      segKeys: s.segment && typeof s.segment === 'object' ? Object.keys(s.segment as object) : null,
-      indicesKey: ['groundingChunkIndices','groundingChunckIndices','grounding_chunk_indices']
-        .find(k => Array.isArray((s as Record<string, unknown>)[k])) ?? null,
-    }));
-    console.log('[scout] grounding:', JSON.stringify({
-      chunks: chunks.length, supports: supportsRaw.length, supportsSample,
-    }));
-    if (process.env.SCOUT_DEBUG === '1') {
-      const candidateRoot = (candidate ?? {}) as Record<string, unknown>;
-      console.log('[scout] grounding full:', JSON.stringify({
-        gmKeys: Object.keys(gm),
-        candidateKeys: Object.keys(candidateRoot),
-        gmFull: JSON.stringify(gm).slice(0, 6000),
-      }));
-    }
-
-    // Dedup chunks by URI and build a chunkIndex → finalSourceIndex map
-    const finalSources: { uri: string; title: string | undefined }[] = [];
-    const uriToFinal = new Map<string, number>();
-    const chunkIdxToFinal = new Map<number, number>();
-    chunks.forEach((c, i) => {
-      const uri = c?.web?.uri;
-      if (!uri) return;
-      let finalIdx = uriToFinal.get(uri);
-      if (finalIdx == null) {
-        finalIdx = finalSources.length;
-        finalSources.push({ uri, title: c.web?.title });
-        uriToFinal.set(uri, finalIdx);
-      }
-      chunkIdxToFinal.set(i, finalIdx);
-    });
-
-    // Normalise each support: pick whichever spelling of the indices field is
-    // present, and accept segment as either an object or (per stale SDK types)
-    // a JSON string.
-    type NormalisedSupport = { endIndex: number; indices: number[] };
-    const supports: NormalisedSupport[] = supportsRaw.flatMap(s => {
-      const segRaw = s.segment;
-      let seg: { endIndex?: number } | null = null;
-      if (segRaw && typeof segRaw === 'object') {
-        seg = segRaw as { endIndex?: number };
-      } else if (typeof segRaw === 'string') {
-        try { seg = JSON.parse(segRaw); } catch { seg = null; }
-      }
-      const endIndex = seg?.endIndex;
-      const indices = (s.groundingChunkIndices ?? s.groundingChunckIndices ?? s.grounding_chunk_indices) as number[] | undefined;
-      if (typeof endIndex !== 'number' || !Array.isArray(indices) || indices.length === 0) return [];
-      return [{ endIndex, indices }];
-    });
-
-    // Inject inline citations at each support's endIndex.
-    // Walk in descending endIndex order so earlier insertions don't shift later indices.
-    let annotated = text;
-    const sortedSupports = [...supports].sort((a, b) => b.endIndex - a.endIndex);
-    for (const sup of sortedSupports) {
-      const seen = new Set<number>();
-      const markers: string[] = [];
-      for (const i of sup.indices) {
-        const finalIdx = chunkIdxToFinal.get(i);
-        if (finalIdx == null || seen.has(finalIdx)) continue;
-        seen.add(finalIdx);
-        markers.push(`[[${finalIdx + 1}]](${finalSources[finalIdx].uri})`);
-      }
-      if (markers.length === 0) continue;
-      const safeEnd = Math.min(Math.max(0, sup.endIndex), annotated.length);
-      annotated = annotated.slice(0, safeEnd) + ' ' + markers.join(' ') + annotated.slice(safeEnd);
-    }
-
-    if (finalSources.length === 0) return annotated;
-    const list = finalSources.map((s, i) => `${i + 1}. [${s.title || s.uri}](${s.uri})`).join('\n');
-    return `${annotated}\n\n---\n**Sources**\n${list}`;
+    return annotateWithGroundingMetadata(text, response);
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     console.error('Gemini scout error:', msg);
     throw error;
+  }
+}
+
+export type ScoutStreamEvent =
+  | { type: 'text'; value: string }
+  | { type: 'complete'; annotated: string }
+  | { type: 'error'; error: string };
+
+/** Streaming variant — yields each text chunk as it arrives from Gemini, then
+ *  at the end yields a single { type: 'complete' } event with the citation-
+ *  annotated final text (inline [[n]] markers + Sources list). Used by the
+ *  /api/scout/recommend route for fast + full modes so the client can render
+ *  progressively. Vercel's 60s maxDuration still applies — but the user sees
+ *  partial output instead of a blank wait. */
+export async function* streamScoutRecommendations(
+  ctx: ScoutContext,
+  opts: ScoutOptions = {},
+): AsyncGenerator<ScoutStreamEvent, void, unknown> {
+  const model = buildScoutModel(opts.useSearch !== false);
+  const prompt = buildScoutPrompt(ctx, opts);
+
+  try {
+    const result = await model.generateContentStream(prompt);
+    let fullText = '';
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      if (!chunkText) continue;
+      fullText += chunkText;
+      yield { type: 'text', value: chunkText };
+    }
+    const finalResponse = await result.response;
+    if (!fullText) {
+      // Fallback: nothing streamed but the aggregated response may have text
+      const final = finalResponse.text();
+      if (final) fullText = final;
+    }
+    if (!fullText) throw new Error('No content generated from Gemini');
+    const annotated = annotateWithGroundingMetadata(fullText, finalResponse);
+    yield { type: 'complete', annotated };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Gemini scout stream error:', msg);
+    yield { type: 'error', error: msg };
   }
 }
 
