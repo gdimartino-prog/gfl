@@ -50,7 +50,7 @@ export default function NflDraftPage() {
   const [gflCount, setGflCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [year, setYear] = useState(2025);
-  const [posFilter, setPosFilter] = useState('ALL');
+  const [selectedPositions, setSelectedPositions] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState('');
   const [showGflOnly, setShowGflOnly] = useState(false);
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
@@ -92,11 +92,11 @@ export default function NflDraftPage() {
   }
 
   const rounds = [...new Set(picks.map(p => p.round))].sort((a, b) => a - b);
-  const positions = ['ALL', ...new Set(picks.map(p => p.position || '').filter(Boolean))].sort();
+  const positions = [...new Set(picks.map(p => p.position || '').filter(Boolean))].sort();
 
   const searchLower = search.toLowerCase();
   const filtered = picks.filter(p => {
-    if (posFilter !== 'ALL' && p.position !== posFilter) return false;
+    if (selectedPositions.size > 0 && !selectedPositions.has(p.position || '')) return false;
     if (showGflOnly && !p.gflDrafted) return false;
     if (search && !p.playerName.toLowerCase().includes(searchLower) &&
         !p.nflTeam?.toLowerCase().includes(searchLower) &&
@@ -137,31 +137,73 @@ export default function NflDraftPage() {
         </div>
 
         {/* Filters */}
-        <div className="mb-5 flex flex-wrap gap-3">
-          <input
-            type="text"
-            placeholder="Search player, team, college…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="border rounded px-3 py-1.5 text-sm bg-white w-64"
-          />
-          <select
-            value={posFilter}
-            onChange={e => setPosFilter(e.target.value)}
-            className="border rounded px-3 py-1.5 text-sm bg-white"
-          >
-            {positions.map(p => <option key={p} value={p}>{p === 'ALL' ? 'All Positions' : p}</option>)}
-          </select>
-          <button
-            onClick={() => setShowGflOnly(v => !v)}
-            className={`px-3 py-1.5 rounded text-sm font-medium border transition-colors ${
-              showGflOnly
-                ? 'bg-red-600 text-white border-red-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            GFL Drafted Only {gflInFiltered > 0 && `(${gflInFiltered})`}
-          </button>
+        <div className="mb-5 space-y-3">
+          <div className="flex flex-wrap gap-3">
+            <input
+              type="text"
+              placeholder="Search player, team, college…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="border rounded px-3 py-1.5 text-sm bg-white w-64"
+            />
+            <button
+              onClick={() => setShowGflOnly(v => !v)}
+              className={`px-3 py-1.5 rounded text-sm font-medium border transition-colors ${
+                showGflOnly
+                  ? 'bg-red-600 text-white border-red-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              GFL Drafted Only {gflInFiltered > 0 && `(${gflInFiltered})`}
+            </button>
+          </div>
+
+          <div className="rounded-xl border-2 border-blue-100 bg-blue-50/50 px-4 py-3">
+            <div className="flex items-baseline justify-between gap-3 mb-2">
+              <label className="block text-xs font-black uppercase tracking-widest text-blue-700">
+                Filter by position
+              </label>
+              <span className="text-[10px] text-slate-500">
+                {selectedPositions.size === 0
+                  ? 'No filter — all positions shown.'
+                  : `Filtering to ${selectedPositions.size} position${selectedPositions.size === 1 ? '' : 's'}.`}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => setSelectedPositions(new Set())}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                  selectedPositions.size === 0
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                All
+              </button>
+              {positions.map(p => {
+                const active = selectedPositions.has(p);
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setSelectedPositions(prev => {
+                      const next = new Set(prev);
+                      if (active) next.delete(p); else next.add(p);
+                      return next;
+                    })}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                      active
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
         {loading ? (
