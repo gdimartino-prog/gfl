@@ -6,6 +6,23 @@ import { useRouter } from 'next/navigation';
 import PlayerCard from '@/components/PlayerCard';
 import { Player } from '@/types';
 import { ChevronRight, Loader2 } from 'lucide-react';
+import { POSITION_GROUPS } from '@/lib/positionGroups';
+
+// Build an offense → OL → DL → LB → DB → ST ordering map from POSITION_GROUPS
+// (single source of truth shared with the Scout page). Unrecognized codes
+// fall to the end and sort alphabetically.
+const POSITION_ORDER_INDEX = new Map<string, number>();
+POSITION_GROUPS.forEach((group, gi) => {
+  group.positions.forEach((pos, pi) => {
+    POSITION_ORDER_INDEX.set(pos, gi * 100 + pi);
+  });
+});
+function comparePositions(a: string, b: string): number {
+  const ai = POSITION_ORDER_INDEX.get(a) ?? 9999;
+  const bi = POSITION_ORDER_INDEX.get(b) ?? 9999;
+  if (ai !== bi) return ai - bi;
+  return a.localeCompare(b);
+}
 
 interface NflPick {
   id: number;
@@ -92,7 +109,7 @@ export default function NflDraftPage() {
   }
 
   const rounds = [...new Set(picks.map(p => p.round))].sort((a, b) => a - b);
-  const positions = [...new Set(picks.map(p => p.position || '').filter(Boolean))].sort();
+  const positions = [...new Set(picks.map(p => p.position || '').filter(Boolean))].sort(comparePositions);
 
   const searchLower = search.toLowerCase();
   const filtered = picks.filter(p => {
