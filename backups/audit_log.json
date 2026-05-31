@@ -6280,5 +6280,158 @@
     "team": "UF",
     "action": "DRAFT_PICK",
     "details": "R9 #155: DL - Da'Shawn Hand"
+  },
+  {
+    "id": 699,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T12:44:44.711Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R9 #156: P - Ryan Wright"
+  },
+  {
+    "id": 700,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T13:11:58.188Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R9 #157: HB - Davis Allen"
+  },
+  {
+    "id": 701,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T15:10:33.132Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R9 #158: WR - Isaac TeSlaa"
+  },
+  {
+    "id": 702,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T16:33:59.544Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 703,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T16:34:28.041Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=152 positions=Wide Receivers rookiesOnly=false maxAge=none needsChars=25 mode=copy"
+  },
+  {
+    "id": 704,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T16:35:40.334Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_RECOMMEND",
+    "details": "team=VV pool=152 positions=Wide Receivers rookiesOnly=false maxAge=none needsChars=25 mode=fast"
+  },
+  {
+    "id": 705,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T16:37:37.995Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "CONDITIONAL_TRADE",
+    "details": "Vico → LBI: QA test conditional — if Player X stats hit threshold, pick converts"
+  },
+  {
+    "id": 706,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T16:43:40.315Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #168 deleted"
+  },
+  {
+    "id": 707,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T16:45:51.181Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R9 #159: DL - Levi Drake Rodriguez"
+  },
+  {
+    "id": 708,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T16:47:54.088Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 709,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T17:44:42.212Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 710,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T17:45:08.520Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 711,
+    "leagueId": 1,
+    "timestamp": "2026-05-30T19:04:12.143Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "DRAFT_PICK",
+    "details": "R9 #160: QB - Geno Smith"
+  },
+  {
+    "id": 712,
+    "leagueId": 1,
+    "timestamp": "2026-05-31T03:19:35.470Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "TRADE",
+    "details": "Carolina ↔ Satriale"
+  },
+  {
+    "id": 713,
+    "leagueId": 1,
+    "timestamp": "2026-05-31T05:40:53.474Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 714,
+    "leagueId": 1,
+    "timestamp": "2026-05-31T05:42:08.518Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R9 #161: CB - Denzel Burke"
+  },
+  {
+    "id": 715,
+    "leagueId": 1,
+    "timestamp": "2026-05-31T07:28:29.081Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R9 #162: K - Riley Patterson"
   }
 ]

@@ -1814,5 +1814,47 @@
     "conditionalDetails": null,
     "touch_dt": "2026-05-27T22:19:59.744Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 169,
+    "leagueId": 1,
+    "date": "2026-05-31T03:19:35.449Z",
+    "type": "TRADE",
+    "description": "Traded to Satriale: 2027 Carolina 9th round pick (146th overall)",
+    "fromTeam": "Carolina",
+    "toTeam": "Satriale",
+    "owner": "Pete Vuckovaz",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2924
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-31T03:19:35.450Z",
+    "touch_id": "Pete Vuckovaz"
+  },
+  {
+    "id": 170,
+    "leagueId": 1,
+    "date": "2026-05-31T03:19:35.460Z",
+    "type": "TRADE",
+    "description": "Traded to Carolina: 2026 Satriale 10th round pick (163rd overall)",
+    "fromTeam": "Satriale",
+    "toTeam": "Carolina",
+    "owner": "Pete Vuckovaz",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2491
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-05-31T03:19:35.463Z",
+    "touch_id": "Pete Vuckovaz"
   }
 ]
