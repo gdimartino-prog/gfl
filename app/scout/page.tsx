@@ -7,7 +7,7 @@ import { Loader2, Sparkles, X } from 'lucide-react';
 import { POSITION_GROUPS } from '@/lib/positionGroups';
 
 const RECENT_NEEDS_KEY = 'gfl-scout-recent-needs';
-const RECENT_NEEDS_TTL_MS = 24 * 60 * 60 * 1000;
+const RECENT_NEEDS_CAP = 5;
 type RecentNeed = { text: string; ts: number };
 
 function loadRecentNeeds(): RecentNeed[] {
@@ -15,8 +15,9 @@ function loadRecentNeeds(): RecentNeed[] {
     const raw = localStorage.getItem(RECENT_NEEDS_KEY);
     if (!raw) return [];
     const parsed: RecentNeed[] = JSON.parse(raw);
-    const cutoff = Date.now() - RECENT_NEEDS_TTL_MS;
-    return parsed.filter(e => e && typeof e.text === 'string' && typeof e.ts === 'number' && e.ts >= cutoff);
+    return parsed
+      .filter(e => e && typeof e.text === 'string' && typeof e.ts === 'number')
+      .slice(0, RECENT_NEEDS_CAP);
   } catch {
     return [];
   }
@@ -24,7 +25,7 @@ function loadRecentNeeds(): RecentNeed[] {
 
 function saveRecentNeeds(entries: RecentNeed[]) {
   try {
-    localStorage.setItem(RECENT_NEEDS_KEY, JSON.stringify(entries.slice(0, 20)));
+    localStorage.setItem(RECENT_NEEDS_KEY, JSON.stringify(entries.slice(0, RECENT_NEEDS_CAP)));
   } catch { /* quota or disabled */ }
 }
 
@@ -184,7 +185,7 @@ export default function ScoutPage() {
       if (submitted) {
         setRecentNeeds(prev => {
           const dedup = prev.filter(e => e.text.toLowerCase() !== submitted.toLowerCase());
-          const next = [{ text: submitted, ts: Date.now() }, ...dedup].slice(0, 20);
+          const next = [{ text: submitted, ts: Date.now() }, ...dedup].slice(0, RECENT_NEEDS_CAP);
           saveRecentNeeds(next);
           return next;
         });
