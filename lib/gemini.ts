@@ -325,17 +325,24 @@ export async function getDraftScoutRecommendations(ctx: ScoutContext, opts: Scou
     const chunks = (Array.isArray(chunksAny) ? chunksAny : []) as Array<{ web?: { uri?: string; title?: string } }>;
     const supportsRaw = (Array.isArray(supportsAny) ? supportsAny : []) as Array<Record<string, unknown>>;
 
-    // Diagnostic — gate behind SCOUT_DEBUG=1 to avoid log bloat in normal use.
+    // Always log a compact one-liner so we can verify inline-citation injection
+    // is working in prod. Full dump still gated behind SCOUT_DEBUG=1.
+    const supportsSample = supportsRaw.slice(0, 2).map(s => ({
+      segKind: typeof s.segment,
+      segKeys: s.segment && typeof s.segment === 'object' ? Object.keys(s.segment as object) : null,
+      indicesKey: ['groundingChunkIndices','groundingChunckIndices','grounding_chunk_indices']
+        .find(k => Array.isArray((s as Record<string, unknown>)[k])) ?? null,
+    }));
+    console.log('[scout] grounding:', JSON.stringify({
+      chunks: chunks.length, supports: supportsRaw.length, supportsSample,
+    }));
     if (process.env.SCOUT_DEBUG === '1') {
       const candidateRoot = (candidate ?? {}) as Record<string, unknown>;
-      const diag = {
+      console.log('[scout] grounding full:', JSON.stringify({
         gmKeys: Object.keys(gm),
         candidateKeys: Object.keys(candidateRoot),
-        chunksFound: chunks.length,
-        supportsFound: supportsRaw.length,
         gmFull: JSON.stringify(gm).slice(0, 6000),
-      };
-      console.log('[scout] grounding diag:', JSON.stringify(diag));
+      }));
     }
 
     // Dedup chunks by URI and build a chunkIndex → finalSourceIndex map
