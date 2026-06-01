@@ -127,6 +127,63 @@ export async function GET(req: Request) {
         continue;
       }
 
+      // FAST PATH: most ticks fire no action. computePickTimings + strikes
+      // computation runs over all draft picks (~450 rows for GFL) and
+      // dominates per-tick CPU. We can safely skip both when:
+      //   1. We can determine cheaply that no warning/expiration will fire
+      //      this tick (deadline far enough away, warningSent state ok)
+      //   2. The active pick hasn't changed since last tick — meaning no
+      //      strike state has changed and the 3-strike check we did on the
+      //      last transition is still valid
+      const prevPick = activeIdx > 0 ? allPicks[activeIdx - 1] : null;
+      const rawClockStart = prevPick?.pickedAt
+        ? new Date(prevPick.pickedAt)
+        : activePick.scheduledAt ? new Date(activePick.scheduledAt) : null;
+      if (!rawClockStart) {
+        results.push({ leagueId, skipped: 'no clock start time' });
+        continue;
+      }
+      const cheapClockStart = rawClockStart < draftStartDate ? draftStartDate : rawClockStart;
+      const cheapClockMinutes = await getDraftClockMinutes(leagueId, activePick.round);
+      const cheapWarningMinutes = getWarningThresholdMinutes(cheapClockMinutes);
+      const cheapDeadlineMs = cheapClockStart.getTime() + cheapClockMinutes * 60 * 1000;
+      const cheapDiffMs = cheapDeadlineMs - now.getTime();
+      const cheapDiffMinutes = cheapDiffMs / 60000;
+
+      // Track the last active pick id we ran the full path on, per draft year
+      const lastIdRuleKey = `cron_last_active_pick_${draftYear}`;
+      const lastIdRow = await db
+        .select({ id: rules.id, value: rules.value })
+        .from(rules)
+        .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, lastIdRuleKey), isNull(rules.year)))
+        .limit(1);
+      const lastSeenPickId = lastIdRow[0]?.value ? parseInt(lastIdRow[0].value) : null;
+      const activePickTransition = lastSeenPickId !== activePick.id;
+
+      const wontExpireThisTick = cheapDiffMs > 0;
+      // The cheap deadline uses prevPick.pickedAt directly, which can be a few
+      // minutes off when prevPick was selected late (the accurate deadline math
+      // would use prevPick's own deadline as clockStart). A 30-minute buffer
+      // over the warning threshold means we only fast-path when the deadline
+      // is clearly far away — preserving correctness around late picks at the
+      // cost of running the full path for the last ~30 min before warning.
+      const wontWarnThisTick = activePick.warningSent || cheapDiffMinutes > cheapWarningMinutes + 30;
+
+      if (wontExpireThisTick && wontWarnThisTick && !activePickTransition) {
+        results.push({ leagueId, action: 'none', minutesRemaining: cheapDiffMinutes.toFixed(1), fast: true });
+        continue;
+      }
+
+      // FULL PATH: persist the active pick id on each transition so subsequent
+      // ticks on the same pick can take the fast path above.
+      if (activePickTransition) {
+        if (lastIdRow[0]) {
+          await db.update(rules).set({ value: String(activePick.id) }).where(eq(rules.id, lastIdRow[0].id));
+        } else {
+          await db.insert(rules).values({ leagueId, rule: lastIdRuleKey, value: String(activePick.id) });
+        }
+      }
+
       const timings = await computePickTimings(
         allPicks.map(p => ({
           id: p.id, round: p.round, pick: p.pick,
