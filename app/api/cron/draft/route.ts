@@ -35,16 +35,26 @@ export async function GET(req: Request) {
         continue;
       }
 
-      // Fast-skip: if we've already marked this draft year complete in a prior
-      // tick, don't even query the picks. One rule read per league per tick.
+      // Fast-skip checks BEFORE the heavy picks query, in parallel:
+      //   1. draft_complete_<year> marker — set once when draft finishes
+      //   2. draft_start_date rule — if absent, the league hasn't set up a
+      //      draft, so no clock work is possible. Previously this was checked
+      //      AFTER loading all picks, costing ~150ms/tick per misconfigured
+      //      league (e.g. AFL with 540 picks + joins for nothing).
       const completeRuleKey = `draft_complete_${draftYear}`;
-      const completeRow = await db
-        .select({ value: rules.value })
-        .from(rules)
-        .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, completeRuleKey), isNull(rules.year)))
-        .limit(1);
+      const [completeRow, draftStartDate] = await Promise.all([
+        db.select({ value: rules.value })
+          .from(rules)
+          .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, completeRuleKey), isNull(rules.year)))
+          .limit(1),
+        getDraftStartDate(leagueId),
+      ]);
       if (completeRow[0]?.value === '1') {
         results.push({ leagueId, skipped: 'draft already complete' });
+        continue;
+      }
+      if (!draftStartDate) {
+        results.push({ leagueId, skipped: 'draft_start_date not configured' });
         continue;
       }
 
@@ -104,13 +114,7 @@ export async function GET(req: Request) {
 
       const activePick = allPicks[activeIdx];
 
-      // If draft_start_date isn't configured, the draft hasn't been set up —
-      // do NOT process picks for this league.
-      const draftStartDate = await getDraftStartDate(leagueId);
-      if (!draftStartDate) {
-        results.push({ leagueId, skipped: 'draft_start_date not configured' });
-        continue;
-      }
+      // draftStartDate was already loaded above and is known non-null here.
       const now = new Date();
       if (now < draftStartDate) {
         results.push({ leagueId, skipped: 'before draft start date', draftStartDate });
