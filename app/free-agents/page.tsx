@@ -274,33 +274,37 @@ const POSITION_GROUPS: {
   {
     // Kick Returners — players with primary position suffix KR (e.g. "WR/KR",
     // "RB/KR") AND players with RET (which the game uses for "both PR and KR").
+    // KR stats map to rush yards/long in this game engine.
     label: 'Kick Returners',
     positions: ['KR', 'RET'],
     cols: [
-      { key: 'age',    label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
-      { key: 'brk',    label: 'Brk',  numeric: true, getValue: p => s(p, 'breakaway') },
-      { key: 'ryds',   label: 'RYds', numeric: true, getValue: p => s(p, 'rush yards') },
-      { key: 'rushlg', label: 'RuLg', numeric: true, getValue: p => s(p, 'rush long') },
-      { key: 'recyds', label: 'RcYd', numeric: true, getValue: p => s(p, 'receiving yards') },
-      { key: 'reclg',  label: 'RcLg', numeric: true, getValue: p => s(p, 'receiving long') },
-      { key: 'dur',    label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
-      { key: 'sal',    label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
+      { key: 'age',    label: 'Age',   numeric: true, getValue: p => p.age ?? '—' },
+      { key: 'brk',    label: 'Brk',   numeric: true, getValue: p => s(p, 'breakaway') },
+      { key: 'kratt',  label: 'KRAtt', numeric: true, getValue: p => s(p, 'rush attempts') },
+      { key: 'kryds',  label: 'KRYds', numeric: true, getValue: p => s(p, 'rush yards') },
+      { key: 'kravg',  label: 'KRAvg', numeric: true, getValue: p => ratio(s(p, 'rush yards'), s(p, 'rush attempts')) },
+      { key: 'krlng',  label: 'KRLng', numeric: true, getValue: p => s(p, 'rush long') },
+      { key: 'krtd',   label: 'KRTD',  numeric: true, getValue: p => s(p, 'rush TD') },
+      { key: 'dur',    label: 'Dur',   numeric: true, getValue: p => p.dur ?? '—' },
+      { key: 'sal',    label: 'Sal',   numeric: true, getValue: p => p.salary ?? '—' },
     ],
   },
   {
     // Punt Returners — players with primary position suffix PR (e.g. "WR/PR")
     // AND players with RET (which the game uses for "both PR and KR").
+    // PR stats map to receiving yards/long in this game engine.
     label: 'Punt Returners',
     positions: ['PR', 'RET'],
     cols: [
-      { key: 'age',    label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
-      { key: 'brk',    label: 'Brk',  numeric: true, getValue: p => s(p, 'breakaway') },
-      { key: 'ryds',   label: 'RYds', numeric: true, getValue: p => s(p, 'rush yards') },
-      { key: 'rushlg', label: 'RuLg', numeric: true, getValue: p => s(p, 'rush long') },
-      { key: 'recyds', label: 'RcYd', numeric: true, getValue: p => s(p, 'receiving yards') },
-      { key: 'reclg',  label: 'RcLg', numeric: true, getValue: p => s(p, 'receiving long') },
-      { key: 'dur',    label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
-      { key: 'sal',    label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
+      { key: 'age',    label: 'Age',   numeric: true, getValue: p => p.age ?? '—' },
+      { key: 'brk',    label: 'Brk',   numeric: true, getValue: p => s(p, 'breakaway') },
+      { key: 'pratt',  label: 'PRAtt', numeric: true, getValue: p => s(p, 'receptions') },
+      { key: 'pryds',  label: 'PRYds', numeric: true, getValue: p => s(p, 'receiving yards') },
+      { key: 'pravg',  label: 'PRAvg', numeric: true, getValue: p => ratio(s(p, 'receiving yards'), s(p, 'receptions')) },
+      { key: 'prlng',  label: 'PRLng', numeric: true, getValue: p => s(p, 'receiving long') },
+      { key: 'prtd',   label: 'PRTD',  numeric: true, getValue: p => s(p, 'receiving TD') },
+      { key: 'dur',    label: 'Dur',   numeric: true, getValue: p => p.dur ?? '—' },
+      { key: 'sal',    label: 'Sal',   numeric: true, getValue: p => p.salary ?? '—' },
     ],
   },
   {
