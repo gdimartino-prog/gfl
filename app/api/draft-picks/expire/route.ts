@@ -85,6 +85,17 @@ export async function POST() {
       .filter(p => !p.playerId)
       .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
+    // Picks that were auto-skipped and still have no player — coaches can
+    // submit a late selection for any of them via the draft board.
+    const skippedOpen = allPicks
+      .filter(p => typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED') && !p.playerId)
+      .map(p => ({
+        round: p.round,
+        pick: p.pick,
+        owner: p.currentOwner || '',
+        skippedAt: p.pickedAt ? new Date(p.pickedAt) : null,
+      }));
+
     await notifyDraftPick({
       round: activePick.round,
       overallPick: activePick.pick,
@@ -92,6 +103,7 @@ export async function POST() {
       originalOwner: activePick.originalTeam || '',
       recentPicks,
       onDeck,
+      skippedOpen,
       type: 'EXPIRATION',
       leagueId,
     }).catch(e => console.error('Expire notify failed:', e));

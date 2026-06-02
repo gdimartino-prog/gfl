@@ -145,6 +145,17 @@ export async function POST(req: NextRequest) {
       .filter(p => !p.playerId)
       .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
+    // Picks that were auto-skipped and still have no player — coaches can
+    // submit a late selection for any of them via the draft board.
+    const skippedOpen = allPicks
+      .filter(p => typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED') && !p.playerId)
+      .map(p => ({
+        round: p.round,
+        pick: p.pick,
+        owner: p.currentOwner || '',
+        skippedAt: p.pickedAt ? new Date(p.pickedAt) : null,
+      }));
+
     revalidateTag('draft-picks', 'max');
     logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`, leagueId);
 
@@ -158,6 +169,7 @@ export async function POST(req: NextRequest) {
       timeTakenMs,
       recentPicks,
       onDeck,
+      skippedOpen,
       type: 'PICK',
       leagueId,
     }).catch(e => console.error('Draft notify failed:', e));

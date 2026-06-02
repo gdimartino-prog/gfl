@@ -75,7 +75,7 @@ export async function sendWhatsApp(message: string) {
 
 export async function notifyDraftPick({
   round, overallPick, currentOwner, originalOwner, playerName,
-  timeTakenMs, recentPicks, onDeck, type, leagueId,
+  timeTakenMs, recentPicks, onDeck, skippedOpen, type, leagueId,
 }: {
   round: number;
   overallPick: number;
@@ -85,6 +85,10 @@ export async function notifyDraftPick({
   timeTakenMs?: number;
   recentPicks: { round: number; pick: number; player: string; owner: string; originalOwner?: string }[];
   onDeck: { round: number; pick: number; owner: string; originalOwner?: string; strikes?: number }[];
+  /** Picks that were auto-skipped and still have no player attached. Coaches
+   *  can submit a late selection for any of these via the draft board (the
+   *  late-pick auth path is intentionally permissive). */
+  skippedOpen?: { round: number; pick: number; owner: string; skippedAt: Date | null }[];
   type: 'PICK' | 'WARNING' | 'EXPIRATION';
   leagueId?: number;
 }) {
@@ -115,6 +119,25 @@ export async function notifyDraftPick({
     return `   R${p.round} #${p.pick}: ${p.owner}${via}${strikeNote}`;
   }).join('\n');
 
+  // Skipped picks that still have no player — coaches can still fill them.
+  // Cap at 8 entries with an overflow line so the notification stays readable
+  // in late rounds.
+  const SKIP_CAP = 8;
+  const skippedAll = skippedOpen ?? [];
+  const skippedShown = skippedAll.slice(0, SKIP_CAP);
+  const skippedOverflow = Math.max(0, skippedAll.length - SKIP_CAP);
+  const skippedStr = skippedAll.length > 0
+    ? skippedShown.map(p => {
+        const when = p.skippedAt
+          ? p.skippedAt.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
+          : '?';
+        return `   R${p.round} #${p.pick}: ${p.owner} (skipped ${when})`;
+      }).join('\n') + (skippedOverflow > 0 ? `\n   + ${skippedOverflow} more` : '')
+    : '';
+  const skippedBlock = skippedAll.length > 0
+    ? `\n\nSKIPPED — CAN STILL BE FILLED:\n${skippedStr}\n\nLate selections are always allowed — any coach can submit via the draft board.`
+    : '';
+
   const nextOwner = onDeck[0]?.owner || '';
   const pingText = type === 'WARNING'
     ? `>>> @ ${currentOwner.toUpperCase()}: YOUR CLOCK IS ALMOST UP <<<\n\n`
@@ -136,12 +159,12 @@ export async function notifyDraftPick({
   }
 
   const subject = `GFL DRAFT (R${round}): Pick #${overallPick}${type === 'PICK' ? ` (${playerName})` : ' ' + type}`;
-  const body = `${pingText}${header}:\n----------\nRound: ${round} | Pick: #${overallPick}\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}\n\nBoard: ${GFL_URL}/draft`;
+  const body = `${pingText}${header}:\n----------\nRound: ${round} | Pick: #${overallPick}\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}${skippedBlock}\n\nBoard: ${GFL_URL}/draft`;
 
   await sendEmail({ subject, text: body });
 
   if (leagueId === 1 || leagueId === undefined) {
-    const waMessage = `${waHeader}\n----------\n*Round ${round} | Pick #${overallPick}*\n\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}${nextOwner ? `\n\n👉 *NEXT UP:* ${nextOwner.toUpperCase()} 👈` : ''}\n\n🌐 ${GFL_URL}`;
+    const waMessage = `${waHeader}\n----------\n*Round ${round} | Pick #${overallPick}*\n\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}${skippedBlock}${nextOwner ? `\n\n👉 *NEXT UP:* ${nextOwner.toUpperCase()} 👈` : ''}\n\n🌐 ${GFL_URL}`;
     await sendWhatsApp(waMessage);
   } else {
     console.log('[notify] skipping WhatsApp for leagueId:', leagueId);

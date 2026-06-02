@@ -234,6 +234,18 @@ export async function GET(req: Request) {
           strikes: p.currentTeamId != null ? (strikesByTeamId.get(p.currentTeamId) ?? 0) : 0,
         }));
 
+      // Picks that were auto-skipped and still have no player attached —
+      // coaches can still submit a late selection for any of these. Surfaced
+      // in every notification so coaches see open opportunities.
+      const skippedOpen = allPicks
+        .filter(p => typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED') && !p.playerId)
+        .map(p => ({
+          round: p.round,
+          pick: p.pick,
+          owner: p.currentOwner || '',
+          skippedAt: p.pickedAt ? new Date(p.pickedAt) : null,
+        }));
+
       // 3-strike rule: if this team has had time expire 3+ times earlier in
       // this draft year (auto-skip OR late submission), immediately skip
       // without waiting for the clock. Subtract 1 if the active pick itself
@@ -257,7 +269,7 @@ export async function GET(req: Request) {
           overallPick: activePick.pick,
           currentOwner: activePick.currentOwner || '',
           originalOwner: activePick.originalTeam || '',
-          recentPicks, onDeck,
+          recentPicks, onDeck, skippedOpen,
           type: 'EXPIRATION',
           leagueId,
         });
@@ -279,7 +291,7 @@ export async function GET(req: Request) {
           overallPick: activePick.pick,
           currentOwner: activePick.currentOwner || '',
           originalOwner: activePick.originalTeam || '',
-          recentPicks, onDeck,
+          recentPicks, onDeck, skippedOpen,
           type: 'EXPIRATION',
           leagueId,
         });
@@ -298,7 +310,7 @@ export async function GET(req: Request) {
             overallPick: activePick.pick,
             currentOwner: activePick.currentOwner || '',
             originalOwner: activePick.originalTeam || '',
-            recentPicks, onDeck,
+            recentPicks, onDeck, skippedOpen,
             type: 'WARNING',
             leagueId,
           });
