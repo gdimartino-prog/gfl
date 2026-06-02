@@ -561,8 +561,17 @@ export default function FreeAgentsPage() {
     const seen = new Set<string>();
     POSITION_GROUPS.forEach(g => {
       const hasPlayers = players.some(p => {
-        const pos = (p.offense || p.defense || p.special || p.position || '').toUpperCase();
-        return g.positions.some(gp => pos === gp || pos.split('-').includes(gp) || pos.split('/').includes(gp));
+        // Check ALL four position columns, not just the first non-empty one.
+        // The data splits roles across columns (e.g. RB/KR player has
+        // offense="RB", special="KR", position="RB/KR"); a short-circuit OR
+        // that only sees offense="RB" hides the KR pill even though the
+        // grouped-players filter would include the player.
+        const allPos = [p.offense, p.defense, p.special, p.position]
+          .filter(Boolean)
+          .map(v => v!.toUpperCase());
+        return g.positions.some(gp => allPos.some(pos =>
+          pos === gp || pos.split('-').includes(gp) || pos.split('/').includes(gp)
+        ));
       });
       if (hasPlayers) seen.add(g.label);
     });
