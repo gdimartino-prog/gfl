@@ -272,6 +272,38 @@ const POSITION_GROUPS: {
     ],
   },
   {
+    // Kick Returners — players with primary position suffix KR (e.g. "WR/KR",
+    // "RB/KR") AND players with RET (which the game uses for "both PR and KR").
+    label: 'Kick Returners',
+    positions: ['KR', 'RET'],
+    cols: [
+      { key: 'age',    label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
+      { key: 'brk',    label: 'Brk',  numeric: true, getValue: p => s(p, 'breakaway') },
+      { key: 'ryds',   label: 'RYds', numeric: true, getValue: p => s(p, 'rush yards') },
+      { key: 'rushlg', label: 'RuLg', numeric: true, getValue: p => s(p, 'rush long') },
+      { key: 'recyds', label: 'RcYd', numeric: true, getValue: p => s(p, 'receiving yards') },
+      { key: 'reclg',  label: 'RcLg', numeric: true, getValue: p => s(p, 'receiving long') },
+      { key: 'dur',    label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
+      { key: 'sal',    label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
+    ],
+  },
+  {
+    // Punt Returners — players with primary position suffix PR (e.g. "WR/PR")
+    // AND players with RET (which the game uses for "both PR and KR").
+    label: 'Punt Returners',
+    positions: ['PR', 'RET'],
+    cols: [
+      { key: 'age',    label: 'Age',  numeric: true, getValue: p => p.age ?? '—' },
+      { key: 'brk',    label: 'Brk',  numeric: true, getValue: p => s(p, 'breakaway') },
+      { key: 'ryds',   label: 'RYds', numeric: true, getValue: p => s(p, 'rush yards') },
+      { key: 'rushlg', label: 'RuLg', numeric: true, getValue: p => s(p, 'rush long') },
+      { key: 'recyds', label: 'RcYd', numeric: true, getValue: p => s(p, 'receiving yards') },
+      { key: 'reclg',  label: 'RcLg', numeric: true, getValue: p => s(p, 'receiving long') },
+      { key: 'dur',    label: 'Dur',  numeric: true, getValue: p => p.dur ?? '—' },
+      { key: 'sal',    label: 'Sal',  numeric: true, getValue: p => p.salary ?? '—' },
+    ],
+  },
+  {
     label: 'Kickers',
     positions: ['K', 'K-P'],
     cols: [
