@@ -1,5 +1,15 @@
 [
   {
+    "id": 38,
+    "leagueId": 1,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "1",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
     "id": 46,
     "leagueId": 2,
     "year": null,
@@ -38,6 +48,16 @@
     "desc": "Nubmer of Pullbacks",
     "touch_dt": "2026-03-04T16:08:49.166Z",
     "touch_id": "migration-script"
+  },
+  {
+    "id": 71,
+    "leagueId": 3,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "1",
+    "desc": null,
+    "touch_dt": "2026-03-25T12:38:20.671Z",
+    "touch_id": "cron-nfl-week"
   },
   {
     "id": 25,
@@ -350,6 +370,16 @@
     "touch_id": "initialize"
   },
   {
+    "id": 39,
+    "leagueId": 1,
+    "year": null,
+    "rule": "player_sync",
+    "value": "06/02/2026, 07:06:38 PM",
+    "desc": "The datetime the player tab was updated",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "maintenance"
+  },
+  {
     "id": 69,
     "leagueId": 1,
     "year": null,
@@ -400,6 +430,16 @@
     "touch_id": "maintenance"
   },
   {
+    "id": 76,
+    "leagueId": 1,
+    "year": null,
+    "rule": "cron_last_active_pick_2026",
+    "value": "2513",
+    "desc": null,
+    "touch_dt": "2026-06-01T12:19:04.518Z",
+    "touch_id": null
+  },
+  {
     "id": 24,
     "leagueId": 1,
     "year": null,
@@ -430,36 +470,6 @@
     "touch_id": "fix-cuts-year"
   },
   {
-    "id": 62,
-    "leagueId": 2,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "1",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-05T15:35:08.929Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
-    "id": 38,
-    "leagueId": 1,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "1",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-04T16:08:49.166Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
-    "id": 71,
-    "leagueId": 3,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "1",
-    "desc": null,
-    "touch_dt": "2026-03-25T12:38:20.671Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
     "id": 73,
     "leagueId": 1,
     "year": null,
@@ -470,23 +480,13 @@
     "touch_id": "maintenance"
   },
   {
-    "id": 39,
-    "leagueId": 1,
+    "id": 62,
+    "leagueId": 2,
     "year": null,
-    "rule": "player_sync",
-    "value": "06/01/2026, 08:35:07 PM",
-    "desc": "The datetime the player tab was updated",
-    "touch_dt": "2026-03-04T16:08:49.166Z",
-    "touch_id": "maintenance"
-  },
-  {
-    "id": 76,
-    "leagueId": 1,
-    "year": null,
-    "rule": "cron_last_active_pick_2026",
-    "value": "2505",
-    "desc": null,
-    "touch_dt": "2026-06-01T12:19:04.518Z",
-    "touch_id": null
+    "rule": "current_nfl_week",
+    "value": "1",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "cron-nfl-week"
   }
 ]

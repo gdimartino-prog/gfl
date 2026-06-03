@@ -6676,5 +6676,194 @@
     "team": "PT",
     "action": "DRAFT_PICK",
     "details": "R10 #176: CB - Quincy Riley"
+  },
+  {
+    "id": 743,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T14:53:17.114Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "TRADE",
+    "details": "Amalfi ↔ DC"
+  },
+  {
+    "id": 744,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T15:04:42.151Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "DRAFT_PICK",
+    "details": "R10 #178: T - Broderick Jones"
+  },
+  {
+    "id": 745,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T15:20:10.038Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R10 #179: RB/KR - Emari Demercado"
+  },
+  {
+    "id": 746,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T16:05:20.709Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R10 #177: WR/PR - Tory Horton"
+  },
+  {
+    "id": 747,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T16:16:06.886Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_DELETE_PICK",
+    "details": "Deleted pick #2505"
+  },
+  {
+    "id": 748,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T16:18:51.260Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 749,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T16:23:44.369Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #172 marked Done"
+  },
+  {
+    "id": 750,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T16:23:46.595Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #173 marked Done"
+  },
+  {
+    "id": 751,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T16:29:25.049Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R10 #177: CB/KR - Josh Blackwell"
+  },
+  {
+    "id": 752,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T21:21:06.970Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 753,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T21:21:35.992Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R10 #180: WR/RET - Jaylin Noel"
+  },
+  {
+    "id": 754,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T23:06:38.563Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 755,
+    "leagueId": 1,
+    "timestamp": "2026-06-02T23:52:10.213Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R11 #181: K - Harrison Butker"
+  },
+  {
+    "id": 756,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T00:51:54.741Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_DELETE_PICK",
+    "details": "Deleted pick #2508"
+  },
+  {
+    "id": 757,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T00:52:42.860Z",
+    "coach": "George Di Martino",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R10 #180: WR/RET - Xavier Smith"
+  },
+  {
+    "id": 758,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T03:32:35.629Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 759,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T03:33:56.600Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R11 #182: G-T - Alex Palczewski"
+  },
+  {
+    "id": 760,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T03:34:39.357Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R11 #183: QB - Kirk Cousins"
+  },
+  {
+    "id": 761,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T09:52:19.720Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_RECOMMEND",
+    "details": "team=VV pool=45 positions=Running Backs rookiesOnly=false maxAge=25 needsChars=98 mode=full"
+  },
+  {
+    "id": 762,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T10:00:56.854Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R11 #184: RB - Jaylen Wright"
+  },
+  {
+    "id": 763,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T10:55:17.069Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=JJ pool=145 positions=Cornerbacks rookiesOnly=false maxAge=none needsChars=118 mode=copy"
   }
 ]

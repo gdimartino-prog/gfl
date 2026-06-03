@@ -1875,5 +1875,51 @@
     "conditionalDetails": null,
     "touch_dt": "2026-06-01T23:11:02.326Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 172,
+    "leagueId": 1,
+    "date": "2026-06-02T14:53:17.074Z",
+    "type": "TRADE",
+    "description": "Traded to DC: 2026 Amalfi 10th round pick (179th overall), 2026 Amalfi 11th round pick (197th overall), 2026 Amalfi 12th round pick (215th overall), 2027 Amalfi 3rd round pick (37th overall), 2027 Amalfi 4th round pick (55th overall)",
+    "fromTeam": "Amalfi",
+    "toTeam": "DC",
+    "owner": "Adrian Scherer",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2507,
+      2525,
+      2543,
+      2815,
+      2833
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-06-02T14:53:17.075Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 173,
+    "leagueId": 1,
+    "date": "2026-06-02T14:53:17.105Z",
+    "type": "TRADE",
+    "description": "Traded to Amalfi: 2026 DC 25th round pick (445th overall)",
+    "fromTeam": "DC",
+    "toTeam": "Amalfi",
+    "owner": "Adrian Scherer",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2773
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-06-02T14:53:17.107Z",
+    "touch_id": "commissioner"
   }
 ]

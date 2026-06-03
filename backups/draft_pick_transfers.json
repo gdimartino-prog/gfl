@@ -112,6 +112,54 @@
     "touch_id": "commissioner"
   },
   {
+    "id": 141,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 11,
+    "originalTeamId": 41,
+    "currentTeamId": 44,
+    "history": [],
+    "touch_dt": "2026-06-02T14:53:16.141Z",
+    "touch_id": "AFL"
+  },
+  {
+    "id": 140,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 10,
+    "originalTeamId": 41,
+    "currentTeamId": 44,
+    "history": [],
+    "touch_dt": "2026-06-02T14:53:16.123Z",
+    "touch_id": "AFL"
+  },
+  {
+    "id": 142,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 4,
+    "originalTeamId": 41,
+    "currentTeamId": 44,
+    "history": [],
+    "touch_dt": "2026-06-02T14:53:16.779Z",
+    "touch_id": "AFL"
+  },
+  {
+    "id": 144,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 25,
+    "originalTeamId": 44,
+    "currentTeamId": 41,
+    "history": [],
+    "touch_dt": "2026-06-02T14:53:16.976Z",
+    "touch_id": "AFL"
+  },
+  {
     "id": 103,
     "leagueId": 1,
     "year": 2026,
@@ -208,6 +256,18 @@
     "history": [],
     "touch_dt": "2026-05-06T15:10:53.694Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 143,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 3,
+    "originalTeamId": 41,
+    "currentTeamId": 44,
+    "history": [],
+    "touch_dt": "2026-06-02T14:53:16.976Z",
+    "touch_id": "AFL"
   },
   {
     "id": 119,
@@ -580,6 +640,18 @@
     "history": [],
     "touch_dt": "2026-05-14T20:59:51.701Z",
     "touch_id": "SG"
+  },
+  {
+    "id": 145,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 12,
+    "originalTeamId": 41,
+    "currentTeamId": 44,
+    "history": [],
+    "touch_dt": "2026-06-02T14:53:16.976Z",
+    "touch_id": "AFL"
   },
   {
     "id": 130,
