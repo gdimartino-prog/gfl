@@ -6865,5 +6865,95 @@
     "team": "VV",
     "action": "SCOUT_COPY_PROMPT",
     "details": "team=JJ pool=145 positions=Cornerbacks rookiesOnly=false maxAge=none needsChars=118 mode=copy"
+  },
+  {
+    "id": 764,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T21:15:19.760Z",
+    "coach": "George Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R11 #185: CB/KR - Dee Alford"
+  },
+  {
+    "id": 765,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T23:19:57.225Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R11 #186: K - Andres Borregales"
+  },
+  {
+    "id": 766,
+    "leagueId": 1,
+    "timestamp": "2026-06-03T23:46:01.799Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R11 #187: CB - Kyu Blu Kelly"
+  },
+  {
+    "id": 767,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T00:24:04.236Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=234 positions=Cornerbacks,Running Backs rookiesOnly=false maxAge=none needsChars=98 mode=copy"
+  },
+  {
+    "id": 768,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T00:27:15.255Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=289 positions=Cornerbacks,Running Backs,Quarterbacks rookiesOnly=false maxAge=none needsChars=98 mode=copy"
+  },
+  {
+    "id": 769,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T00:27:25.102Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=289 positions=Cornerbacks,Running Backs,Quarterbacks rookiesOnly=false maxAge=none needsChars=102 mode=copy"
+  },
+  {
+    "id": 770,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T01:09:24.952Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "DRAFT_PICK",
+    "details": "R11 #188: K-P - Daniel Carlson"
+  },
+  {
+    "id": 771,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T02:26:06.784Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R11 #189: WR/RET - LaJohntay Wester"
+  },
+  {
+    "id": 772,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T03:57:48.179Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R11 #190: HB - Alec Ingold"
+  },
+  {
+    "id": 773,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T05:38:06.585Z",
+    "coach": "John Yurchak",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R11 #191: G-T - Walker Little"
   }
 ]
