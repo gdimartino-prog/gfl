@@ -216,7 +216,10 @@ export async function GET(req: Request) {
       const strikesByTeamId = new Map<number, number>();
       for (const p of allPicks) {
         if (p.currentTeamId == null) continue;
-        const isSkippedRow = typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED');
+        // SKIPPED (3-strike rule) is a consequence of having 3 strikes — don't count it as a 4th.
+        const isSkippedRow = typeof p.selectedPlayerName === 'string' &&
+          p.selectedPlayerName.startsWith('SKIPPED') &&
+          !p.selectedPlayerName.includes('3-strike');
         const wasLate = timings.get(p.id)?.wasLate ?? false;
         if (isSkippedRow || wasLate) {
           strikesByTeamId.set(p.currentTeamId, (strikesByTeamId.get(p.currentTeamId) ?? 0) + 1);
