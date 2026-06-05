@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       year: draftPicks.year,
       originalTeam: originalTeams.name,
       currentOwner: currentTeams.name,
+      currentTeamshort: currentTeams.teamshort,
       pickedAt: draftPicks.pickedAt,
       passed: draftPicks.passed,
     })
@@ -64,8 +65,15 @@ export async function POST(req: NextRequest) {
     if (!isLateSelection) {
       const callerTeamshort = (session.user as { id?: string }).id || '';
       const privileged = await isAdmin() || await isCommissioner();
-      if (!privileged && callerTeamshort.toLowerCase() !== (newOwnerCode || '').toLowerCase()) {
-        return NextResponse.json({ error: 'Forbidden: you do not own this pick' }, { status: 403 });
+      if (!privileged) {
+        // Caller must match newOwnerCode (they are who they say they are)
+        if (callerTeamshort.toLowerCase() !== (newOwnerCode || '').toLowerCase()) {
+          return NextResponse.json({ error: 'Forbidden: you do not own this pick' }, { status: 403 });
+        }
+        // newOwnerCode must match the pick's actual current owner (prevents pick hijacking)
+        if ((pickRow.currentTeamshort || '').toLowerCase() !== (newOwnerCode || '').toLowerCase()) {
+          return NextResponse.json({ error: 'Forbidden: this pick belongs to a different team' }, { status: 403 });
+        }
       }
     }
 

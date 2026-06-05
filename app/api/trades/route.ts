@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { teams, players } from '@/schema';
+import { teams, players, draftPicks } from '@/schema';
 import { eq, and, sql, inArray } from 'drizzle-orm';
 import { logTransaction } from '@/lib/transactions';
 import { upsertPickTransfer } from '@/lib/draftPicks';
@@ -42,6 +42,42 @@ export async function POST(req: Request) {
 
     const fromTeamId = fromTeamRow[0]?.id;
     const toTeamId = toTeamRow[0]?.id;
+
+    // Verify asset ownership before moving anything — prevents a coach from
+    // including players or picks they don't own in a trade submission.
+    // Privileged users (admin/commissioner) are exempt to allow corrections.
+    if (!privileged && fromTeamId && toTeamId) {
+      if (Array.isArray(rawIdentitiesFrom) && rawIdentitiesFrom.length > 0) {
+        const owned = await db.select({ identity: players.identity }).from(players)
+          .where(and(eq(players.leagueId, leagueId), eq(players.teamId, fromTeamId), inArray(players.identity, rawIdentitiesFrom as string[])));
+        if (owned.length !== rawIdentitiesFrom.length) {
+          return Response.json({ message: 'One or more players do not belong to the sending team.' }, { status: 403 });
+        }
+      }
+      if (Array.isArray(rawIdentitiesTo) && rawIdentitiesTo.length > 0) {
+        const owned = await db.select({ identity: players.identity }).from(players)
+          .where(and(eq(players.leagueId, leagueId), eq(players.teamId, toTeamId), inArray(players.identity, rawIdentitiesTo as string[])));
+        if (owned.length !== rawIdentitiesTo.length) {
+          return Response.json({ message: 'One or more players do not belong to the sending team.' }, { status: 403 });
+        }
+      }
+      if (rawPicksFrom?.length) {
+        const ids = (rawPicksFrom as string[]).map(Number);
+        const owned = await db.select({ id: draftPicks.id }).from(draftPicks)
+          .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.currentTeamId, fromTeamId), inArray(draftPicks.id, ids)));
+        if (owned.length !== ids.length) {
+          return Response.json({ message: 'One or more picks do not belong to the sending team.' }, { status: 403 });
+        }
+      }
+      if (rawPicksTo?.length) {
+        const ids = (rawPicksTo as string[]).map(Number);
+        const owned = await db.select({ id: draftPicks.id }).from(draftPicks)
+          .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.currentTeamId, toTeamId), inArray(draftPicks.id, ids)));
+        if (owned.length !== ids.length) {
+          return Response.json({ message: 'One or more picks do not belong to the sending team.' }, { status: 403 });
+        }
+      }
+    }
 
     // Execute draft pick transfers immediately — picks are managed in the web app
     const transferUpserts: Promise<void>[] = [];
