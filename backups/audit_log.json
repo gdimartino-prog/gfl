@@ -6955,5 +6955,86 @@
     "team": "UF",
     "action": "DRAFT_PICK",
     "details": "R11 #191: G-T - Walker Little"
+  },
+  {
+    "id": 774,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T14:08:48.463Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R11 #192: TE - Albert Okwuegbunam"
+  },
+  {
+    "id": 775,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T14:45:10.167Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R11 #193: TE - Johnny Mundt"
+  },
+  {
+    "id": 776,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T15:35:25.093Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R11 #194: LB - Demetrius Knight Jr."
+  },
+  {
+    "id": 777,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T22:50:43.567Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R11 #195: QB - Tyler Huntley"
+  },
+  {
+    "id": 778,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T23:52:14.655Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=54 positions=Quarterbacks rookiesOnly=false maxAge=none needsChars=98 mode=copy"
+  },
+  {
+    "id": 779,
+    "leagueId": 1,
+    "timestamp": "2026-06-04T23:52:56.821Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=54 positions=Quarterbacks rookiesOnly=false maxAge=none needsChars=98 mode=copy"
+  },
+  {
+    "id": 780,
+    "leagueId": 1,
+    "timestamp": "2026-06-05T08:39:10.697Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 781,
+    "leagueId": 1,
+    "timestamp": "2026-06-05T09:15:04.112Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 782,
+    "leagueId": 1,
+    "timestamp": "2026-06-05T09:34:21.981Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "DRAFT_PICK",
+    "details": "R11 #196: K - Andre Szmyt"
   }
 ]
