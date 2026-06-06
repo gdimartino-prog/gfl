@@ -209,17 +209,6 @@
     "touch_id": "VV"
   },
   {
-    "id": 36,
-    "leagueId": 1,
-    "playerId": "javonte|williams|25|rb||",
-    "playerName": "Javonte Williams",
-    "team": "CT",
-    "position": "RB",
-    "asking": "",
-    "touch_dt": "2026-04-27T12:25:32.103Z",
-    "touch_id": "CT"
-  },
-  {
     "id": 38,
     "leagueId": 1,
     "playerId": "joel|bitonio|34|g||",
