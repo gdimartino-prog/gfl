@@ -187,6 +187,10 @@ export async function POST(req: Request) {
           callerTeamshort.toLowerCase() !== (toTeam || '').toLowerCase()) {
         return Response.json({ error: 'Forbidden: you can only add players to your own team' }, { status: 403 });
       }
+      // Player must be a free agent — prevents stealing a rostered player
+      if ((type === 'ADD' || type === 'INJURY PICKUP') && player.teamId !== null) {
+        return Response.json({ error: 'Forbidden: player is already on a roster' }, { status: 403 });
+      }
       if (['DROP', 'WAIVE', 'IR', 'IR MOVE'].includes(type) &&
           callerTeamshort.toLowerCase() !== (player.teamshort || '').toLowerCase()) {
         return Response.json({ error: 'Forbidden: you can only drop or IR your own players' }, { status: 403 });

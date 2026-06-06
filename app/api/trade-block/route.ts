@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/auth";
 import { db } from '@/lib/db';
-import { tradeBlock, teams } from '@/schema';
+import { tradeBlock, teams, players } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyTradeBlock } from '@/lib/notify';
+import { isAdmin, isCommissioner } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -43,10 +44,28 @@ export async function POST(req: NextRequest) {
 
     const leagueId = await getLeagueId();
     const callerTeamshort = (session.user as { id?: string }).id || '';
-    const role = (session.user as { role?: string }).role || '';
-    const isSuperuser = role === 'superuser' || role === 'admin';
-    if (!isSuperuser && callerTeamshort.toLowerCase() !== (team || '').toLowerCase()) {
+    const privileged = await isAdmin() || await isCommissioner();
+    if (!privileged && callerTeamshort.toLowerCase() !== (team || '').toLowerCase()) {
       return NextResponse.json({ message: "Forbidden: you can only list players from your own team" }, { status: 403 });
+    }
+
+    // Verify the player actually belongs to the declaring team
+    if (!privileged) {
+      const playerIdNum = parseInt(String(playerId));
+      if (isNaN(playerIdNum)) {
+        return NextResponse.json({ message: "Invalid player ID" }, { status: 400 });
+      }
+      const playerRow = await db.select({ teamId: players.teamId })
+        .from(players)
+        .where(and(eq(players.id, playerIdNum), eq(players.leagueId, leagueId)))
+        .limit(1);
+      const callerTeamRow = await db.select({ id: teams.id })
+        .from(teams)
+        .where(and(eq(teams.teamshort, callerTeamshort), eq(teams.leagueId, leagueId)))
+        .limit(1);
+      if (!playerRow[0] || !callerTeamRow[0] || playerRow[0].teamId !== callerTeamRow[0].id) {
+        return NextResponse.json({ message: "Forbidden: player does not belong to your team" }, { status: 403 });
+      }
     }
 
     const touchId = callerTeamshort || session.user.name || 'unknown';
