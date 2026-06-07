@@ -7144,5 +7144,149 @@
     "team": "VV",
     "action": "SCOUT_COPY_PROMPT",
     "details": "team=VV pool=54 positions=Quarterbacks rookiesOnly=false maxAge=none needsChars=98 mode=copy"
+  },
+  {
+    "id": 795,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T13:25:08.730Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_RECOMMEND",
+    "details": "team=VV pool=399 positions=all rookiesOnly=false maxAge=25 needsChars=79 mode=full"
+  },
+  {
+    "id": 796,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T13:38:28.104Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R12 #201: RB/KR - Dylan Sampson"
+  },
+  {
+    "id": 797,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T13:41:38.362Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R12 #202: C - Rex Sunahara"
+  },
+  {
+    "id": 798,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T13:43:45.978Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R12 #203: S - Billy Bowman Jr."
+  },
+  {
+    "id": 799,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T13:51:29.966Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 800,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T14:30:10.368Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R12 #200: OLB - Josaiah Stewart"
+  },
+  {
+    "id": 801,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T19:57:27.221Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=JJ pool=398 positions=all rookiesOnly=false maxAge=none needsChars=107 mode=copy"
+  },
+  {
+    "id": 802,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T20:06:11.257Z",
+    "coach": "George Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R12 #204: K-P - Rigoberto Sanchez"
+  },
+  {
+    "id": 803,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T21:28:00.707Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 804,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T22:05:25.151Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "DRAFT_PICK",
+    "details": "R12 #207: WR/PR - Isaiah Bond"
+  },
+  {
+    "id": 805,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T22:54:55.341Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "WAIVE",
+    "details": "WR - Adam Thielen"
+  },
+  {
+    "id": 806,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T23:07:33.324Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #178 marked Done"
+  },
+  {
+    "id": 807,
+    "leagueId": 1,
+    "timestamp": "2026-06-06T23:08:29.029Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 808,
+    "leagueId": 1,
+    "timestamp": "2026-06-07T00:11:16.399Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R12 #208: DE - Austin Booker"
+  },
+  {
+    "id": 809,
+    "leagueId": 1,
+    "timestamp": "2026-06-07T00:24:35.081Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R12 #205: WR/RET - Skyy Moore"
+  },
+  {
+    "id": 810,
+    "leagueId": 1,
+    "timestamp": "2026-06-07T01:56:07.164Z",
+    "coach": "John Yurchak",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R12 #209: P - Johnny Hekker"
   }
 ]

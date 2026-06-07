@@ -1997,5 +1997,24 @@
     "conditionalDetails": null,
     "touch_dt": "2026-06-05T17:15:16.350Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 178,
+    "leagueId": 1,
+    "date": "2026-06-06T22:54:55.300Z",
+    "type": "WAIVE",
+    "description": "WR - Adam Thielen",
+    "fromTeam": "Urban",
+    "toTeam": "FA",
+    "owner": "John Yurchak",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-06-06T22:54:55.303Z",
+    "touch_id": "commissioner"
   }
 ]
