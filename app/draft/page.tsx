@@ -57,9 +57,8 @@ function DraftBoardContent() {
   const [modalSessionId, setModalSessionId] = useState(0);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
 
-  // Roster limit warning state
-  const [onClockRoster, setOnClockRoster] = useState<{ active: number; limit: number } | null>(null);
-  const [myRoster, setMyRoster] = useState<{ active: number; limit: number } | null>(null);
+  // Roster counts for all teams — keyed by TEAMSHORT (uppercase)
+  const [rosterCounts, setRosterCounts] = useState<Record<string, { active: number; limit: number }>>({});
 
   // Timer States
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
@@ -200,37 +199,13 @@ const handleUndoMyPick = async () => {
     hasCalledExpireRef.current = false;
   }, [onClockPick?.overall]);
 
-  // Fetch roster counts for the on-clock team and the logged-in user's team
-  // so we can warn when a team is at the limit before they try to pick.
+  // Fetch roster counts for all teams whenever picks reload
   useEffect(() => {
-    const fetchRosterCount = async (teamCode: string): Promise<{ active: number; limit: number } | null> => {
-      try {
-        const res = await fetch(`/api/rosters/${encodeURIComponent(teamCode)}`, { cache: 'no-store' });
-        if (!res.ok) return null;
-        const data = await res.json();
-        const roster: { isIR?: boolean }[] = data.roster ?? [];
-        const ir = roster.filter(p => p.isIR).length;
-        const total = roster.length;
-        const limit = data.stats?.rosterLimit ?? 53;
-        return { active: total - ir, limit };
-      } catch { return null; }
-    };
-
-    const onClockCode = onClockPick?.currentOwner ? resolveCode(onClockPick.currentOwner) : null;
-    const myCode = myTeamCode || null;
-
-    if (onClockCode) {
-      fetchRosterCount(onClockCode).then(setOnClockRoster);
-    } else {
-      setOnClockRoster(null);
-    }
-
-    if (myCode && myCode !== onClockCode) {
-      fetchRosterCount(myCode).then(setMyRoster);
-    } else {
-      setMyRoster(null);
-    }
-  }, [onClockPick?.overall, onClockPick?.currentOwner, myTeamCode]);
+    fetch('/api/rosters/counts', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : {})
+      .then(setRosterCounts)
+      .catch(() => {});
+  }, [picks]);
 
   const scrollToOnClock = () => {
     if (!onClockRowRef.current) return;
@@ -523,15 +498,19 @@ const handleUndoMyPick = async () => {
                 </span>
               </div>
 
-              {onClockRoster && onClockRoster.active >= onClockRoster.limit && (
-                <div className="mt-4 bg-red-500/20 border border-red-500/40 rounded-2xl px-5 py-3 flex items-center gap-3">
-                  <span className="text-red-400 text-lg font-black">⚠</span>
-                  <div>
-                    <p className="text-red-300 font-black text-[11px] uppercase tracking-widest">Roster Full — {onClockRoster.active}/{onClockRoster.limit}</p>
-                    <p className="text-red-400/70 font-bold text-[10px] mt-0.5">Must waive or place a player on IR before picking</p>
+              {(() => {
+                const code = resolveCode(onClockPick.currentOwner);
+                const rc = rosterCounts[code];
+                return rc && rc.active >= rc.limit ? (
+                  <div className="mt-4 bg-red-500/20 border border-red-500/40 rounded-2xl px-5 py-3 flex items-center gap-3">
+                    <span className="text-red-400 text-lg font-black">⚠</span>
+                    <div>
+                      <p className="text-red-300 font-black text-[11px] uppercase tracking-widest">Roster Full — {rc.active}/{rc.limit}</p>
+                      <p className="text-red-400/70 font-bold text-[10px] mt-0.5">Must waive or place a player on IR before picking</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                ) : null;
+              })()}
             </div>
 
             <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 w-full md:min-w-[300px] text-center relative overflow-hidden">
@@ -555,16 +534,19 @@ const handleUndoMyPick = async () => {
           </div>
         )}
 
-        {/* MY ROSTER LIMIT WARNING — shown when user's own team is at limit but not on clock */}
-        {myRoster && myRoster.active >= myRoster.limit && myTeamCode && (
-          <div className="bg-red-50 border-2 border-red-200 rounded-[2rem] px-6 py-4 flex items-center gap-4">
-            <span className="text-red-500 text-xl font-black shrink-0">⚠</span>
-            <div>
-              <p className="text-red-700 font-black text-[11px] uppercase tracking-widest">Your Roster is Full — {myRoster.active}/{myRoster.limit} Active Players</p>
-              <p className="text-red-500 font-bold text-[10px] mt-0.5">Waive or place a player on IR before your next pick or you will be blocked from selecting.</p>
+        {/* MY ROSTER LIMIT WARNING — shown when user's own team is at limit */}
+        {myTeamCode && (() => {
+          const rc = rosterCounts[myTeamCode.toUpperCase()];
+          return rc && rc.active >= rc.limit ? (
+            <div className="bg-red-50 border-2 border-red-200 rounded-[2rem] px-6 py-4 flex items-center gap-4">
+              <span className="text-red-500 text-xl font-black shrink-0">⚠</span>
+              <div>
+                <p className="text-red-700 font-black text-[11px] uppercase tracking-widest">Your Roster is Full — {rc.active}/{rc.limit} Active Players</p>
+                <p className="text-red-500 font-bold text-[10px] mt-0.5">Waive or place a player on IR before your next pick or you will be blocked from selecting.</p>
+              </div>
             </div>
-          </div>
-        )}
+          ) : null;
+        })()}
 
         {/* DRAFT TYPE TABS — only shown when multiple draft types exist */}
         {(() => {
@@ -727,8 +709,13 @@ const handleUndoMyPick = async () => {
 
                       <td className="px-10 py-4">
                         <div className="flex flex-col">
-                          <span className="text-sm font-black uppercase tracking-tight text-slate-700 inline-flex items-center gap-2">
+                          <span className="text-sm font-black uppercase tracking-tight text-slate-700 inline-flex items-center gap-2 flex-wrap">
                             {getFullTeamName(pick.currentOwner)}
+                            {(() => { const rc = rosterCounts[resolveCode(pick.currentOwner)]; return rc && rc.active >= rc.limit ? (
+                              <span className="text-[9px] font-black uppercase tracking-widest text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                                Full {rc.active}/{rc.limit}
+                              </span>
+                            ) : null; })()}
                             {pick.currentOwnerStrikes != null && pick.currentOwnerStrikes >= 1 && (
                               <span
                                 title={`${pick.currentOwnerStrikes} time-expired skip${pick.currentOwnerStrikes === 1 ? '' : 's'} this draft (3 = auto-skip)`}
@@ -809,11 +796,11 @@ const handleUndoMyPick = async () => {
                           </button>
                         ) : isOnClock && session ? (
                           <div className="flex flex-col items-end gap-2">
-                            {onClockRoster && onClockRoster.active >= onClockRoster.limit && (
+                            {(() => { const rc = rosterCounts[resolveCode(pick.currentOwner)]; return rc && rc.active >= rc.limit ? (
                               <span className="text-[9px] font-black uppercase tracking-widest text-red-600 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
                                 ⚠ Roster Full — Waive or IR First
                               </span>
-                            )}
+                            ) : null; })()}
                             <div className="flex items-center gap-3">
                               <button
                                 disabled={isRefreshing}
