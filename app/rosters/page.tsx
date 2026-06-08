@@ -777,7 +777,10 @@ function RosterSection({ title, players, accent, color, onDetails, onToggleTrade
               <div className="flex items-center gap-4 min-w-0">
                 <span className={`shrink-0 font-mono text-[9px] font-black ${color} w-10 h-10 flex items-center justify-center rounded-xl uppercase italic shadow-inner`}>{p.pos}</span>
                 <div className="min-w-0">
-                  <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name || '')}`} target="_blank" rel="noopener noreferrer" className="text-sm font-black text-slate-900 uppercase italic tracking-tighter leading-none hover:text-blue-600 truncate block">{p.name}</a>
+                  <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name || '')}`} target="_blank" rel="noopener noreferrer" className="text-sm font-black text-slate-900 uppercase italic tracking-tighter leading-none hover:text-blue-600 truncate block flex items-center gap-2">
+                    {p.name}
+                    {(p as RosterPlayer).isIR && <span className="text-[9px] font-black bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-md border border-amber-200 not-italic tracking-widest">IR</span>}
+                  </a>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">Age {p.core?.age || p.age || '??'}</span>
                     {(() => {
