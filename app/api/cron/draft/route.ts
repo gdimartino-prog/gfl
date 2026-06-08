@@ -84,23 +84,33 @@ export async function GET(req: Request) {
       // Active pick: first pick with no player, no pickedAt, and not passed
       const activeIdx = allPicks.findIndex(p => !p.playerId && !p.pickedAt && !p.passed);
       if (activeIdx === -1) {
-        // Either the draft never started (no picks at all touched) or it just
-        // completed on this tick. Distinguish by checking whether any pick has
-        // pickedAt. If any do, mark complete and fire the one-time notification.
+        // All picks are resolved (skipped or passed). Wait 24 hours since the
+        // last real player selection before declaring the draft complete —
+        // gives coaches time to submit late selections for open skipped picks.
         const draftStarted = allPicks.some(p => !!p.pickedAt);
         if (!draftStarted) {
           results.push({ leagueId, skipped: 'draft not started (no picks yet)' });
           continue;
         }
-        // Persist the completion marker so future ticks fast-skip without
-        // re-querying picks. onConflictDoNothing makes this idempotent even
-        // if two ticks race.
+        const lastRealPick = allPicks
+          .filter(p => !!p.playerId && !!p.pickedAt)
+          .sort((a, b) => new Date(b.pickedAt!).getTime() - new Date(a.pickedAt!).getTime())[0];
+        const now24 = new Date();
+        const msSinceLastPick = lastRealPick?.pickedAt
+          ? now24.getTime() - new Date(lastRealPick.pickedAt).getTime()
+          : Infinity;
+        if (msSinceLastPick <= 24 * 60 * 60 * 1000) {
+          const hoursRemaining = ((24 * 60 * 60 * 1000 - msSinceLastPick) / 3600000).toFixed(1);
+          results.push({ leagueId, action: 'none', waitingForClose: true, hoursRemaining });
+          continue;
+        }
+        // 24h have passed since the last real pick — mark the draft complete.
         await db.insert(rules)
           .values({
             leagueId,
             rule: completeRuleKey,
             value: '1',
-            desc: `Draft year ${draftYear} marked complete by cron at ${new Date().toISOString()}`,
+            desc: `Draft year ${draftYear} marked complete by cron at ${now24.toISOString()}`,
           })
           .onConflictDoNothing();
         try {

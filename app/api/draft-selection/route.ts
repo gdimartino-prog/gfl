@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { draftPicks, players, teams, rules } from '@/schema';
-import { eq, and, asc, sql } from 'drizzle-orm';
+import { eq, and, asc, sql, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyDraftPick } from '@/lib/notify';
 import { logSystemEvent } from '@/lib/db-helpers';
@@ -29,6 +29,14 @@ export async function POST(req: NextRequest) {
 
     if (draftYear > new Date().getFullYear()) {
       return NextResponse.json({ error: `Draft year ${draftYear} is in the future — picks are not allowed until that year begins.` }, { status: 400 });
+    }
+
+    const completeRow = await db.select({ value: rules.value })
+      .from(rules)
+      .where(and(eq(rules.rule, `draft_complete_${draftYear}`), eq(rules.leagueId, leagueId), isNull(rules.year)))
+      .limit(1);
+    if (completeRow[0]?.value === '1') {
+      return NextResponse.json({ error: `The ${draftYear} draft is closed. No further picks are accepted.` }, { status: 400 });
     }
 
     // 1. Find the draft pick row by overall pick number, scoped to the current draft year
@@ -101,6 +109,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `Team not found: ${newOwnerCode}` }, { status: 400 });
     }
 
+    // 4a. Roster limit check — team must have an active spot available
+    const [rosterLimitRow, rosterCounts] = await Promise.all([
+      db.select({ value: rules.value })
+        .from(rules)
+        .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'limit_roster')))
+        .limit(1),
+      db.select({
+        total: sql<number>`cast(count(*) as int)`,
+        ir: sql<number>`cast(sum(case when ${players.isIR} = true then 1 else 0 end) as int)`,
+      })
+      .from(players)
+      .where(and(eq(players.leagueId, leagueId), eq(players.teamId, newTeamRow[0].id))),
+    ]);
+    const rosterLimit = parseInt(rosterLimitRow[0]?.value ?? '53');
+    const total = Number(rosterCounts[0]?.total ?? 0);
+    const ir = Number(rosterCounts[0]?.ir ?? 0);
+    const active = total - ir;
+    if (active >= rosterLimit) {
+      return NextResponse.json({
+        error: `${newOwnerCode} is at the roster limit (${active}/${rosterLimit} active). Waive or place a player on IR before drafting.`,
+      }, { status: 400 });
+    }
+
     // 4. Update draft pick: mark as selected
     await db.update(draftPicks)
       .set({
@@ -165,7 +196,7 @@ export async function POST(req: NextRequest) {
       }));
 
     revalidateTag('draft-picks', 'max');
-    logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`, leagueId);
+    await logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`, leagueId);
 
     console.log('[draft-selection] notifying pick, leagueId:', leagueId);
     await notifyDraftPick({

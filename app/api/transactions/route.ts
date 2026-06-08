@@ -107,7 +107,7 @@ export async function DELETE(req: NextRequest) {
 
     await db.delete(transactions).where(and(eq(transactions.id, Number(id)), eq(transactions.leagueId, leagueId)));
     revalidateTag('transactions', 'max');
-    logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted${pickIds?.length ? ` (reverted ${pickIds.length} pick transfer(s))` : ''}`, leagueId);
+    await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted${pickIds?.length ? ` (reverted ${pickIds.length} pick transfer(s))` : ''}`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
     return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
@@ -172,6 +172,7 @@ export async function POST(req: Request) {
       teamId: players.teamId,
       teamshort: teams.teamshort,
       teamName: teams.name,
+      durability: players.durability,
     })
     .from(players)
     .leftJoin(teams, eq(players.teamId, teams.id))
@@ -194,6 +195,21 @@ export async function POST(req: Request) {
       if (['DROP', 'WAIVE', 'IR', 'IR MOVE'].includes(type) &&
           callerTeamshort.toLowerCase() !== (player.teamshort || '').toLowerCase()) {
         return Response.json({ error: 'Forbidden: you can only drop or IR your own players' }, { status: 403 });
+      }
+    }
+
+    // IR restriction: during draft season, only players who haven't played
+    // any NFL games (durability = 0) may be placed on IR.
+    if (type === 'IR' || type === 'IR MOVE') {
+      const nflWeekRow = await db.select({ value: rules.value })
+        .from(rules)
+        .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'current_nfl_week'), isNull(rules.year)))
+        .limit(1);
+      const currentNflWeek = parseInt(nflWeekRow[0]?.value ?? '0') || 0;
+      if (currentNflWeek === 0 && Number(player.durability ?? 0) !== 0) {
+        return Response.json({
+          error: 'During the draft, only players who have not played any NFL games (durability 0) can be placed on IR.',
+        }, { status: 400 });
       }
     }
 
