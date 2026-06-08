@@ -7288,5 +7288,59 @@
     "team": "UF",
     "action": "DRAFT_PICK",
     "details": "R12 #209: P - Johnny Hekker"
+  },
+  {
+    "id": 811,
+    "leagueId": 1,
+    "timestamp": "2026-06-07T10:12:31.934Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R12 #206: RB/KR - Isaiah Davis"
+  },
+  {
+    "id": 812,
+    "leagueId": 1,
+    "timestamp": "2026-06-07T12:27:40.390Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R12 #210: DT - Adam Butler"
+  },
+  {
+    "id": 813,
+    "leagueId": 1,
+    "timestamp": "2026-06-07T16:04:24.071Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R12 #211: LB - Luke Gifford"
+  },
+  {
+    "id": 814,
+    "leagueId": 1,
+    "timestamp": "2026-06-07T16:54:55.663Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R12 #212: DL - Darius Alexander"
+  },
+  {
+    "id": 815,
+    "leagueId": 1,
+    "timestamp": "2026-06-08T09:58:01.531Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 816,
+    "leagueId": 1,
+    "timestamp": "2026-06-08T10:58:26.180Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R12 #213: DT - Jordan Elliott"
   }
 ]
