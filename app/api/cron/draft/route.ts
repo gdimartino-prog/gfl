@@ -216,10 +216,8 @@ export async function GET(req: Request) {
       const strikesByTeamId = new Map<number, number>();
       for (const p of allPicks) {
         if (p.currentTeamId == null) continue;
-        // SKIPPED (3-strike rule) is a consequence of having 3 strikes — don't count it as a 4th.
-        const isSkippedRow = typeof p.selectedPlayerName === 'string' &&
-          p.selectedPlayerName.startsWith('SKIPPED') &&
-          !p.selectedPlayerName.includes('3-strike');
+        // Consequence-skips don't count as strikes — only true time expirations do.
+        const isSkippedRow = p.selectedPlayerName === 'SKIPPED (Time Expired)';
         const wasLate = timings.get(p.id)?.wasLate ?? false;
         if (isSkippedRow || wasLate) {
           strikesByTeamId.set(p.currentTeamId, (strikesByTeamId.get(p.currentTeamId) ?? 0) + 1);
@@ -278,6 +276,29 @@ export async function GET(req: Request) {
         });
 
         results.push({ leagueId, action: 'auto_skip_3strike', pick: activePick.pick, strikes: teamStrikes });
+        continue;
+      }
+
+      // Open-pick rule: if this team still has an unfilled skipped pick from a
+      // prior round, immediately skip their current turn until they submit a
+      // late selection for the open pick.
+      const teamHasOpenSkip = skippedOpen.some(p => p.owner === activePick.currentOwner);
+      if (teamHasOpenSkip) {
+        await db.update(draftPicks)
+          .set({ selectedPlayerName: 'SKIPPED (open pick pending)', pickedAt: now, touch_id: 'cron-open-pick' })
+          .where(eq(draftPicks.id, activePick.id));
+
+        await notifyDraftPick({
+          round: activePick.round,
+          overallPick: activePick.pick,
+          currentOwner: activePick.currentOwner || '',
+          originalOwner: activePick.originalTeam || '',
+          recentPicks, onDeck, skippedOpen,
+          type: 'EXPIRATION',
+          leagueId,
+        });
+
+        results.push({ leagueId, action: 'auto_skip_open_pick', pick: activePick.pick });
         continue;
       }
 
