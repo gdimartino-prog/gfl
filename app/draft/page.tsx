@@ -57,6 +57,10 @@ function DraftBoardContent() {
   const [modalSessionId, setModalSessionId] = useState(0);
   const [showSelectionModal, setShowSelectionModal] = useState(false);
 
+  // Roster limit warning state
+  const [onClockRoster, setOnClockRoster] = useState<{ active: number; limit: number } | null>(null);
+  const [myRoster, setMyRoster] = useState<{ active: number; limit: number } | null>(null);
+
   // Timer States
   const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
   const [progress, setProgress] = useState(100);
@@ -195,6 +199,38 @@ const handleUndoMyPick = async () => {
   useEffect(() => {
     hasCalledExpireRef.current = false;
   }, [onClockPick?.overall]);
+
+  // Fetch roster counts for the on-clock team and the logged-in user's team
+  // so we can warn when a team is at the limit before they try to pick.
+  useEffect(() => {
+    const fetchRosterCount = async (teamCode: string): Promise<{ active: number; limit: number } | null> => {
+      try {
+        const res = await fetch(`/api/rosters/${encodeURIComponent(teamCode)}`, { cache: 'no-store' });
+        if (!res.ok) return null;
+        const data = await res.json();
+        const roster: { isIR?: boolean }[] = data.roster ?? [];
+        const ir = roster.filter(p => p.isIR).length;
+        const total = roster.length;
+        const limit = data.stats?.rosterLimit ?? 53;
+        return { active: total - ir, limit };
+      } catch { return null; }
+    };
+
+    const onClockCode = onClockPick?.currentOwner ? resolveCode(onClockPick.currentOwner) : null;
+    const myCode = myTeamCode || null;
+
+    if (onClockCode) {
+      fetchRosterCount(onClockCode).then(setOnClockRoster);
+    } else {
+      setOnClockRoster(null);
+    }
+
+    if (myCode && myCode !== onClockCode) {
+      fetchRosterCount(myCode).then(setMyRoster);
+    } else {
+      setMyRoster(null);
+    }
+  }, [onClockPick?.overall, onClockPick?.currentOwner, myTeamCode]);
 
   const scrollToOnClock = () => {
     if (!onClockRowRef.current) return;
@@ -486,6 +522,16 @@ const handleUndoMyPick = async () => {
                   Round {onClockPick.round}
                 </span>
               </div>
+
+              {onClockRoster && onClockRoster.active >= onClockRoster.limit && (
+                <div className="mt-4 bg-red-500/20 border border-red-500/40 rounded-2xl px-5 py-3 flex items-center gap-3">
+                  <span className="text-red-400 text-lg font-black">⚠</span>
+                  <div>
+                    <p className="text-red-300 font-black text-[11px] uppercase tracking-widest">Roster Full — {onClockRoster.active}/{onClockRoster.limit}</p>
+                    <p className="text-red-400/70 font-bold text-[10px] mt-0.5">Must waive or place a player on IR before picking</p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 w-full md:min-w-[300px] text-center relative overflow-hidden">
@@ -505,6 +551,17 @@ const handleUndoMyPick = async () => {
                   style={{ width: `${progress}%` }}
                 />
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* MY ROSTER LIMIT WARNING — shown when user's own team is at limit but not on clock */}
+        {myRoster && myRoster.active >= myRoster.limit && myTeamCode && (
+          <div className="bg-red-50 border-2 border-red-200 rounded-[2rem] px-6 py-4 flex items-center gap-4">
+            <span className="text-red-500 text-xl font-black shrink-0">⚠</span>
+            <div>
+              <p className="text-red-700 font-black text-[11px] uppercase tracking-widest">Your Roster is Full — {myRoster.active}/{myRoster.limit} Active Players</p>
+              <p className="text-red-500 font-bold text-[10px] mt-0.5">Waive or place a player on IR before your next pick or you will be blocked from selecting.</p>
             </div>
           </div>
         )}
@@ -751,25 +808,32 @@ const handleUndoMyPick = async () => {
                             Late Selection
                           </button>
                         ) : isOnClock && session ? (
-                          <div className="flex items-center justify-end gap-3">
-                            <button
-                              disabled={isRefreshing}
-                              onClick={() => handlePass(String(pick.overall))}
-                              className="bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-amber-100 hover:text-amber-700 transition-all active:scale-95"
-                            >
-                              Pass
-                            </button>
-                            <button
-                              disabled={isRefreshing}
-                              onClick={() => {
-                                setModalSessionId(Date.now());
-                                setSelectedPick(pick);
-                                setShowSelectionModal(true);
-                              }}
-                              className="bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-blue-700 transition-all active:scale-95"
-                            >
-                              Enter Selection
-                            </button>
+                          <div className="flex flex-col items-end gap-2">
+                            {onClockRoster && onClockRoster.active >= onClockRoster.limit && (
+                              <span className="text-[9px] font-black uppercase tracking-widest text-red-600 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
+                                ⚠ Roster Full — Waive or IR First
+                              </span>
+                            )}
+                            <div className="flex items-center gap-3">
+                              <button
+                                disabled={isRefreshing}
+                                onClick={() => handlePass(String(pick.overall))}
+                                className="bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-amber-100 hover:text-amber-700 transition-all active:scale-95"
+                              >
+                                Pass
+                              </button>
+                              <button
+                                disabled={isRefreshing}
+                                onClick={() => {
+                                  setModalSessionId(Date.now());
+                                  setSelectedPick(pick);
+                                  setShowSelectionModal(true);
+                                }}
+                                className="bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-blue-700 transition-all active:scale-95"
+                              >
+                                Enter Selection
+                              </button>
+                            </div>
                           </div>
                         ) : (
                           <div className="flex items-center justify-end gap-2">
