@@ -226,8 +226,11 @@ export async function GET(req: Request) {
       const strikesByTeamId = new Map<number, number>();
       for (const p of allPicks) {
         if (p.currentTeamId == null) continue;
-        // Consequence-skips don't count as strikes — only true time expirations do.
-        const isSkippedRow = p.selectedPlayerName === 'SKIPPED (Time Expired)';
+        // Only the 3-strike auto-skip doesn't count as a strike — all other
+        // SKIPPED variants (Time Expired, open pick pending) do count.
+        const isSkippedRow = typeof p.selectedPlayerName === 'string' &&
+          p.selectedPlayerName.startsWith('SKIPPED') &&
+          p.selectedPlayerName !== 'SKIPPED (3-strike rule)';
         const wasLate = timings.get(p.id)?.wasLate ?? false;
         if (isSkippedRow || wasLate) {
           strikesByTeamId.set(p.currentTeamId, (strikesByTeamId.get(p.currentTeamId) ?? 0) + 1);
@@ -262,7 +265,9 @@ export async function GET(req: Request) {
       // without waiting for the clock. Subtract 1 if the active pick itself
       // was already counted (e.g. mid-pick state shouldn't count itself).
       const activeIsCountedAsStrike = activePick.currentTeamId != null && (() => {
-        const isSkippedRow = typeof activePick.selectedPlayerName === 'string' && activePick.selectedPlayerName.startsWith('SKIPPED');
+        const isSkippedRow = typeof activePick.selectedPlayerName === 'string' &&
+          activePick.selectedPlayerName.startsWith('SKIPPED') &&
+          activePick.selectedPlayerName !== 'SKIPPED (3-strike rule)';
         const wasLate = timings.get(activePick.id)?.wasLate ?? false;
         return isSkippedRow || wasLate;
       })();
