@@ -7342,5 +7342,77 @@
     "team": "TT",
     "action": "DRAFT_PICK",
     "details": "R12 #213: DT - Jordan Elliott"
+  },
+  {
+    "id": 817,
+    "leagueId": 1,
+    "timestamp": "2026-06-08T14:29:11.690Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "DRAFT_PICK",
+    "details": "R12 #214: WR/RET - Kameron Johnson"
+  },
+  {
+    "id": 818,
+    "leagueId": 1,
+    "timestamp": "2026-06-08T16:23:59.279Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R12 #215: S - Amani Hooker"
+  },
+  {
+    "id": 819,
+    "leagueId": 1,
+    "timestamp": "2026-06-08T18:58:58.641Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R12 #216: RB - Woody Marks"
+  },
+  {
+    "id": 820,
+    "leagueId": 1,
+    "timestamp": "2026-06-08T20:22:56.513Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 821,
+    "leagueId": 1,
+    "timestamp": "2026-06-08T21:15:36.067Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 822,
+    "leagueId": 1,
+    "timestamp": "2026-06-08T23:26:13.137Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 823,
+    "leagueId": 1,
+    "timestamp": "2026-06-08T23:38:51.877Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 824,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T07:50:19.817Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R13 #219: P - Logan Cooke"
   }
 ]
