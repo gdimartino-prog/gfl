@@ -2016,5 +2016,43 @@
     "conditionalDetails": null,
     "touch_dt": "2026-06-06T22:54:55.303Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 179,
+    "leagueId": 1,
+    "date": "2026-06-09T11:08:58.311Z",
+    "type": "WAIVE",
+    "description": "CB - Darious Williams",
+    "fromTeam": "Jefferson",
+    "toTeam": "FA",
+    "owner": "George Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-06-09T11:08:58.317Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 180,
+    "leagueId": 1,
+    "date": "2026-06-09T11:38:44.378Z",
+    "type": "WAIVE",
+    "description": "CB - Brandin Echols",
+    "fromTeam": "Crimson",
+    "toTeam": "FA",
+    "owner": "Bob Glade",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-06-09T11:38:44.384Z",
+    "touch_id": "commissioner"
   }
 ]

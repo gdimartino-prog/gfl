@@ -7414,5 +7414,185 @@
     "team": "OBG",
     "action": "DRAFT_PICK",
     "details": "R13 #219: P - Logan Cooke"
+  },
+  {
+    "id": 825,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T11:06:06.004Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=398 positions=all rookiesOnly=false maxAge=none needsChars=79 mode=copy"
+  },
+  {
+    "id": 826,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T11:07:33.072Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R13 #220: CB - Myles Harden"
+  },
+  {
+    "id": 827,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T11:08:22.732Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=JJ pool=398 positions=all rookiesOnly=false maxAge=none needsChars=107 mode=copy"
+  },
+  {
+    "id": 828,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T11:08:58.329Z",
+    "coach": "George Di Martino",
+    "team": "Jefferson",
+    "action": "WAIVE",
+    "details": "CB - Darious Williams"
+  },
+  {
+    "id": 829,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T11:10:13.675Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=398 positions=Defensive Tackles,Defensive Ends,Cornerbacks,Safeties rookiesOnly=false maxAge=none needsChars=107 mode=copy"
+  },
+  {
+    "id": 830,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T11:10:45.179Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=JJ pool=398 positions=Defensive Tackles,Defensive Ends,Cornerbacks,Safeties rookiesOnly=false maxAge=none needsChars=107 mode=copy"
+  },
+  {
+    "id": 831,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T11:11:26.502Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=398 positions=Defensive Tackles,Defensive Ends,Cornerbacks,Safeties rookiesOnly=false maxAge=none needsChars=118 mode=copy"
+  },
+  {
+    "id": 832,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T11:38:44.398Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "WAIVE",
+    "details": "CB - Brandin Echols"
+  },
+  {
+    "id": 833,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T14:19:41.998Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 834,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T14:24:33.346Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_RECOMMEND",
+    "details": "team=FPR pool=119 positions=Safeties rookiesOnly=false maxAge=none needsChars=84 mode=full"
+  },
+  {
+    "id": 835,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T14:47:33.082Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=119 positions=Safeties rookiesOnly=false maxAge=none needsChars=84 mode=copy"
+  },
+  {
+    "id": 836,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T15:51:10.681Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "DRAFT_PICK",
+    "details": "R13 #217: P - Tommy Townsend"
+  },
+  {
+    "id": 837,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T19:23:48.297Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #179 marked Done"
+  },
+  {
+    "id": 838,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T19:24:52.495Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 839,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T23:09:48.885Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R13 #222: P - Jeremy Crawshaw"
+  },
+  {
+    "id": 840,
+    "leagueId": 1,
+    "timestamp": "2026-06-09T23:19:05.904Z",
+    "coach": "James Di Martino",
+    "team": "Jefferson",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 841,
+    "leagueId": 1,
+    "timestamp": "2026-06-10T00:27:09.062Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #180 marked Done"
+  },
+  {
+    "id": 842,
+    "leagueId": 1,
+    "timestamp": "2026-06-10T01:05:02.445Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 843,
+    "leagueId": 1,
+    "timestamp": "2026-06-10T01:45:40.870Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 844,
+    "leagueId": 1,
+    "timestamp": "2026-06-10T01:58:52.645Z",
+    "coach": "James Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R13 #221: S - Dante Trader Jr."
   }
 ]
