@@ -173,6 +173,7 @@ export async function POST(req: Request) {
       teamshort: teams.teamshort,
       teamName: teams.name,
       durability: players.durability,
+      isIR: players.isIR,
     })
     .from(players)
     .leftJoin(teams, eq(players.teamId, teams.id))
@@ -234,9 +235,14 @@ export async function POST(req: Request) {
       }
     } else if (type === 'DROP' || type === 'WAIVE') {
       newTeamId = null; // FA
+      if (player.isIR) {
+        await db.update(players).set({ isIR: false, touch_id: 'transaction', touch_dt: new Date() })
+          .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
+      }
     } else if (type === 'IR' || type === 'IR MOVE') {
       newTeamId = player.teamId ?? null; // stays on same team, isIR flag would be set
-      await db.update(players).set({ isIR: true, touch_id: 'transaction' }).where(eq(players.id, player.id));
+      await db.update(players).set({ isIR: true, touch_id: 'transaction', touch_dt: new Date() })
+        .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
     }
 
     if (type !== 'IR' && type !== 'IR MOVE') {
@@ -257,6 +263,7 @@ export async function POST(req: Request) {
     const actorName = session.user.name || (session.user as { id?: string }).id || 'Commissioner';
     await logTransaction({ ...body, coach: actorName, fromTeam: resolvedFromTeam, details, leagueId, season });
     revalidateTag('transactions', 'max');
+    revalidateTag('players', 'max');
     await logSystemEvent(actorName, resolvedFromTeam, type, details || identity, leagueId);
 
     // Send notification

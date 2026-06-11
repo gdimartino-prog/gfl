@@ -122,7 +122,7 @@ export async function processPlayersFile(
   // Upsert by identity so draft pick playerId refs remain valid across re-syncs.
   // 1. Fetch existing players
   const existingPlayers = await db
-    .select({ id: players.id, name: players.name, identity: players.identity, teamId: players.teamId })
+    .select({ id: players.id, name: players.name, identity: players.identity, teamId: players.teamId, isIR: players.isIR })
     .from(players)
     .where(eq(players.leagueId, leagueId));
 
@@ -147,10 +147,10 @@ export async function processPlayersFile(
   }
   const orphanIds: number[] = [];
   const removedDuplicateNames: string[] = [];
-  const canonicalByIdentity = new Map<string, { id: number; teamId: number | null }>();
+  const canonicalByIdentity = new Map<string, { id: number; teamId: number | null; isIR: boolean | null }>();
   for (const [identity, group] of groupsByIdentity) {
     if (group.length === 1) {
-      canonicalByIdentity.set(identity, { id: group[0].id, teamId: group[0].teamId });
+      canonicalByIdentity.set(identity, { id: group[0].id, teamId: group[0].teamId, isIR: group[0].isIR });
       continue;
     }
     const ranked = [...group].sort((a, b) => {
@@ -163,7 +163,7 @@ export async function processPlayersFile(
       return a.id - b.id;
     });
     const [canonical, ...dupes] = ranked;
-    canonicalByIdentity.set(identity, { id: canonical.id, teamId: canonical.teamId });
+    canonicalByIdentity.set(identity, { id: canonical.id, teamId: canonical.teamId, isIR: canonical.isIR });
     for (const d of dupes) {
       if (!draftedPlayerIds.has(d.id)) {
         orphanIds.push(d.id);
@@ -184,7 +184,10 @@ export async function processPlayersFile(
     if (p.identity) fileIdentities.add(p.identity);
     const existing = p.identity ? existingByIdentity.get(p.identity) : undefined;
     if (existing) {
-      await db.update(players).set(p).where(eq(players.id, existing.id));
+      // Preserve isIR=true set by a transaction — the CSV never has IR context.
+      // Only override when the CSV explicitly marks the player as -IR (rare).
+      const preservedIsIR = p.isIR || existing.isIR || false;
+      await db.update(players).set({ ...p, isIR: preservedIsIR }).where(eq(players.id, existing.id));
     } else {
       await db.insert(players).values(p);
     }

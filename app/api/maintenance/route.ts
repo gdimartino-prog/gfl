@@ -37,22 +37,21 @@ async function restoreIRFlags(leagueId: number) {
 
   // Clear all IR flags first so stale entries from prior seasons don't persist
   await db.update(players)
-    .set({ isIR: false, touch_id: 'ir-restore' })
+    .set({ isIR: false, touch_id: 'ir-restore', touch_dt: new Date() })
     .where(and(eq(players.leagueId, leagueId), sql`${players.isIR} = true`));
 
-  if (stillOnIR.length === 0) return 0;
+  const uniqueOnIR = [...new Set(stillOnIR)];
+  if (uniqueOnIR.length === 0) return 0;
 
-  let updated = 0;
-  for (const name of stillOnIR) {
-    const result = await db.update(players)
-      .set({ isIR: true, touch_id: 'ir-restore' })
+  for (const name of uniqueOnIR) {
+    await db.update(players)
+      .set({ isIR: true, touch_id: 'ir-restore', touch_dt: new Date() })
       .where(and(
         eq(players.leagueId, leagueId),
         sql`lower(${players.name}) = ${name}`,
       ));
-    updated += (result as { rowCount?: number }).rowCount ?? 0;
   }
-  return updated;
+  return uniqueOnIR.length;
 }
 
 export async function POST(request: Request) {

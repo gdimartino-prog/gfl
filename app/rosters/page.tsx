@@ -578,7 +578,7 @@ function RosterContent() {
             <div className="flex flex-wrap gap-2 mt-4">
               {rosterStatus.active > (data?.stats?.rosterLimit || 53) && (
                 <span className="bg-white border border-red-200 text-red-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
-                  Roster Size: {rosterStatus.active} / {data?.stats?.rosterLimit}
+                  Roster Size: {data?.roster?.length} / {data?.stats?.rosterLimit}{rosterStatus.ir > 0 ? ` · ${rosterStatus.ir} on IR · ${rosterStatus.active} active` : ''}
                 </span>
               )}
               {complianceIssues.map(issue => (
