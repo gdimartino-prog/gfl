@@ -700,5 +700,53 @@
     "history": [],
     "touch_dt": "2026-05-16T21:42:44.229Z",
     "touch_id": "OBG"
+  },
+  {
+    "id": 146,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 16,
+    "originalTeamId": 52,
+    "currentTeamId": 57,
+    "history": [],
+    "touch_dt": "2026-06-10T14:03:22.354Z",
+    "touch_id": "OBG"
+  },
+  {
+    "id": 147,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 15,
+    "originalTeamId": 52,
+    "currentTeamId": 57,
+    "history": [],
+    "touch_dt": "2026-06-10T14:03:22.396Z",
+    "touch_id": "OBG"
+  },
+  {
+    "id": 148,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 14,
+    "originalTeamId": 57,
+    "currentTeamId": 52,
+    "history": [],
+    "touch_dt": "2026-06-10T14:03:22.894Z",
+    "touch_id": "OBG"
+  },
+  {
+    "id": 149,
+    "leagueId": 1,
+    "year": 2026,
+    "draftType": "free_agent",
+    "round": 17,
+    "originalTeamId": 52,
+    "currentTeamId": 57,
+    "history": [],
+    "touch_dt": "2026-06-10T14:03:22.889Z",
+    "touch_id": "OBG"
   }
 ]
