@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Sparkles, X } from 'lucide-react';
+import { Loader2, Sparkles, X, FileSearch } from 'lucide-react';
 import { POSITION_GROUPS } from '@/lib/positionGroups';
 
 const RECENT_NEEDS_KEY = 'gfl-scout-recent-needs';
@@ -32,6 +32,8 @@ function saveRecentNeeds(entries: RecentNeed[]) {
 type ScoutMode = 'fast' | 'full' | 'copy';
 type Meta = { teamName: string; currentRound: number | null; picksUntilNext: number | null; poolSize: number; rosterSize: number; maxAge?: number | null; rookiesOnly?: boolean; mode?: ScoutMode };
 type TeamOption = { teamshort: string; team: string };
+type RosterPlayerOption = { name: string; position: string | null; age: string | null; last: string | null };
+type PageTab = 'draft-scout' | 'player-report';
 
 export default function ScoutPage() {
   const { data: session, status } = useSession();
@@ -52,6 +54,22 @@ export default function ScoutPage() {
   const [mode, setMode] = useState<ScoutMode>('fast');
   const [copyPromptText, setCopyPromptText] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Page tab
+  const [activeTab, setActiveTab] = useState<PageTab>('draft-scout');
+
+  // Player report state
+  const [reportTeamShort, setReportTeamShort] = useState('');
+  const [reportRoster, setReportRoster] = useState<RosterPlayerOption[]>([]);
+  const [reportRosterLoading, setReportRosterLoading] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState('');
+  const [reportMode, setReportMode] = useState<'run' | 'copy'>('run');
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
+  const [reportText, setReportText] = useState<string | null>(null);
+  const [reportHtml, setReportHtml] = useState<string | null>(null);
+  const [reportCopyPrompt, setReportCopyPrompt] = useState<string | null>(null);
+  const [reportCopied, setReportCopied] = useState(false);
 
   useEffect(() => {
     setRecentNeeds(loadRecentNeeds());
@@ -76,9 +94,29 @@ export default function ScoutPage() {
   useEffect(() => {
     if (session?.user) {
       const id = (session.user as { id?: string }).id;
-      if (id) setTeamShort(id.toUpperCase());
+      if (id) {
+        setTeamShort(id.toUpperCase());
+        setReportTeamShort(id.toUpperCase());
+      }
     }
   }, [session]);
+
+  useEffect(() => {
+    if (!reportTeamShort) { setReportRoster([]); setSelectedPlayer(''); return; }
+    setReportRosterLoading(true);
+    setSelectedPlayer('');
+    fetch(`/api/rosters/${encodeURIComponent(reportTeamShort)}`)
+      .then(r => r.json())
+      .then((data: { roster?: { name: string; position: string | null; age: string | null; last: string | null }[] }) => {
+        const arr = Array.isArray(data) ? data : (data?.roster ?? []);
+        const sorted = [...arr]
+          .filter(p => p.name)
+          .sort((a, b) => (a.last ?? a.name).localeCompare(b.last ?? b.name));
+        setReportRoster(sorted.map(p => ({ name: p.name, position: p.position ?? null, age: p.age ?? null, last: p.last ?? null })));
+      })
+      .catch(() => setReportRoster([]))
+      .finally(() => setReportRosterLoading(false));
+  }, [reportTeamShort]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,6 +235,76 @@ export default function ScoutPage() {
     }
   };
 
+  const handlePlayerReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPlayer) return;
+    setReportLoading(true);
+    setReportError(null);
+    setReportText(null);
+    setReportHtml(null);
+    setReportCopyPrompt(null);
+    setReportCopied(false);
+    try {
+      const res = await fetch('/api/scout/player-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerName: selectedPlayer, teamShort: reportTeamShort, mode: reportMode }),
+      });
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        const data = await res.json();
+        if (!res.ok) throw new Error((data as { error?: string }).error || `Request failed (HTTP ${res.status})`);
+        if (data.mode === 'copy' && data.promptText) { setReportCopyPrompt(data.promptText); return; }
+      }
+      if (!ct.includes('application/x-ndjson')) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error || `Request failed (HTTP ${res.status})`);
+      }
+      if (!res.body) throw new Error('No response body');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let streamingText = '';
+      let streamError: string | null = null;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          let ev: { type: string; [k: string]: unknown };
+          try { ev = JSON.parse(line); } catch { continue; }
+          if (ev.type === 'text') {
+            streamingText += String(ev.value ?? '');
+            setReportText(streamingText);
+          } else if (ev.type === 'complete') {
+            setReportText(String(ev.annotated ?? streamingText));
+            setReportHtml(String(ev.html ?? ''));
+          } else if (ev.type === 'error') {
+            streamError = String(ev.error ?? 'Report failed');
+          }
+        }
+        if (streamError) break;
+      }
+      if (buffer.trim()) {
+        try {
+          const ev = JSON.parse(buffer) as { type: string; [k: string]: unknown };
+          if (ev.type === 'complete') {
+            setReportText(String(ev.annotated ?? streamingText));
+            setReportHtml(String(ev.html ?? ''));
+          }
+        } catch { /* ignore */ }
+      }
+      if (streamError) throw new Error(streamError);
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   if (status === 'loading') return null;
 
   return (
@@ -204,8 +312,177 @@ export default function ScoutPage() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-6 flex items-center gap-3">
           <Sparkles className="text-blue-600" size={28} />
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Draft Scout</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">Scout</h1>
         </div>
+
+        {/* Tab toggle */}
+        <div className="mb-8 flex gap-1 bg-slate-100 rounded-xl p-1 w-fit">
+          <button
+            type="button"
+            onClick={() => setActiveTab('draft-scout')}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-black uppercase tracking-widest transition-colors ${
+              activeTab === 'draft-scout'
+                ? 'bg-white text-blue-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Sparkles size={14} />
+            Draft Scout
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('player-report')}
+            className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-black uppercase tracking-widest transition-colors ${
+              activeTab === 'player-report'
+                ? 'bg-white text-blue-700 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <FileSearch size={14} />
+            Player Report
+          </button>
+        </div>
+
+        {activeTab === 'player-report' ? (
+          <div>
+            <p className="text-slate-600 text-sm mb-8 max-w-2xl">
+              Select a player from your roster to generate a detailed NFL scouting report. Helps you decide whether to keep or cut them. Uses live NFL news — no GFL data.
+            </p>
+
+            <form onSubmit={handlePlayerReport} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+              <label className="block mb-3 text-xs font-black uppercase tracking-widest text-slate-500">Team</label>
+              <select
+                value={reportTeamShort}
+                onChange={(e) => setReportTeamShort(e.target.value)}
+                className="mb-5 w-full max-w-sm rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
+              >
+                {teamOptions.length === 0 && <option value={reportTeamShort}>{reportTeamShort || '(loading)'}</option>}
+                {teamOptions.map(t => (
+                  <option key={t.teamshort} value={t.teamshort.toUpperCase()}>
+                    {t.team || t.teamshort} ({t.teamshort})
+                  </option>
+                ))}
+              </select>
+
+              <label className="block mb-3 text-xs font-black uppercase tracking-widest text-slate-500">Player</label>
+              {reportRosterLoading ? (
+                <div className="mb-5 flex items-center gap-2 text-sm text-slate-400">
+                  <Loader2 size={14} className="animate-spin" /> Loading roster…
+                </div>
+              ) : (
+                <select
+                  value={selectedPlayer}
+                  onChange={(e) => setSelectedPlayer(e.target.value)}
+                  className="mb-5 w-full max-w-sm rounded-lg border border-slate-300 px-3 py-2 text-sm bg-white"
+                >
+                  <option value="">— select a player —</option>
+                  {reportRoster.map(p => (
+                    <option key={p.name} value={p.name}>
+                      {p.position ? `${p.position} — ` : ''}{p.name}{p.age ? ` (${p.age})` : ''}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              <div className="mt-5 mb-4">
+                <label className="block mb-2 text-xs font-black uppercase tracking-widest text-slate-500">Mode</label>
+                <div className="grid grid-cols-2 gap-2 max-w-sm">
+                  {([
+                    { id: 'run', label: 'Run Report', sub: 'With web search — ~$0.30/call', desc: 'Live NFL news, depth chart, injury status.' },
+                    { id: 'copy', label: 'Copy to chat', sub: 'No API call — $0', desc: 'Returns the prompt to paste into gemini.google.com.' },
+                  ] as const).map(opt => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setReportMode(opt.id)}
+                      className={`text-left rounded-lg border px-3 py-2 transition-colors ${
+                        reportMode === opt.id
+                          ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                          : 'border-slate-200 bg-white hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="text-xs font-black uppercase tracking-widest text-slate-700">{opt.label}</div>
+                      <div className="text-[10px] font-bold text-slate-500 mt-0.5">{opt.sub}</div>
+                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">{opt.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end mt-2">
+                <button
+                  type="submit"
+                  disabled={reportLoading || !selectedPlayer}
+                  className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white text-sm font-black uppercase tracking-widest px-6 py-3 rounded-xl shadow transition-colors"
+                >
+                  {reportLoading ? (
+                    <><Loader2 size={16} className="animate-spin" />{reportMode === 'copy' ? 'Building…' : 'Scouting…'}</>
+                  ) : reportMode === 'copy' ? (
+                    <>Build Prompt</>
+                  ) : (
+                    <><FileSearch size={16} />Run Report</>
+                  )}
+                </button>
+              </div>
+            </form>
+
+            {reportError && (
+              <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                {reportError}
+              </div>
+            )}
+
+            {reportCopyPrompt ? (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div>
+                    <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">Prompt ready</h2>
+                    <p className="text-xs text-slate-500 mt-1 max-w-xl">
+                      Click <strong>Copy</strong>, then paste into{' '}
+                      <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">gemini.google.com</a>{' '}
+                      (free with a Google account). No API cost.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(reportCopyPrompt);
+                        setReportCopied(true);
+                        setTimeout(() => setReportCopied(false), 2500);
+                      } catch {
+                        setReportError('Copy failed — select the text below and copy manually.');
+                      }
+                    }}
+                    className="shrink-0 inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest px-4 py-2 rounded-lg shadow transition-colors"
+                  >
+                    {reportCopied ? 'Copied!' : 'Copy'}
+                  </button>
+                </div>
+                <textarea
+                  readOnly
+                  value={reportCopyPrompt}
+                  onFocus={(e) => e.currentTarget.select()}
+                  rows={18}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-mono bg-slate-50 resize-y"
+                />
+                <p className="text-[10px] text-slate-400 mt-2">
+                  Prompt length: {reportCopyPrompt.length.toLocaleString()} chars.
+                </p>
+              </div>
+            ) : reportHtml ? (
+              <article
+                className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 prose prose-slate prose-sm max-w-none prose-a:text-blue-600 prose-a:underline"
+                dangerouslySetInnerHTML={{ __html: reportHtml }}
+              />
+            ) : reportText ? (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 prose prose-slate prose-sm max-w-none whitespace-pre-wrap">
+                {reportText}
+              </div>
+            ) : null}
+          </div>
+        ) : (
+        <>
         <p className="text-slate-600 text-sm mb-8 max-w-2xl">
           An expert NFL scout that considers your GFL ratings, current roster gaps, draft context, and live NFL news to recommend who to target with your next pick.
         </p>
@@ -455,6 +732,8 @@ export default function ScoutPage() {
             {recommendations}
           </div>
         ) : null}
+        </>
+        )}
       </div>
     </div>
   );

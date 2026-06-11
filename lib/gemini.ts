@@ -450,6 +450,79 @@ export async function* streamScoutRecommendations(
   }
 }
 
+export function buildPlayerReportPrompt(
+  playerName: string,
+  position: string | null,
+): string {
+  const posDesc = position ? ` (${position})` : '';
+  return `You are a professional NFL scout and analyst. Generate a detailed, no-hype scouting report on ${playerName}${posDesc}.
+
+This report is for a fantasy football commissioner deciding whether to KEEP or CUT this player from their roster for the upcoming season. Focus entirely on real NFL information — do NOT mention fantasy leagues, GFL, game ratings, or anything that isn't about the player's actual NFL career.
+
+Use Google Search to find current, accurate information before writing. Recommended searches:
+- "${playerName} 2026 depth chart" or "${playerName} NFL team 2026" — current role and team status
+- "${playerName} injury 2025 2026" — health and durability
+- "${playerName} stats 2025 season" — recent performance data
+
+REPORT FORMAT — write each section exactly as shown:
+
+## NFL Scouting Report: ${playerName}${posDesc}
+
+### Current Status
+3–4 sentences: Current NFL team, exact depth chart position, contract status if notable, any relevant offseason news (trades, cuts, restructures, free agent signings). Cite all sources as inline markdown links.
+
+### Recent Performance
+4–6 sentences: Detailed statistical performance from the most recent season(s). Include position-relevant stats (targets/receptions/yards/TDs for WR/TE; carries/yards/YPC for RB; completions/TDs/INTs for QB; sacks/tackles for defenders; etc.). Discuss trends — is production rising, falling, or stable? Compare to prior seasons where relevant. Cite sources inline.
+
+### Health & Durability
+2–4 sentences: Injury history over the past 2 seasons. Any chronic injury concerns or injury-prone patterns. Expected health status entering the upcoming season. Cite sources inline.
+
+### Outlook
+3–5 sentences: What to expect for the upcoming NFL season. Cover: depth chart security and competition for snaps, scheme fit (name coordinator and scheme type if relevant), age trajectory, any roster/coaching changes that affect usage. Be specific and direct. Cite sources inline.
+
+### Keep or Cut Recommendation
+**Verdict: KEEP / CUT / BORDERLINE**
+
+3–5 sentences: Direct, decisive recommendation with the key reasons. If borderline, explain what tips each direction. Do not hedge if the answer is clear.
+
+---
+
+TONE: Strictly analytical. No filler phrases ("elite athlete", "tremendous upside", "high motor"). Lead every claim with a concrete fact — a stat, a depth-chart slot, a contract detail. If you cannot find current information for a section, end that section with "(no current web source found — estimate from training data only)" and note your confidence level.
+
+CITATIONS: Every section must include at least one inline markdown link "[label](url)" to a real source found via Google Search. Preferred sources: ESPN, NFL.com, ProFootballTalk, The Athletic, OverTheCap, team beat reporters, Ourlads. Do NOT invent URLs.`;
+}
+
+export async function* streamPlayerReport(
+  playerName: string,
+  position: string | null,
+): AsyncGenerator<ScoutStreamEvent, void, unknown> {
+  const model = buildScoutModel(true);
+  const prompt = buildPlayerReportPrompt(playerName, position);
+
+  try {
+    const result = await model.generateContentStream(prompt);
+    let fullText = '';
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      if (!chunkText) continue;
+      fullText += chunkText;
+      yield { type: 'text', value: chunkText };
+    }
+    const finalResponse = await result.response;
+    if (!fullText) {
+      const final = finalResponse.text();
+      if (final) fullText = final;
+    }
+    if (!fullText) throw new Error('No content generated from Gemini');
+    const annotated = annotateWithGroundingMetadata(fullText, finalResponse);
+    yield { type: 'complete', annotated };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Gemini player report stream error:', msg);
+    yield { type: 'error', error: msg };
+  }
+}
+
 export function extractTextFromHtml(html: string): string {
   let text = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
   text = text.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
