@@ -154,6 +154,7 @@ export async function POST(req: NextRequest) {
       pick: draftPicks.pick,
       selectedPlayerName: draftPicks.selectedPlayerName,
       pickedAt: draftPicks.pickedAt,
+      passed: draftPicks.passed,
       currentOwner: currentTeams.name,
       originalTeam: originalTeams.name,
       playerId: draftPicks.playerId,
@@ -184,10 +185,12 @@ export async function POST(req: NextRequest) {
       .filter(p => !p.playerId)
       .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
-    // Picks that were auto-skipped and still have no player — coaches can
-    // submit a late selection for any of them via the draft board.
+    // Picks open for late selection: auto-skipped picks and unfilled passes.
     const skippedOpen = allPicks
-      .filter(p => typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED') && !p.playerId)
+      .filter(p => !p.playerId && (
+        (typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED')) ||
+        p.passed
+      ))
       .map(p => ({
         round: p.round,
         pick: p.pick,

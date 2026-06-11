@@ -248,11 +248,16 @@ export async function GET(req: Request) {
           strikes: p.currentTeamId != null ? (strikesByTeamId.get(p.currentTeamId) ?? 0) : 0,
         }));
 
-      // Picks that were auto-skipped and still have no player attached —
-      // coaches can still submit a late selection for any of these. Surfaced
-      // in every notification so coaches see open opportunities.
+      // Picks that are open for a late selection: auto-skipped picks AND
+      // voluntary passes (passed=true) that haven't been filled yet. A team
+      // with any open pick is auto-skipped on their next turn until they fill
+      // it via a late selection. Surfaced in every notification so coaches
+      // see open opportunities.
       const skippedOpen = allPicks
-        .filter(p => typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED') && !p.playerId)
+        .filter(p => !p.playerId && (
+          (typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED')) ||
+          p.passed
+        ))
         .map(p => ({
           round: p.round,
           pick: p.pick,
