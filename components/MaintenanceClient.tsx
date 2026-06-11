@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useConfirm } from "@/components/ConfirmDialog";
 import Link from "next/link";
-import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList, Bell } from "lucide-react";
+import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList, Bell, Search } from "lucide-react";
 
 type RuleRow = { setting: string; value: string; desc: string | null; year: number | null };
 const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
@@ -14,6 +14,7 @@ type TeamForm = { name: string; teamshort: string; coach: string; email: string;
 type GameRow = { id: number; year: number | null; week: string; homeTeamId: number; awayTeamId: number; home: string | null; visitor: string | null; hScore: number | null; vScore: number | null };
 type GameForm = { year: string; week: string; homeTeamId: string; awayTeamId: string; hScore: string; vScore: string };
 type AwardsRow = { id: number; teamId: number; teamName: string | null; teamshort: string | null; nickname: string | null; oldTeamName: string | null; wins: number; losses: number; ties: number; division: string | null; offPts: number | null; defPts: number | null; isDivWinner: boolean | null; isPlayoff: boolean | null; isSuperBowl: boolean | null; isChampion: boolean | null };
+type AuditPickRow = { round: number; pick: number; draftTeamName: string; draftTeamShort: string | null; playerName: string; playerPosition: string | null; isIR: boolean | null; currentTeamName: string | null; currentTeamShort: string | null; status: 'FA' | 'Wrong Team' };
 
 const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) => {
   const [confirm, ConfirmDialog] = useConfirm();
@@ -75,6 +76,14 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const [gameMsg, setGameMsg] = useState<{ success: boolean; text: string } | null>(null);
   const [gameDeletingId, setGameDeletingId] = useState<number | null>(null);
 
+  // Draft Picks Audit state
+  const [auditOpen, setAuditOpen] = useState(false);
+  const [auditYear, setAuditYear] = useState('');
+  const [auditDraftType, setAuditDraftType] = useState('free_agent');
+  const [auditRows, setAuditRows] = useState<AuditPickRow[]>([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+  const [auditMsg, setAuditMsg] = useState<{ success: boolean; text: string } | null>(null);
+
   // Season Awards state
   const [awardsOpen, setAwardsOpen] = useState(false);
   const [awardsYear, setAwardsYear] = useState('');
@@ -127,7 +136,8 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
     if (rulesData.length > 0 && !scheduleYear) {
       const cutsYear = rulesData.find(r => r.setting.toLowerCase() === 'cuts_year')?.value;
       setScheduleYear(cutsYear ?? String(new Date().getFullYear()));
-      setAwardsYear(cutsYear ?? String(new Date().getFullYear())); // also init awards year
+      setAwardsYear(cutsYear ?? String(new Date().getFullYear()));
+      setAuditYear(cutsYear ?? String(new Date().getFullYear()));
     }
   }, [rulesData, scheduleYear]);
 
@@ -264,6 +274,28 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
       if (res.ok) setScheduleGames(prev => prev.filter(g => g.id !== id));
     } catch {}
     finally { setGameDeletingId(null); }
+  };
+
+  const fetchAuditPicks = async (year: string, draftType: string) => {
+    if (!year) return;
+    setAuditLoading(true);
+    setAuditRows([]);
+    setAuditMsg(null);
+    try {
+      const res = await fetch(`/api/audit/draft-picks?year=${encodeURIComponent(year)}&draftType=${encodeURIComponent(draftType)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAuditRows(data);
+        if (data.length === 0) setAuditMsg({ success: true, text: `All drafted players are on their team rosters.` });
+      } else {
+        const err = await res.json().catch(() => ({}));
+        setAuditMsg({ success: false, text: err.error || `Error ${res.status}` });
+      }
+    } catch {
+      setAuditMsg({ success: false, text: 'Network error.' });
+    } finally {
+      setAuditLoading(false);
+    }
   };
 
   const fetchAwards = async (year: string) => {
@@ -922,6 +954,112 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
           )}
           </div>
         </div>
+      </div>
+
+      {/* Draft Picks Audit Section */}
+      <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
+        <button
+          onClick={() => { const opening = !auditOpen; setAuditOpen(opening); if (opening && auditRows.length === 0 && auditYear) fetchAuditPicks(auditYear, auditDraftType); }}
+          className="w-full px-8 py-5 bg-slate-900 flex items-center justify-between hover:bg-slate-800 transition-colors"
+        >
+          <div className="text-left">
+            <h3 className="text-white font-black uppercase italic tracking-tighter text-lg flex items-center gap-2">
+              <Search size={18} className="text-amber-400" /> Draft Picks Audit
+            </h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Drafted players not currently on their team roster</p>
+          </div>
+          {auditOpen ? <ChevronDown size={20} className="text-slate-400" /> : <ChevronRight size={20} className="text-slate-400" />}
+        </button>
+
+        {auditOpen && (<>
+        <div className="px-8 py-4 bg-slate-800 flex items-center gap-3 flex-wrap border-b border-slate-700">
+          <input
+            type="number"
+            value={auditYear}
+            onChange={e => setAuditYear(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && fetchAuditPicks(auditYear, auditDraftType)}
+            placeholder="Year"
+            className="w-28 px-3 py-2 rounded-xl bg-white/10 text-white text-sm font-bold border border-slate-600 outline-none focus:border-blue-400 transition-all"
+          />
+          <select
+            value={auditDraftType}
+            onChange={e => setAuditDraftType(e.target.value)}
+            className="px-3 py-2 rounded-xl bg-white/10 text-white text-sm font-bold border border-slate-600 outline-none focus:border-blue-400 transition-all"
+          >
+            <option value="free_agent">Free Agent</option>
+            <option value="rookie">Rookie</option>
+          </select>
+          <button
+            onClick={() => fetchAuditPicks(auditYear, auditDraftType)}
+            disabled={!auditYear || auditLoading}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600/80 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 disabled:opacity-50 transition-all"
+          >
+            {auditLoading ? <RefreshCw size={14} className="animate-spin" /> : <Search size={14} />}
+            {auditLoading ? 'Loading…' : 'Run Audit'}
+          </button>
+          {auditMsg && (
+            <span className={`text-[10px] font-black uppercase tracking-widest ${auditMsg.success ? 'text-emerald-400' : 'text-red-400'}`}>
+              {auditMsg.text}
+            </span>
+          )}
+        </div>
+
+        {auditLoading ? (
+          <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest animate-pulse">Loading...</div>
+        ) : auditRows.length === 0 && !auditMsg ? (
+          <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest">Enter a year and click Run Audit.</div>
+        ) : auditRows.length > 0 ? (
+          <div className="overflow-x-auto">
+            <div className="px-8 py-3 bg-amber-50 border-b border-amber-100 flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-amber-700">{auditRows.length} player{auditRows.length !== 1 ? 's' : ''} not on drafting team roster</span>
+            </div>
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-100 text-[9px] font-black uppercase tracking-[0.15em] text-slate-500">
+                  <th className="px-4 py-3 text-center">Rd / Pk</th>
+                  <th className="px-6 py-3">Drafting Team</th>
+                  <th className="px-6 py-3">Player</th>
+                  <th className="px-4 py-3">Pos</th>
+                  <th className="px-6 py-3">Current Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {auditRows.map((row, i) => (
+                  <tr key={i} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-4 py-3 text-center text-xs font-black text-slate-500 whitespace-nowrap">
+                      {row.round}.{row.pick}
+                    </td>
+                    <td className="px-6 py-3">
+                      <div className="flex items-center gap-2">
+                        <span className="bg-slate-100 text-slate-500 font-mono text-[10px] px-2 py-0.5 rounded font-black">{row.draftTeamShort}</span>
+                        <span className="text-sm font-bold text-slate-700">{row.draftTeamName}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-slate-900 text-sm">{row.playerName}</span>
+                        {row.isIR && <span className="text-[9px] font-black uppercase tracking-widest bg-red-100 text-red-600 px-2 py-0.5 rounded">IR</span>}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-xs font-bold text-slate-500">{row.playerPosition ?? '—'}</td>
+                    <td className="px-6 py-3">
+                      {row.status === 'FA' ? (
+                        <span className="text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-500 px-2 py-1 rounded-lg">Free Agent</span>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black uppercase tracking-widest bg-blue-100 text-blue-700 px-2 py-1 rounded-lg">On Roster</span>
+                          <span className="bg-slate-100 text-slate-500 font-mono text-[10px] px-2 py-0.5 rounded font-black">{row.currentTeamShort}</span>
+                          <span className="text-xs font-bold text-slate-600">{row.currentTeamName}</span>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+        </>)}
       </div>
 
       {/* Team Manager Section */}
