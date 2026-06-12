@@ -7873,5 +7873,176 @@
     "team": "LBI",
     "action": "DRAFT_PICK",
     "details": "R13 #232: QB - Justin Fields"
+  },
+  {
+    "id": 876,
+    "leagueId": 1,
+    "timestamp": "2026-06-11T13:56:26.920Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 877,
+    "leagueId": 1,
+    "timestamp": "2026-06-11T14:04:25.532Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 878,
+    "leagueId": 1,
+    "timestamp": "2026-06-11T19:36:21.473Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=400 positions=all rookiesOnly=false maxAge=none needsChars=79 mode=copy"
+  },
+  {
+    "id": 879,
+    "leagueId": 1,
+    "timestamp": "2026-06-11T20:28:29.821Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 880,
+    "leagueId": 1,
+    "timestamp": "2026-06-11T22:23:53.583Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 881,
+    "leagueId": 1,
+    "timestamp": "2026-06-11T22:26:59.457Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R13 #234: HB - Andrew Beck"
+  },
+  {
+    "id": 882,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T00:15:22.848Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "WAIVE",
+    "details": "OLB/KR - Grant Stuard"
+  },
+  {
+    "id": 883,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T00:17:59.791Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "WAIVE",
+    "details": "QB - Spencer Rattler"
+  },
+  {
+    "id": 884,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T00:37:18.157Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R14 #237: LB - Barrett Carter"
+  },
+  {
+    "id": 885,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T00:41:17.945Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 886,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T01:00:41.385Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "IR MOVE",
+    "details": "Placed on IR: T - Kaleb McGary"
+  },
+  {
+    "id": 887,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T01:01:13.724Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "DRAFT_PICK",
+    "details": "R14 #238: QB - J.J. McCarthy"
+  },
+  {
+    "id": 888,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T01:03:51.259Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "WAIVE",
+    "details": "G - Andrew Vorhees"
+  },
+  {
+    "id": 889,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T01:05:58.580Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R14 #239: RB - British Brooks"
+  },
+  {
+    "id": 890,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T01:09:46.319Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #188 marked Done"
+  },
+  {
+    "id": 891,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T01:09:49.069Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #187 marked Done"
+  },
+  {
+    "id": 892,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T01:10:23.972Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #186 marked Done"
+  },
+  {
+    "id": 893,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T01:10:25.392Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #185 marked Done"
+  },
+  {
+    "id": 894,
+    "leagueId": 1,
+    "timestamp": "2026-06-12T01:46:31.725Z",
+    "coach": "George Di Martino",
+    "team": "JJ",
+    "action": "DRAFT_PICK",
+    "details": "R14 #240: C - Joe Cardona"
   }
 ]

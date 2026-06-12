@@ -160,26 +160,6 @@
     "touch_id": "migration-script"
   },
   {
-    "id": 62,
-    "leagueId": 2,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "1",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-05T15:35:08.929Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
-    "id": 38,
-    "leagueId": 1,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "1",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-04T16:08:49.166Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
     "id": 40,
     "leagueId": 1,
     "year": null,
@@ -370,14 +350,14 @@
     "touch_id": "initialize"
   },
   {
-    "id": 71,
-    "leagueId": 3,
+    "id": 39,
+    "leagueId": 1,
     "year": null,
-    "rule": "current_nfl_week",
-    "value": "1",
-    "desc": null,
-    "touch_dt": "2026-03-25T12:38:20.671Z",
-    "touch_id": "cron-nfl-week"
+    "rule": "player_sync",
+    "value": "06/11/2026, 08:41:17 PM",
+    "desc": "The datetime the player tab was updated",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "maintenance"
   },
   {
     "id": 69,
@@ -440,6 +420,16 @@
     "touch_id": "maintenance"
   },
   {
+    "id": 76,
+    "leagueId": 1,
+    "year": null,
+    "rule": "cron_last_active_pick_2026",
+    "value": "2570",
+    "desc": null,
+    "touch_dt": "2026-06-01T12:19:04.518Z",
+    "touch_id": null
+  },
+  {
     "id": 49,
     "leagueId": 2,
     "year": null,
@@ -460,26 +450,6 @@
     "touch_id": "fix-cuts-year"
   },
   {
-    "id": 39,
-    "leagueId": 1,
-    "year": null,
-    "rule": "player_sync",
-    "value": "06/10/2026, 08:25:13 PM",
-    "desc": "The datetime the player tab was updated",
-    "touch_dt": "2026-03-04T16:08:49.166Z",
-    "touch_id": "maintenance"
-  },
-  {
-    "id": 76,
-    "leagueId": 1,
-    "year": null,
-    "rule": "cron_last_active_pick_2026",
-    "value": "2561",
-    "desc": null,
-    "touch_dt": "2026-06-01T12:19:04.518Z",
-    "touch_id": null
-  },
-  {
     "id": 73,
     "leagueId": 1,
     "year": null,
@@ -488,5 +458,35 @@
     "desc": null,
     "touch_dt": "2026-04-21T13:56:08.071Z",
     "touch_id": "maintenance"
+  },
+  {
+    "id": 62,
+    "leagueId": 2,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "1",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
+    "id": 38,
+    "leagueId": 1,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "1",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
+    "id": 71,
+    "leagueId": 3,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "1",
+    "desc": null,
+    "touch_dt": "2026-03-25T12:38:20.671Z",
+    "touch_id": "cron-nfl-week"
   }
 ]
