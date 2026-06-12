@@ -1,6 +1,6 @@
-# AFL Front Office User Manual
+# GFL Front Office User Manual
 
-**Welcome to the AFL Front Office!** This guide will walk you through everything you need to know to manage your franchise, from logging in to making draft-day trades.
+**Welcome to the GFL Front Office!** This guide will walk you through everything you need to know to manage your franchise, from logging in to making draft-day trades.
 
 ---
 
@@ -99,7 +99,7 @@ The **Team Rosters** page is where you can see the full roster for every team in
 
 ### Team Header
 
-The dark panel at the top shows the team's coach name, contact info, win/loss record, and current roster size (e.g., 53/53).
+The dark panel at the top shows the team's coach name, contact info, win/loss record, and current roster size (e.g., 53/53). If a player is on Injured Reserve, the badge expands to show the breakdown — for example **54/53 · 1 on IR · 53 active** — because IR players do not count against the active roster limit.
 
 ### Adding a Player to the Trade Block
 
@@ -173,15 +173,23 @@ The dark "On the Clock" panel shows:
 
 When it's your turn to pick, an **"Enter Selection"** button appears on your pick row. Click it to search for and select your player.
 
+### Roster Limit
+
+You cannot draft a player if your team is already at the **active roster limit** (typically 53). Players on Injured Reserve do **not** count toward the limit, so if you have 53 active players plus 1 on IR, you still need to waive or IR a player before you can make a draft pick.
+
 ### Passing a Pick
 
-If you need to skip your turn, click the **"Pass"** button next to "Enter Selection". The draft advances to the next team and your pick is marked **Passed**. A **"Late Selection"** button remains available so you can fill the pick any time before the draft closes.
+If you are done drafting or need to skip your turn, click the **"Pass / Done"** button next to "Enter Selection". The draft advances to the next team and your pick is marked **Passed**.
+
+> **Important:** Passing a pick has a carry-forward effect. Each round going forward, the system will **automatically skip your pick** until you fill the passed pick via a late selection. You are not locked out — you can still make a late selection at any time — but the draft will not wait for you each round.
+
+A **"Late Selection"** button remains available so you can fill the pick any time before the draft closes.
 
 ![Pass Pick](/manual-screenshots/draft-pass.png)
 
 ### Expired Picks (Auto-Skip)
 
-If the clock runs out before a pick is made, the pick is automatically **Skipped** by the system. Like a passed pick, a "Late Selection" button allows the team to still submit their choice after the fact.
+If the clock runs out before a pick is made, the pick is automatically **Skipped** by the system. Like a passed pick, a "Late Selection" button allows the team to still submit their choice after the fact. Auto-skipped picks also trigger the same carry-forward behavior — the team will continue to be skipped each round until the open pick is filled.
 
 ### Scouting Free Agents
 
@@ -213,7 +221,7 @@ Set the basic parameters:
 
 *   **Season Year** — the year this draft applies to
 *   **Draft Type** — **Free Agent** (default) or **Rookie**
-*   **Number of Rounds** — how many rounds the draft will have (can be changed later by regenerating)
+*   **Number of Rounds** — how many rounds the draft will have (can be extended later using the Add Rounds feature without losing existing picks)
 
 Click **"Next: Set Round 1 Order →"** to continue.
 
@@ -261,6 +269,18 @@ Check the confirmation box and click **"Delete & Regenerate"** to proceed.
 ### After Generation
 
 You'll see a confirmation screen showing how many picks were created. From there, click **"Go to Draft Board"** to view the new order, or **"New Draft"** to set up another draft type for the same season.
+
+### Adding Rounds to an In-Progress Draft
+
+If you need to add rounds to a draft that has already started, use the **"Add Rounds to Existing Draft"** panel — it appears below the wizard on the same page.
+
+*   **Year** — the draft year to extend
+*   **Draft Type** — Free Agent or Rookie
+*   **Rounds to Add** — how many rounds to append (1–20)
+
+Click **"Add Rounds"** and the new round rows will be appended immediately. Existing picks and selections are untouched. The team order and any alternate-group rotation are automatically inferred from the existing rounds, so the continuation is seamless.
+
+> **Note:** Pick transfers (traded picks) that cover the new round numbers will also be applied automatically.
 
 ---
 
@@ -399,7 +419,8 @@ The **Commissioner Panel** is a special area for the league commissioner to mana
 
 *   **Upload League Files:** Drag and drop files (players CSV, schedule, standings) to import data. Click **"Synchronize Files"** to process.
 *   **Pending Signups:** Review new coach applications and click **Approve** or **Reject**.
-*   **Draft Setup:** Open the wizard to generate a new draft pick order. See [Section 6a](#6a-draft-setup-creating-a-new-draft-commissioner-only) for full details.
+*   **Draft Setup:** Open the wizard to generate a new draft pick order, or add rounds to an existing draft. See [Section 6a](#6a-draft-setup-creating-a-new-draft-commissioner-only) for full details.
+*   **Draft Picks Audit:** Expand this panel to see a list of drafted players who are no longer on the team that drafted them — either on a different team or back as a free agent. Select the year and draft type, then click **"Run Audit"**. Useful for spotting discrepancies after trades or roster moves.
 *   **Team Manager:** Add or edit teams in the league.
 *   **Schedule Manager:** Add or edit games for any season.
 *   **Season Awards:** Set playoffs, division winners, and champions per season.
