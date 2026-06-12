@@ -46,9 +46,8 @@ export async function POST(req: NextRequest) {
 
     const pick = pickRows[0];
     if (pick.playerId) return NextResponse.json({ error: 'Pick already made.' }, { status: 400 });
-    if (pick.passed) return NextResponse.json({ error: 'Pick already passed.' }, { status: 400 });
 
-    // Verify caller owns this pick
+    // Verify caller owns this pick (checked before any early-return so ownership is always enforced)
     const callerTeamshort = (session.user as { id?: string }).id || '';
     const role = (session.user as { role?: string }).role || '';
     const isSuperuser = role === 'superuser' || role === 'admin';
@@ -56,12 +55,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden: you do not own this pick' }, { status: 403 });
     }
 
+    if (pick.passed) return NextResponse.json({ success: true, alreadyPassed: true });
+
     await db.update(draftPicks)
-      .set({ passed: true, pickedAt: new Date(), touch_id: coachName || 'draft' })
+      .set({ passed: true, pickedAt: new Date(), touch_id: callerTeamshort || 'draft' })
       .where(eq(draftPicks.id, pick.id));
 
-    revalidateTag('draft-picks', 'max');
-    logSystemEvent(coachName || '', pick.currentOwner || '', 'DRAFT_PASS', `R${pick.round} #${overallPick}: PASSED`, leagueId);
+    await revalidateTag('draft-picks', 'max');
+    await logSystemEvent(callerTeamshort || coachName || '', pick.currentOwner || '', 'DRAFT_PASS', `R${pick.round} #${overallPick}: PASSED`, leagueId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

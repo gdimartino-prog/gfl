@@ -84,6 +84,17 @@ function DraftBoardContent() {
     loadData(true);
   };
 
+  const handlePassLate = async (overall: string) => {
+    if (!await confirm('Permanently decline this late selection? This pick will be closed without a player selected.', { title: 'Pass on late selection?', confirmLabel: 'Pass / Done' })) return;
+    setIsRefreshing(true);
+    await fetch('/api/draft-pass', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ overallPick: overall, coachName: myTeamCode }),
+    });
+    loadData(true);
+  };
+
   const handleDeletePick = async (pickId: number) => {
     if (!await confirm('The player will be returned to free agency.', { title: 'Delete this pick?', confirmLabel: 'Delete', destructive: true })) return;
     setIsRefreshing(true);
@@ -770,6 +781,15 @@ const handleUndoMyPick = async () => {
                         ) : isPassed && session ? (
                           <div className="flex items-center justify-end gap-3">
                             <span className="text-amber-600 font-black text-[10px] uppercase border border-amber-200 bg-amber-50 px-4 py-2 rounded-full tracking-widest">Passed</span>
+                            {(isAdminUser || resolveCode(pick.currentOwner).toUpperCase() === myTeamCode.toUpperCase()) && (
+                              <button
+                                disabled={isRefreshing}
+                                onClick={() => handlePassLate(String(pick.overall))}
+                                className="bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-amber-100 hover:text-amber-700 transition-all active:scale-95"
+                              >
+                                Pass / Done
+                              </button>
+                            )}
                             <button
                               disabled={isRefreshing}
                               onClick={() => {
@@ -783,17 +803,28 @@ const handleUndoMyPick = async () => {
                             </button>
                           </div>
                         ) : isSkipped && session ? (
-                          <button
-                            disabled={isRefreshing}
-                            onClick={() => {
-                              setModalSessionId(Date.now());
-                              setSelectedPick(pick);
-                              setShowSelectionModal(true);
-                            }}
-                            className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-orange-600 transition-all active:scale-95"
-                          >
-                            Late Selection
-                          </button>
+                          <div className="flex items-center justify-end gap-3">
+                            {(isAdminUser || resolveCode(pick.currentOwner).toUpperCase() === myTeamCode.toUpperCase()) && (
+                              <button
+                                disabled={isRefreshing}
+                                onClick={() => handlePassLate(String(pick.overall))}
+                                className="bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-amber-100 hover:text-amber-700 transition-all active:scale-95"
+                              >
+                                Pass / Done
+                              </button>
+                            )}
+                            <button
+                              disabled={isRefreshing}
+                              onClick={() => {
+                                setModalSessionId(Date.now());
+                                setSelectedPick(pick);
+                                setShowSelectionModal(true);
+                              }}
+                              className="bg-orange-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-orange-600 transition-all active:scale-95"
+                            >
+                              Late Selection
+                            </button>
+                          </div>
                         ) : isOnClock && session ? (
                           <div className="flex flex-col items-end gap-2">
                             {(() => { const rc = rosterCounts[resolveCode(pick.currentOwner)]; return rc && rc.active >= rc.limit ? (
