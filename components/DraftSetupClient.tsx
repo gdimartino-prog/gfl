@@ -67,6 +67,36 @@ const [draftStartTime, setDraftStartTime] = useState('');
   const [addForm, setAddForm] = useState({ year: new Date().getFullYear(), draftType: 'free_agent', round: 1, fromTeam: '', toTeam: '' });
   const [addingSaving, setAddingSaving] = useState(false);
 
+  // Add Rounds state
+  const [addRoundsYear, setAddRoundsYear] = useState(new Date().getFullYear());
+  const [addRoundsType, setAddRoundsType] = useState<'free_agent' | 'rookie'>('free_agent');
+  const [addRoundsCount, setAddRoundsCount] = useState(1);
+  const [addRoundsLoading, setAddRoundsLoading] = useState(false);
+  const [addRoundsMsg, setAddRoundsMsg] = useState<string | null>(null);
+  const [addRoundsError, setAddRoundsError] = useState<string | null>(null);
+
+  const handleAddRounds = async () => {
+    setAddRoundsLoading(true);
+    setAddRoundsMsg(null);
+    setAddRoundsError(null);
+    try {
+      const res = await fetch('/api/draft-setup/add-rounds', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ year: addRoundsYear, draftType: addRoundsType, additionalRounds: addRoundsCount }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setAddRoundsError(data.error || 'Failed to add rounds');
+      } else {
+        setAddRoundsMsg(`Added ${data.inserted} picks (rounds ${data.fromRound}–${data.toRound})`);
+      }
+    } catch {
+      setAddRoundsError('Network error — please try again');
+    }
+    setAddRoundsLoading(false);
+  };
+
   const loadTransfers = () => {
     setTransfersLoading(true);
     Promise.all([
@@ -580,6 +610,57 @@ const updateTransfer = async (id: number) => {
             </div>
           </div>
         )}
+
+        {/* ADD ROUNDS */}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 space-y-4">
+          <h2 className="text-lg font-black uppercase tracking-tight text-slate-800">Add Rounds to Existing Draft</h2>
+          <p className="text-[10px] text-slate-400 font-bold">
+            Appends new rounds to an in-progress draft without touching already-drafted picks. Team order and alt-group rotation are inferred from existing rounds.
+          </p>
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Year</label>
+              <input
+                type="number"
+                value={addRoundsYear}
+                onChange={e => setAddRoundsYear(Number(e.target.value))}
+                className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold w-24 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Draft Type</label>
+              <div className="flex gap-2">
+                {(['free_agent', 'rookie'] as const).map(type => (
+                  <button key={type} onClick={() => setAddRoundsType(type)}
+                    className={`px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all
+                      ${addRoundsType === type ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-slate-200 text-slate-500 hover:border-slate-300'}`}>
+                    {type === 'free_agent' ? 'FA' : 'Rookie'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Rounds to Add</label>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={addRoundsCount}
+                onChange={e => setAddRoundsCount(Math.max(1, Math.min(20, Number(e.target.value))))}
+                className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold w-20 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              />
+            </div>
+            <button
+              onClick={handleAddRounds}
+              disabled={addRoundsLoading}
+              className="px-5 py-2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+            >
+              {addRoundsLoading ? 'Adding…' : 'Add Rounds'}
+            </button>
+          </div>
+          {addRoundsMsg && <p className="text-emerald-600 font-black text-sm">{addRoundsMsg}</p>}
+          {addRoundsError && <p className="text-red-600 font-black text-sm">{addRoundsError}</p>}
+        </div>
 
         {/* PICK TRANSFER LOG */}
         <div id="transfers" className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 space-y-4">
