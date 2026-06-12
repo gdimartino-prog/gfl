@@ -359,9 +359,12 @@ Every tenant table has a `leagueId` column. All queries filter by it.
 | `/api/admin/standings` | GET/POST/PATCH/DELETE | Standings management |
 | `/api/admin/schedule` | GET/POST/PATCH/DELETE | Schedule management |
 | `/api/admin/resources` | GET/POST/PATCH/DELETE | Resources management |
+| `/api/admin/revalidate` | POST | Force-bust draft board cache |
 | `/api/maintenance` | POST | Trigger maintenance actions |
 | `/api/maintenance/stream` | POST | Streaming player sync (SSE) |
 | `/api/signup` | GET/PATCH | View/approve pending signups |
+| `/api/audit/draft-picks` | GET | Drafted players not on their drafting team's roster (`?year=&draftType=`) |
+| `/api/draft-setup/add-rounds` | POST | Append rounds to an in-progress draft without touching existing picks |
 
 ### Cron Jobs
 | Route | Description |
@@ -385,7 +388,15 @@ Players originate from the **Action** simulation game. Sync flow:
    - Upserts by identity — preserves `id` so draft pick `playerId` refs remain valid across re-syncs
    - Extracts scouting JSONB (ratings, salary, contract, receiving, etc.)
    - Sets `teamId` FK from matched team row
-4. Calls `revalidateTag('players', 'max')` after sync
+   - **Preserves `isIR=true`** on existing players — CSV imports never carry the IR flag, so the upsert merges `p.isIR || existing.isIR` to avoid clearing it
+4. After sync: `restoreIRFlags()` re-sets `isIR=true` on any players named in the current IR list (rules key `ir_list`) that may have been missed by the merge
+5. Calls `revalidateTag('players', 'max')` after sync
+
+### IR Flag Lifecycle
+- Set to `true`: `POST /api/transactions` with `type='IR' | 'IR MOVE'`
+- Cleared to `false`: `POST /api/transactions` with `type='DROP' | 'WAIVE'`
+- Preserved through imports: upsert keeps `isIR=true` if the DB row already has it
+- Roster limit: active players = `total − isIR`; teams can hold up to `limit_roster` active players (default 53) plus any IR players on top
 
 **Note:** On localhost, `revalidateTag` does not flush the file-based Next.js cache — restart the dev server after syncing to see updated player/team assignments.
 
@@ -398,14 +409,28 @@ Players originate from the **Action** simulation game. Sync flow:
 - **Timer:** `scheduled_at` set when pick becomes active; cron checks expiry
 - **Pick transfers:** traded picks stored in `draft_pick_transfers` (survives regeneration via upsert)
 - **Selection:** commissioner or coach submits via `SelectionModal` → `POST /api/draft-selection`
-- **Pass:** commissioner → `POST /api/draft-pass`
+- **Pass / Done:** commissioner → `POST /api/draft-pass`; sets `passed=true, pickedAt=now` on the pick
 - **Pre-draft countdown:** Draft board shows live countdown to `draftStartDate` when no active pick
+- **Roster limit check:** selection is blocked if the receiving team's active roster (total − IR) is at `limit_roster` (default 53); IR players do not count against the limit
+
+### Pass Carry-Forward
+When a team passes a pick (`passed=true`), that pick becomes an "open skip" — visible to all teams for late selection at any time. On every subsequent round where that team is on the clock, the cron auto-skips them with `SKIPPED (open pick pending)` until they fill the passed pick via a late selection.
+
+Technically: `skippedOpen` collects all picks where `playerId IS NULL` AND (`selectedPlayerName STARTS WITH 'SKIPPED'` OR `passed=true`). The `teamHasOpenSkip` check fires before normal clock expiry checks and triggers the carry-forward skip.
+
+### Adding Rounds to an In-Progress Draft
+`POST /api/draft-setup/add-rounds` appends new round rows without touching existing picks:
+1. Reads existing picks to reconstruct team order from round 1
+2. Detects alt-groups by comparing round 1 vs round 2 positions (permutation cycle detection)
+3. Generates new rows for rounds `(maxRound+1)` through `(maxRound+N)` using the same rotation formula
+4. Inserts rows, calls `applyPickTransfers` (to materialise any pre-arranged traded picks), revalidates cache
 
 ### Draft Board Features
 - Live ticker showing recent picks (`RecentPicksTicker`) with countdown before draft
 - Position filters: QB, RB, WR, TE, G, T, C, DL (matches DT/DE/NT), LB (matches ILB/OLB/MLB), CB, S, K, P
 - Players sorted by salary descending
 - Salary and OVR rating shown per player (OL = overall/2; skill = receiving rating; others = overall)
+- "Pass / Done" button lets a team voluntarily skip — triggers carry-forward auto-skip each round until filled
 
 ---
 
