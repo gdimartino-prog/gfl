@@ -233,7 +233,7 @@ export async function GET(req: Request) {
           p.selectedPlayerName !== 'SKIPPED (3-strike rule)';
         const wasLate = timings.get(p.id)?.wasLate ?? false;
         if (isSkippedRow || wasLate) {
-          strikesByTeamId.set(p.currentTeamId, (strikesByTeamId.get(p.currentTeamId) ?? 0) + 1);
+          strikesByTeamId.set(p.currentTeamId, Math.min(3, (strikesByTeamId.get(p.currentTeamId) ?? 0) + 1));
         }
       }
 

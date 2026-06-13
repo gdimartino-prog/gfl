@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
         p.selectedPlayerName !== 'SKIPPED (3-strike rule)';
       const wasLate = timings.get(p.id)?.wasLate ?? false;
       if (isSkippedRow || wasLate) {
-        strikesByTeam.set(p.currentOwner, (strikesByTeam.get(p.currentOwner) ?? 0) + 1);
+        strikesByTeam.set(p.currentOwner, Math.min(3, (strikesByTeam.get(p.currentOwner) ?? 0) + 1));
       }
       // Only count picks that resulted in a real selection on time.
       const wasPassed = !!p.passed && !p.selectedPlayerName;
@@ -227,13 +227,13 @@ export async function DELETE(req: Request) {
     if (clearAll) {
       if (!year) return NextResponse.json({ error: 'year required for clearAll' }, { status: 400 });
       await clearAllPickSelections(leagueId, Number(year), actor, draftType);
-      logSystemEvent(actor, 'admin', 'DRAFT_CLEAR_ALL', `Cleared all picks for ${year}${draftType ? ` (${draftType})` : ''}`, leagueId);
+      await logSystemEvent(actor, 'admin', 'DRAFT_CLEAR_ALL', `Cleared all picks for ${year}${draftType ? ` (${draftType})` : ''}`, leagueId);
       return NextResponse.json({ success: true });
     }
 
     if (!pickId) return NextResponse.json({ error: 'pickId required' }, { status: 400 });
     await clearPickSelection(Number(pickId), actor);
-    logSystemEvent(actor, 'admin', 'DRAFT_DELETE_PICK', `Deleted pick #${pickId}`, leagueId);
+    await logSystemEvent(actor, 'admin', 'DRAFT_DELETE_PICK', `Deleted pick #${pickId}`, leagueId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('API /draft-picks DELETE failed:', error);
@@ -284,8 +284,8 @@ export async function PATCH(req: Request) {
         )),
     ]);
 
-    revalidateTag('draft-picks', 'max');
-    logSystemEvent(actor, 'admin', 'DRAFT_REVERT_TRANSFER', `Reverted transfer for pick id=${pickId}`, leagueId);
+    await revalidateTag('draft-picks', 'max');
+    await logSystemEvent(actor, 'admin', 'DRAFT_REVERT_TRANSFER', `Reverted transfer for pick id=${pickId}`, leagueId);
 
     return NextResponse.json({ success: true });
   } catch (error) {
