@@ -1,15 +1,16 @@
 /**
  * Enable Row Level Security on all app tables.
  * Run after any schema migration (db:push) that creates/recreates tables.
- * Run: POSTGRES_URL="..." npx tsx scripts/enable-rls.ts
- *
- * Note: The app connects via the postgres service role which bypasses RLS,
- * so this doesn't affect app functionality — it just blocks the anon key
- * from direct table access as a security best practice.
+ * Run: npx tsx scripts/enable-rls.ts
  */
 
-import { db } from '../lib/db';
-import { sql } from 'drizzle-orm';
+import { config } from 'dotenv';
+config({ path: '.env.local' });
+
+// Dynamic imports AFTER env is loaded — static imports are hoisted and
+// would evaluate lib/db before POSTGRES_URL is set.
+const { db } = await import('../lib/db');
+const { sql } = await import('drizzle-orm');
 
 const tables = [
   'leagues',
@@ -27,17 +28,14 @@ const tables = [
   'draft_pick_transfers',
 ];
 
-async function main() {
-  for (const t of tables) {
-    try {
-      await db.execute(sql.raw(`ALTER TABLE ${t} ENABLE ROW LEVEL SECURITY`));
-      console.log('✓ RLS enabled:', t);
-    } catch (e: any) {
-      console.log('  SKIP:', t, '-', e.message);
-    }
+for (const t of tables) {
+  try {
+    await db.execute(sql.raw(`ALTER TABLE ${t} ENABLE ROW LEVEL SECURITY`));
+    console.log('✓ RLS enabled:', t);
+  } catch (e: any) {
+    console.log('  SKIP:', t, '-', e.message);
   }
-  console.log('\nDone.');
-  process.exit(0);
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+console.log('\nDone.');
+process.exit(0);
