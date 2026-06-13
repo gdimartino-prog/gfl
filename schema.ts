@@ -172,6 +172,7 @@ export const rules = pgTable("rules", {
   touch_id: varchar("touch_id", { length: 256 }),
 }, (table) => [
   unique('rules_league_year_rule_unique').on(table.leagueId, table.year, table.rule),
+  index("rules_rule_idx").on(table.rule),
 ]);
 
 // Resources table

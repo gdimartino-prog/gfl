@@ -31,9 +31,9 @@ export async function GET(req: Request) {
     }
     // seasonType === 2: regular season — use ESPN's week number as-is
 
-    // Update all leagues
+    // Update all leagues in parallel
     const allLeagues = await db.select({ id: leagues.id }).from(leagues);
-    for (const { id: leagueId } of allLeagues) {
+    await Promise.all(allLeagues.map(async ({ id: leagueId }) => {
       const existing = await db.select({ id: rules.id })
         .from(rules)
         .where(and(eq(rules.rule, 'current_nfl_week'), eq(rules.leagueId, leagueId)))
@@ -48,7 +48,7 @@ export async function GET(req: Request) {
           leagueId, rule: 'current_nfl_week', value: String(currentWeek), touch_id: 'cron-nfl-week',
         });
       }
-    }
+    }));
 
     return NextResponse.json({ week: currentWeek, seasonType });
   } catch (error: unknown) {

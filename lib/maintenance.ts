@@ -177,22 +177,33 @@ export async function processPlayersFile(
   }
   const existingByIdentity = canonicalByIdentity;
 
-  // 3. Upsert each player from the file
+  // 3. Upsert each player from the file — batch inserts, parallel updates
   const fileIdentities = new Set<string>();
-  for (let i = 0; i < playerValues.length; i++) {
-    const p = playerValues[i];
+  const toInsert: Array<typeof playerValues[0]> = [];
+  const toUpdate: Array<{ id: number; isIR: boolean | null; player: typeof playerValues[0] }> = [];
+
+  for (const p of playerValues) {
     if (p.identity) fileIdentities.add(p.identity);
     const existing = p.identity ? existingByIdentity.get(p.identity) : undefined;
     if (existing) {
-      // Preserve isIR=true set by a transaction — the CSV never has IR context.
-      // Only override when the CSV explicitly marks the player as -IR (rare).
-      const preservedIsIR = p.isIR || existing.isIR || false;
-      await db.update(players).set({ ...p, isIR: preservedIsIR }).where(eq(players.id, existing.id));
+      toUpdate.push({ id: existing.id, isIR: existing.isIR, player: p });
     } else {
-      await db.insert(players).values(p);
+      toInsert.push(p);
     }
-    if (onProgress) onProgress(i + 1, playerValues.length);
   }
+
+  if (toInsert.length > 0) {
+    await db.insert(players).values(toInsert);
+  }
+  if (toUpdate.length > 0) {
+    // Preserve isIR=true set by a transaction — the CSV never has IR context.
+    // Only override when the CSV explicitly marks the player as -IR (rare).
+    await Promise.all(toUpdate.map(({ id, isIR, player: p }) => {
+      const preservedIsIR = p.isIR || isIR || false;
+      return db.update(players).set({ ...p, isIR: preservedIsIR }).where(eq(players.id, id));
+    }));
+  }
+  if (onProgress) onProgress(playerValues.length, playerValues.length);
 
   // Remove trade block entries where the player is no longer on the listed team.
   // Run unconditionally so stale entries from prior syncs are also cleaned up.
@@ -202,16 +213,19 @@ export async function processPlayersFile(
     .where(eq(tradeBlock.leagueId, leagueId));
 
   if (blockEntries.length > 0) {
+    const blockPlayerIds = blockEntries.map(e => e.playerId);
+    const playerTeams = await db
+      .select({ identity: players.identity, teamId: players.teamId })
+      .from(players)
+      .where(and(inArray(players.identity, blockPlayerIds), eq(players.leagueId, leagueId)));
+    const teamIdByIdentity = new Map(playerTeams.map(p => [p.identity, p.teamId]));
+
     const staleBlockIds: string[] = [];
     for (const entry of blockEntries) {
-      const playerRow = await db
-        .select({ teamId: players.teamId })
-        .from(players)
-        .where(and(eq(players.identity, entry.playerId), eq(players.leagueId, leagueId)))
-        .limit(1);
-      if (!playerRow[0]) continue;
+      const currentTeamId = teamIdByIdentity.get(entry.playerId);
+      if (currentTeamId === undefined) continue;
       const listedTeam = findTeam(allTeams, entry.team || '');
-      if (listedTeam && playerRow[0].teamId !== listedTeam.id) {
+      if (listedTeam && currentTeamId !== listedTeam.id) {
         staleBlockIds.push(entry.playerId);
       }
     }

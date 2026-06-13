@@ -2,6 +2,7 @@
 import { db } from './db';
 import { cuts, teams } from '@/schema';
 import { eq, and } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
 
 export type Cut = {
   id: number;
@@ -10,20 +11,25 @@ export type Cut = {
   touch_id?: string | null;
 };
 
-/**
- * Fetches all cuts from the database.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getCuts(leagueId: number = 1): Promise<any[]> {
+const _getCuts = unstable_cache(
+  async (leagueId: number) => {
     return await db.select({
-        id: cuts.id,
-        firstName: cuts.firstName,
-        lastName: cuts.lastName,
-        teamName: teams.name,
+      id: cuts.id,
+      firstName: cuts.firstName,
+      lastName: cuts.lastName,
+      teamName: teams.name,
     })
     .from(cuts)
     .leftJoin(teams, eq(cuts.teamId, teams.id))
     .where(and(eq(cuts.leagueId, leagueId), eq(teams.leagueId, leagueId)));
+  },
+  ['cuts-data'],
+  { revalidate: 60, tags: ['cuts'] }
+);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getCuts(leagueId: number = 1): Promise<any[]> {
+  return _getCuts(leagueId);
 }
 
 /**

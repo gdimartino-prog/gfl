@@ -14,7 +14,7 @@ export async function GET() {
     );
 
     return NextResponse.json(freeAgents, {
-      headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=60' },
+      headers: { 'Cache-Control': 'private, max-age=300, stale-while-revalidate=60' },
     });
   } catch (error: unknown) {
     console.error('API Error (Free Agents):', error instanceof Error ? error.message : String(error));

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
-import { teams } from '@/schema';
-import { and, eq } from 'drizzle-orm';
+import { teams, rules, draftPicks } from '@/schema';
+import { and, eq, asc } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getLastPickForTeam, getNextOnClockTeamId, clearPickSelection } from '@/lib/draftPicks';
 import { logSystemEvent } from '@/lib/db-helpers';
@@ -25,9 +25,7 @@ export async function POST() {
     const teamId = teamRow[0].id;
 
     // Get the draft year from rules
-    const { db: drizzleDb } = await import('@/lib/db');
-    const { rules } = await import('@/schema');
-    const yearRow = await drizzleDb.select({ value: rules.value })
+    const yearRow = await db.select({ value: rules.value })
       .from(rules)
       .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'draft_year')))
       .limit(1);
@@ -53,9 +51,7 @@ export async function POST() {
     }
 
     // Verify the next on-clock pick immediately follows the coach's last pick
-    const { draftPicks } = await import('@/schema');
-    const { asc } = await import('drizzle-orm');
-    const nextPickRow = await drizzleDb.select({ pick: draftPicks.pick, currentTeamId: draftPicks.currentTeamId })
+    const nextPickRow = await db.select({ pick: draftPicks.pick, currentTeamId: draftPicks.currentTeamId })
       .from(draftPicks)
       .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), eq(draftPicks.playerId, null as unknown as number)))
       .orderBy(asc(draftPicks.pick))

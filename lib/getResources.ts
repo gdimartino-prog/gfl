@@ -16,7 +16,11 @@ export type Resource = {
 const _getResources = unstable_cache(
   async (leagueId: number) => {
     try {
-      const allResources = await db.select().from(resources)
+      const allResources = await db.select({
+        group: resources.group,
+        title: resources.title,
+        url: resources.url,
+      }).from(resources)
         .where(eq(resources.leagueId, leagueId))
         .orderBy(asc(resources.sortOrder), resources.group, resources.title);
       return allResources.reduce((acc: Record<string, { title: string; url: string }[]>, resource) => {

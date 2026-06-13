@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 
     // 4. Return the processed array directly
     return NextResponse.json(processedPlayers, {
-      headers: { 'Cache-Control': 's-maxage=300, stale-while-revalidate=60' },
+      headers: { 'Cache-Control': 'private, max-age=300, stale-while-revalidate=60' },
     });
 
   } catch (err: unknown) {

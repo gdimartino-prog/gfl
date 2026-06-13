@@ -20,50 +20,33 @@ const _getClockRulesRaw = unstable_cache(
   { revalidate: 60, tags: ['rules'] },
 );
 
-const _getDraftClockMinutes = unstable_cache(
-  async (leagueId: number, round: number): Promise<number> => {
-    const clockRules = await db
-      .select({ rule: rules.rule, value: rules.value })
-      .from(rules)
-      .where(
-        and(
-          eq(rules.leagueId, leagueId),
-          sql`${rules.rule} LIKE 'draft_clock_%'`
-        )
-      );
-
-    const roundEntries = clockRules
-      .map(r => {
-        const match = r.rule.match(/^draft_clock_round_(\d+)$/);
-        return match ? { round: parseInt(match[1]), minutes: parseInt(r.value) } : null;
-      })
-      .filter((e): e is { round: number; minutes: number } => e !== null);
-
-    const applicable = roundEntries
-      .filter(e => e.round <= round)
-      .sort((a, b) => b.round - a.round);
-
-    if (applicable.length > 0) return applicable[0].minutes;
-
-    const defaultRule = clockRules.find(r => r.rule === 'draft_clock_default');
-    if (defaultRule?.value) return parseInt(defaultRule.value);
-
-    return 1440;
-  },
-  ['draft-clock-minutes'],
-  { revalidate: 60, tags: ['rules'] },
-);
-
 /**
  * Get the clock duration in minutes for a given league and round.
  *
- * Looks up draft_clock_round_* rules and applies cascading defaults:
- * - Find the highest configured round number <= current round
- * - Fall back to draft_clock_default if no round rules exist
- * - Fall back to 1440 minutes (24 hours) if nothing configured
+ * Reuses the shared _getClockRulesRaw cache — no extra DB trip.
+ * Cascading defaults: highest configured round <= current round,
+ * then draft_clock_default, then 1440 minutes (24 hours).
  */
-export function getDraftClockMinutes(leagueId: number, round: number): Promise<number> {
-  return _getDraftClockMinutes(leagueId, round);
+export async function getDraftClockMinutes(leagueId: number, round: number): Promise<number> {
+  const clockRules = await _getClockRulesRaw(leagueId);
+
+  const roundEntries = clockRules
+    .map(r => {
+      const match = r.rule.match(/^draft_clock_round_(\d+)$/);
+      return match ? { round: parseInt(match[1]), minutes: parseInt(r.value) } : null;
+    })
+    .filter((e): e is { round: number; minutes: number } => e !== null);
+
+  const applicable = roundEntries
+    .filter(e => e.round <= round)
+    .sort((a, b) => b.round - a.round);
+
+  if (applicable.length > 0) return applicable[0].minutes;
+
+  const defaultRule = clockRules.find(r => r.rule === 'draft_clock_default');
+  if (defaultRule?.value) return parseInt(defaultRule.value);
+
+  return 1440;
 }
 
 /**

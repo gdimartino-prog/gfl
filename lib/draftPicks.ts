@@ -1,7 +1,7 @@
 
 import { db } from './db';
 import { draftPicks, pickTransfers, teams, players } from '@/schema';
-import { and, eq, isNotNull, asc, sql, or } from 'drizzle-orm';
+import { and, eq, isNotNull, asc, sql, or, inArray } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { unstable_cache } from 'next/cache';
 
@@ -172,12 +172,11 @@ export async function clearAllPickSelections(leagueId: number, year: number, cle
     .from(draftPicks)
     .where(and(baseWhere, isNotNull(draftPicks.playerId)));
 
-  for (const p of made) {
-    if (p.playerId) {
-      await db.update(players)
-        .set({ teamId: sql`NULL`, touch_id: clearedBy })
-        .where(eq(players.id, p.playerId));
-    }
+  const playerIds = made.map(p => p.playerId!).filter(Boolean);
+  if (playerIds.length > 0) {
+    await db.update(players)
+      .set({ teamId: sql`NULL`, touch_id: clearedBy })
+      .where(inArray(players.id, playerIds));
   }
 
   // Reset selections only — keep the pick slot structure intact
@@ -256,10 +255,11 @@ export async function deleteDraftPicksByYearAndType(leagueId: number, year: numb
     .from(draftPicks)
     .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), eq(draftPicks.draftType, draftType), isNotNull(draftPicks.playerId)));
 
-  for (const p of made) {
-    if (p.playerId) {
-      await db.update(players).set({ teamId: sql`NULL`, touch_id: deletedBy }).where(eq(players.id, p.playerId));
-    }
+  const playerIds = made.map(p => p.playerId!).filter(Boolean);
+  if (playerIds.length > 0) {
+    await db.update(players)
+      .set({ teamId: sql`NULL`, touch_id: deletedBy })
+      .where(inArray(players.id, playerIds));
   }
 
   await db.delete(draftPicks).where(and(
@@ -463,22 +463,23 @@ export async function applyPickTransfers(leagueId: number, year: number, draftTy
       eq(pickTransfers.draftType, draftType),
     ));
 
-  let count = 0;
-  for (const transfer of transfers) {
-    if (!transfer.originalTeamId || !transfer.currentTeamId) continue;
-    const result = await db.update(draftPicks)
-      .set({ currentTeamId: transfer.currentTeamId })
-      .where(and(
-        eq(draftPicks.leagueId, leagueId),
-        eq(draftPicks.year, year),
-        eq(draftPicks.draftType, draftType),
-        eq(draftPicks.round, transfer.round),
-        eq(draftPicks.originalTeamId, transfer.originalTeamId),
-      ));
-    if ((result as unknown as { rowCount?: number }).rowCount) count++;
-  }
+  const results = await Promise.all(
+    transfers
+      .filter(t => t.originalTeamId && t.currentTeamId)
+      .map(t =>
+        db.update(draftPicks)
+          .set({ currentTeamId: t.currentTeamId! })
+          .where(and(
+            eq(draftPicks.leagueId, leagueId),
+            eq(draftPicks.year, year),
+            eq(draftPicks.draftType, draftType),
+            eq(draftPicks.round, t.round),
+            eq(draftPicks.originalTeamId, t.originalTeamId!),
+          ))
+      )
+  );
 
-  return count;
+  return results.filter(r => (r as unknown as { rowCount?: number }).rowCount).length;
 }
 
 export type PickTransferRow = {

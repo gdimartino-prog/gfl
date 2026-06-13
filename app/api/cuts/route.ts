@@ -5,6 +5,7 @@ import { eq, and, asc } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { auth } from '@/auth';
+import { revalidateTag } from 'next/cache';
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -141,6 +142,7 @@ export async function POST(req: NextRequest) {
 
     const protCount = selections?.filter((s: { status: string }) => s.status === 'protected').length ?? 0;
     const pullCount = selections?.filter((s: { status: string }) => s.status === 'pullback').length ?? 0;
+    revalidateTag('cuts', 'max');
     logSystemEvent(team, team, 'CUTS_SUBMITTED', `Year ${year}: ${protCount} protected, ${pullCount} pullback`, leagueId);
 
     return NextResponse.json({ success: true });
