@@ -89,7 +89,7 @@ export async function notifyDraftPick({
    *  can submit a late selection for any of these via the draft board (the
    *  late-pick auth path is intentionally permissive). */
   skippedOpen?: { round: number; pick: number; owner: string; skippedAt: Date | null }[];
-  type: 'PICK' | 'WARNING' | 'EXPIRATION';
+  type: 'PICK' | 'WARNING' | 'EXPIRATION' | 'PASS';
   leagueId?: number;
 }) {
   const tradeSuffix = originalOwner && originalOwner !== currentOwner
@@ -141,7 +141,9 @@ export async function notifyDraftPick({
   const nextOwner = onDeck[0]?.owner || '';
   const pingText = type === 'WARNING'
     ? `>>> @ ${currentOwner.toUpperCase()}: YOUR CLOCK IS ALMOST UP <<<\n\n`
-    : nextOwner ? `>>> @ ${nextOwner.toUpperCase()}: YOU ARE ON THE CLOCK <<<\n\n` : '';
+    : type === 'PASS' || type === 'EXPIRATION'
+      ? nextOwner ? `>>> @ ${nextOwner.toUpperCase()}: YOU ARE ON THE CLOCK <<<\n\n` : ''
+      : nextOwner ? `>>> @ ${nextOwner.toUpperCase()}: YOU ARE ON THE CLOCK <<<\n\n` : '';
 
   let header = '', details = '', waHeader = '';
   if (type === 'WARNING') {
@@ -152,6 +154,10 @@ export async function notifyDraftPick({
     header = 'PICK EXPIRED';
     waHeader = '⏰ *PICK EXPIRED*';
     details = `Team ${currentOwner}${tradeSuffix} was skipped.`;
+  } else if (type === 'PASS') {
+    header = 'PICK PASSED';
+    waHeader = '⏭️ *PICK PASSED*';
+    details = `Team ${currentOwner}${tradeSuffix} passed their pick.`;
   } else {
     header = 'LATEST PICK';
     waHeader = '🏈 *LATEST PICK*';

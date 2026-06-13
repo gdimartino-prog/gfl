@@ -40,9 +40,9 @@ node --env-file=.env.local --import tsx scripts/foo.ts
 
 ## Pre-push code review
 
-Before pushing any non-trivial code change (API routes, DB queries, auth, external API calls, user input handling, file uploads, background jobs), run the **secops** and **finops** agents in parallel on the uncommitted diff. Both agents are user-level (installed under `~/.claude/agents/`) — available in every project, no per-project setup needed.
+Before pushing any non-trivial code change (API routes, DB queries, auth, external API calls, user input handling, file uploads, background jobs), run the **secops**, **finops**, and **perf** agents in parallel on the uncommitted diff. All three agents are user-level (installed under `~/.claude/agents/`) — available in every project, no per-project setup needed.
 
-**Also include the `qa` agent in the parallel review when the change touches UI, auth, login flow, or interactive elements** (page edits, components, forms, navigation, session handling). Skip qa for pure backend, prompt, utility, schema, or docs changes — the pre-push hook (lint + build) plus secops/finops already cover those, and qa runs a 5–15 min Playwright browser session that's overkill for backend-only edits.
+**Also include the `qa` agent in the parallel review when the change touches UI, auth, login flow, or interactive elements** (page edits, components, forms, navigation, session handling). Skip qa for pure backend, prompt, utility, schema, or docs changes — the pre-push hook (lint + build) plus secops/finops/perf already cover those, and qa runs a 5–15 min Playwright browser session that's overkill for backend-only edits.
 
 Brief each agent with: files changed, what changed, and any prior findings if this is a re-review. Ask for severity-tagged findings and an explicit approve / block verdict.
 
