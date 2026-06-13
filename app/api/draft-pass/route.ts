@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       .where(eq(draftPicks.id, pick.id));
 
     await revalidateTag('draft-picks', 'max');
-    await logSystemEvent(callerTeamshort || coachName || '', pick.currentOwner || '', 'DRAFT_PASS', `R${pick.round} #${overallPick}: PASSED`, leagueId);
+    await logSystemEvent(callerTeamshort || coachName || '', pick.currentOwnerShort || '', 'DRAFT_PASS', `R${pick.round} #${overallPick}: PASSED`, leagueId);
 
     // Build notification context — same pattern as draft-selection
     const allPicks = await db.select({
