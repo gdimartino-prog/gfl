@@ -1,3 +1,11 @@
+export interface AutoPickQueueItem {
+  id: number;
+  playerId: number;
+  playerName: string;
+  position: string | null;
+  sortOrder: number;
+}
+
 export interface ScheduleGame {
   id?: number;
   year?: string | number | null;

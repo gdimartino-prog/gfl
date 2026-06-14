@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     // This keeps the JSON response small and fast.
     const processedPlayers = players.map((p) => {
       return {
+        id: p.id,
         team: p.team,
         first: p.first,
         last: p.last,

@@ -1,13 +1,18 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Search, X, ChevronUp, ChevronDown, ChevronsUpDown, Star, Download } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Search, X, ChevronUp, ChevronDown, ChevronsUpDown, Star, Download, ListPlus, Trash2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import type { AutoPickQueueItem } from '@/types';
+
+const QUEUE_OPEN_KEY = 'gfl-auto-pick-queue-open';
 
 const WATCHLIST_KEY = 'gfl-draft-watchlist';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface FaPlayer {
+  id: number;
   name: string;
   first: string;
   last: string;
@@ -370,6 +375,8 @@ function PositionTable({
   watchlist,
   onToggleStar,
   starredOnly,
+  queuedIds,
+  onAddToQueue,
 }: {
   group: typeof POSITION_GROUPS[number];
   players: FaPlayer[];
@@ -377,6 +384,8 @@ function PositionTable({
   watchlist: Set<string>;
   onToggleStar: (identity: string) => void;
   starredOnly: boolean;
+  queuedIds: Set<number>;
+  onAddToQueue: (p: FaPlayer) => void;
 }) {
   const [sortKey, setSortKey] = useState<string>('sal');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
@@ -422,9 +431,10 @@ function PositionTable({
         <table className="w-full text-xs text-left">
           <thead className="sticky top-0 z-20 bg-slate-800">
             <tr className="bg-slate-800 text-slate-400">
-              {/* Star col header */}
-              <th className="pl-2 pr-1 py-2 sticky left-0 bg-slate-800 z-30 w-6" />
-              <th className="px-3 py-2 font-semibold text-left sticky left-8 bg-slate-800 z-30 min-w-[140px]">
+              {/* Star + Queue col headers */}
+              <th className="pl-2 pr-0 py-2 sticky left-0 bg-slate-800 z-30 w-5" />
+              <th className="pl-0 pr-1 py-2 sticky left-5 bg-slate-800 z-30 w-5" />
+              <th className="px-3 py-2 font-semibold text-left sticky left-10 bg-slate-800 z-30 min-w-[140px]">
                 Player
               </th>
               {group.cols.map(col => (
@@ -457,7 +467,7 @@ function PositionTable({
                   }
                 >
                   {/* Star button */}
-                  <td className="pl-2 pr-1 py-1.5 sticky left-0 bg-inherit z-10">
+                  <td className="pl-2 pr-0 py-1.5 sticky left-0 bg-inherit z-10">
                     <button
                       onClick={() => onToggleStar(p.identity)}
                       className={`transition-colors ${
@@ -468,8 +478,24 @@ function PositionTable({
                       <Star size={12} fill={isStarred ? 'currentColor' : 'none'} />
                     </button>
                   </td>
+                  {/* Queue button */}
+                  <td className="pl-0 pr-1 py-1.5 sticky left-5 bg-inherit z-10">
+                    {queuedIds.has(p.id) ? (
+                      <span className="text-blue-400" title="In your auto-pick queue">
+                        <ListPlus size={12} />
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => onAddToQueue(p)}
+                        className="text-slate-600 hover:text-blue-400 transition-colors"
+                        title="Add to auto-pick queue"
+                      >
+                        <ListPlus size={12} />
+                      </button>
+                    )}
+                  </td>
                   {/* Player name */}
-                  <td className="px-3 py-1.5 sticky left-8 bg-inherit z-10 whitespace-nowrap">
+                  <td className="px-3 py-1.5 sticky left-10 bg-inherit z-10 whitespace-nowrap">
                     <a
                       href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' NFL')}`}
                       target="_blank"
@@ -511,11 +537,14 @@ const ALL_POS = 'All';
 const STARRED = 'Starred';
 
 export default function FreeAgentsPage() {
+  const { data: session } = useSession();
   const [players, setPlayers] = useState<FaPlayer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [posFilter, setPosFilter] = useState(ALL_POS);
   const [watchlist, setWatchlist] = useState<Set<string>>(new Set());
+  const [queue, setQueue] = useState<AutoPickQueueItem[]>([]);
+  const [queueOpen, setQueueOpen] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem(WATCHLIST_KEY);
@@ -525,7 +554,18 @@ export default function FreeAgentsPage() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setWatchlist(new Set(parsed));
     } catch { /* ignore */ }
+    const openSaved = localStorage.getItem(QUEUE_OPEN_KEY);
+    if (openSaved === 'true') setQueueOpen(true);
   }, []);
+
+  const sessionUserId = (session?.user as { id?: string } | undefined)?.id;
+  const fetchQueue = useCallback(() => {
+    if (!sessionUserId) return;
+    fetch('/api/draft-queue')
+      .then(r => r.ok ? r.json() : [])
+      .then((data: AutoPickQueueItem[]) => setQueue(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }, [sessionUserId]);
 
   useEffect(() => {
     fetch('/api/players?team=FA&scouting=1')
@@ -536,6 +576,40 @@ export default function FreeAgentsPage() {
       })
       .catch(() => setLoading(false));
   }, []);
+
+  useEffect(() => { fetchQueue(); }, [fetchQueue]);
+
+  const handleAddToQueue = useCallback(async (p: FaPlayer) => {
+    const res = await fetch('/api/draft-queue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId: p.id }),
+    });
+    if (res.ok) fetchQueue();
+  }, [fetchQueue]);
+
+  const handleRemoveFromQueue = useCallback(async (playerId: number) => {
+    const res = await fetch('/api/draft-queue', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId }),
+    });
+    if (res.ok) fetchQueue();
+  }, [fetchQueue]);
+
+  const handleMoveQueue = useCallback(async (idx: number, dir: -1 | 1) => {
+    const newQueue = [...queue];
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= newQueue.length) return;
+    [newQueue[idx], newQueue[swapIdx]] = [newQueue[swapIdx], newQueue[idx]];
+    const reordered = newQueue.map((item, i) => ({ ...item, sortOrder: i }));
+    setQueue(reordered);
+    await fetch('/api/draft-queue/reorder', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items: reordered.map(item => ({ playerId: item.playerId, sortOrder: item.sortOrder })) }),
+    });
+  }, [queue]);
 
   function toggleStar(identity: string) {
     setWatchlist(prev => {
@@ -598,6 +672,16 @@ export default function FreeAgentsPage() {
     [players, watchlist]
   );
 
+  const queuedIds = useMemo(() => new Set(queue.map(q => q.playerId)), [queue]);
+
+  function toggleQueueOpen() {
+    setQueueOpen(prev => {
+      const next = !prev;
+      localStorage.setItem(QUEUE_OPEN_KEY, String(next));
+      return next;
+    });
+  }
+
   const handleExportCsv = () => {
     const q = search.toLowerCase();
     const exportPlayers = groupedPlayers.flatMap(({ group, players: gPlayers }) =>
@@ -652,6 +736,78 @@ export default function FreeAgentsPage() {
             </button>
           )}
         </div>
+
+        {/* Auto-Pick Queue Panel */}
+        {sessionUserId && (
+          <div className="mb-5 border border-slate-700 rounded-xl overflow-hidden">
+            <button
+              onClick={toggleQueueOpen}
+              className="w-full flex items-center justify-between px-4 py-3 bg-slate-800 hover:bg-slate-700 transition-colors text-left"
+            >
+              <span className="flex items-center gap-2 text-sm font-bold text-slate-200">
+                <ListPlus size={14} className="text-blue-400" />
+                Auto-Pick Queue
+                {queue.length > 0 && (
+                  <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[10px] font-black rounded-full">
+                    {queue.length}
+                  </span>
+                )}
+              </span>
+              <ChevronDown
+                size={14}
+                className={`text-slate-400 transition-transform ${queueOpen ? 'rotate-180' : ''}`}
+              />
+            </button>
+            {queueOpen && (
+              <div className="bg-slate-900 px-4 py-3">
+                <p className="text-xs text-slate-400 mb-3">
+                  Ranked players you want to auto-pick. When you are on the clock for 30+ minutes and haven&apos;t made a pick,
+                  the system will automatically select your top available player.
+                </p>
+                {queue.length === 0 ? (
+                  <p className="text-xs text-slate-500 italic py-2">
+                    No players queued. Click <ListPlus size={10} className="inline" /> next to any player below to add them.
+                  </p>
+                ) : (
+                  <ol className="space-y-1">
+                    {queue.map((item, idx) => (
+                      <li key={item.playerId} className="flex items-center gap-2 text-sm">
+                        <span className="w-5 text-right text-xs font-black text-slate-500">{idx + 1}.</span>
+                        <span className="flex-1 text-white font-semibold">{item.playerName}</span>
+                        <span className="text-xs text-slate-500">{item.position ?? ''}</span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleMoveQueue(idx, -1)}
+                            disabled={idx === 0}
+                            className="p-0.5 text-slate-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                            title="Move up"
+                          >
+                            <ChevronUp size={13} />
+                          </button>
+                          <button
+                            onClick={() => handleMoveQueue(idx, 1)}
+                            disabled={idx === queue.length - 1}
+                            className="p-0.5 text-slate-500 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed transition-colors"
+                            title="Move down"
+                          >
+                            <ChevronDown size={13} />
+                          </button>
+                          <button
+                            onClick={() => handleRemoveFromQueue(item.playerId)}
+                            className="p-0.5 text-slate-600 hover:text-red-400 transition-colors"
+                            title="Remove from queue"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6">
@@ -745,6 +901,8 @@ export default function FreeAgentsPage() {
               watchlist={watchlist}
               onToggleStar={toggleStar}
               starredOnly={starredOnly}
+              queuedIds={queuedIds}
+              onAddToQueue={handleAddToQueue}
             />
           ))
         )}

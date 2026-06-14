@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { draftPicks, teams, rules } from '@/schema';
+import { draftPicks, players, teams, rules } from '@/schema';
 import { eq, and, asc, isNull } from 'drizzle-orm';
 import { notifyDraftPick, notifyDraftComplete } from '@/lib/notify';
 import { alias } from 'drizzle-orm/pg-core';
 import { getDraftClockMinutes, getWarningThresholdMinutes, getDraftStartDate, computePickTimings } from '@/lib/draftClock';
+import { findBestAutoPick, purgePickedPlayerFromQueues } from '@/lib/autoPickQueue';
+import { logSystemEvent } from '@/lib/db-helpers';
+import { revalidateTag } from 'next/cache';
 
 function isAuthorized(req: Request) {
   const auth = req.headers.get('authorization');
@@ -65,6 +68,7 @@ export async function GET(req: Request) {
         id: draftPicks.id,
         round: draftPicks.round,
         pick: draftPicks.pick,
+        draftType: draftPicks.draftType,
         currentTeamId: draftPicks.currentTeamId,
         playerId: draftPicks.playerId,
         passed: draftPicks.passed,
@@ -264,6 +268,54 @@ export async function GET(req: Request) {
           owner: p.currentOwner || '',
           skippedAt: p.pickedAt ? new Date(p.pickedAt) : null,
         }));
+
+      // AUTO-PICK: fires 30 min after the pick becomes active, overrides
+      // strikes (per league rule). Walk the team's ranked queue and take
+      // the first player who is still a free agent.
+      const AUTO_PICK_DELAY_MS = 30 * 60 * 1000;
+      const elapsedMs = activeTiming.clockStart
+        ? now.getTime() - activeTiming.clockStart.getTime()
+        : 0;
+      if (activePick.currentTeamId != null && elapsedMs >= AUTO_PICK_DELAY_MS) {
+        const activeDraftType = activePick.draftType ?? 'free_agent';
+        const best = await findBestAutoPick(leagueId, activePick.currentTeamId, draftYear, activeDraftType);
+        if (best) {
+          // Step 1: mark the pick done
+          await db.update(draftPicks)
+            .set({ playerId: best.playerId, selectedPlayerName: best.playerName, pickedAt: now, touch_id: 'cron-auto-pick' })
+            .where(eq(draftPicks.id, activePick.id));
+
+          // Step 2: assign player + purge queues in parallel (both safe after step 1)
+          await Promise.all([
+            db.update(players)
+              .set({ teamId: activePick.currentTeamId, touch_id: 'cron-auto-pick' })
+              .where(and(eq(players.id, best.playerId), eq(players.leagueId, leagueId))),
+            purgePickedPlayerFromQueues(leagueId, best.playerId, draftYear, activeDraftType),
+          ]);
+
+          // Step 3: cache busting, audit, and notification in parallel
+          await Promise.all([
+            revalidateTag('draft-picks', 'max'),
+            revalidateTag('players', 'max'),
+            logSystemEvent('cron-auto-pick', activePick.currentOwner || '', 'DRAFT_PICK',
+              `AUTO-PICK R${activePick.round} #${activePick.pick}: ${best.playerName}`, leagueId),
+            notifyDraftPick({
+              round: activePick.round,
+              overallPick: activePick.pick,
+              currentOwner: activePick.currentOwner || '',
+              originalOwner: activePick.originalTeam || '',
+              playerName: best.playerName,
+              timeTakenMs: elapsedMs,
+              recentPicks, onDeck, skippedOpen,
+              type: 'PICK',
+              leagueId,
+            }),
+          ]);
+
+          results.push({ leagueId, action: 'auto_pick', pick: activePick.pick, player: best.playerName });
+          continue;
+        }
+      }
 
       // 3-strike rule: if this team has had time expire 3+ times earlier in
       // this draft year (auto-skip OR late submission), immediately skip

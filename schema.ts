@@ -280,6 +280,23 @@ export const nflDraft = pgTable("nfl_draft", {
   index("nfl_draft_year_round_pick_idx").on(table.year, table.round, table.pick),
 ]);
 
+// Auto-pick queue — coaches rank free agents; cron fires the top available pick after 30 min on clock
+export const draftAutoPickQueue = pgTable("draft_auto_pick_queue", {
+  id: serial("id").primaryKey(),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
+  teamId: integer("team_id").references(() => teams.id).notNull(),
+  playerId: integer("player_id").references(() => players.id).notNull(),
+  year: integer("year").notNull(),
+  draftType: varchar("draft_type", { length: 20 }).notNull().default("free_agent"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  touch_dt: timestamp("touch_dt").defaultNow().notNull(),
+  touch_id: varchar("touch_id", { length: 256 }),
+}, (table) => [
+  index("draft_auto_pick_queue_team_idx").on(table.leagueId, table.teamId, table.year, table.draftType),
+  unique("draft_auto_pick_queue_unique_player").on(table.leagueId, table.teamId, table.playerId, table.year, table.draftType),
+]);
+
 // Relationships
 
 export const leaguesRelations = relations(leagues, ({ many }) => ({
@@ -295,13 +312,21 @@ export const leaguesRelations = relations(leagues, ({ many }) => ({
   schedule: many(schedule),
   tradeBlock: many(tradeBlock),
   auditLog: many(auditLog),
+  draftAutoPickQueue: many(draftAutoPickQueue),
 }));
 
-export const teamsRelations = relations(teams, ({ one }) => ({
+export const teamsRelations = relations(teams, ({ one, many }) => ({
   league: one(leagues, {
     fields: [teams.leagueId],
     references: [leagues.id],
   }),
+  autoPickQueue: many(draftAutoPickQueue),
+}));
+
+export const draftAutoPickQueueRelations = relations(draftAutoPickQueue, ({ one }) => ({
+  league: one(leagues, { fields: [draftAutoPickQueue.leagueId], references: [leagues.id] }),
+  team: one(teams, { fields: [draftAutoPickQueue.teamId], references: [teams.id] }),
+  player: one(players, { fields: [draftAutoPickQueue.playerId], references: [players.id] }),
 }));
 
 export const playersRelations = relations(players, ({ one }) => ({
