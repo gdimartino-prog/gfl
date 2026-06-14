@@ -8089,5 +8089,194 @@
     "team": "TC",
     "action": "DRAFT_PICK",
     "details": "R14 #246: T - Rob Havenstein"
+  },
+  {
+    "id": 900,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T11:16:51.283Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 901,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T13:37:21.168Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "DRAFT_PICK",
+    "details": "R14 #247: G - Cole Strange"
+  },
+  {
+    "id": 902,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T14:15:59.625Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 903,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T14:16:30.278Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R14 #248: C - Cade Mays"
+  },
+  {
+    "id": 904,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T15:22:02.764Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 905,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T16:04:25.028Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R14 #241: S/KR - Thomas Harper"
+  },
+  {
+    "id": 906,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T16:31:36.223Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R14 #249: WR/KR - John Metchie III"
+  },
+  {
+    "id": 907,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T16:36:46.034Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 908,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T17:01:22.526Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R14 #243: G - Andrew Vorhees"
+  },
+  {
+    "id": 909,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T17:58:18.463Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 910,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T18:41:03.193Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "DRAFT_PICK",
+    "details": "R14 #250: RB/KR - Devin Singletary"
+  },
+  {
+    "id": 911,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T20:34:36.539Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 912,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T20:34:57.695Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R14 #252: WR/RET - Charlie Jones"
+  },
+  {
+    "id": 913,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T21:33:37.176Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=400 positions=all rookiesOnly=false maxAge=none needsChars=79 mode=copy"
+  },
+  {
+    "id": 914,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T21:55:30.910Z",
+    "coach": "George Di Martino",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R15 #255: RB - Malik Davis"
+  },
+  {
+    "id": 915,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T21:55:56.032Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R15 #256: QB - Anthony Richardson"
+  },
+  {
+    "id": 916,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T21:56:07.830Z",
+    "coach": "VV",
+    "team": "JJ",
+    "action": "DRAFT_PASS",
+    "details": "R15 #257: PASSED"
+  },
+  {
+    "id": 917,
+    "leagueId": 1,
+    "timestamp": "2026-06-13T22:50:11.644Z",
+    "coach": "CK",
+    "team": "CK",
+    "action": "DRAFT_PASS",
+    "details": "R15 #258: PASSED"
+  },
+  {
+    "id": 918,
+    "leagueId": 1,
+    "timestamp": "2026-06-14T02:59:27.882Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "DRAFT_PICK",
+    "details": "R15 #261: WR/KR - Malachi Corley"
+  },
+  {
+    "id": 919,
+    "leagueId": 1,
+    "timestamp": "2026-06-14T03:04:11.418Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R15 #262: S - Andrew Wingard"
+  },
+  {
+    "id": 920,
+    "leagueId": 1,
+    "timestamp": "2026-06-14T04:20:01.531Z",
+    "coach": "John Yurchak",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R15 #263: WR - Andrei Iosivas"
   }
 ]
