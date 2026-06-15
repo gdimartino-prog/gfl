@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { draftPicks, players, teams, rules } from '@/schema';
-import { eq, and, asc, isNull } from 'drizzle-orm';
+import { eq, and, asc, isNull, sql } from 'drizzle-orm';
 import { notifyDraftPick, notifyDraftComplete } from '@/lib/notify';
 import { alias } from 'drizzle-orm/pg-core';
 import { getDraftClockMinutes, getWarningThresholdMinutes, getDraftStartDate, computePickTimings } from '@/lib/draftClock';
 import { findBestAutoPick, purgePickedPlayerFromQueues } from '@/lib/autoPickQueue';
 import { logSystemEvent } from '@/lib/db-helpers';
+import { getLeagueRuleValue } from '@/lib/getLeagueInfo';
 import { revalidateTag } from 'next/cache';
 
 function isAuthorized(req: Request) {
@@ -278,6 +279,24 @@ export async function GET(req: Request) {
         : 0;
       if (activePick.currentTeamId != null && elapsedMs >= AUTO_PICK_DELAY_MS) {
         const activeDraftType = activePick.draftType ?? 'free_agent';
+
+        // Roster limit check runs before findBestAutoPick to avoid a wasted queue query
+        const [rosterLimitValue, rosterCounts] = await Promise.all([
+          getLeagueRuleValue(leagueId, 'limit_roster'),
+          db.select({
+            total: sql<number>`cast(count(*) as int)`,
+            ir: sql<number>`cast(sum(case when ${players.isIR} = true then 1 else 0 end) as int)`,
+          }).from(players)
+            .where(and(eq(players.leagueId, leagueId), eq(players.teamId, activePick.currentTeamId))),
+        ]);
+        const rosterLimit = parseInt(rosterLimitValue ?? '') || 53;
+        const activeCount = Number(rosterCounts[0]?.total ?? 0) - Number(rosterCounts[0]?.ir ?? 0);
+
+        if (activeCount >= rosterLimit) {
+          results.push({ leagueId, action: 'auto_pick_skipped_roster_full', pick: activePick.pick });
+          continue;
+        }
+
         const best = await findBestAutoPick(leagueId, activePick.currentTeamId, draftYear, activeDraftType);
         if (best) {
           // Step 1: mark the pick done

@@ -39,6 +39,8 @@ export default async function ManualPage() {
     { href: '#4-league-standings-see-whos-on-top', label: '4. League Standings' },
     { href: '#5-league-schedule-plan-your-season', label: '5. League Schedule' },
     { href: '#6-the-draft-board-where-champions-are-made', label: '6. Draft Board' },
+    { href: '#6a-draft-setup-creating-a-new-draft-commissioner-only', label: '6a. Draft Setup' },
+    { href: '#6b-free-agents-auto-pick-queue', label: '6b. Auto-Pick Queue' },
     { href: '#7-transactions-making-roster-moves', label: '7. Transactions' },
     { href: '#8-roster-cuts-preparing-for-the-new-season', label: '8. Roster Cuts' },
     { href: '#9-the-trade-block-make-a-deal', label: '9. Trade Block' },

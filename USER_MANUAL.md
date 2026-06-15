@@ -179,7 +179,7 @@ You cannot draft a player if your team is already at the **active roster limit**
 
 ### Passing a Pick
 
-If you are done drafting or need to skip your turn, click the **"Pass / Done"** button next to "Enter Selection". The draft advances to the next team and your pick is marked **Passed**.
+If you are done drafting or need to skip your turn, click the **"Pass / Done"** button next to "Enter Selection". The draft advances to the next team and your pick is marked **Passed**. The league will receive an **email and WhatsApp notification** when a pick is passed.
 
 > **Important:** Passing a pick has a carry-forward effect. Each round going forward, the system will **automatically skip your pick** until you fill the passed pick via a late selection. You are not locked out — you can still make a late selection at any time — but the draft will not wait for you each round.
 
@@ -187,9 +187,17 @@ A **"Late Selection"** button remains available so you can fill the pick any tim
 
 ![Pass Pick](/manual-screenshots/draft-pass.png)
 
-### Expired Picks (Auto-Skip)
+### Expired Picks (Auto-Skip) and Strike Counter
 
 If the clock runs out before a pick is made, the pick is automatically **Skipped** by the system. Like a passed pick, a "Late Selection" button allows the team to still submit their choice after the fact. Auto-skipped picks also trigger the same carry-forward behavior — the team will continue to be skipped each round until the open pick is filled.
+
+The draft board tracks how many times each team has had a pick expire, shown as a **strike count** next to the team's on-deck position. The count is capped at **3 strikes** — additional auto-skips do not increment beyond that.
+
+### Auto-Pick Queue
+
+The **Auto-Pick Queue** lets you pre-rank free agents so the system picks for you automatically when you're on the clock. See [Section 6b — Auto-Pick Queue](#6b-free-agents-auto-pick-queue) for the full guide on setting up and managing your queue.
+
+**How it works:** Once your pick becomes active and 30 minutes have elapsed, the system checks your queue and selects your highest-ranked player who is still a free agent. You will receive the standard pick notification when this happens. If you have fewer than 30 minutes on the clock or the clock hasn't started yet, the auto-pick won't fire — the queue only kicks in after the 30-minute delay.
 
 ### Scouting Free Agents
 
@@ -281,6 +289,55 @@ If you need to add rounds to a draft that has already started, use the **"Add Ro
 Click **"Add Rounds"** and the new round rows will be appended immediately. Existing picks and selections are untouched. The team order and any alternate-group rotation are automatically inferred from the existing rounds, so the continuation is seamless.
 
 > **Note:** Pick transfers (traded picks) that cover the new round numbers will also be applied automatically.
+
+---
+
+## 6b. Free Agents: Auto-Pick Queue
+
+The **Free Agents** page lists every player not currently on a roster. In addition to browsing and scouting, it lets you build a personal **Auto-Pick Queue** — a ranked list of players the system will draft for you automatically when it's your turn and you haven't made a pick within 30 minutes.
+
+![Free Agents Page](/manual-screenshots/free-agents.png)
+
+### Opening the Queue Panel
+
+At the top of the Free Agents page, look for the **"Auto-Pick Queue"** panel header. Click it to expand the panel. A badge on the header shows how many players are currently in your queue. The panel remembers whether you left it open or closed between visits.
+
+![Auto-Pick Queue panel — expanded with players queued](/manual-screenshots/free-agents-queue-populated.png)
+
+### Adding Players to the Queue
+
+Each player row in the free agent list has a **queue icon** on the right side:
+
+*   A **gray icon** means the player is not in your queue — click it to add them.
+*   A **blue icon** means the player is already queued.
+
+After clicking, the player appears at the **bottom** of your queue immediately. You can then reorder them using the arrow buttons.
+
+### Reordering the Queue
+
+Inside the queue panel, each entry shows:
+*   **Player name and position**
+*   **Up ↑ and Down ↓ arrow buttons** to move the player higher or lower in priority
+*   **Trash icon** to remove the player from the queue
+
+The **top player** in the list is picked first. If that player is no longer available (already drafted by another team), the system automatically moves down to the next available player.
+
+### How the Auto-Pick Fires
+
+Once your pick becomes active:
+
+1. The draft clock starts counting down.
+2. If **30 minutes elapse** and you haven't made a manual selection, the system scans your queue for the highest-ranked player still available as a free agent.
+3. If found, the pick is made automatically on your behalf. The league receives the standard pick notification.
+4. The drafted player is removed from your queue **and from every other team's queue** in the league, so no one has a stale entry for a player who is now on a roster.
+
+> **Tip:** You can still make a manual pick at any time. The auto-pick only fires if you haven't picked after 30 minutes — it's a safety net, not a substitute for active drafting.
+
+> **Strike override:** Even if your team has 3 strikes from expired picks, the auto-pick queue will still fire on your behalf. The auto-pick bypasses the 3-strike hold.
+
+### Draft Type
+
+The queue is **separate for each draft type** (Free Agent vs. Rookie). If you're in a Free Agent Draft, your queue only shows Free Agent eligible players. Make sure you're viewing the correct draft type on the Free Agents page when building your queue.
 
 ---
 

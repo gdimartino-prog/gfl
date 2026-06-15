@@ -808,154 +808,6 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
         </div>
       )}
 
-      {/* Pending Signups Section */}
-      <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
-        <div className="px-8 py-5 bg-slate-900 flex items-center justify-between">
-          <div>
-            <h3 className="text-white font-black uppercase italic tracking-tighter text-lg flex items-center gap-2">
-              <Clock size={18} className="text-amber-400" /> Pending Signups
-            </h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">New coach applications awaiting approval</p>
-          </div>
-          <button
-            onClick={fetchPendingSignups}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all"
-          >
-            <RefreshCw size={14} /> Refresh
-          </button>
-        </div>
-
-        {pendingLoading ? (
-          <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest animate-pulse">Loading...</div>
-        ) : pendingSignups.length === 0 ? (
-          <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest">No pending applications.</div>
-        ) : (
-          <div className="divide-y divide-slate-100">
-            {pendingSignups.map(signup => (
-              <div key={signup.id} className="flex items-center gap-4 px-8 py-5 hover:bg-slate-50 transition-colors">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="bg-slate-100 text-slate-500 font-mono text-[10px] px-2 py-1 rounded font-black">{signup.teamshort}</span>
-                    <p className="font-black text-slate-900 uppercase italic tracking-tight">{signup.name}</p>
-                  </div>
-                  <p className="text-xs font-bold text-slate-500 mt-1">{signup.coach}{signup.email ? ` • ${signup.email}` : ''}{signup.mobile ? ` • ${signup.mobile}` : ''}</p>
-                  <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">League ID: {signup.leagueId} • Applied {new Date(signup.touch_dt).toLocaleDateString()}</p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => handleSignupAction(signup.id, 'approve')}
-                    disabled={processingId === signup.id}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all disabled:opacity-50"
-                  >
-                    <UserCheck size={14} /> Approve
-                  </button>
-                  <button
-                    onClick={() => handleSignupAction(signup.id, 'reject')}
-                    disabled={processingId === signup.id}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-100 text-red-600 font-black text-[10px] uppercase tracking-widest hover:bg-red-200 transition-all disabled:opacity-50"
-                  >
-                    <UserX size={14} /> Reject
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Draft Setup Section */}
-      <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
-        <div className="px-8 py-5 bg-slate-900 flex items-center justify-between">
-          <div className="text-left">
-            <h3 className="text-white font-black uppercase italic tracking-tighter text-lg flex items-center gap-2">
-              <ClipboardList size={18} className="text-blue-400" /> Draft Setup
-            </h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Generate draft pick order for a new season</p>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            <Link href="/draft/setup"
-              className="px-6 py-2.5 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all">
-              Open Setup Wizard →
-            </Link>
-            <Link href="/draft/setup#transfers"
-              className="px-6 py-2.5 rounded-2xl bg-slate-100 text-slate-700 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
-              Draft Transfers →
-            </Link>
-          </div>
-        </div>
-        <div className="px-8 py-6 border-t border-slate-100 space-y-6">
-          <div>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Official Draft Start Date</p>
-            <p className="text-[10px] text-slate-400 mb-3">The draft clock will not run until this date/time. Teams can still submit picks early, but no auto-expiry fires before it.</p>
-            <div className="flex flex-wrap items-end gap-3">
-              <div>
-                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date &amp; Time (local)</label>
-                <input
-                  type="datetime-local"
-                  value={draftStartDate}
-                  onChange={e => setDraftStartDate(e.target.value)}
-                  className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300"
-                />
-              </div>
-              <button
-                onClick={handleSaveDraftStartDate}
-                disabled={savingStartDate}
-                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all disabled:opacity-50"
-              >
-                <Save size={13} /> {savingStartDate ? 'Saving…' : 'Save'}
-              </button>
-              {draftStartDate && (
-                <button
-                  onClick={() => { setDraftStartDate(''); }}
-                  className="px-4 py-2 rounded-xl bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-            {startDateMsg && (
-              <p className={`mt-2 text-xs font-bold ${startDateMsg.success ? 'text-green-600' : 'text-red-500'}`}>{startDateMsg.text}</p>
-            )}
-          </div>
-          <div>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Clear Draft Selections</p>
-          <div className="flex flex-wrap items-end gap-3">
-            <div>
-              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Year</label>
-              <input
-                type="number"
-                value={clearDraftYear}
-                onChange={e => setClearDraftYear(e.target.value)}
-                placeholder="e.g. 2026"
-                className="w-28 px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-300"
-              />
-            </div>
-            <div>
-              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Type</label>
-              <select
-                value={clearDraftType}
-                onChange={e => setClearDraftType(e.target.value)}
-                className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-300"
-              >
-                <option value="free_agent">Free Agent</option>
-                <option value="rookie">Rookie</option>
-              </select>
-            </div>
-            <button
-              onClick={handleClearDraft}
-              disabled={clearDraftLoading}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all disabled:opacity-50"
-            >
-              <Trash2 size={13} /> {clearDraftLoading ? 'Clearing…' : 'Clear Draft'}
-            </button>
-          </div>
-          {clearDraftMsg && (
-            <p className={`mt-3 text-xs font-bold ${clearDraftMsg.success ? 'text-green-600' : 'text-red-500'}`}>{clearDraftMsg.text}</p>
-          )}
-          </div>
-        </div>
-      </div>
-
       {/* Draft Picks Audit Section */}
       <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
         <button
@@ -1060,6 +912,154 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
           </div>
         ) : null}
         </>)}
+      </div>
+
+      {/* Draft Setup Section */}
+      <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
+        <div className="px-8 py-5 bg-slate-900 flex items-center justify-between">
+          <div className="text-left">
+            <h3 className="text-white font-black uppercase italic tracking-tighter text-lg flex items-center gap-2">
+              <ClipboardList size={18} className="text-blue-400" /> Draft Setup
+            </h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Generate draft pick order for a new season</p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Link href="/draft/setup"
+              className="px-6 py-2.5 rounded-2xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-500 transition-all">
+              Open Setup Wizard →
+            </Link>
+            <Link href="/draft/setup#transfers"
+              className="px-6 py-2.5 rounded-2xl bg-slate-100 text-slate-700 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">
+              Draft Transfers →
+            </Link>
+          </div>
+        </div>
+        <div className="px-8 py-6 border-t border-slate-100 space-y-6">
+          <div>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Official Draft Start Date</p>
+            <p className="text-[10px] text-slate-400 mb-3">The draft clock will not run until this date/time. Teams can still submit picks early, but no auto-expiry fires before it.</p>
+            <div className="flex flex-wrap items-end gap-3">
+              <div>
+                <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date &amp; Time (local)</label>
+                <input
+                  type="datetime-local"
+                  value={draftStartDate}
+                  onChange={e => setDraftStartDate(e.target.value)}
+                  className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300"
+                />
+              </div>
+              <button
+                onClick={handleSaveDraftStartDate}
+                disabled={savingStartDate}
+                className="flex items-center gap-2 px-5 py-2 rounded-xl bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all disabled:opacity-50"
+              >
+                <Save size={13} /> {savingStartDate ? 'Saving…' : 'Save'}
+              </button>
+              {draftStartDate && (
+                <button
+                  onClick={() => { setDraftStartDate(''); }}
+                  className="px-4 py-2 rounded-xl bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            {startDateMsg && (
+              <p className={`mt-2 text-xs font-bold ${startDateMsg.success ? 'text-green-600' : 'text-red-500'}`}>{startDateMsg.text}</p>
+            )}
+          </div>
+          <div>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Clear Draft Selections</p>
+          <div className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Year</label>
+              <input
+                type="number"
+                value={clearDraftYear}
+                onChange={e => setClearDraftYear(e.target.value)}
+                placeholder="e.g. 2026"
+                className="w-28 px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-300"
+              />
+            </div>
+            <div>
+              <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Type</label>
+              <select
+                value={clearDraftType}
+                onChange={e => setClearDraftType(e.target.value)}
+                className="px-3 py-2 border border-slate-200 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-300"
+              >
+                <option value="free_agent">Free Agent</option>
+                <option value="rookie">Rookie</option>
+              </select>
+            </div>
+            <button
+              onClick={handleClearDraft}
+              disabled={clearDraftLoading}
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 text-white text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all disabled:opacity-50"
+            >
+              <Trash2 size={13} /> {clearDraftLoading ? 'Clearing…' : 'Clear Draft'}
+            </button>
+          </div>
+          {clearDraftMsg && (
+            <p className={`mt-3 text-xs font-bold ${clearDraftMsg.success ? 'text-green-600' : 'text-red-500'}`}>{clearDraftMsg.text}</p>
+          )}
+          </div>
+        </div>
+      </div>
+
+      {/* Pending Signups Section */}
+      <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
+        <div className="px-8 py-5 bg-slate-900 flex items-center justify-between">
+          <div>
+            <h3 className="text-white font-black uppercase italic tracking-tighter text-lg flex items-center gap-2">
+              <Clock size={18} className="text-amber-400" /> Pending Signups
+            </h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">New coach applications awaiting approval</p>
+          </div>
+          <button
+            onClick={fetchPendingSignups}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/20 transition-all"
+          >
+            <RefreshCw size={14} /> Refresh
+          </button>
+        </div>
+
+        {pendingLoading ? (
+          <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest animate-pulse">Loading...</div>
+        ) : pendingSignups.length === 0 ? (
+          <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest">No pending applications.</div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {pendingSignups.map(signup => (
+              <div key={signup.id} className="flex items-center gap-4 px-8 py-5 hover:bg-slate-50 transition-colors">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="bg-slate-100 text-slate-500 font-mono text-[10px] px-2 py-1 rounded font-black">{signup.teamshort}</span>
+                    <p className="font-black text-slate-900 uppercase italic tracking-tight">{signup.name}</p>
+                  </div>
+                  <p className="text-xs font-bold text-slate-500 mt-1">{signup.coach}{signup.email ? ` • ${signup.email}` : ''}{signup.mobile ? ` • ${signup.mobile}` : ''}</p>
+                  <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-0.5">League ID: {signup.leagueId} • Applied {new Date(signup.touch_dt).toLocaleDateString()}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => handleSignupAction(signup.id, 'approve')}
+                    disabled={processingId === signup.id}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all disabled:opacity-50"
+                  >
+                    <UserCheck size={14} /> Approve
+                  </button>
+                  <button
+                    onClick={() => handleSignupAction(signup.id, 'reject')}
+                    disabled={processingId === signup.id}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-100 text-red-600 font-black text-[10px] uppercase tracking-widest hover:bg-red-200 transition-all disabled:opacity-50"
+                  >
+                    <UserX size={14} /> Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Team Manager Section */}

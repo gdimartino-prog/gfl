@@ -80,6 +80,7 @@ gfl/
 │   ├── maintenance.ts                # syncPlayersFromFile(), syncStandings(), syncSchedule()
 │   ├── notify.ts                     # sendEmail(), sendWhatsApp(), notifyDraftPick(), notifyTransaction(), notifyTradeBlock()
 │   ├── auth.ts                       # isAdmin(), isCommissioner()
+│   ├── autoPickQueue.ts              # getAutoPickQueue(), addToAutoPickQueue(), removeFromAutoPickQueue(), reorderAutoPickQueue(), findBestAutoPick(), purgePickedPlayerFromQueues(), resolveTeamId()
 │   ├── playerUtils.ts                # buildPlayerIdentity()
 │   └── playerStats.ts                # Player stat formatting helpers
 ├── schema.ts                         # Drizzle table definitions (source of truth)
@@ -254,6 +255,23 @@ Persistent record of traded pick ownership — survives draft regeneration.
 | timestamp | timestamp | |
 | coach / team / action / details | varchar/text | |
 
+### draft_auto_pick_queue
+Per-team ranked list of free agents to auto-draft. The cron picks the top available player (still a free agent) after 30 minutes on the clock.
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | serial PK | |
+| leagueId | integer → leagues.id NOT NULL | |
+| teamId | integer → teams.id NOT NULL | |
+| playerId | integer → players.id NOT NULL | |
+| year | integer NOT NULL | Draft year |
+| draftType | varchar(20) NOT NULL | `free_agent` / `rookie` (default `free_agent`) |
+| sortOrder | integer NOT NULL | Lower = higher priority |
+| createdAt / touch_dt | timestamp | |
+| touch_id | varchar | Actor who last modified |
+| **Indexes** | draft_auto_pick_queue_team_idx on (leagueId, teamId, year, draftType) | |
+| **Unique** | draft_auto_pick_queue_unique_player on (leagueId, teamId, playerId, year, draftType) | One entry per player per team per draft |
+
 ### nfl_draft
 Global reference table — no leagueId.
 
@@ -334,7 +352,11 @@ Every tenant table has a `leagueId` column. All queries filter by it.
 | `/api/trade-block` | GET/POST/DELETE | Trade block listings |
 | `/api/draft-picks` | GET | All draft picks with transfer info |
 | `/api/draft-selection` | POST | Record a draft pick selection |
-| `/api/draft-pass` | POST | Pass on a pick (commissioner) |
+| `/api/draft-pass` | POST | Pass on a pick (commissioner); sends PASS notification to league |
+| `/api/draft-queue` | GET | Get a team's auto-pick queue; admin can query any team via `?teamshort=` |
+| `/api/draft-queue` | POST | Add a free agent to the caller's auto-pick queue |
+| `/api/draft-queue` | DELETE | Remove a player from the caller's auto-pick queue |
+| `/api/draft-queue/reorder` | PATCH | Update sort order for caller's auto-pick queue items |
 | `/api/draft-picks/undo` | POST | Undo last selection (commissioner) |
 | `/api/draft-picks/expire` | POST | Expire timed-out picks |
 | `/api/draft-setup` | GET/POST | Draft configuration |
@@ -409,14 +431,27 @@ Players originate from the **Action** simulation game. Sync flow:
 - **Timer:** `scheduled_at` set when pick becomes active; cron checks expiry
 - **Pick transfers:** traded picks stored in `draft_pick_transfers` (survives regeneration via upsert)
 - **Selection:** commissioner or coach submits via `SelectionModal` → `POST /api/draft-selection`
-- **Pass / Done:** commissioner → `POST /api/draft-pass`; sets `passed=true, pickedAt=now` on the pick
+- **Pass / Done:** commissioner → `POST /api/draft-pass`; sets `passed=true, pickedAt=now` on the pick; sends `PASS` notification to the league (email + WhatsApp)
 - **Pre-draft countdown:** Draft board shows live countdown to `draftStartDate` when no active pick
 - **Roster limit check:** selection is blocked if the receiving team's active roster (total − IR) is at `limit_roster` (default 53); IR players do not count against the limit
+- **Strike cap:** strike count is capped at 3 per team — additional auto-skips do not increment beyond 3
 
 ### Pass Carry-Forward
 When a team passes a pick (`passed=true`), that pick becomes an "open skip" — visible to all teams for late selection at any time. On every subsequent round where that team is on the clock, the cron auto-skips them with `SKIPPED (open pick pending)` until they fill the passed pick via a late selection.
 
 Technically: `skippedOpen` collects all picks where `playerId IS NULL` AND (`selectedPlayerName STARTS WITH 'SKIPPED'` OR `passed=true`). The `teamHasOpenSkip` check fires before normal clock expiry checks and triggers the carry-forward skip.
+
+### Auto-Pick Queue
+Coaches rank free agents on the Free Agents page into a personal priority list. The draft cron fires an auto-pick on their behalf after 30 minutes on the clock.
+
+- **Queue management:** `GET/POST/DELETE /api/draft-queue` — add, remove, read. Each entry is scoped to `(leagueId, teamId, year, draftType)`. Duplicate entries are silently ignored (unique constraint).
+- **Reorder:** `PATCH /api/draft-queue/reorder` — update `sortOrder` values for all items in one call.
+- **Auto-pick trigger:** cron checks `elapsedMs >= 30 min`. If the team has a queue, calls `findBestAutoPick` (JOIN with `players` filtered to `teamId IS NULL`), marks the pick done, assigns the player, purges the player from **all** teams' queues via `purgePickedPlayerFromQueues`, busts caches, logs the event, and sends a `PICK` notification.
+- **Strike override:** auto-pick runs before the 3-strike check — a team with 3 strikes can still auto-pick.
+- **Conflict resolution:** if two teams queue the same player, the team that is on the clock first drafts the player; the player is then removed from every other team's queue automatically.
+- **Stale entries:** `getAutoPickQueue` JOINs with `players` and filters `teamId IS NULL` — already-drafted players are invisible in the queue until purged.
+- **Implementation:** `lib/autoPickQueue.ts`; `resolveTeamId` is `unstable_cache`'d for 1 hour under `['teams']` tag.
+- **UI:** collapsible "Auto-Pick Queue" panel on the Free Agents page — ranked list with up/down reorder arrows and remove button; panel open-state persisted in localStorage; queue count badge shown on panel header.
 
 ### Adding Rounds to an In-Progress Draft
 `POST /api/draft-setup/add-rounds` appends new round rows without touching existing picks:
@@ -454,6 +489,7 @@ Technically: `skippedOpen` collects all picks where `playerId IS NULL` AND (`sel
 | `notifyDraftPick(type='PICK')` | Draft selection | Email + WhatsApp (GFL only) |
 | `notifyDraftPick(type='WARNING')` | Clock-warning threshold reached (= 25% of round's clock, capped at 60 min; e.g. 60 min for a 24h clock, 15 min for a 1h clock) | Email + WhatsApp (GFL only) |
 | `notifyDraftPick(type='EXPIRATION')` | Pick clock expired | Email + WhatsApp (GFL only) |
+| `notifyDraftPick(type='PASS')` | Team passes / done on their pick | Email + WhatsApp (GFL only) |
 | `notifyTradeBlock()` | Player listed on trade block | Email + WhatsApp (GFL only) |
 | Cron email | Cuts alert, schedule reminder | Email only |
 
@@ -483,6 +519,19 @@ GitHub Actions' `*/5 * * * *` schedule is heavily throttled in practice — obse
 For the draft clock — where missed ticks mean missed warnings — the dispatcher is **cron-job.org** (free external service, runs every 5 min reliably). For low-frequency crons (daily, weekly) the throttling doesn't matter, so those stay on GitHub Actions.
 
 A redundant GitHub Actions backup (`draft-clock.yml`) was tried briefly. It was removed because (a) GitHub's `*/5` throttling made the "backup" effectively no-op most of the time anyway, and (b) when it did fire close to a cron-job.org tick, it doubled the function invocation cost on Vercel without adding meaningful coverage.
+
+### Auto-pick execution (draft cron)
+
+Each cron tick checks the active pick for an auto-pick queue hit **before** evaluating the 3-strike rule:
+
+1. Compute elapsed time since `clockStart`
+2. If elapsed ≥ 30 min AND team has a queued player available (still a free agent):
+   a. Mark the `draft_picks` row done (`playerId`, `selectedPlayerName`, `pickedAt`)
+   b. In parallel: assign `players.teamId` + purge the player from all teams' queues
+   c. In parallel: bust `draft-picks` + `players` caches, write audit log, send `PICK` notification
+3. Skip the 3-strike check and `continue` to the next league
+
+Strike count is capped at 3 — accumulation stops once a team reaches 3 regardless of how many additional auto-skips follow.
 
 ### Retry-safe warning notifications
 
