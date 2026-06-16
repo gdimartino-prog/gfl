@@ -70,6 +70,9 @@ export default function ScoutPage() {
   const [reportHtml, setReportHtml] = useState<string | null>(null);
   const [reportCopyPrompt, setReportCopyPrompt] = useState<string | null>(null);
   const [reportCopied, setReportCopied] = useState(false);
+  const [bulkCopyPrompt, setBulkCopyPrompt] = useState<string | null>(null);
+  const [bulkCopied, setBulkCopied] = useState(false);
+  const [bulkLoading, setBulkLoading] = useState(false);
 
   useEffect(() => {
     setRecentNeeds(loadRecentNeeds());
@@ -305,6 +308,31 @@ export default function ScoutPage() {
     }
   };
 
+  const handleBulkPrompts = async () => {
+    if (!reportTeamShort || reportRoster.length === 0) return;
+    setBulkLoading(true);
+    setReportError(null);
+    setBulkCopyPrompt(null);
+    setBulkCopied(false);
+    setReportText(null);
+    setReportHtml(null);
+    setReportCopyPrompt(null);
+    try {
+      const res = await fetch('/api/scout/bulk-player-prompts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamShort: reportTeamShort }),
+      });
+      const data = await res.json() as { error?: string; combinedPrompt?: string; count?: number };
+      if (!res.ok) throw new Error(data.error || `Request failed (HTTP ${res.status})`);
+      setBulkCopyPrompt(data.combinedPrompt ?? '');
+    } catch (err) {
+      setReportError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
   if (status === 'loading') return null;
 
   return (
@@ -409,10 +437,24 @@ export default function ScoutPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end mt-2">
+              <div className="flex items-center justify-end gap-3 mt-2 flex-wrap">
+                {reportMode === 'copy' && reportRoster.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleBulkPrompts}
+                    disabled={bulkLoading || reportLoading}
+                    className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-800 disabled:bg-slate-300 text-white text-sm font-black uppercase tracking-widest px-5 py-3 rounded-xl shadow transition-colors"
+                  >
+                    {bulkLoading ? (
+                      <><Loader2 size={16} className="animate-spin" />Building…</>
+                    ) : (
+                      <>All {reportRoster.length} Players</>
+                    )}
+                  </button>
+                )}
                 <button
                   type="submit"
-                  disabled={reportLoading || !selectedPlayer}
+                  disabled={reportLoading || !selectedPlayer || bulkLoading}
                   className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white text-sm font-black uppercase tracking-widest px-6 py-3 rounded-xl shadow transition-colors"
                 >
                   {reportLoading ? (
@@ -432,7 +474,45 @@ export default function ScoutPage() {
               </div>
             )}
 
-            {reportCopyPrompt ? (
+            {bulkCopyPrompt ? (
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div>
+                    <h2 className="text-sm font-black uppercase tracking-widest text-slate-700">All-player prompts ready</h2>
+                    <p className="text-xs text-slate-500 mt-1 max-w-xl">
+                      Each player&apos;s prompt is separated by <code>---</code>. Paste one at a time into{' '}
+                      <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">gemini.google.com</a>.
+                      Or copy all and ask Gemini to work through them in sequence.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(bulkCopyPrompt);
+                        setBulkCopied(true);
+                        setTimeout(() => setBulkCopied(false), 2500);
+                      } catch {
+                        setReportError('Copy failed — select the text below and copy manually.');
+                      }
+                    }}
+                    className="shrink-0 inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black uppercase tracking-widest px-4 py-2 rounded-lg shadow transition-colors"
+                  >
+                    {bulkCopied ? 'Copied!' : 'Copy All'}
+                  </button>
+                </div>
+                <textarea
+                  readOnly
+                  value={bulkCopyPrompt}
+                  onFocus={(e) => e.currentTarget.select()}
+                  rows={24}
+                  className="w-full rounded-lg border border-slate-300 px-3 py-2 text-xs font-mono bg-slate-50 resize-y"
+                />
+                <p className="text-[10px] text-slate-400 mt-2">
+                  {bulkCopyPrompt.length.toLocaleString()} chars total.
+                </p>
+              </div>
+            ) : reportCopyPrompt ? (
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div>
