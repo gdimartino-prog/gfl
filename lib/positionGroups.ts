@@ -5,9 +5,9 @@ export type PositionGroup = {
 
 export const POSITION_GROUPS: PositionGroup[] = [
   { label: 'Quarterbacks',         positions: ['QB'] },
-  { label: 'Running Backs',        positions: ['RB', 'FB'] },
+  { label: 'Running Backs',        positions: ['RB', 'FB', 'HB'] },
   { label: 'Wide Receivers',       positions: ['WR'] },
-  { label: 'Tight Ends',           positions: ['TE', 'HB'] },
+  { label: 'Tight Ends',           positions: ['TE'] },
   { label: 'Centers',              positions: ['C', 'C-G'] },
   { label: 'Guards',               positions: ['G', 'G-T'] },
   { label: 'Tackles',              positions: ['T', 'OT', 'OL'] },

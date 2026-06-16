@@ -9,6 +9,7 @@ const POSITIONS = ['All', 'QB', 'RB', 'WR', 'TE', 'G', 'T', 'C', 'DL', 'LB', 'CB
 
 // Filters that expand to multiple position codes
 const POS_GROUP: Record<string, string[]> = {
+  RB: ['RB', 'HB', 'FB'],
   DL: ['DL', 'DT', 'DE', 'NT'],
   LB: ['LB', 'ILB', 'OLB', 'MLB'],
 };
