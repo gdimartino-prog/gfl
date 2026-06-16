@@ -5,13 +5,15 @@ import { X, Search, UserPlus } from 'lucide-react';
 import { useConfirm } from '@/components/ConfirmDialog';
 import { Player, DraftPick } from '../types';
 
-const POSITIONS = ['All', 'QB', 'RB', 'WR', 'TE', 'G', 'T', 'C', 'DL', 'LB', 'CB', 'S', 'K', 'P'];
+const POSITIONS = ['All', 'QB', 'RB', 'WR', 'TE', 'G', 'T', 'C', 'DL', 'LB', 'CB', 'S', 'KR', 'PR', 'K', 'P'];
 
 // Filters that expand to multiple position codes
 const POS_GROUP: Record<string, string[]> = {
   RB: ['RB', 'HB', 'FB'],
   DL: ['DL', 'DT', 'DE', 'NT'],
   LB: ['LB', 'ILB', 'OLB', 'MLB'],
+  KR: ['KR', 'RET'],
+  PR: ['PR', 'RET'],
 };
 
 const parseSalary = (s?: string | number | null): number => {
