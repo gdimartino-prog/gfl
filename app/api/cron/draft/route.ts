@@ -175,6 +175,8 @@ export async function GET(req: Request) {
       const lastSeenPickId = lastIdRow[0]?.value ? parseInt(lastIdRow[0].value) : null;
       const activePickTransition = lastSeenPickId !== activePick.id;
 
+      const AUTO_PICK_DELAY_MS = 30 * 60 * 1000;
+      const cheapElapsedMs = now.getTime() - cheapClockStart.getTime();
       const wontExpireThisTick = cheapDiffMs > 0;
       // The cheap deadline uses prevPick.pickedAt directly, which can be a few
       // minutes off when prevPick was selected late (the accurate deadline math
@@ -183,8 +185,10 @@ export async function GET(req: Request) {
       // is clearly far away — preserving correctness around late picks at the
       // cost of running the full path for the last ~30 min before warning.
       const wontWarnThisTick = activePick.warningSent || cheapDiffMinutes > cheapWarningMinutes + 30;
+      // Auto-pick fires after 30 min on the clock — must not fast-path once that window opens.
+      const autoPickWindowClosed = cheapElapsedMs < AUTO_PICK_DELAY_MS;
 
-      if (wontExpireThisTick && wontWarnThisTick && !activePickTransition) {
+      if (wontExpireThisTick && wontWarnThisTick && !activePickTransition && autoPickWindowClosed) {
         results.push({ leagueId, action: 'none', minutesRemaining: cheapDiffMinutes.toFixed(1), fast: true });
         continue;
       }
@@ -273,7 +277,6 @@ export async function GET(req: Request) {
       // AUTO-PICK: fires 30 min after the pick becomes active, overrides
       // strikes (per league rule). Walk the team's ranked queue and take
       // the first player who is still a free agent.
-      const AUTO_PICK_DELAY_MS = 30 * 60 * 1000;
       const elapsedMs = activeTiming.clockStart
         ? now.getTime() - activeTiming.clockStart.getTime()
         : 0;
