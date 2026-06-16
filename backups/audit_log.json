@@ -8440,5 +8440,149 @@
     "team": "LBI",
     "action": "WAIVE",
     "details": "DE-LB - Samson Ebukam"
+  },
+  {
+    "id": 939,
+    "leagueId": 1,
+    "timestamp": "2026-06-15T14:31:02.995Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 940,
+    "leagueId": 1,
+    "timestamp": "2026-06-15T15:08:49.284Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #192 marked Done"
+  },
+  {
+    "id": 941,
+    "leagueId": 1,
+    "timestamp": "2026-06-15T15:08:56.361Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #191 marked Done"
+  },
+  {
+    "id": 942,
+    "leagueId": 1,
+    "timestamp": "2026-06-15T15:08:58.700Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #190 marked Done"
+  },
+  {
+    "id": 943,
+    "leagueId": 1,
+    "timestamp": "2026-06-15T15:09:00.596Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #189 marked Done"
+  },
+  {
+    "id": 944,
+    "leagueId": 1,
+    "timestamp": "2026-06-15T15:10:30.020Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 945,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T00:17:18.887Z",
+    "coach": "George Di Martino",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R15 #270: HB - C.J. Ham"
+  },
+  {
+    "id": 946,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T00:17:30.686Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R15 #270: HB - C.J. Ham"
+  },
+  {
+    "id": 947,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T00:21:09.406Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 948,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T00:21:48.990Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "WAIVE",
+    "details": "RB/KR - Julius Chestnut"
+  },
+  {
+    "id": 949,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T00:30:58.588Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #193 marked Done"
+  },
+  {
+    "id": 950,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T01:30:06.582Z",
+    "coach": "cron-auto-pick",
+    "team": "Vico",
+    "action": "DRAFT_PICK",
+    "details": "AUTO-PICK R16 #273: Tyler Loop"
+  },
+  {
+    "id": 951,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T02:03:10.895Z",
+    "coach": "John Yurchak",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R16 #274: S - Nick Scott"
+  },
+  {
+    "id": 952,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T02:13:16.390Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 953,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T02:15:26.128Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_BULK_PROMPTS",
+    "details": "team=VV count=52"
+  },
+  {
+    "id": 954,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T03:56:33.753Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
