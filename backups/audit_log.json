@@ -8584,5 +8584,50 @@
     "team": "Old Bridge",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 955,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T12:55:13.605Z",
+    "coach": "George Di Martino",
+    "team": "LV",
+    "action": "DRAFT_PICK",
+    "details": "R16 #277: HB/KR - Connor Heyward"
+  },
+  {
+    "id": 956,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T13:19:08.155Z",
+    "coach": "Unknown Coach",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R16 #280: C - Austin Brinkman"
+  },
+  {
+    "id": 957,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T17:21:52.970Z",
+    "coach": "George Di Martino",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R16 #281: C - Mitchell Fraboni"
+  },
+  {
+    "id": 958,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T17:22:49.414Z",
+    "coach": "George Di Martino",
+    "team": "NBT",
+    "action": "DRAFT_PICK",
+    "details": "R15 #260: C - Thomas Hennessy"
+  },
+  {
+    "id": 959,
+    "leagueId": 1,
+    "timestamp": "2026-06-16T21:08:52.175Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R16 #282: RB - Trey Benson"
   }
 ]
