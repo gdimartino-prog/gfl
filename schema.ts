@@ -97,6 +97,7 @@ export const transactions = pgTable("transactions", {
 }, (table) => [
   index("transactions_league_date_idx").on(table.leagueId, table.date),
   index("transactions_league_status_idx").on(table.leagueId, table.status),
+  index("transactions_league_type_idx").on(table.leagueId, table.type),
 ]);
 
 // Draft Picks table

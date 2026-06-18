@@ -1,9 +1,65 @@
 import { db } from './db';
-import { players, teams, schedule, standings, rules, draftPicks, tradeBlock } from '@/schema';
-import { eq, and, inArray, isNotNull } from 'drizzle-orm';
+import { players, teams, schedule, standings, rules, draftPicks, tradeBlock, transactions } from '@/schema';
+import { eq, and, inArray, isNotNull, sql } from 'drizzle-orm';
 import Papa from "papaparse";
 import { revalidateTag } from 'next/cache';
 import { buildPlayerIdentity } from './playerUtils';
+
+export async function restoreIRFlags(leagueId: number): Promise<number> {
+  const irTxns = await db.select({ fromTeam: transactions.fromTeam, description: transactions.description, date: transactions.date })
+    .from(transactions)
+    .where(and(eq(transactions.leagueId, leagueId), inArray(transactions.type, ['IR', 'IR MOVE'])))
+    .orderBy(transactions.date);
+
+  const removeTxns = await db.select({ description: transactions.description, date: transactions.date })
+    .from(transactions)
+    .where(and(eq(transactions.leagueId, leagueId), inArray(transactions.type, ['DROP', 'WAIVE', 'ADD'])))
+    .orderBy(transactions.date);
+
+  function parseName(desc: string | null): string | null {
+    const m = (desc || '').match(/Placed on IR:\s*(?:[A-Z\-\/]+ - )?(.+)/i);
+    return m ? m[1].trim().toLowerCase() : null;
+  }
+
+  const stillOnIR: string[] = [];
+  for (const t of irTxns) {
+    const name = parseName(t.description);
+    if (!name) continue;
+    const removed = removeTxns.some(r =>
+      new Date(r.date!) > new Date(t.date!) &&
+      (r.description || '').toLowerCase().includes(name)
+    );
+    if (!removed) stillOnIR.push(name);
+  }
+
+  await db.update(players)
+    .set({ isIR: false, touch_id: 'ir-restore', touch_dt: new Date() })
+    .where(and(eq(players.leagueId, leagueId), sql`${players.isIR} = true`));
+
+  const uniqueOnIR = [...new Set(stillOnIR)];
+  if (uniqueOnIR.length === 0) {
+    revalidateTag('players', 'max');
+    return 0;
+  }
+
+  // Resolve player IDs by name in one query, then update by ID in one statement.
+  const matchedPlayers = await db
+    .select({ id: players.id })
+    .from(players)
+    .where(and(
+      eq(players.leagueId, leagueId),
+      sql`lower(${players.name}) = ANY(ARRAY[${sql.join(uniqueOnIR.map(n => sql`${n}`), sql`, `)}])`,
+    ));
+
+  if (matchedPlayers.length > 0) {
+    await db.update(players)
+      .set({ isIR: true, touch_id: 'ir-restore', touch_dt: new Date() })
+      .where(inArray(players.id, matchedPlayers.map(p => p.id)));
+  }
+
+  revalidateTag('players', 'max');
+  return uniqueOnIR.length;
+}
 
 type TeamRow = { id: number; name: string; teamshort: string | null; coach?: string | null };
 

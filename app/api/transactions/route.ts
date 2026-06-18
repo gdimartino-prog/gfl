@@ -10,6 +10,7 @@ import { logSystemEvent } from '@/lib/db-helpers';
 import { revalidateTag } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { revertPickTransferByPickId } from '@/lib/draftPicks';
+import { restoreIRFlags } from '@/lib/maintenance';
 
 export async function GET() {
   const session = await auth();
@@ -265,6 +266,10 @@ export async function POST(req: Request) {
     revalidateTag('transactions', 'max');
     revalidateTag('players', 'max');
     await logSystemEvent(actorName, resolvedFromTeam, type, details || identity, leagueId);
+
+    if (type === 'IR' || type === 'IR MOVE') {
+      await restoreIRFlags(leagueId);
+    }
 
     // Send notification
     const directionKey = `${resolvedFromTeam} ➔ ${toTeam || 'Free Agent'}`;

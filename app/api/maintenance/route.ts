@@ -1,58 +1,9 @@
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/auth";
 import { auth } from "@/auth";
-import { processStandingsFile, processScheduleFile, processPlayersFile } from "@/lib/maintenance";
+import { processStandingsFile, processScheduleFile, processPlayersFile, restoreIRFlags } from "@/lib/maintenance";
 import { getLeagueId } from "@/lib/getLeagueId";
 import { logSystemEvent } from "@/lib/db-helpers";
-import { db } from "@/lib/db";
-import { players, transactions } from "@/schema";
-import { eq, and, inArray, sql } from "drizzle-orm";
-
-async function restoreIRFlags(leagueId: number) {
-  const irTxns = await db.select({ fromTeam: transactions.fromTeam, description: transactions.description, date: transactions.date })
-    .from(transactions)
-    .where(and(eq(transactions.leagueId, leagueId), inArray(transactions.type, ['IR', 'IR MOVE'])))
-    .orderBy(transactions.date);
-
-  const removeTxns = await db.select({ description: transactions.description, date: transactions.date })
-    .from(transactions)
-    .where(and(eq(transactions.leagueId, leagueId), inArray(transactions.type, ['DROP', 'WAIVE', 'ADD'])))
-    .orderBy(transactions.date);
-
-  function parseName(desc: string | null): string | null {
-    const m = (desc || '').match(/Placed on IR:\s*(?:[A-Z\-\/]+ - )?(.+)/i);
-    return m ? m[1].trim().toLowerCase() : null;
-  }
-
-  const stillOnIR: string[] = [];
-  for (const t of irTxns) {
-    const name = parseName(t.description);
-    if (!name) continue;
-    const removed = removeTxns.some(r =>
-      new Date(r.date!) > new Date(t.date!) &&
-      (r.description || '').toLowerCase().includes(name)
-    );
-    if (!removed) stillOnIR.push(name);
-  }
-
-  // Clear all IR flags first so stale entries from prior seasons don't persist
-  await db.update(players)
-    .set({ isIR: false, touch_id: 'ir-restore', touch_dt: new Date() })
-    .where(and(eq(players.leagueId, leagueId), sql`${players.isIR} = true`));
-
-  const uniqueOnIR = [...new Set(stillOnIR)];
-  if (uniqueOnIR.length === 0) return 0;
-
-  for (const name of uniqueOnIR) {
-    await db.update(players)
-      .set({ isIR: true, touch_id: 'ir-restore', touch_dt: new Date() })
-      .where(and(
-        eq(players.leagueId, leagueId),
-        sql`lower(${players.name}) = ${name}`,
-      ));
-  }
-  return uniqueOnIR.length;
-}
 
 export async function POST(request: Request) {
   const admin = await isAdmin();
