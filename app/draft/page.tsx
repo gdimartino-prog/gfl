@@ -84,6 +84,17 @@ function DraftBoardContent() {
     loadData(true);
   };
 
+  const handleUnpass = async (overall: string) => {
+    if (!await confirm('Restore this pick to active? You will be on the clock when it comes up.', { title: 'Undo Pass?', confirmLabel: 'Undo Pass' })) return;
+    setIsRefreshing(true);
+    await fetch('/api/draft-pass/undo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ overallPick: overall }),
+    });
+    loadData(true);
+  };
+
   const handlePassLate = async (overall: string) => {
     if (!await confirm('Permanently decline this late selection? This pick will be closed without a player selected.', { title: 'Pass on late selection?', confirmLabel: 'Pass / Done' })) return;
     setIsRefreshing(true);
@@ -852,6 +863,26 @@ const handleUndoMyPick = async () => {
                                 Enter Selection
                               </button>
                             </div>
+                          </div>
+                        ) : session && !isDrafted && !isSkipped && (isAdminUser || resolveCode(pick.currentOwner).toUpperCase() === myTeamCode.toUpperCase()) ? (
+                          <div className="flex items-center justify-end gap-2">
+                            {isPassed ? (
+                              <button
+                                disabled={isRefreshing}
+                                onClick={() => handleUnpass(String(pick.overall))}
+                                className="bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-slate-200 hover:text-slate-600 transition-all active:scale-95"
+                              >
+                                Undo Pass
+                              </button>
+                            ) : (
+                              <button
+                                disabled={isRefreshing}
+                                onClick={() => handlePass(String(pick.overall))}
+                                className="bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-amber-100 hover:text-amber-700 transition-all active:scale-95"
+                              >
+                                Pass / Done
+                              </button>
+                            )}
                           </div>
                         ) : (
                           <div className="flex items-center justify-end gap-2">
