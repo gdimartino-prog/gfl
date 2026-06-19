@@ -11,7 +11,7 @@ import {
   unique,
   index,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 // Leagues table (multi-league support)
 export const leagues = pgTable("leagues", {
@@ -29,7 +29,7 @@ export const teams = pgTable("teams", {
   leagueId: integer("league_id").references(() => leagues.id).notNull(),
   name: varchar("name", { length: 256 }).notNull(),
   coach: varchar("coach", { length: 256 }),
-  teamshort: varchar("teamshort", { length: 10 }),
+  teamshort: varchar("teamshort", { length: 10 }).notNull(),
   nickname: varchar("nickname", { length: 256 }),
   isCommissioner: boolean("is_commissioner").default(false),
   status: varchar("status", { length: 50 }),
@@ -41,7 +41,7 @@ export const teams = pgTable("teams", {
   touch_id: varchar("touch_id", { length: 256 }),
 }, (table) => [
   index("teams_league_id_idx").on(table.leagueId),
-  index("teams_teamshort_league_idx").on(table.teamshort, table.leagueId),
+  unique("teams_teamshort_league_unique").on(table.teamshort, table.leagueId),
 ]);
 
 // Players table
@@ -73,6 +73,7 @@ export const players = pgTable("players", {
   index("players_league_id_idx").on(table.leagueId),
   index("players_team_id_idx").on(table.teamId),
   index("players_identity_league_idx").on(table.identity, table.leagueId),
+  index("players_fa_league_pos_idx").on(table.leagueId, table.position).where(sql`team_id IS NULL`),
 ]);
 
 // Transactions table
@@ -119,9 +120,9 @@ export const draftPicks = pgTable("draft_picks", {
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
 }, (table) => [
-  index("draft_picks_league_year_type_idx").on(table.leagueId, table.year, table.draftType),
   index("draft_picks_league_year_type_pick_idx").on(table.leagueId, table.year, table.draftType, table.pick),
-  index("draft_picks_league_pick_idx").on(table.leagueId, table.pick),
+  index("draft_picks_league_year_pick_idx").on(table.leagueId, table.year, table.pick),
+  index("draft_picks_league_year_team_idx").on(table.leagueId, table.year, table.currentTeamId),
 ]);
 
 // Draft Pick Transfers table — persistent record of traded pick ownership (survives draft regeneration)
@@ -214,6 +215,7 @@ export const standings = pgTable("standings", {
   touch_id: varchar("touch_id", { length: 256 }),
 }, (table) => [
   index("standings_league_year_idx").on(table.leagueId, table.year),
+  unique("standings_league_team_year_unique").on(table.leagueId, table.teamId, table.year),
 ]);
 
 // Schedule table
@@ -278,7 +280,7 @@ export const nflDraft = pgTable("nfl_draft", {
   nflTeam: text("nfl_team"),
   college: text("college"),
 }, (table) => [
-  index("nfl_draft_year_round_pick_idx").on(table.year, table.round, table.pick),
+  unique("nfl_draft_year_round_pick_unique").on(table.year, table.round, table.pick),
 ]);
 
 // Auto-pick queue — coaches rank free agents; cron fires the top available pick after 30 min on clock

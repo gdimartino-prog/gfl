@@ -14,15 +14,8 @@ async function getSessionAccess() {
 
   if (role === 'superuser') return { isSuperuser: true, leagueId: null };
 
-  // Commissioner — look up their league via teamshort
-  const teamshort = (session!.user as { id?: string }).id;
-  if (!teamshort) return null;
-  const row = await db
-    .select({ leagueId: teams.leagueId })
-    .from(teams)
-    .where(eq(teams.teamshort, teamshort))
-    .limit(1);
-  const leagueId = row[0]?.leagueId ?? null;
+  // Commissioner — league is already in the JWT, no DB round-trip needed
+  const leagueId = (session!.user as { leagueId?: number }).leagueId ?? null;
   return { isSuperuser: false, leagueId };
 }
 
