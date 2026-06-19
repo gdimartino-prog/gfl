@@ -8899,5 +8899,275 @@
     "team": "NBT",
     "action": "DRAFT_PICK",
     "details": "R17 #295: CB - Azareye'h Thomas"
+  },
+  {
+    "id": 990,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T11:28:28.306Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R17 #300: C-G - Ben Bredeson"
+  },
+  {
+    "id": 991,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T14:52:16.370Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "TRADE",
+    "details": "Old Bridge ↔ Urban"
+  },
+  {
+    "id": 992,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T16:54:46.060Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R17 #302: WR - Demario Douglas"
+  },
+  {
+    "id": 993,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T18:07:15.067Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #199 marked Done"
+  },
+  {
+    "id": 994,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T18:07:16.699Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #200 marked Done"
+  },
+  {
+    "id": 995,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T18:07:18.651Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #201 marked Done"
+  },
+  {
+    "id": 996,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T18:07:21.180Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #202 marked Done"
+  },
+  {
+    "id": 997,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T18:13:41.704Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=VV pool=110 positions=Running Backs rookiesOnly=false maxAge=none needsChars=82 mode=copy"
+  },
+  {
+    "id": 998,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T18:15:13.347Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 999,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T18:27:57.060Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R17 #303: OLB - Kyle Van Noy"
+  },
+  {
+    "id": 1000,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T19:05:41.813Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "DRAFT_PICK",
+    "details": "R17 #304: P - JK Scott"
+  },
+  {
+    "id": 1001,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T19:07:26.104Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "IR MOVE",
+    "details": "Placed on IR: T - Rashawn Slater"
+  },
+  {
+    "id": 1002,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T21:34:25.337Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R17 #306: S - Xavier Woods"
+  },
+  {
+    "id": 1003,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T22:43:18.750Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1004,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T23:10:04.182Z",
+    "coach": "cron-auto-pick",
+    "team": "Vico",
+    "action": "DRAFT_PICK",
+    "details": "AUTO-PICK R18 #309: Kyle Williams"
+  },
+  {
+    "id": 1005,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T23:10:24.980Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "DRAFT_PICK",
+    "details": "R18 #309: WR/KR - Kyle Williams"
+  },
+  {
+    "id": 1006,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T23:11:38.100Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1007,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T23:13:15.163Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #203 marked Done"
+  },
+  {
+    "id": 1008,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T23:32:29.382Z",
+    "coach": "John Yurchak",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R18 #310: TE - Elijah Higgins"
+  },
+  {
+    "id": 1009,
+    "leagueId": 1,
+    "timestamp": "2026-06-18T23:34:15.799Z",
+    "coach": "CK",
+    "team": "CK",
+    "action": "DRAFT_PASS",
+    "details": "R18 #311: PASSED"
+  },
+  {
+    "id": 1010,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T00:07:53.899Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R18 #313: HB - Drew Sample"
+  },
+  {
+    "id": 1011,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T00:10:13.760Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R17 #297: TE - Brevyn Spann-Ford"
+  },
+  {
+    "id": 1012,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T00:58:14.811Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1013,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T01:00:49.948Z",
+    "coach": "LV",
+    "team": "LV",
+    "action": "DRAFT_PASS",
+    "details": "R18 #315: PASSED"
+  },
+  {
+    "id": 1014,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T01:05:56.500Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1015,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T01:08:45.166Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "WAIVE",
+    "details": "RB - Alexander Mattison"
+  },
+  {
+    "id": 1016,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T01:17:59.507Z",
+    "coach": "John Yurchak",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R18 #317: WR - Xavier Hutchinson"
+  },
+  {
+    "id": 1017,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T01:22:21.914Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #204 marked Done"
+  },
+  {
+    "id": 1018,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T01:28:52.212Z",
+    "coach": "George Di Martino",
+    "team": "Urban",
+    "action": "WAIVE",
+    "details": "ILB - Logan Wilson"
+  },
+  {
+    "id": 1019,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T01:30:11.862Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
   }
 ]
