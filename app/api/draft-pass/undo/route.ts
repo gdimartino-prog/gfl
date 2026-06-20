@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { draftPicks, teams, rules } from '@/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, gt, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { alias } from 'drizzle-orm/pg-core';
@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
       playerId: draftPicks.playerId,
       passed: draftPicks.passed,
       selectedPlayerName: draftPicks.selectedPlayerName,
+      currentTeamId: draftPicks.currentTeamId,
       currentOwnerShort: currentTeams.teamshort,
     })
     .from(draftPicks)
@@ -70,10 +71,22 @@ export async function POST(req: NextRequest) {
       .set({ passed: false, pickedAt: null, touch_id: callerTeamshort || 'draft' })
       .where(eq(draftPicks.id, pick.id));
 
-    await Promise.all([
-      revalidateTag('draft-picks', 'max'),
-      logSystemEvent(callerTeamshort, pick.currentOwnerShort || '', 'DRAFT_UNPASS', `R${pick.round} #${overallPick}: UNPASS`, leagueId),
-    ]);
+    // Cascade: clear passed on all future picks for this team (exclude skipped ones — they stay as-is)
+    if (pick.currentTeamId) {
+      await db.update(draftPicks)
+        .set({ passed: false, pickedAt: null, touch_id: callerTeamshort || 'draft' })
+        .where(and(
+          eq(draftPicks.leagueId, leagueId),
+          eq(draftPicks.year, draftYear),
+          eq(draftPicks.currentTeamId, pick.currentTeamId),
+          gt(draftPicks.pick, pick.pick),
+          isNull(draftPicks.playerId),
+          eq(draftPicks.passed, true),
+        ));
+    }
+
+    revalidateTag('draft-picks', 'max');
+    await logSystemEvent(callerTeamshort, pick.currentOwnerShort || '', 'DRAFT_UNPASS', `R${pick.round} #${overallPick}: UNPASS`, leagueId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

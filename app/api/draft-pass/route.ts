@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { draftPicks, teams, rules } from '@/schema';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, gt, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { alias } from 'drizzle-orm/pg-core';
@@ -35,8 +35,10 @@ export async function POST(req: NextRequest) {
     const pickRows = await db.select({
       id: draftPicks.id,
       round: draftPicks.round,
+      pick: draftPicks.pick,
       playerId: draftPicks.playerId,
       passed: draftPicks.passed,
+      currentTeamId: draftPicks.currentTeamId,
       currentOwnerShort: currentTeams.teamshort,
       currentOwnerName: currentTeams.name,
       originalOwner: originalTeams.name,
@@ -65,6 +67,22 @@ export async function POST(req: NextRequest) {
     await db.update(draftPicks)
       .set({ passed: true, pickedAt: new Date(), touch_id: callerTeamshort || 'draft' })
       .where(eq(draftPicks.id, pick.id));
+
+    // Cascade: mark all future unresolved picks for this team as passed too,
+    // so the cron never expires them and they display as "Passed" immediately.
+    if (pick.currentTeamId) {
+      await db.update(draftPicks)
+        .set({ passed: true, pickedAt: new Date(), touch_id: callerTeamshort || 'draft' })
+        .where(and(
+          eq(draftPicks.leagueId, leagueId),
+          eq(draftPicks.year, draftYear),
+          eq(draftPicks.currentTeamId, pick.currentTeamId),
+          gt(draftPicks.pick, pick.pick),
+          isNull(draftPicks.playerId),
+          isNull(draftPicks.selectedPlayerName),
+          eq(draftPicks.passed, false),
+        ));
+    }
 
     await revalidateTag('draft-picks', 'max');
     await logSystemEvent(callerTeamshort || coachName || '', pick.currentOwnerShort || '', 'DRAFT_PASS', `R${pick.round} #${overallPick}: PASSED`, leagueId);
