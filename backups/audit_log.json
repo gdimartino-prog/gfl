@@ -9169,5 +9169,149 @@
     "team": "admin",
     "action": "IMPORT_PLAYERS",
     "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1020,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T11:35:40.618Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "DRAFT_PICK",
+    "details": "R18 #318: C - Julian Ashby"
+  },
+  {
+    "id": 1021,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T16:51:08.218Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R18 #320: S - Kevin Winston Jr."
+  },
+  {
+    "id": 1022,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T17:43:31.764Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "DRAFT_PICK",
+    "details": "R18 #322: C - Jonathan Weeks"
+  },
+  {
+    "id": 1023,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T19:32:14.542Z",
+    "coach": "Phil Matsikoudis",
+    "team": "Newark Bay",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1024,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T20:29:53.149Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R18 #324: WR - Calvin Ridley"
+  },
+  {
+    "id": 1025,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T21:03:13.850Z",
+    "coach": "John Yurchak",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R19 #327: DL - Adetomiwa Adebawore"
+  },
+  {
+    "id": 1026,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T21:40:04.509Z",
+    "coach": "cron-auto-pick",
+    "team": "Vico",
+    "action": "DRAFT_PICK",
+    "details": "AUTO-PICK R19 #328: Jordan James"
+  },
+  {
+    "id": 1027,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T21:49:35.424Z",
+    "coach": "JJ",
+    "team": "JJ",
+    "action": "DRAFT_PASS",
+    "details": "R19 #329: PASSED"
+  },
+  {
+    "id": 1028,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T22:51:46.150Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1029,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T23:28:53.195Z",
+    "coach": "LBI",
+    "team": "LBI",
+    "action": "DRAFT_PASS",
+    "details": "R19 #340: PASSED"
+  },
+  {
+    "id": 1030,
+    "leagueId": 1,
+    "timestamp": "2026-06-19T23:30:15.126Z",
+    "coach": "OBG",
+    "team": "OBG",
+    "action": "DRAFT_PASS",
+    "details": "R20 #346: PASSED"
+  },
+  {
+    "id": 1031,
+    "leagueId": 1,
+    "timestamp": "2026-06-20T01:25:44.850Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1032,
+    "leagueId": 1,
+    "timestamp": "2026-06-20T01:43:37.668Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1033,
+    "leagueId": 1,
+    "timestamp": "2026-06-20T02:50:54.349Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "WAIVE",
+    "details": "CB - Mike Hughes"
+  },
+  {
+    "id": 1034,
+    "leagueId": 1,
+    "timestamp": "2026-06-20T02:52:04.738Z",
+    "coach": "CT",
+    "team": "CT",
+    "action": "DRAFT_UNPASS",
+    "details": "R19 #334: UNPASS"
+  },
+  {
+    "id": 1035,
+    "leagueId": 1,
+    "timestamp": "2026-06-20T02:52:15.474Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "DRAFT_PICK",
+    "details": "R19 #334: CB - Amik Robertson"
   }
 ]

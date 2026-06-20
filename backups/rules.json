@@ -434,7 +434,7 @@
     "leagueId": 1,
     "year": null,
     "rule": "cron_last_active_pick_2026",
-    "value": "2646",
+    "value": "2663",
     "desc": null,
     "touch_dt": "2026-06-01T12:19:04.518Z",
     "touch_id": null
@@ -470,16 +470,6 @@
     "touch_id": "cron-nfl-week"
   },
   {
-    "id": 71,
-    "leagueId": 3,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "1",
-    "desc": null,
-    "touch_dt": "2026-03-25T12:38:20.671Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
     "id": 38,
     "leagueId": 1,
     "year": null,
@@ -487,6 +477,16 @@
     "value": "1",
     "desc": "Current NFL Week",
     "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
+    "id": 71,
+    "leagueId": 3,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "1",
+    "desc": null,
+    "touch_dt": "2026-03-25T12:38:20.671Z",
     "touch_id": "cron-nfl-week"
   }
 ]
