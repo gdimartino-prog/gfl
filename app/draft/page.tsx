@@ -843,6 +843,15 @@ const handleUndoMyPick = async () => {
                           teamsWithPassedPicks.has(resolveCode(pick.currentOwner).toUpperCase()) ? (
                             <div className="flex items-center justify-end gap-3">
                               <span className="text-amber-600 font-black text-[10px] uppercase border border-amber-200 bg-amber-50 px-4 py-2 rounded-full tracking-widest">Passed</span>
+                              {(isAdminUser || resolveCode(pick.currentOwner).toUpperCase() === myTeamCode.toUpperCase()) && (
+                                <button
+                                  disabled={isRefreshing}
+                                  onClick={() => handleUnpass(String(pick.overall))}
+                                  className="bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-slate-200 hover:text-slate-600 transition-all active:scale-95"
+                                >
+                                  Undo Pass
+                                </button>
+                              )}
                               <button
                                 disabled={isRefreshing}
                                 onClick={() => {

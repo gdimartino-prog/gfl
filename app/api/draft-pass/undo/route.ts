@@ -60,16 +60,20 @@ export async function POST(req: NextRequest) {
 
     if (pick.playerId) return NextResponse.json({ error: 'Pick already made — cannot unpass.' }, { status: 400 });
 
-    // Block unpass on picks the cron has already expired — skipped picks cannot be resurrected
-    if (pick.selectedPlayerName?.startsWith('SKIPPED')) {
-      return NextResponse.json({ error: 'Pick was skipped by the clock — use Late Selection instead.' }, { status: 400 });
+    const isSkipped = pick.selectedPlayerName?.startsWith('SKIPPED') ?? false;
+
+    if (!isSkipped && !pick.passed) return NextResponse.json({ success: true, alreadyUnpassed: true });
+
+    if (isSkipped) {
+      // Restore a cron-skipped pick back to active (clears the SKIPPED marker)
+      await db.update(draftPicks)
+        .set({ selectedPlayerName: null, pickedAt: null, touch_id: callerTeamshort || 'draft' })
+        .where(eq(draftPicks.id, pick.id));
+    } else {
+      await db.update(draftPicks)
+        .set({ passed: false, pickedAt: null, touch_id: callerTeamshort || 'draft' })
+        .where(eq(draftPicks.id, pick.id));
     }
-
-    if (!pick.passed) return NextResponse.json({ success: true, alreadyUnpassed: true });
-
-    await db.update(draftPicks)
-      .set({ passed: false, pickedAt: null, touch_id: callerTeamshort || 'draft' })
-      .where(eq(draftPicks.id, pick.id));
 
     // Cascade: clear passed on all future picks for this team (exclude skipped ones — they stay as-is)
     if (pick.currentTeamId) {
@@ -81,6 +85,7 @@ export async function POST(req: NextRequest) {
           eq(draftPicks.currentTeamId, pick.currentTeamId),
           gt(draftPicks.pick, pick.pick),
           isNull(draftPicks.playerId),
+          isNull(draftPicks.selectedPlayerName),
           eq(draftPicks.passed, true),
         ));
     }
