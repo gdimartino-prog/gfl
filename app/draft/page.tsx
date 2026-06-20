@@ -827,17 +827,19 @@ const handleUndoMyPick = async () => {
                                 Undo Pass
                               </button>
                             )}
-                            <button
-                              disabled={isRefreshing}
-                              onClick={() => {
-                                setModalSessionId(Date.now());
-                                setSelectedPick(pick);
-                                setShowSelectionModal(true);
-                              }}
-                              className="bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-amber-600 transition-all active:scale-95"
-                            >
-                              Late Selection
-                            </button>
+                            {(!onClockPick || Number(pick.overall) < Number(onClockPick.overall)) && (
+                              <button
+                                disabled={isRefreshing}
+                                onClick={() => {
+                                  setModalSessionId(Date.now());
+                                  setSelectedPick(pick);
+                                  setShowSelectionModal(true);
+                                }}
+                                className="bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-amber-600 transition-all active:scale-95"
+                              >
+                                Late Selection
+                              </button>
+                            )}
                           </div>
                         ) : isSkipped && session ? (
                           teamsWithPassedPicks.has(resolveCode(pick.currentOwner).toUpperCase()) ? (
