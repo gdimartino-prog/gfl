@@ -150,7 +150,17 @@ export async function GET(req: Request) {
       //   2. The active pick hasn't changed since last tick — meaning no
       //      strike state has changed and the 3-strike check we did on the
       //      last transition is still valid
-      const prevPick = activeIdx > 0 ? allPicks[activeIdx - 1] : null;
+      // Scan backwards from the active pick to find the nearest resolved pick
+      // (one with pickedAt set). Cascade-passed picks have pickedAt=null and
+      // must be skipped over — the cheap deadline estimate will be slightly
+      // optimistic in those cases, but that only affects the fast-path guard,
+      // not the authoritative computePickTimings result used for actual expiry.
+      let prevPick = activeIdx > 0 ? allPicks[activeIdx - 1] : null;
+      let scanIdx = activeIdx - 1;
+      while (prevPick && !prevPick.pickedAt && scanIdx > 0) {
+        scanIdx--;
+        prevPick = allPicks[scanIdx];
+      }
       const rawClockStart = prevPick?.pickedAt
         ? new Date(prevPick.pickedAt)
         : activePick.scheduledAt ? new Date(activePick.scheduledAt) : null;
