@@ -104,12 +104,12 @@ export async function GET(req: Request) {
         const msSinceLastPick = lastRealPick?.pickedAt
           ? now24.getTime() - new Date(lastRealPick.pickedAt).getTime()
           : Infinity;
-        if (msSinceLastPick <= 24 * 60 * 60 * 1000) {
-          const hoursRemaining = ((24 * 60 * 60 * 1000 - msSinceLastPick) / 3600000).toFixed(1);
+        if (msSinceLastPick <= 48 * 60 * 60 * 1000) {
+          const hoursRemaining = ((48 * 60 * 60 * 1000 - msSinceLastPick) / 3600000).toFixed(1);
           results.push({ leagueId, action: 'none', waitingForClose: true, hoursRemaining });
           continue;
         }
-        // 24h have passed since the last real pick — mark the draft complete.
+        // 48h have passed since the last real pick — mark the draft complete.
         await db.insert(rules)
           .values({
             leagueId,
