@@ -2523,25 +2523,6 @@
     "touch_id": "commissioner"
   },
   {
-    "id": 205,
-    "leagueId": 1,
-    "date": "2026-06-19T01:28:52.196Z",
-    "type": "WAIVE",
-    "description": "ILB - Logan Wilson",
-    "fromTeam": "Urban",
-    "toTeam": "FA",
-    "owner": "George Di Martino",
-    "status": "Pending",
-    "weekBack": null,
-    "season": 2026,
-    "fee": 0,
-    "emailStatus": null,
-    "pickIds": null,
-    "conditionalDetails": null,
-    "touch_dt": "2026-06-19T01:28:52.198Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 206,
     "leagueId": 1,
     "date": "2026-06-20T02:50:54.333Z",
@@ -2550,7 +2531,7 @@
     "fromTeam": "Carolina",
     "toTeam": "FA",
     "owner": "Pete Vuckovaz",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 0,
@@ -2558,6 +2539,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-06-20T02:50:54.336Z",
-    "touch_id": "Pete Vuckovaz"
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 205,
+    "leagueId": 1,
+    "date": "2026-06-19T01:28:52.196Z",
+    "type": "WAIVE",
+    "description": "ILB - Logan Wilson",
+    "fromTeam": "Urban",
+    "toTeam": "FA",
+    "owner": "George Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-06-19T01:28:52.198Z",
+    "touch_id": "commissioner"
   }
 ]

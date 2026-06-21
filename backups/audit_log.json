@@ -9313,5 +9313,86 @@
     "team": "CT",
     "action": "DRAFT_PICK",
     "details": "R19 #334: CB - Amik Robertson"
+  },
+  {
+    "id": 1036,
+    "leagueId": 1,
+    "timestamp": "2026-06-20T10:53:04.781Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #206 marked Done"
+  },
+  {
+    "id": 1037,
+    "leagueId": 1,
+    "timestamp": "2026-06-20T10:53:23.045Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #205 marked Done"
+  },
+  {
+    "id": 1038,
+    "leagueId": 1,
+    "timestamp": "2026-06-20T15:11:44.582Z",
+    "coach": "TC",
+    "team": "TC",
+    "action": "DRAFT_PASS",
+    "details": "R19 #336: PASSED"
+  },
+  {
+    "id": 1039,
+    "leagueId": 1,
+    "timestamp": "2026-06-20T15:41:35.822Z",
+    "coach": "VV",
+    "team": "UF",
+    "action": "DRAFT_PASS",
+    "details": "R19 #335: PASSED"
+  },
+  {
+    "id": 1040,
+    "leagueId": 1,
+    "timestamp": "2026-06-20T18:53:10.928Z",
+    "coach": "John Yurchak",
+    "team": "UF",
+    "action": "DRAFT_PICK",
+    "details": "R19 #335: C - Bradley Bozeman"
+  },
+  {
+    "id": 1041,
+    "leagueId": 1,
+    "timestamp": "2026-06-21T00:13:54.251Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1042,
+    "leagueId": 1,
+    "timestamp": "2026-06-21T00:15:17.670Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R19 #338: DL - Darius Robinson"
+  },
+  {
+    "id": 1043,
+    "leagueId": 1,
+    "timestamp": "2026-06-21T01:20:03.834Z",
+    "coach": "cron-auto-pick",
+    "team": "Vico",
+    "action": "DRAFT_PICK",
+    "details": "AUTO-PICK R20 #345: Josh Harris"
+  },
+  {
+    "id": 1044,
+    "leagueId": 1,
+    "timestamp": "2026-06-21T02:00:43.961Z",
+    "coach": "VV",
+    "team": "VV",
+    "action": "DRAFT_PASS",
+    "details": "R21 #364: PASSED"
   }
 ]
