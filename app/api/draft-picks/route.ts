@@ -66,6 +66,7 @@ export async function GET(req: NextRequest) {
         id: p.id, round: p.round ?? 0, pick: p.pick ?? 0,
         scheduledAt: p.scheduledAt ? new Date(p.scheduledAt) : null,
         pickedAt: p.pickedAt ? new Date(p.pickedAt) : null,
+        passed: p.passed,
       })),
       leagueId,
       draftStartDate,
@@ -201,7 +202,7 @@ export async function POST(req: Request) {
     }
 
     await upsertPickTransfer({ leagueId, pickId: pick.id, toTeamId: toTeamRows[0].id, touchId: coachName || 'commissioner' });
-    revalidateTag('draft-picks', 'max');
+    await revalidateTag('draft-picks', 'max');
 
     return NextResponse.json({ success: true });
   } catch (error) {

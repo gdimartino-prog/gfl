@@ -218,6 +218,7 @@ export async function GET(req: Request) {
           id: p.id, round: p.round, pick: p.pick,
           scheduledAt: p.scheduledAt ? new Date(p.scheduledAt) : null,
           pickedAt: p.pickedAt ? new Date(p.pickedAt) : null,
+          passed: p.passed,
         })),
         leagueId,
         draftStartDate,

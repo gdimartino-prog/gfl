@@ -109,6 +109,7 @@ export type PickTimingInput = {
   pick: number;
   scheduledAt: Date | null;
   pickedAt: Date | null;
+  passed?: boolean;
 };
 
 export type PickTiming = {
@@ -172,6 +173,9 @@ export async function computePickTimings(
     if (p.pickedAt) {
       const effEnd = p.pickedAt > deadline ? deadline : p.pickedAt;
       prevEnd = effEnd;
+    } else if (p.passed) {
+      // Cascade-passed pick: team declared done, contributes no clock time
+      prevEnd = clockStart;
     } else {
       prevEnd = deadline;
     }
