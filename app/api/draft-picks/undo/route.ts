@@ -62,7 +62,7 @@ export async function POST() {
       return NextResponse.json({ error: 'Next team has already picked — undo not allowed' }, { status: 409 });
     }
 
-    await clearPickSelection(lastPick.id, teamshort);
+    await clearPickSelection(lastPick.id, teamshort, leagueId);
     await logSystemEvent(session.user.name || teamshort, teamshort, 'DRAFT_UNDO_PICK', `Undid pick #${lastPick.pick} (year ${year})`, leagueId);
 
     return NextResponse.json({ success: true });

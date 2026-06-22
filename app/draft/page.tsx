@@ -570,10 +570,14 @@ const handleUndoMyPick = async () => {
           </div>
         )}
 
-        {/* MY ROSTER LIMIT WARNING — shown when user's own team is at limit */}
+        {/* MY ROSTER LIMIT WARNING — shown when user's own team is at limit AND has open picks remaining */}
         {myTeamCode && (() => {
           const rc = rosterCounts[myTeamCode.toUpperCase()];
-          return rc && rc.active >= rc.limit ? (
+          const hasOpenPicks = picks.some(p =>
+            resolveCode(p.currentOwner).toUpperCase() === myTeamCode.toUpperCase() &&
+            p.status !== 'Drafted' && p.status !== 'Passed' && p.status !== 'Skipped'
+          );
+          return rc && rc.active >= rc.limit && hasOpenPicks ? (
             <div className="bg-red-50 border-2 border-red-200 rounded-[2rem] px-6 py-4 flex items-center gap-4">
               <span className="text-red-500 text-xl font-black shrink-0">⚠</span>
               <div>

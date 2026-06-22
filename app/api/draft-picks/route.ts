@@ -67,6 +67,7 @@ export async function GET(req: NextRequest) {
         scheduledAt: p.scheduledAt ? new Date(p.scheduledAt) : null,
         pickedAt: p.pickedAt ? new Date(p.pickedAt) : null,
         passed: p.passed,
+        selectedPlayerName: p.selectedPlayerName,
       })),
       leagueId,
       draftStartDate,
@@ -233,7 +234,7 @@ export async function DELETE(req: Request) {
     }
 
     if (!pickId) return NextResponse.json({ error: 'pickId required' }, { status: 400 });
-    await clearPickSelection(Number(pickId), actor);
+    await clearPickSelection(Number(pickId), actor, leagueId);
     await logSystemEvent(actor, 'admin', 'DRAFT_DELETE_PICK', `Deleted pick #${pickId}`, leagueId);
     return NextResponse.json({ success: true });
   } catch (error) {

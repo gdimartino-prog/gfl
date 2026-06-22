@@ -219,6 +219,7 @@ export async function GET(req: Request) {
           scheduledAt: p.scheduledAt ? new Date(p.scheduledAt) : null,
           pickedAt: p.pickedAt ? new Date(p.pickedAt) : null,
           passed: p.passed,
+          selectedPlayerName: p.selectedPlayerName,
         })),
         leagueId,
         draftStartDate,
@@ -384,10 +385,18 @@ export async function GET(req: Request) {
         continue;
       }
 
-      // Open-pick rule: if this team still has an unfilled skipped pick from a
-      // prior round, immediately skip their current turn until they submit a
-      // late selection for the open pick.
-      const teamHasOpenSkip = skippedOpen.some(p => p.owner === activePick.currentOwner);
+      // Open-pick rule: if this team still has an unfilled *expired* skipped pick
+      // from a prior round, immediately skip their current turn until they submit
+      // a late selection. Voluntary passes do NOT block — only SKIPPED (expired)
+      // picks do, since passed picks represent a deliberate "done" decision.
+      const teamHasOpenSkip = allPicks.some(p =>
+        p.currentOwner === activePick.currentOwner &&
+        !p.playerId &&
+        typeof p.selectedPlayerName === 'string' &&
+        p.selectedPlayerName.startsWith('SKIPPED') &&
+        p.selectedPlayerName !== 'SKIPPED (3-strike rule)' &&
+        p.selectedPlayerName !== 'SKIPPED (open pick pending)'
+      );
       if (teamHasOpenSkip) {
         await db.update(draftPicks)
           .set({ selectedPlayerName: 'SKIPPED (open pick pending)', pickedAt: now, touch_id: 'cron-open-pick' })

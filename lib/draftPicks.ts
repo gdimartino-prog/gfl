@@ -132,11 +132,15 @@ export async function updateDraftPick(
 /**
  * Clear a single pick selection (commissioner or coach undo)
  */
-export async function clearPickSelection(pickId: number, clearedBy: string) {
+export async function clearPickSelection(pickId: number, clearedBy: string, leagueId?: number) {
   const pick = await db.select({
     playerId: draftPicks.playerId,
     selectedPlayerName: draftPicks.selectedPlayerName,
-  }).from(draftPicks).where(eq(draftPicks.id, pickId)).limit(1);
+  }).from(draftPicks).where(
+    leagueId !== undefined
+      ? and(eq(draftPicks.id, pickId), eq(draftPicks.leagueId, leagueId))
+      : eq(draftPicks.id, pickId)
+  ).limit(1);
 
   console.log('[clearPickSelection] pickId:', pickId, '| playerId:', pick[0]?.playerId, '| playerName:', pick[0]?.selectedPlayerName);
 
@@ -155,7 +159,11 @@ export async function clearPickSelection(pickId: number, clearedBy: string) {
 
   await db.update(draftPicks)
     .set({ playerId: null, selectedPlayerName: null, pickedAt: null, passed: false, touch_id: clearedBy })
-    .where(eq(draftPicks.id, pickId));
+    .where(
+      leagueId !== undefined
+        ? and(eq(draftPicks.id, pickId), eq(draftPicks.leagueId, leagueId))
+        : eq(draftPicks.id, pickId)
+    );
 }
 
 /**

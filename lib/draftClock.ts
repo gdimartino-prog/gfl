@@ -110,6 +110,7 @@ export type PickTimingInput = {
   scheduledAt: Date | null;
   pickedAt: Date | null;
   passed?: boolean;
+  selectedPlayerName?: string | null;
 };
 
 export type PickTiming = {
@@ -172,14 +173,18 @@ export async function computePickTimings(
     // or a pick that was wrongly expired by a broken chain. Don't let a stale
     // pickedAt collapse prevEnd backwards; treat it as zero-duration instead.
     const stalePick = !!p.pickedAt && p.pickedAt < clockStart;
-    const wasLate = !stalePick && !!p.pickedAt && p.pickedAt > deadline;
+    // 3-strike auto-skips are instantaneous (cron fires within minutes of the pick
+    // coming up) — treat them as zero-duration so the next team's clock chains from
+    // the same point, not from the cron-fire timestamp.
+    const threeStrikeSkip = p.selectedPlayerName === 'SKIPPED (3-strike rule)';
+    const wasLate = !stalePick && !threeStrikeSkip && !!p.pickedAt && p.pickedAt > deadline;
     result.set(p.id, { clockStart, deadline, wasLate });
 
-    if (p.pickedAt && !stalePick) {
+    if (p.pickedAt && !stalePick && !threeStrikeSkip) {
       const effEnd = p.pickedAt > deadline ? deadline : p.pickedAt;
       prevEnd = effEnd;
-    } else if (p.passed || stalePick) {
-      // Cascade-passed or stale-expired pick: contributes no clock time
+    } else if (p.passed || stalePick || threeStrikeSkip) {
+      // Cascade-passed, stale-expired, or 3-strike auto-skip: contributes no clock time
       prevEnd = clockStart;
     } else {
       prevEnd = deadline;
