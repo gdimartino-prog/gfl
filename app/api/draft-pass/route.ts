@@ -118,8 +118,8 @@ export async function POST(req: NextRequest) {
       }));
 
     const onDeck = allPicks
-      .slice(currentIdx + 1, currentIdx + 4)
-      .filter(p => !p.playerId && !p.passed)
+      .filter(p => p.pick > parseInt(String(overallPick)) && !p.playerId && !p.passed && !(typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED')))
+      .slice(0, 3)
       .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalOwner || '' }));
 
     const skippedOpen = allPicks

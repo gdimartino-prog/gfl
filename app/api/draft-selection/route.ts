@@ -181,8 +181,8 @@ export async function POST(req: NextRequest) {
       }));
 
     const onDeck = allPicks
-      .slice(currentIdx + 1, currentIdx + 4)
-      .filter(p => !p.playerId)
+      .filter(p => p.pick > parseInt(String(overallPick)) && !p.playerId && !p.passed && !(typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED')))
+      .slice(0, 3)
       .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
     // Picks open for late selection: auto-skipped picks and unfilled passes.
@@ -198,7 +198,7 @@ export async function POST(req: NextRequest) {
         skippedAt: p.pickedAt ? new Date(p.pickedAt) : null,
       }));
 
-    revalidateTag('draft-picks', 'max');
+    await revalidateTag('draft-picks', 'max');
     await logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`, leagueId);
 
     console.log('[draft-selection] notifying pick, leagueId:', leagueId);

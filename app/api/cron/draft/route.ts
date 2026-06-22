@@ -258,8 +258,8 @@ export async function GET(req: Request) {
       }
 
       const onDeck = allPicks
-        .slice(activeIdx + 1, activeIdx + 4)
-        .filter(p => !p.playerId && !p.passed)
+        .filter(p => p.pick > activePick.pick && !p.playerId && !p.passed && !(typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED')))
+        .slice(0, 3)
         .map(p => ({
           round: p.round,
           pick: p.pick,

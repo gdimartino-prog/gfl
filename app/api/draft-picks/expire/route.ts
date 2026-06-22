@@ -36,6 +36,7 @@ export async function POST() {
       playerId: draftPicks.playerId,
       selectedPlayerName: draftPicks.selectedPlayerName,
       pickedAt: draftPicks.pickedAt,
+      passed: draftPicks.passed,
       currentOwner: currentTeams.name,
       originalTeam: originalTeams.name,
     })
@@ -45,7 +46,7 @@ export async function POST() {
     .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, draftYear)))
     .orderBy(asc(draftPicks.pick));
 
-    const activeIdx = allPicks.findIndex(p => !p.playerId && !p.pickedAt);
+    const activeIdx = allPicks.findIndex(p => !p.playerId && !p.pickedAt && !p.passed);
     if (activeIdx === -1) return NextResponse.json({ skipped: 'draft complete' });
 
     const activePick = allPicks[activeIdx];
@@ -81,14 +82,17 @@ export async function POST() {
       .map(p => ({ round: p.round, pick: p.pick, player: p.selectedPlayerName || 'Skipped', owner: p.currentOwner || '' }));
 
     const onDeck = allPicks
-      .slice(activeIdx + 1, activeIdx + 4)
-      .filter(p => !p.playerId)
+      .filter(p => p.pick > activePick.pick && !p.playerId && !p.passed && !(typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED')))
+      .slice(0, 3)
       .map(p => ({ round: p.round, pick: p.pick, owner: p.currentOwner || '', originalOwner: p.originalTeam || '' }));
 
     // Picks that were auto-skipped and still have no player — coaches can
     // submit a late selection for any of them via the draft board.
     const skippedOpen = allPicks
-      .filter(p => typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED') && !p.playerId)
+      .filter(p => !p.playerId && (
+        (typeof p.selectedPlayerName === 'string' && p.selectedPlayerName.startsWith('SKIPPED')) ||
+        p.passed
+      ))
       .map(p => ({
         round: p.round,
         pick: p.pick,
