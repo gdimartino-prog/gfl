@@ -732,28 +732,16 @@ const handleUndoMyPick = async () => {
                             <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
                           </div>
                         ) : isSkipped ? (
-                          teamsWithPassedPicks.has(resolveCode(pick.currentOwner).toUpperCase()) ? (
-                            <div className="flex flex-col text-amber-600 uppercase">
-                              <span className="font-black text-[11px]">Passed</span>
-                              <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
-                            </div>
-                          ) : (
                           <div className="flex flex-col text-orange-500 uppercase">
                             <span className="font-black text-[11px]">Expired (Skipped)</span>
                             <span className="text-[10px] font-black text-slate-400 italic mt-1">{pick.timestamp ? new Date(pick.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) : ''}</span>
                             <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
                           </div>
-                          )
                         ) : isOnClock ? (
                             <div className="flex flex-col gap-1">
                               <span className="text-[11px] font-black uppercase tracking-widest text-blue-500 animate-pulse">On the Clock</span>
                               <span className="text-[13px] font-mono font-black text-amber-400 tabular-nums">{timeLeft}</span>
                             </div>
-                        ) : teamsWithPassedPicks.has(resolveCode(pick.currentOwner).toUpperCase()) ? (
-                          <div className="flex flex-col text-amber-600 uppercase">
-                            <span className="font-black text-[11px]">Passed</span>
-                            <span className="text-[8px] font-black opacity-60">Late Selection Eligible</span>
-                          </div>
                         ) : (
                           <span className="text-[11px] font-black uppercase tracking-widest text-slate-200">Awaiting Turn</span>
                         )}
@@ -846,31 +834,7 @@ const handleUndoMyPick = async () => {
                             )}
                           </div>
                         ) : isSkipped && session ? (
-                          teamsWithPassedPicks.has(resolveCode(pick.currentOwner).toUpperCase()) ? (
-                            <div className="flex items-center justify-end gap-3">
-                              <span className="text-amber-600 font-black text-[10px] uppercase border border-amber-200 bg-amber-50 px-4 py-2 rounded-full tracking-widest">Passed</span>
-                              {(isAdminUser || resolveCode(pick.currentOwner).toUpperCase() === myTeamCode.toUpperCase()) && (
-                                <button
-                                  disabled={isRefreshing}
-                                  onClick={() => handleUnpass(String(pick.overall))}
-                                  className="bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-slate-200 hover:text-slate-600 transition-all active:scale-95"
-                                >
-                                  Undo Pass
-                                </button>
-                              )}
-                              <button
-                                disabled={isRefreshing}
-                                onClick={() => {
-                                  setModalSessionId(Date.now());
-                                  setSelectedPick(pick);
-                                  setShowSelectionModal(true);
-                                }}
-                                className="bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest py-3.5 px-8 rounded-2xl shadow-xl hover:bg-amber-600 transition-all active:scale-95"
-                              >
-                                Late Selection
-                              </button>
-                            </div>
-                          ) : (
+                          (
                           <div className="flex items-center justify-end gap-3">
                             {(isAdminUser || resolveCode(pick.currentOwner).toUpperCase() === myTeamCode.toUpperCase()) && (
                               <button
