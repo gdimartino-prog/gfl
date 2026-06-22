@@ -5,7 +5,7 @@ import { tradeBlock, teams, players } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyTradeBlock } from '@/lib/notify';
-import { isAdmin, isCommissioner } from '@/lib/auth';
+import { isAdmin } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -44,25 +44,24 @@ export async function POST(req: NextRequest) {
 
     const leagueId = await getLeagueId();
     const callerTeamshort = (session.user as { id?: string }).id || '';
-    const privileged = await isAdmin() || await isCommissioner();
+    const privileged = await isAdmin();
     if (!privileged && callerTeamshort.toLowerCase() !== (team || '').toLowerCase()) {
       return NextResponse.json({ message: "Forbidden: you can only list players from your own team" }, { status: 403 });
     }
 
-    // Verify the player actually belongs to the declaring team
+    // Verify the player actually belongs to the declaring team.
+    // playerId is the player's identity string (first|last|age|...), not a numeric DB id.
     if (!privileged) {
-      const playerIdNum = parseInt(String(playerId));
-      if (isNaN(playerIdNum)) {
-        return NextResponse.json({ message: "Invalid player ID" }, { status: 400 });
-      }
-      const playerRow = await db.select({ teamId: players.teamId })
-        .from(players)
-        .where(and(eq(players.id, playerIdNum), eq(players.leagueId, leagueId)))
-        .limit(1);
-      const callerTeamRow = await db.select({ id: teams.id })
-        .from(teams)
-        .where(and(eq(teams.teamshort, callerTeamshort), eq(teams.leagueId, leagueId)))
-        .limit(1);
+      const [playerRow, callerTeamRow] = await Promise.all([
+        db.select({ teamId: players.teamId })
+          .from(players)
+          .where(and(eq(players.identity, String(playerId)), eq(players.leagueId, leagueId)))
+          .limit(1),
+        db.select({ id: teams.id })
+          .from(teams)
+          .where(and(eq(teams.teamshort, callerTeamshort), eq(teams.leagueId, leagueId)))
+          .limit(1),
+      ]);
       if (!playerRow[0] || !callerTeamRow[0] || playerRow[0].teamId !== callerTeamRow[0].id) {
         return NextResponse.json({ message: "Forbidden: player does not belong to your team" }, { status: 403 });
       }
