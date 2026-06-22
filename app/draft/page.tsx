@@ -348,20 +348,6 @@ const handleUndoMyPick = async () => {
     return team ? team.name : shortCode;
   }, [teams]);
 
-  // Map of teamCode → earliest passed pick's overall number for the current draft.
-  // Used to show "Undo Pass" on a team's future (not-yet-passed) picks once they've
-  // already declared themselves done on an earlier pick.
-  const teamsWithPassedPicks = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const p of picks) {
-      if (p.status === 'Passed') {
-        const code = resolveCode(p.currentOwner).toUpperCase();
-        if (!map.has(code)) map.set(code, String(p.overall));
-      }
-    }
-    return map;
-  }, [picks]);
-
   // Draft is "complete" when every pick in the most-recently-active draft
   // year has a terminal status (Drafted / Skipped / Passed) AND at least one
   // pick was actually drafted (so we don't show the banner on a draft that
@@ -888,40 +874,13 @@ const handleUndoMyPick = async () => {
                           </div>
                         ) : session && !isDrafted && !isSkipped && (isAdminUser || resolveCode(pick.currentOwner).toUpperCase() === myTeamCode.toUpperCase()) ? (
                           <div className="flex items-center justify-end gap-2">
-                            {(() => {
-                              if (isPassed) {
-                                return (
-                                  <button
-                                    disabled={isRefreshing}
-                                    onClick={() => handleUnpass(String(pick.overall))}
-                                    className="bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-slate-200 hover:text-slate-600 transition-all active:scale-95"
-                                  >
-                                    Undo Pass
-                                  </button>
-                                );
-                              }
-                              const earliestPassedOverall = teamsWithPassedPicks.get(resolveCode(pick.currentOwner).toUpperCase());
-                              if (earliestPassedOverall) {
-                                return (
-                                  <button
-                                    disabled={isRefreshing}
-                                    onClick={() => handleUnpass(earliestPassedOverall)}
-                                    className="bg-amber-100 text-amber-700 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-slate-200 hover:text-slate-600 transition-all active:scale-95"
-                                  >
-                                    Undo Pass
-                                  </button>
-                                );
-                              }
-                              return (
-                                <button
-                                  disabled={isRefreshing}
-                                  onClick={() => handlePass(String(pick.overall))}
-                                  className="bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-amber-100 hover:text-amber-700 transition-all active:scale-95"
-                                >
-                                  Pass / Done
-                                </button>
-                              );
-                            })()}
+                            <button
+                              disabled={isRefreshing}
+                              onClick={() => handlePass(String(pick.overall))}
+                              className="bg-slate-200 text-slate-600 text-[9px] font-black uppercase tracking-widest py-3.5 px-6 rounded-2xl hover:bg-amber-100 hover:text-amber-700 transition-all active:scale-95"
+                            >
+                              Pass / Done
+                            </button>
                           </div>
                         ) : (
                           <div className="flex items-center justify-end gap-2">
