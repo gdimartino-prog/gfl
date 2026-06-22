@@ -9394,5 +9394,95 @@
     "team": "VV",
     "action": "DRAFT_PASS",
     "details": "R21 #364: PASSED"
+  },
+  {
+    "id": 1045,
+    "leagueId": 1,
+    "timestamp": "2026-06-21T13:13:30.632Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R19 #342: S - Malik Hooker"
+  },
+  {
+    "id": 1046,
+    "leagueId": 1,
+    "timestamp": "2026-06-21T15:14:21.143Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=310 mode=copy"
+  },
+  {
+    "id": 1047,
+    "leagueId": 1,
+    "timestamp": "2026-06-21T15:23:20.053Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R20 #356: T - Jaylon Moore"
+  },
+  {
+    "id": 1048,
+    "leagueId": 1,
+    "timestamp": "2026-06-21T15:48:28.553Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "WAIVE",
+    "details": "ILB - Denzel Perryman"
+  },
+  {
+    "id": 1049,
+    "leagueId": 1,
+    "timestamp": "2026-06-21T15:53:25.130Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #207 marked Done"
+  },
+  {
+    "id": 1050,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T03:51:33.795Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1051,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T03:53:44.709Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R21 #374: ILB - Trevin Wallace"
+  },
+  {
+    "id": 1052,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T04:10:55.040Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1053,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T05:15:58.620Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1054,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T05:58:12.610Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=111 mode=copy"
   }
 ]

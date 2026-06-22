@@ -2559,5 +2559,24 @@
     "conditionalDetails": null,
     "touch_dt": "2026-06-19T01:28:52.198Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 207,
+    "leagueId": 1,
+    "date": "2026-06-21T15:48:28.536Z",
+    "type": "WAIVE",
+    "description": "ILB - Denzel Perryman",
+    "fromTeam": "Pyongyang",
+    "toTeam": "FA",
+    "owner": "James Thurlow",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-06-21T15:48:28.534Z",
+    "touch_id": "commissioner"
   }
 ]
