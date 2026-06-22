@@ -386,10 +386,14 @@ export async function GET(req: Request) {
       // from a prior round, immediately skip their current turn until they submit
       // a late selection. Voluntary passes do NOT block — only SKIPPED (expired)
       // picks do, since passed picks represent a deliberate "done" decision.
+      // Only block if the unfilled expired pick is from the immediately prior
+      // round. Old expired picks (2+ rounds back) should not indefinitely block
+      // a team from drafting in later rounds.
       const teamHasOpenSkip = allPicks.some(p =>
         p.currentOwner === activePick.currentOwner &&
         !p.playerId &&
-        p.selectedPlayerName === 'SKIPPED (Time Expired)'
+        p.selectedPlayerName === 'SKIPPED (Time Expired)' &&
+        p.round === activePick.round - 1
       );
       if (teamHasOpenSkip) {
         await db.update(draftPicks)
