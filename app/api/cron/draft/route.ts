@@ -247,11 +247,10 @@ export async function GET(req: Request) {
       const strikesByTeamId = new Map<number, number>();
       for (const p of allPicks) {
         if (p.currentTeamId == null) continue;
-        // Only the 3-strike auto-skip doesn't count as a strike — all other
-        // SKIPPED variants (Time Expired, open pick pending) do count.
-        const isSkippedRow = typeof p.selectedPlayerName === 'string' &&
-          p.selectedPlayerName.startsWith('SKIPPED') &&
-          p.selectedPlayerName !== 'SKIPPED (3-strike rule)';
+        // Only 'SKIPPED (Time Expired)' counts as a strike — it means the team
+        // actually ran out their clock. Instant-skips (3-strike rule, open pick
+        // pending) are cron-generated and don't represent the team wasting time.
+        const isSkippedRow = p.selectedPlayerName === 'SKIPPED (Time Expired)';
         const wasLate = timings.get(p.id)?.wasLate ?? false;
         if (isSkippedRow || wasLate) {
           strikesByTeamId.set(p.currentTeamId, Math.min(3, (strikesByTeamId.get(p.currentTeamId) ?? 0) + 1));
@@ -356,9 +355,7 @@ export async function GET(req: Request) {
       // without waiting for the clock. Subtract 1 if the active pick itself
       // was already counted (e.g. mid-pick state shouldn't count itself).
       const activeIsCountedAsStrike = activePick.currentTeamId != null && (() => {
-        const isSkippedRow = typeof activePick.selectedPlayerName === 'string' &&
-          activePick.selectedPlayerName.startsWith('SKIPPED') &&
-          activePick.selectedPlayerName !== 'SKIPPED (3-strike rule)';
+        const isSkippedRow = activePick.selectedPlayerName === 'SKIPPED (Time Expired)';
         const wasLate = timings.get(activePick.id)?.wasLate ?? false;
         return isSkippedRow || wasLate;
       })();
@@ -392,10 +389,7 @@ export async function GET(req: Request) {
       const teamHasOpenSkip = allPicks.some(p =>
         p.currentOwner === activePick.currentOwner &&
         !p.playerId &&
-        typeof p.selectedPlayerName === 'string' &&
-        p.selectedPlayerName.startsWith('SKIPPED') &&
-        p.selectedPlayerName !== 'SKIPPED (3-strike rule)' &&
-        p.selectedPlayerName !== 'SKIPPED (open pick pending)'
+        p.selectedPlayerName === 'SKIPPED (Time Expired)'
       );
       if (teamHasOpenSkip) {
         await db.update(draftPicks)

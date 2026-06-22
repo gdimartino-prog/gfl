@@ -81,11 +81,10 @@ export async function GET(req: NextRequest) {
     const pickTimeByTeam = new Map<string, { totalMs: number; count: number }>();
     for (const p of currentYearSorted) {
       if (!p.currentOwner) continue;
-      // Only the 3-strike auto-skip doesn't count as a strike — all other
-      // SKIPPED variants (Time Expired, open pick pending) do count.
-      const isSkippedRow = typeof p.selectedPlayerName === 'string' &&
-        p.selectedPlayerName.startsWith('SKIPPED') &&
-        p.selectedPlayerName !== 'SKIPPED (3-strike rule)';
+      // Only 'SKIPPED (Time Expired)' counts as a strike — the team actually
+      // ran out their clock. Instant-skips (3-strike rule, open pick pending)
+      // are cron-generated and don't represent the team wasting time.
+      const isSkippedRow = p.selectedPlayerName === 'SKIPPED (Time Expired)';
       const wasLate = timings.get(p.id)?.wasLate ?? false;
       if (isSkippedRow || wasLate) {
         strikesByTeam.set(p.currentOwner, Math.min(3, (strikesByTeam.get(p.currentOwner) ?? 0) + 1));

@@ -176,15 +176,20 @@ export async function computePickTimings(
     // 3-strike auto-skips are instantaneous (cron fires within minutes of the pick
     // coming up) — treat them as zero-duration so the next team's clock chains from
     // the same point, not from the cron-fire timestamp.
-    const threeStrikeSkip = p.selectedPlayerName === 'SKIPPED (3-strike rule)';
-    const wasLate = !stalePick && !threeStrikeSkip && !!p.pickedAt && p.pickedAt > deadline;
+    // Only 'SKIPPED (Time Expired)' actually consumed clock time — the team ran
+    // to their deadline. All other SKIPPED variants (3-strike rule, open pick
+    // pending, etc.) are instantaneous cron actions that contribute no clock time.
+    const instantSkip = typeof p.selectedPlayerName === 'string' &&
+      p.selectedPlayerName.startsWith('SKIPPED') &&
+      p.selectedPlayerName !== 'SKIPPED (Time Expired)';
+    const wasLate = !stalePick && !instantSkip && !!p.pickedAt && p.pickedAt > deadline;
     result.set(p.id, { clockStart, deadline, wasLate });
 
-    if (p.pickedAt && !stalePick && !threeStrikeSkip) {
+    if (p.pickedAt && !stalePick && !instantSkip) {
       const effEnd = p.pickedAt > deadline ? deadline : p.pickedAt;
       prevEnd = effEnd;
-    } else if (p.passed || stalePick || threeStrikeSkip) {
-      // Cascade-passed, stale-expired, or 3-strike auto-skip: contributes no clock time
+    } else if (p.passed || stalePick || instantSkip) {
+      // Cascade-passed, stale-expired, or instant-skip: contributes no clock time
       prevEnd = clockStart;
     } else {
       prevEnd = deadline;
