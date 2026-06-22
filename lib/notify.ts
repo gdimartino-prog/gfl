@@ -119,21 +119,20 @@ export async function notifyDraftPick({
     return `   R${p.round} #${p.pick}: ${p.owner}${via}${strikeNote}`;
   }).join('\n');
 
-  // Skipped picks that still have no player — coaches can still fill them.
-  // Cap at 8 entries with an overflow line so the notification stays readable
-  // in late rounds.
-  const SKIP_CAP = 8;
+  // Skipped picks grouped by team — one line per team listing all their open picks.
   const skippedAll = skippedOpen ?? [];
-  const skippedShown = skippedAll.slice(0, SKIP_CAP);
-  const skippedOverflow = Math.max(0, skippedAll.length - SKIP_CAP);
-  const skippedStr = skippedAll.length > 0
-    ? skippedShown.map(p => {
-        const when = p.skippedAt
-          ? p.skippedAt.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' })
-          : '?';
-        return `   R${p.round} #${p.pick}: ${p.owner} (skipped ${when})`;
-      }).join('\n') + (skippedOverflow > 0 ? `\n   + ${skippedOverflow} more` : '')
-    : '';
+  const skippedStr = (() => {
+    if (!skippedAll.length) return '';
+    const byTeam = new Map<string, string[]>();
+    for (const p of skippedAll) {
+      const key = p.owner || 'Unknown';
+      if (!byTeam.has(key)) byTeam.set(key, []);
+      byTeam.get(key)!.push(`R${p.round} #${p.pick}`);
+    }
+    return Array.from(byTeam.entries())
+      .map(([team, picks]) => `   ${team}: ${picks.join(', ')}`)
+      .join('\n');
+  })();
   const skippedBlock = skippedAll.length > 0
     ? `\n\nSKIPPED — CAN STILL BE FILLED:\n${skippedStr}\n\nLate selections are always allowed — any coach can submit via the draft board.`
     : '';
