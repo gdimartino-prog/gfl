@@ -167,14 +167,19 @@ export async function computePickTimings(
 
     const clockMinutes = clockByRound.get(p.round) ?? 1440;
     const deadline = new Date(clockStart.getTime() + clockMinutes * 60 * 1000);
-    const wasLate = !!p.pickedAt && p.pickedAt > deadline;
+    // If pickedAt predates this pick's clockStart the timestamp is stale — either
+    // a cascade pass whose timestamp was written before this round's clock began,
+    // or a pick that was wrongly expired by a broken chain. Don't let a stale
+    // pickedAt collapse prevEnd backwards; treat it as zero-duration instead.
+    const stalePick = !!p.pickedAt && p.pickedAt < clockStart;
+    const wasLate = !stalePick && !!p.pickedAt && p.pickedAt > deadline;
     result.set(p.id, { clockStart, deadline, wasLate });
 
-    if (p.pickedAt) {
+    if (p.pickedAt && !stalePick) {
       const effEnd = p.pickedAt > deadline ? deadline : p.pickedAt;
       prevEnd = effEnd;
-    } else if (p.passed) {
-      // Cascade-passed pick: team declared done, contributes no clock time
+    } else if (p.passed || stalePick) {
+      // Cascade-passed or stale-expired pick: contributes no clock time
       prevEnd = clockStart;
     } else {
       prevEnd = deadline;
