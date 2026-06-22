@@ -254,10 +254,15 @@ export async function processPlayersFile(
   if (toUpdate.length > 0) {
     // Preserve isIR=true set by a transaction — the CSV never has IR context.
     // Only override when the CSV explicitly marks the player as -IR (rare).
-    await Promise.all(toUpdate.map(({ id, isIR, player: p }) => {
-      const preservedIsIR = p.isIR || isIR || false;
-      return db.update(players).set({ ...p, isIR: preservedIsIR }).where(eq(players.id, id));
-    }));
+    // Chunked to 50 concurrent updates at a time — running all ~1000 in parallel
+    // saturates Vercel Fluid CPU and causes large billing spikes.
+    const CHUNK = 50;
+    for (let i = 0; i < toUpdate.length; i += CHUNK) {
+      await Promise.all(toUpdate.slice(i, i + CHUNK).map(({ id, isIR, player: p }) => {
+        const preservedIsIR = p.isIR || isIR || false;
+        return db.update(players).set({ ...p, isIR: preservedIsIR }).where(eq(players.id, id));
+      }));
+    }
   }
   if (onProgress) onProgress(playerValues.length, playerValues.length);
 
