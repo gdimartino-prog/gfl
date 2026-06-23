@@ -247,12 +247,14 @@ export async function GET(req: Request) {
       const strikesByTeamId = new Map<number, number>();
       for (const p of allPicks) {
         if (p.currentTeamId == null) continue;
-        // Only 'SKIPPED (Time Expired)' counts as a strike — it means the team
-        // actually ran out their clock. Instant-skips (3-strike rule, open pick
-        // pending) are cron-generated and don't represent the team wasting time.
+        // 'SKIPPED (Time Expired)' and wasLate selections count as strikes.
+        // 'SKIPPED (3-strike rule)' also counts: once the cron auto-skipped a
+        // team, that's evidence they had 3 strikes — clock recomputations from
+        // later fixes shouldn't retroactively erase that history.
         const isSkippedRow = p.selectedPlayerName === 'SKIPPED (Time Expired)';
+        const isThreeStrikeRow = p.selectedPlayerName === 'SKIPPED (3-strike rule)';
         const wasLate = timings.get(p.id)?.wasLate ?? false;
-        if (isSkippedRow || wasLate) {
+        if (isSkippedRow || isThreeStrikeRow || wasLate) {
           strikesByTeamId.set(p.currentTeamId, Math.min(3, (strikesByTeamId.get(p.currentTeamId) ?? 0) + 1));
         }
       }
@@ -356,8 +358,9 @@ export async function GET(req: Request) {
       // was already counted (e.g. mid-pick state shouldn't count itself).
       const activeIsCountedAsStrike = activePick.currentTeamId != null && (() => {
         const isSkippedRow = activePick.selectedPlayerName === 'SKIPPED (Time Expired)';
+        const isThreeStrikeRow = activePick.selectedPlayerName === 'SKIPPED (3-strike rule)';
         const wasLate = timings.get(activePick.id)?.wasLate ?? false;
-        return isSkippedRow || wasLate;
+        return isSkippedRow || isThreeStrikeRow || wasLate;
       })();
       const teamStrikes = activePick.currentTeamId == null
         ? 0
@@ -367,6 +370,7 @@ export async function GET(req: Request) {
         await db.update(draftPicks)
           .set({ selectedPlayerName: 'SKIPPED (3-strike rule)', pickedAt: now, touch_id: 'cron-3strike' })
           .where(eq(draftPicks.id, activePick.id));
+        revalidateTag('draft-picks', 'max');
 
         await notifyDraftPick({
           round: activePick.round,
