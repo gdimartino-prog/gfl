@@ -2578,5 +2578,24 @@
     "conditionalDetails": null,
     "touch_dt": "2026-06-21T15:48:28.534Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 208,
+    "leagueId": 1,
+    "date": "2026-06-22T15:45:50.274Z",
+    "type": "WAIVE",
+    "description": "DE - Derek Barnett",
+    "fromTeam": "Tetbury",
+    "toTeam": "FA",
+    "owner": "Mike Fullen",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-06-22T15:45:50.277Z",
+    "touch_id": "commissioner"
   }
 ]

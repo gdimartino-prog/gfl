@@ -9484,5 +9484,113 @@
     "team": "PT",
     "action": "SCOUT_COPY_PROMPT",
     "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=111 mode=copy"
+  },
+  {
+    "id": 1055,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T12:40:00.722Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1056,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T12:44:10.818Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1057,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T14:23:35.101Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1058,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T14:43:08.513Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1059,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T14:43:45.871Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R21 #378: DE - Tyree Wilson"
+  },
+  {
+    "id": 1060,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T15:45:50.316Z",
+    "coach": "Mike Fullen",
+    "team": "Tetbury",
+    "action": "WAIVE",
+    "details": "DE - Derek Barnett"
+  },
+  {
+    "id": 1061,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T15:46:24.559Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "DRAFT_PICK",
+    "details": "R21 #375: DL - Javon Kinlaw"
+  },
+  {
+    "id": 1062,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T16:43:19.914Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #208 marked Done"
+  },
+  {
+    "id": 1063,
+    "leagueId": 1,
+    "timestamp": "2026-06-22T17:29:11.047Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R22 #392: DL - Tonka Hemingway"
+  },
+  {
+    "id": 1064,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T02:12:43.099Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1065,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T02:13:22.689Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R22 #396: WR - Rashod Bateman"
+  },
+  {
+    "id": 1066,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T02:51:33.117Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R23 #410: K - Jake Bates"
   }
 ]

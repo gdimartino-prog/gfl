@@ -198,17 +198,6 @@
     "touch_id": "SG"
   },
   {
-    "id": 34,
-    "leagueId": 1,
-    "playerId": "carson|wentz|33|qb||",
-    "playerName": "Carson Wentz",
-    "team": "VV",
-    "position": "QB",
-    "asking": "Toilet Paper",
-    "touch_dt": "2026-04-26T01:13:42.545Z",
-    "touch_id": "VV"
-  },
-  {
     "id": 38,
     "leagueId": 1,
     "playerId": "joel|bitonio|34|g||",
