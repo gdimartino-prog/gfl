@@ -83,6 +83,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const [auditRows, setAuditRows] = useState<AuditPickRow[]>([]);
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditMsg, setAuditMsg] = useState<{ success: boolean; text: string } | null>(null);
+  const [auditShowWaived, setAuditShowWaived] = useState(false);
 
   // Season Awards state
   const [awardsOpen, setAwardsOpen] = useState(false);
@@ -849,6 +850,15 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
             {auditLoading ? <RefreshCw size={14} className="animate-spin" /> : <Search size={14} />}
             {auditLoading ? 'Loading…' : 'Run Audit'}
           </button>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={auditShowWaived}
+              onChange={e => setAuditShowWaived(e.target.checked)}
+              className="w-4 h-4 rounded accent-amber-400"
+            />
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Show Waived</span>
+          </label>
           {auditMsg && (
             <span className={`text-[10px] font-black uppercase tracking-widest ${auditMsg.success ? 'text-emerald-400' : 'text-red-400'}`}>
               {auditMsg.text}
@@ -860,10 +870,23 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
           <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest animate-pulse">Loading...</div>
         ) : auditRows.length === 0 && !auditMsg ? (
           <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest">Enter a year and click Run Audit.</div>
-        ) : auditRows.length > 0 ? (
+        ) : auditRows.length > 0 ? (() => {
+          const waivedCount = auditRows.filter(r => r.status === 'FA').length;
+          const visibleRows = auditShowWaived ? auditRows : auditRows.filter(r => r.status !== 'FA');
+          if (visibleRows.length === 0) {
+            return (
+              <div className="p-10 text-center text-slate-400 font-bold text-sm uppercase tracking-widest">
+                All mismatched players are waived. Check &ldquo;Show Waived&rdquo; to see them.
+              </div>
+            );
+          }
+          return (
           <div className="overflow-x-auto">
             <div className="px-8 py-3 bg-amber-50 border-b border-amber-100 flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-amber-700">{auditRows.length} player{auditRows.length !== 1 ? 's' : ''} not on drafting team roster</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-amber-700">{visibleRows.length} player{visibleRows.length !== 1 ? 's' : ''} not on drafting team roster</span>
+              {!auditShowWaived && waivedCount > 0 && (
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">({waivedCount} waived hidden)</span>
+              )}
             </div>
             <table className="w-full text-left border-collapse">
               <thead>
@@ -876,7 +899,7 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {auditRows.map((row, i) => (
+                {visibleRows.map((row, i) => (
                   <tr key={i} className="hover:bg-slate-50 transition-colors">
                     <td className="px-4 py-3 text-center text-xs font-black text-slate-500 whitespace-nowrap">
                       {row.round}.{row.pick}
@@ -910,7 +933,8 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
               </tbody>
             </table>
           </div>
-        ) : null}
+          );
+        })() : null}
         </>)}
       </div>
 
