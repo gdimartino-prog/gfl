@@ -39,6 +39,9 @@ export async function POST(req: NextRequest) {
       pick: draftPicks.pick,
       originalTeamId: draftPicks.originalTeamId,
       teamshort: teams.teamshort,
+      playerId: draftPicks.playerId,
+      pickedAt: draftPicks.pickedAt,
+      passed: draftPicks.passed,
     })
     .from(draftPicks)
     .leftJoin(teams, eq(draftPicks.originalTeamId, teams.id))
@@ -151,6 +154,16 @@ export async function POST(req: NextRequest) {
         touch_id: actor,
       });
     }
+  }
+
+  // If all existing picks are resolved (drafted, skipped, or passed), the clock
+  // chain's prevEnd is from whenever the last real pick was made — potentially
+  // hours or days ago. The first new-round pick would inherit that stale timestamp
+  // as its clockStart, making its deadline already expired. Anchor it to now so
+  // the clock starts fresh when adding rounds after a fully-resolved state.
+  const hasOpenPick = existingPicks.some(p => !p.playerId && !p.pickedAt && !p.passed);
+  if (!hasOpenPick && newRows.length > 0) {
+    newRows[0].scheduledAt = new Date();
   }
 
   await db.insert(draftPicks).values(newRows);
