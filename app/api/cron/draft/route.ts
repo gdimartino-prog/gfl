@@ -104,10 +104,10 @@ export async function GET(req: Request) {
         const msSinceLastPick = lastRealPick?.pickedAt
           ? now24.getTime() - new Date(lastRealPick.pickedAt).getTime()
           : Infinity;
-        if (msSinceLastPick <= 48 * 60 * 60 * 1000) {
-          const msRemaining = 48 * 60 * 60 * 1000 - msSinceLastPick;
+        if (msSinceLastPick <= 12 * 60 * 60 * 1000) {
+          const msRemaining = 12 * 60 * 60 * 1000 - msSinceLastPick;
           const hoursRemaining = msRemaining / 3600000;
-          const deadline = new Date(new Date(lastRealPick!.pickedAt!).getTime() + 48 * 60 * 60 * 1000);
+          const deadline = new Date(new Date(lastRealPick!.pickedAt!).getTime() + 12 * 60 * 60 * 1000);
 
           // Send countdown notifications at: initial (now), 24h, 12h, 6h, 1h left.
           const sentKey = 'draft_cutoff_sent';
@@ -121,8 +121,6 @@ export async function GET(req: Request) {
           // Each subsequent key fires once hoursRemaining crosses its threshold.
           const milestones: Array<{ key: string; hoursLeft: number | null; threshold: number }> = [
             { key: 'initial', hoursLeft: null, threshold: Infinity },
-            { key: '24h', hoursLeft: 24, threshold: 24 },
-            { key: '12h', hoursLeft: 12, threshold: 12 },
             { key: '6h', hoursLeft: 6, threshold: 6 },
             { key: '1h', hoursLeft: 1, threshold: 1 },
           ];
@@ -160,7 +158,7 @@ export async function GET(req: Request) {
           results.push({ leagueId, action: firedMilestone ? `cutoff_notify_${firedMilestone}` : 'none', waitingForClose: true, hoursRemaining: hoursRemaining.toFixed(1) });
           continue;
         }
-        // 48h have passed since the last real pick — mark the draft complete.
+        // 12h have passed since the last real pick — mark the draft complete.
         await db.insert(rules)
           .values({
             leagueId,
