@@ -200,6 +200,49 @@ export async function notifyDraftComplete({
   }
 }
 
+export async function notifyDraftCutoff({
+  hoursLeft, deadline, leagueId, draftYear,
+}: {
+  hoursLeft: number | null; // null = initial "draft over" message
+  deadline: Date;
+  leagueId: number;
+  draftYear: number;
+}) {
+  const leagueName = leagueId === 1 ? 'GFL' : `League ${leagueId}`;
+  const deadlineET = deadline.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    weekday: 'short', month: 'short', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', timeZoneName: 'short',
+  });
+
+  let subject: string;
+  let intro: string;
+  if (hoursLeft === null) {
+    subject = `${leagueName} ${draftYear} Draft — 48-Hour Window Now Open`;
+    intro = `The ${draftYear} ${leagueName} Free Agent Draft has concluded. Coaches now have <strong>48 hours</strong> to make any final roster moves before the draft is officially locked.`;
+  } else {
+    subject = `${leagueName} ${draftYear} Draft closes in ${hoursLeft} hour${hoursLeft === 1 ? '' : 's'}`;
+    intro = `Reminder: The ${draftYear} ${leagueName} Draft window closes in <strong>${hoursLeft} hour${hoursLeft === 1 ? '' : 's'}</strong>. Make sure your roster is finalized.`;
+  }
+
+  const html = `
+    <h2>${subject}</h2>
+    <p>${intro}</p>
+    <p><strong>Deadline:</strong> ${deadlineET}</p>
+    <p><a href="${GFL_URL}/draft">View the draft board</a> &nbsp;|&nbsp; <a href="${GFL_URL}/rosters">View rosters</a></p>
+  `;
+  const text = hoursLeft === null
+    ? `${leagueName} ${draftYear} Draft concluded — 48-hour window open until ${deadlineET}. ${GFL_URL}/draft`
+    : `${leagueName} ${draftYear} Draft closes in ${hoursLeft}h — deadline ${deadlineET}. ${GFL_URL}/draft`;
+
+  await sendEmail({ subject, html, text });
+  if (leagueId === 1) {
+    await sendWhatsApp(text);
+  } else {
+    console.log('[notify] skipping WhatsApp for leagueId:', leagueId);
+  }
+}
+
 export async function notifyTransaction({
   type, directions, leagueId,
 }: {

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { draftPicks, players, teams, rules } from '@/schema';
 import { eq, and, asc, isNull, sql } from 'drizzle-orm';
-import { notifyDraftPick, notifyDraftComplete } from '@/lib/notify';
+import { notifyDraftPick, notifyDraftComplete, notifyDraftCutoff } from '@/lib/notify';
 import { alias } from 'drizzle-orm/pg-core';
 import { getDraftClockMinutes, getWarningThresholdMinutes, getDraftStartDate, computePickTimings } from '@/lib/draftClock';
 import { findBestAutoPick, purgePickedPlayerFromQueues } from '@/lib/autoPickQueue';
@@ -105,8 +105,59 @@ export async function GET(req: Request) {
           ? now24.getTime() - new Date(lastRealPick.pickedAt).getTime()
           : Infinity;
         if (msSinceLastPick <= 48 * 60 * 60 * 1000) {
-          const hoursRemaining = ((48 * 60 * 60 * 1000 - msSinceLastPick) / 3600000).toFixed(1);
-          results.push({ leagueId, action: 'none', waitingForClose: true, hoursRemaining });
+          const msRemaining = 48 * 60 * 60 * 1000 - msSinceLastPick;
+          const hoursRemaining = msRemaining / 3600000;
+          const deadline = new Date(new Date(lastRealPick!.pickedAt!).getTime() + 48 * 60 * 60 * 1000);
+
+          // Send countdown notifications at: initial (now), 24h, 12h, 6h, 1h left.
+          const sentKey = 'draft_cutoff_sent';
+          const sentRow = await db.select({ value: rules.value })
+            .from(rules)
+            .where(and(eq(rules.leagueId, leagueId), eq(rules.year, draftYear), eq(rules.rule, sentKey)))
+            .limit(1);
+          const sent = new Set((sentRow[0]?.value || '').split(',').filter(Boolean));
+
+          // 'initial' fires unconditionally on the first tick entering the window.
+          // Each subsequent key fires once hoursRemaining crosses its threshold.
+          const milestones: Array<{ key: string; hoursLeft: number | null; threshold: number }> = [
+            { key: 'initial', hoursLeft: null, threshold: Infinity },
+            { key: '24h', hoursLeft: 24, threshold: 24 },
+            { key: '12h', hoursLeft: 12, threshold: 12 },
+            { key: '6h', hoursLeft: 6, threshold: 6 },
+            { key: '1h', hoursLeft: 1, threshold: 1 },
+          ];
+
+          // Fast-exit once all milestones are sent — avoids a DB write on every tick.
+          if (sent.size >= milestones.length) {
+            results.push({ leagueId, action: 'none', waitingForClose: true, hoursRemaining: hoursRemaining.toFixed(1) });
+            continue;
+          }
+
+          let firedMilestone: string | null = null;
+          for (const m of milestones) {
+            if (sent.has(m.key)) continue;
+            if (m.threshold === Infinity || hoursRemaining <= m.threshold) {
+              sent.add(m.key);
+              try {
+                await notifyDraftCutoff({ hoursLeft: m.hoursLeft, deadline, leagueId, draftYear });
+              } catch (e) {
+                console.error(`[cron/draft] notifyDraftCutoff(${m.key}) failed:`, e instanceof Error ? e.message : String(e));
+              }
+              // year: draftYear is required — the unique constraint is on (leagueId, year, rule)
+              // and NULL year values do not conflict in Postgres, so omitting year would silently
+              // allow duplicate rows instead of upserting.
+              await db.insert(rules)
+                .values({ leagueId, year: draftYear, rule: sentKey, value: [...sent].join(','), desc: 'draft cutoff milestones sent', touch_id: 'cron-draft-cutoff' })
+                .onConflictDoUpdate({
+                  target: [rules.leagueId, rules.year, rules.rule],
+                  set: { value: [...sent].join(','), touch_id: 'cron-draft-cutoff' },
+                });
+              firedMilestone = m.key;
+              break;
+            }
+          }
+
+          results.push({ leagueId, action: firedMilestone ? `cutoff_notify_${firedMilestone}` : 'none', waitingForClose: true, hoursRemaining: hoursRemaining.toFixed(1) });
           continue;
         }
         // 48h have passed since the last real pick — mark the draft complete.
