@@ -9592,5 +9592,320 @@
     "team": "PT",
     "action": "DRAFT_PICK",
     "details": "R23 #410: K - Jake Bates"
+  },
+  {
+    "id": 1067,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T10:57:27.421Z",
+    "coach": "George Di Martino",
+    "team": "Newark Bay",
+    "action": "WAIVE",
+    "details": "OLB - D.J. Wonnum"
+  },
+  {
+    "id": 1068,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T10:57:31.128Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #209 marked Done"
+  },
+  {
+    "id": 1069,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T11:02:02.981Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_SETUP_GENERATED",
+    "details": "Generated 450 picks for 2028 free_agent draft (25 rounds)"
+  },
+  {
+    "id": 1070,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T12:50:41.890Z",
+    "coach": "George Di Martino",
+    "team": "AFL",
+    "action": "TRADE",
+    "details": "Amalfi ↔ Newark Bay"
+  },
+  {
+    "id": 1071,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T12:51:13.909Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #210 marked Done"
+  },
+  {
+    "id": 1072,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T12:51:15.109Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #211 marked Done"
+  },
+  {
+    "id": 1073,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T14:33:01.896Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1074,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T14:33:22.399Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R23 #414: S - Jordan Poyer"
+  },
+  {
+    "id": 1075,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T15:35:43.207Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=137 mode=copy"
+  },
+  {
+    "id": 1076,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T15:49:24.833Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=537 mode=copy"
+  },
+  {
+    "id": 1077,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T16:03:31.901Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=354 mode=copy"
+  },
+  {
+    "id": 1078,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T16:04:48.907Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=456 mode=copy"
+  },
+  {
+    "id": 1079,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T16:06:46.090Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=547 mode=copy"
+  },
+  {
+    "id": 1080,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T16:08:23.771Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=166 mode=copy"
+  },
+  {
+    "id": 1081,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T16:13:08.174Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=737 mode=copy"
+  },
+  {
+    "id": 1082,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T16:16:58.831Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=79 mode=copy"
+  },
+  {
+    "id": 1083,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T16:18:30.985Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "SCOUT_COPY_PROMPT",
+    "details": "team=PT pool=400 positions=all rookiesOnly=false maxAge=none needsChars=122 mode=copy"
+  },
+  {
+    "id": 1084,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T16:33:36.656Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R24 #428: S - Lathan Ransom"
+  },
+  {
+    "id": 1085,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T19:20:32.275Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1086,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T19:21:37.940Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "DRAFT_ROUNDS_ADDED",
+    "details": "Added rounds 26–27 to 2026 free_agent"
+  },
+  {
+    "id": 1087,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T19:52:15.093Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R24 #432: CB - Chau Smith-Wade"
+  },
+  {
+    "id": 1088,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T19:56:04.054Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "WAIVE",
+    "details": "HB - Andrew Beck"
+  },
+  {
+    "id": 1089,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T20:08:01.158Z",
+    "coach": "Adrian Scherer",
+    "team": "AFL",
+    "action": "DRAFT_PICK",
+    "details": "R21 #377: C - Ross Matiscik"
+  },
+  {
+    "id": 1090,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T21:05:38.200Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1091,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T21:05:51.304Z",
+    "coach": "James Thurlow",
+    "team": "PT",
+    "action": "DRAFT_PICK",
+    "details": "R25 #446: QB - Davis Mills"
+  },
+  {
+    "id": 1092,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T22:37:15.854Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #212 marked Done"
+  },
+  {
+    "id": 1093,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T22:39:31.371Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1094,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T23:13:37.635Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "DRAFT_PICK",
+    "details": "R25 #450: C - Zach Wood"
+  },
+  {
+    "id": 1095,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T23:21:45.514Z",
+    "coach": "FPR",
+    "team": "FPR",
+    "action": "DRAFT_PASS",
+    "details": "R26 #468: PASSED"
+  },
+  {
+    "id": 1096,
+    "leagueId": 1,
+    "timestamp": "2026-06-23T23:41:21.345Z",
+    "coach": "VV",
+    "team": "VV",
+    "action": "DRAFT_PASS",
+    "details": "R26 #453: PASSED"
+  },
+  {
+    "id": 1097,
+    "leagueId": 1,
+    "timestamp": "2026-06-24T00:21:18.187Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1098,
+    "leagueId": 1,
+    "timestamp": "2026-06-24T00:22:46.473Z",
+    "coach": "PT",
+    "team": "PT",
+    "action": "DRAFT_PASS",
+    "details": "R26 #464: PASSED"
+  },
+  {
+    "id": 1099,
+    "leagueId": 1,
+    "timestamp": "2026-06-24T02:05:33.769Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R19 #332: C - Casey Kreiter"
+  },
+  {
+    "id": 1100,
+    "leagueId": 1,
+    "timestamp": "2026-06-24T02:17:24.493Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "WAIVE",
+    "details": "S - Tony Adams"
+  },
+  {
+    "id": 1101,
+    "leagueId": 1,
+    "timestamp": "2026-06-24T02:18:30.791Z",
+    "coach": "Bill Matsikoudis",
+    "team": "KIG",
+    "action": "DRAFT_PICK",
+    "details": "R15 #259: S - Brenden Schooler"
   }
 ]

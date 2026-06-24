@@ -784,5 +784,17 @@
     "history": [],
     "touch_dt": "2026-06-18T14:52:16.316Z",
     "touch_id": "OBG"
+  },
+  {
+    "id": 153,
+    "leagueId": 1,
+    "year": 2028,
+    "draftType": "free_agent",
+    "round": 3,
+    "originalTeamId": 51,
+    "currentTeamId": 41,
+    "history": [],
+    "touch_dt": "2026-06-23T12:50:41.839Z",
+    "touch_id": "VV"
   }
 ]
