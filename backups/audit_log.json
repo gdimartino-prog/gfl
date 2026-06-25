@@ -9907,5 +9907,14 @@
     "team": "KIG",
     "action": "DRAFT_PICK",
     "details": "R15 #259: S - Brenden Schooler"
+  },
+  {
+    "id": 1102,
+    "leagueId": 1,
+    "timestamp": "2026-06-24T10:53:23.446Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #213 marked Done"
   }
 ]

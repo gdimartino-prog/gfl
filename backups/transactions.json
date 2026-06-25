@@ -2685,7 +2685,7 @@
     "fromTeam": "Kigali",
     "toTeam": "FA",
     "owner": "Bill Matsikoudis",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 0,
@@ -2693,6 +2693,6 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-06-24T02:17:24.445Z",
-    "touch_id": "Bill Matsikoudis"
+    "touch_id": "commissioner"
   }
 ]
