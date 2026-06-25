@@ -44,7 +44,7 @@ function DraftBoardContent() {
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
   const [yearFilter, setYearFilter] = useState('All');
-  const [draftStartDate, setDraftStartDate] = useState<Date | null>(null);
+  const [draftStartMs, setDraftStartMs] = useState<number | null>(null);
   const [teamFilter, setTeamFilter] = useState('All Teams');
   const [roundFilter, setRoundFilter] = useState('All');
   const [draftTypeFilter, setDraftTypeFilter] = useState<'free_agent' | 'rookie' | 'all'>('free_agent');
@@ -67,6 +67,10 @@ function DraftBoardContent() {
   const hasCalledExpireRef = useRef(false);
   const onClockRowRef = useRef<HTMLTableRowElement>(null);
   const [confirm, ConfirmDialog] = useConfirm();
+
+  // Stable Date object derived from the numeric timestamp so effects don't
+  // re-run on every loadData call (new Date() creates a new reference each time).
+  const draftStartDate = useMemo(() => draftStartMs ? new Date(draftStartMs) : null, [draftStartMs]);
 
   // Admin/undo state — 'admin' covers league commissioners, 'superuser' covers the env-var superuser
   const userRole = (session?.user as { role?: string })?.role;
@@ -163,9 +167,9 @@ const handleUndoMyPick = async () => {
         const dStart = rRes.find((r: {setting: string; value: string}) => r.setting === 'draft_start_date');
         if (dStart?.value) {
           const d = new Date(dStart.value);
-          setDraftStartDate(isNaN(d.getTime()) ? null : d);
+          setDraftStartMs(isNaN(d.getTime()) ? null : d.getTime());
         } else {
-          setDraftStartDate(null);
+          setDraftStartMs(null);
         }
       }
     } catch (err) { 
@@ -280,13 +284,13 @@ const handleUndoMyPick = async () => {
     // the previous pick's deadline so late submissions don't leak time into
     // the active clock). Fall back to scheduledAt or previous pickedAt.
     const apiClockStart = (onClockPick as { effectiveClockStart?: string | null }).effectiveClockStart;
-    const draftStartMs = draftStartDate ? draftStartDate.getTime() : 0;
+    const draftFloorMs = draftStartDate ? draftStartDate.getTime() : 0;
     const rawClockStartMs = apiClockStart
       ? new Date(apiClockStart).getTime()
       : scheduledAtMs && scheduledAtMs <= Date.now()
         ? scheduledAtMs
         : previousPick?.timestamp ? new Date(previousPick.timestamp).getTime() : Date.now();
-    const clockStartMs = (draftStartMs > 0 && rawClockStartMs < draftStartMs) ? draftStartMs : rawClockStartMs;
+    const clockStartMs = (draftFloorMs > 0 && rawClockStartMs < draftFloorMs) ? draftFloorMs : rawClockStartMs;
     const expiryTime = clockStartMs + limitMs;
 
     const computeAndSet = () => {
@@ -317,9 +321,10 @@ const handleUndoMyPick = async () => {
   useEffect(() => {
     if (onClockPick || !draftStartDate) { setPreDraftTimeLeft(''); return; }
     const target = draftStartDate.getTime();
+    let fired = false;
     const tick = () => {
       const diff = target - Date.now();
-      if (diff <= 0) { setPreDraftTimeLeft('STARTING'); loadData(true); return; }
+      if (diff <= 0) { setPreDraftTimeLeft('STARTING'); if (!fired) { fired = true; loadData(true); } return; }
       const d = Math.floor(diff / 86400000);
       const h = Math.floor((diff / 3600000) % 24);
       const m = Math.floor((diff / 60000) % 60);
