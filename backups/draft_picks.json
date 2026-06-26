@@ -24642,6 +24642,24 @@
     "touch_id": "cron-3strike"
   },
   {
+    "id": 2642,
+    "leagueId": 1,
+    "year": 2026,
+    "round": 18,
+    "pick": 314,
+    "draftType": "free_agent",
+    "originalTeamId": 51,
+    "currentTeamId": 51,
+    "playerId": 24300,
+    "scheduledAt": null,
+    "pickedAt": "2026-06-25T12:25:09.750Z",
+    "passed": false,
+    "warningSent": false,
+    "selectedPlayerName": "DL - Ruke Orhorhoro",
+    "touch_dt": "2026-04-03T22:57:34.352Z",
+    "touch_id": "George Di Martino"
+  },
+  {
     "id": 2640,
     "leagueId": 1,
     "year": 2026,
@@ -24676,24 +24694,6 @@
     "selectedPlayerName": "TE - Brevyn Spann-Ford",
     "touch_dt": "2026-04-03T22:57:34.352Z",
     "touch_id": "Bill Matsikoudis"
-  },
-  {
-    "id": 2642,
-    "leagueId": 1,
-    "year": 2026,
-    "round": 18,
-    "pick": 314,
-    "draftType": "free_agent",
-    "originalTeamId": 51,
-    "currentTeamId": 51,
-    "playerId": null,
-    "scheduledAt": null,
-    "pickedAt": "2026-06-19T00:00:08.774Z",
-    "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": "SKIPPED (3-strike rule)",
-    "touch_dt": "2026-04-03T22:57:34.352Z",
-    "touch_id": "cron-3strike"
   },
   {
     "id": 2644,

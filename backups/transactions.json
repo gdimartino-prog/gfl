@@ -2694,5 +2694,24 @@
     "conditionalDetails": null,
     "touch_dt": "2026-06-24T02:17:24.445Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 214,
+    "leagueId": 1,
+    "date": "2026-06-25T11:09:34.054Z",
+    "type": "WAIVE",
+    "description": "DE - Malcolm Koonce",
+    "fromTeam": "Newark Bay",
+    "toTeam": "FA",
+    "owner": "George Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-06-25T11:09:34.059Z",
+    "touch_id": "commissioner"
   }
 ]
