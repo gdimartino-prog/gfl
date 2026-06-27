@@ -9943,5 +9943,86 @@
     "team": "NBT",
     "action": "DRAFT_PICK",
     "details": "R18 #314: DL - Ruke Orhorhoro"
+  },
+  {
+    "id": 1106,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T01:38:27.262Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "WAIVE",
+    "details": "WR - Olamide Zaccheaus"
+  },
+  {
+    "id": 1107,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T01:39:27.661Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "TRADE",
+    "details": "Fur Peace ↔ LE"
+  },
+  {
+    "id": 1108,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T01:39:42.848Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1109,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T01:42:12.559Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R12 #199: C - Nick Moore"
+  },
+  {
+    "id": 1110,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T01:42:49.207Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R13 #218: WR - Brandin Cooks"
+  },
+  {
+    "id": 1111,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T01:43:16.084Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R14 #235: CB - Kaiir Elam"
+  },
+  {
+    "id": 1112,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T01:44:12.973Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "WAIVE",
+    "details": "S - Billy Bowman Jr."
+  },
+  {
+    "id": 1113,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T01:44:31.293Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "DRAFT_PICK",
+    "details": "R15 #254: RB/KR - Michael Carter"
+  },
+  {
+    "id": 1114,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T01:48:23.559Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "DRAFT_PICK",
+    "details": "R27 #474: C - Hogan Hatten"
   }
 ]
