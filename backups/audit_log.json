@@ -10024,5 +10024,86 @@
     "team": "CK",
     "action": "DRAFT_PICK",
     "details": "R27 #474: C - Hogan Hatten"
+  },
+  {
+    "id": 1115,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T11:38:14.642Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #218 marked Done"
+  },
+  {
+    "id": 1116,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T11:38:40.036Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #215 marked Done"
+  },
+  {
+    "id": 1117,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T11:38:56.599Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #216 deleted (reverted 1 pick transfer(s))"
+  },
+  {
+    "id": 1118,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T11:38:59.174Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #217 deleted"
+  },
+  {
+    "id": 1119,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T11:40:42.322Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1120,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T11:41:50.855Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1121,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T11:42:20.395Z",
+    "coach": "George Di Martino",
+    "team": "FPR",
+    "action": "TRADE",
+    "details": "Fur Peace ↔ LE"
+  },
+  {
+    "id": 1122,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T11:42:50.795Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #220 marked Done"
+  },
+  {
+    "id": 1123,
+    "leagueId": 1,
+    "timestamp": "2026-06-27T11:42:51.874Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #219 marked Done"
   }
 ]

@@ -798,7 +798,7 @@
     "touch_id": "VV"
   },
   {
-    "id": 154,
+    "id": 155,
     "leagueId": 1,
     "year": 2027,
     "draftType": "free_agent",
@@ -806,7 +806,19 @@
     "originalTeamId": 45,
     "currentTeamId": 48,
     "history": [],
-    "touch_dt": "2026-06-27T01:39:27.628Z",
-    "touch_id": "FPR"
+    "touch_dt": "2026-06-27T11:42:19.836Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 156,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 6,
+    "originalTeamId": 45,
+    "currentTeamId": 48,
+    "history": [],
+    "touch_dt": "2026-06-27T11:42:19.928Z",
+    "touch_id": "VV"
   }
 ]
