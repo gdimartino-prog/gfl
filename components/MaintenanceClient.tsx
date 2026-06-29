@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useConfirm } from "@/components/ConfirmDialog";
 import Link from "next/link";
-import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList, Bell, Search } from "lucide-react";
+import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList, Bell, Search, Eye } from "lucide-react";
 
 type RuleRow = { setting: string; value: string; desc: string | null; year: number | null };
 const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
@@ -727,6 +727,35 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   return (
     <div className="space-y-10">
       <ConfirmDialog />
+
+      {/* Quick Links */}
+      <div className="flex flex-wrap gap-4">
+        <Link
+          href="/nfl-draft"
+          className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-5 py-4 shadow-sm hover:shadow-md hover:border-blue-300 transition-all group"
+        >
+          <div className="bg-blue-50 p-2 rounded-xl text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+            <ClipboardList size={18} />
+          </div>
+          <div>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Rookie Draft</p>
+            <p className="text-sm font-black uppercase italic text-slate-900">NFL Draft →</p>
+          </div>
+        </Link>
+        <Link
+          href="/scout"
+          className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl px-5 py-4 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all group"
+        >
+          <div className="bg-emerald-50 p-2 rounded-xl text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+            <Eye size={18} />
+          </div>
+          <div>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Player Evaluation</p>
+            <p className="text-sm font-black uppercase italic text-slate-900">Scout →</p>
+          </div>
+        </Link>
+      </div>
+
       {/* File Upload Section */}
       <form onSubmit={handleSubmit}>
         <label
