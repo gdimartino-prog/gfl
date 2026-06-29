@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       .where(and(eq(rules.rule, `draft_complete_${draftYear}`), eq(rules.leagueId, leagueId), isNull(rules.year)))
       .limit(1);
     if (completeRow[0]?.value === '1') {
-      return NextResponse.json({ error: `The ${draftYear} draft is closed. No further picks are accepted.` }, { status: 400 });
+      return NextResponse.json({ error: `The ${draftYear} draft is closed. Free agency is now open — pick up players on the Transactions page.` }, { status: 400 });
     }
 
     // 1. Find the draft pick row by overall pick number, scoped to the current draft year
