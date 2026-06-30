@@ -10105,5 +10105,14 @@
     "team": "VV",
     "action": "TRANSACTION_STATUS",
     "details": "Transaction #219 marked Done"
+  },
+  {
+    "id": 1124,
+    "leagueId": 1,
+    "timestamp": "2026-06-29T13:16:11.448Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
   }
 ]
