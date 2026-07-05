@@ -24,7 +24,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             rawInput.toLowerCase() === superUsername.toLowerCase() &&
             password === superPassword
           ) {
-            logSystemEvent('Administrator', 'System', 'LOGIN', 'Superuser accessed Front Office');
+            await logSystemEvent('Administrator', 'System', 'LOGIN', 'Superuser accessed Front Office');
             return { id: 'SUPER', name: 'Administrator', team: 'System', role: 'superuser' };
           }
 
@@ -36,7 +36,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             rawInput.toLowerCase() === demoUsername.toLowerCase() &&
             password === demoPassword
           ) {
-            logSystemEvent('Demo Commissioner', 'VV', 'LOGIN', 'Demo user accessed Front Office', 1);
+            await logSystemEvent('Demo Commissioner', 'VV', 'LOGIN', 'Demo user accessed Front Office', 1);
             return { id: 'VV', name: 'Demo Commissioner', team: 'Vico', role: 'demo' };
           }
 
@@ -121,6 +121,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.team = user.team;
         token.leagueId = (user as { leagueId?: number }).leagueId ?? 1;
       }
+      // Normalize superuser name — stale tokens may have the raw env-var value
+      if (token.id === 'SUPER') token.name = 'Administrator';
       return token;
     },
     async session({ session, token }) {

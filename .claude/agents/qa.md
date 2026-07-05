@@ -64,6 +64,7 @@ Check changed files for:
 - Click every button, link, tab, filter, and dropdown visible on the page
 - Fill in and submit every form — test both valid and invalid inputs
 - Check `browser_console_messages` after each page for JS errors
+- **API loop check (every page)**: After the page has settled (~5 seconds), call `browser_network_requests` and count repeat calls to the same API endpoint. If any endpoint appears more than 3 times, it is an infinite re-render loop — FAIL with the endpoint name and call count. This catches `useEffect` dependency bugs that make buttons permanently disabled via `isRefreshing`.
 - Report every FAIL with: page, action taken, expected result, actual result
 - After testing, delete any snapshot or temp files created during the session
 
@@ -174,6 +175,7 @@ Check changed files for:
 - [ ] Use player search box — type a name — verify filters picks
 - [ ] If logged in as the on-clock team: fill in pick entry form and submit — verify pick recorded and next team goes on clock
 - [ ] Verify "Finalized" badge appears on completed picks
+- [ ] **API loop check**: Use `browser_network_requests` after the page has been open for 10 seconds. Count how many times `/api/draft-picks`, `/api/teams`, `/api/rules`, and `/api/rosters/counts` appear. If any endpoint was called more than 3 times, that is an infinite re-render loop — FAIL and report the count.
 
 #### `/maintenance` (admin only — log in as vico or admin)
 - [ ] Page loads with upload section

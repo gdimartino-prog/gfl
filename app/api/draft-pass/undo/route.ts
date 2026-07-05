@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
     const currentTeams = alias(teams, 'currentTeams');
 
     const callerTeamshort = (session.user as { id?: string }).id || '';
+    const callerName = (session.user as { name?: string }).name || callerTeamshort;
     const role = (session.user as { role?: string }).role || '';
     const isSuperuser = role === 'superuser' || role === 'admin';
 
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
     }
 
     revalidateTag('draft-picks', 'max');
-    await logSystemEvent(callerTeamshort, pick.currentOwnerShort || '', 'DRAFT_UNPASS', `R${pick.round} #${overallPick}: UNPASS`, leagueId);
+    await logSystemEvent(callerName, pick.currentOwnerShort || '', 'DRAFT_UNPASS', `R${pick.round} #${overallPick}: UNPASS`, leagueId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

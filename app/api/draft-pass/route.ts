@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const { overallPick, coachName } = await req.json();
+    const { overallPick } = await req.json();
     if (!overallPick) return NextResponse.json({ error: 'overallPick required' }, { status: 400 });
 
     const leagueId = await getLeagueId();
@@ -56,6 +56,7 @@ export async function POST(req: NextRequest) {
 
     // Verify caller owns this pick (checked before any early-return so ownership is always enforced)
     const callerTeamshort = (session.user as { id?: string }).id || '';
+    const callerName = (session.user as { name?: string }).name || callerTeamshort;
     const role = (session.user as { role?: string }).role || '';
     const isSuperuser = role === 'superuser' || role === 'admin';
     if (!isSuperuser && callerTeamshort.toLowerCase() !== (pick.currentOwnerShort || '').toLowerCase()) {
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
     }
 
     await revalidateTag('draft-picks', 'max');
-    await logSystemEvent(callerTeamshort || coachName || '', pick.currentOwnerShort || '', 'DRAFT_PASS', `R${pick.round} #${overallPick}: PASSED`, leagueId);
+    await logSystemEvent(callerName, pick.currentOwnerShort || '', 'DRAFT_PASS', `R${pick.round} #${overallPick}: PASSED`, leagueId);
 
     // Build notification context — same pattern as draft-selection
     const allPicks = await db.select({
