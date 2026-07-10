@@ -568,7 +568,7 @@ export default function FreeAgentsPage() {
   }, [sessionUserId]);
 
   useEffect(() => {
-    fetch('/api/players?team=FA&scouting=1')
+    fetch('/api/free-agents')
       .then(r => r.json())
       .then((data: FaPlayer[]) => {
         setPlayers(Array.isArray(data) ? data : []);

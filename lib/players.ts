@@ -1,7 +1,7 @@
 
 import { db } from './db';
 import { players, teams } from '@/schema';
-import { eq, sql } from 'drizzle-orm';
+import { eq, isNull, and, sql } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
 
 export type Player = {
@@ -75,6 +75,33 @@ async function _getPlayersWithScouting(leagueId: number) {
   return rows.map(p => mapRow(p as any));
 }
 
+// FA-only query with scouting — filtered at DB level (~1.4MB, within unstable_cache limits).
+// Scouting keys redundant with top-level fields (salary, durability) and unused by the
+// FA page (years, uniform, pressure) are stripped to reduce payload size.
+const FA_SCOUTING_STRIP = new Set(['years', 'salary', 'uniform', 'pressure', 'durability']);
+const _getFAPlayersWithScouting = unstable_cache(
+  async (leagueId: number) => {
+    const rows = await db.select({ ...sharedSelect, scouting: players.scouting })
+      .from(players)
+      .leftJoin(teams, eq(players.teamId, teams.id))
+      .where(and(eq(players.leagueId, leagueId), isNull(players.teamId)));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return rows.map((p: any) => {
+      const mapped = mapRow(p);
+      if (mapped.scouting && typeof mapped.scouting === 'object') {
+        const trimmed: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(mapped.scouting as Record<string, unknown>)) {
+          if (!FA_SCOUTING_STRIP.has(k)) trimmed[k] = v;
+        }
+        mapped.scouting = trimmed;
+      }
+      return mapped;
+    });
+  },
+  ['players-fa-scouting-v1'],
+  { revalidate: 60, tags: ['players', 'players-fa'] }
+);
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getPlayers(leagueId: number = 1): Promise<any[]> {
   try {
@@ -91,6 +118,16 @@ export async function getPlayersWithScouting(leagueId: number = 1): Promise<any[
     return await _getPlayersWithScouting(leagueId);
   } catch (err) {
     console.error('getPlayersWithScouting Error:', err);
+    return [];
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getFAPlayersWithScouting(leagueId: number = 1): Promise<any[]> {
+  try {
+    return await _getFAPlayersWithScouting(leagueId);
+  } catch (err) {
+    console.error('getFAPlayersWithScouting Error:', err);
     return [];
   }
 }

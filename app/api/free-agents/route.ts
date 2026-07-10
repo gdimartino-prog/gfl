@@ -1,27 +1,23 @@
 import { NextResponse } from 'next/server';
-import { getPlayersWithScouting } from '@/lib/players';
+import { getFAPlayersWithScouting } from '@/lib/players';
 import { executeFreeAgentMove } from '@/lib/freeAgency';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
+import { revalidateTag } from 'next/cache';
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
     const leagueId = await getLeagueId();
-    const allPlayers = await getPlayersWithScouting(leagueId);
-
-    const freeAgents = allPlayers.filter(
-      (p) => p.team?.trim().toUpperCase() === 'FA'
-    );
-
+    const freeAgents = await getFAPlayersWithScouting(leagueId);
     return NextResponse.json(freeAgents, {
-      headers: { 'Cache-Control': 'private, max-age=300, stale-while-revalidate=60' },
+      headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' },
     });
   } catch (error: unknown) {
     console.error('API Error (Free Agents):', error instanceof Error ? error.message : String(error));
-    return NextResponse.json(
-      { error: 'Failed to fetch free agents', details: error instanceof Error ? error.message : 'Internal Server Error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch free agents' }, { status: 500 });
   }
 }
 
@@ -45,6 +41,8 @@ export async function POST(req: Request) {
 
     const leagueId = await getLeagueId();
     await executeFreeAgentMove(team, addIdentity, dropIdentity, leagueId);
+    revalidateTag('players', 'max');
+    revalidateTag('players-fa', 'max');
 
     return NextResponse.json({ success: true });
   } catch (err: unknown) {

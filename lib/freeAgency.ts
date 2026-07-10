@@ -38,10 +38,10 @@ export async function executeFreeAgentMove(
   if (!dropPlayer[0]) throw new Error('Player to waive not found');
   if (dropPlayer[0].teamId !== teamId) throw new Error('Player to waive does not belong to this team');
 
-  // Execute both updates
+  const now = new Date();
   await Promise.all([
-    db.update(players).set({ teamId, touch_id: teamshort }).where(eq(players.id, addPlayer[0].id)),
-    db.update(players).set({ teamId: null, touch_id: 'FA' }).where(eq(players.id, dropPlayer[0].id)),
+    db.update(players).set({ teamId, touch_id: teamshort, touch_dt: now }).where(eq(players.id, addPlayer[0].id)),
+    db.update(players).set({ teamId: null, touch_id: 'FA', touch_dt: now }).where(eq(players.id, dropPlayer[0].id)),
   ]);
 
   return { success: true };
