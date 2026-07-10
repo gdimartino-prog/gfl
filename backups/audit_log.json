@@ -10114,5 +10114,32 @@
     "team": "admin",
     "action": "IMPORT_PLAYERS",
     "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1125,
+    "leagueId": 1,
+    "timestamp": "2026-07-09T20:09:53.526Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Fur Peace"
+  },
+  {
+    "id": 1126,
+    "leagueId": 1,
+    "timestamp": "2026-07-09T23:41:41.816Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #221 marked Done"
+  },
+  {
+    "id": 1127,
+    "leagueId": 1,
+    "timestamp": "2026-07-09T23:42:48.908Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #222 marked Done"
   }
 ]

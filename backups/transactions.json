@@ -2792,5 +2792,43 @@
     "conditionalDetails": null,
     "touch_dt": "2026-06-27T11:42:20.319Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 221,
+    "leagueId": 1,
+    "date": "2026-07-09T20:09:53.503Z",
+    "type": "TRADE",
+    "description": "Traded to Fur Peace: Courtland Sutton - WR, Divine Deablo - ILB, Kenny Moore II - CB/KR",
+    "fromTeam": "Crimson",
+    "toTeam": "Fur Peace",
+    "owner": "Bob Glade",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-07-09T20:09:53.501Z",
+    "touch_id": "commissioner"
+  },
+  {
+    "id": 222,
+    "leagueId": 1,
+    "date": "2026-07-09T20:09:53.520Z",
+    "type": "TRADE",
+    "description": "Traded to Crimson: Alec Pierce - WR, Daiyan Henley - ILB, DeMarvion Overshown - LB",
+    "fromTeam": "Fur Peace",
+    "toTeam": "Crimson",
+    "owner": "Bob Glade",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-07-09T20:09:53.518Z",
+    "touch_id": "commissioner"
   }
 ]
