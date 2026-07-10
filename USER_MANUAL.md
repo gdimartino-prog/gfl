@@ -482,3 +482,86 @@ The **Commissioner Panel** is a special area for the league commissioner to mana
 *   **Schedule Manager:** Add or edit games for any season.
 *   **Season Awards:** Set playoffs, division winners, and champions per season.
 *   **League Settings:** Edit rules and configuration values like `cuts_year`, `draft_year`, roster limits, and deadlines. Draft clock durations per round are also configured here (`draft_clock_round_1`, `draft_clock_round_3`, etc.).
+
+---
+
+## 17. Automated Notifications: What to Expect
+
+The GFL Front Office sends automated **email and WhatsApp** alerts throughout the year so you never miss a deadline or a key league update. You don't need to do anything to receive these — they go out to the full league group automatically.
+
+Here's a complete breakdown of every notification the system sends and when to expect it.
+
+---
+
+### 17.1. Weekly Schedule Update
+
+**When:** Once per week during the active GFL season (fires automatically when the NFL regular season begins).
+
+**What's included:**
+
+*   The current week's matchups with scores for completed games
+*   Any games flagged **🚨 PAST DUE** (scores not yet entered for a prior week)
+*   A reminder of the next Sunday 1:00 PM ET score submission deadline
+*   Full league standings by division
+
+**Example subject line:** `GFL Update: 2026 Week 4`
+
+> **Note:** During the NFL preseason and offseason, this notification is automatically suppressed — you won't receive it until real GFL games are due.
+
+---
+
+### 17.2. Roster Cuts / Pullback Alert
+
+**When:** Periodically in the weeks leading up to the roster cuts deadline (configured by the commissioner).
+
+**What's included:**
+
+*   A list of every franchise that hasn't yet completed their **Protected** and **Pullback** submissions
+*   Each team's current counts vs. the required totals (e.g., 25/30 Protected, 6/8 Pullback)
+*   Time remaining until the deadline
+*   A direct link to the Cuts page
+
+**Example subject line:** `URGENT: GFL Roster Requirements (3d 12h remaining)`
+
+Once every franchise has submitted their complete selections, this alert stops firing automatically.
+
+> **Tip:** You can check your own submission status at any time on the [Roster Cuts](#8-roster-cuts-preparing-for-the-new-season) page — teams shown in **green** are complete.
+
+---
+
+### 17.3. Free Agent Draft Cutoff Notifications
+
+**When:** After the last pick is made in the free agent draft, a **48-hour late selection window** opens. Notifications fire at these milestones during that window:
+
+| Milestone | When it fires |
+|-----------|---------------|
+| **Window Open** | Immediately when the 48-hour window begins |
+| **24 Hours Left** | 24 hours before the window closes |
+| **12 Hours Left** | 12 hours before the window closes |
+| **6 Hours Left** | 6 hours before the window closes |
+| **1 Hour Left** | 1 hour before the window closes |
+
+**What's included:**
+
+*   The exact deadline date and time (Eastern Time)
+*   A reminder that any team with a **SKIPPED** pick can still submit a late selection before the window closes
+
+**Example subject line:** `GFL Draft: 24 Hours Left for Late Selections`
+
+After the window closes, the draft is considered complete and no further late selections are accepted.
+
+> **Tip:** If you were skipped during the draft, head to the [Draft Board](#6-the-draft-board-where-champions-are-made) and look for your pick — you'll see a **"Late Selection"** button next to any pick you're still eligible to make.
+
+---
+
+### 17.4. Individual Pick & Transaction Notifications
+
+In addition to the automated league-wide updates above, real-time alerts fire whenever a specific action happens:
+
+| Event | Who it goes to |
+|-------|---------------|
+| A draft pick is made | Full league (email + WhatsApp) |
+| A pick is passed | Full league (email + WhatsApp) |
+| A transaction is submitted (add/drop/trade/IR) | Full league (email + WhatsApp) |
+
+These fire immediately when the action occurs, not on a schedule.

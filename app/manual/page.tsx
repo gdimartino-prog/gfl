@@ -51,6 +51,7 @@ export default async function ManualPage() {
     { href: '#14-constitution--rules-know-the-law', label: '14. Constitution & Rules' },
     { href: '#15-franchise-settings-your-profile-and-password', label: '15. Franchise Settings' },
     { href: '#16-commissioner-panel-league-management', label: '16. Commissioner Panel' },
+    { href: '#17-automated-notifications-what-to-expect', label: '17. Notifications' },
   ];
 
   return (
