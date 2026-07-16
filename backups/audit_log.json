@@ -10159,5 +10159,14 @@
     "team": "LBI",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1130,
+    "leagueId": 1,
+    "timestamp": "2026-07-16T00:15:26.777Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded OLD_BRIDGE.COA"
   }
 ]

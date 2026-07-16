@@ -1,17 +1,5 @@
 [
   {
-    "id": 81,
-    "leagueId": 2,
-    "name": "Old Bridge",
-    "coach": "James Mitchell",
-    "teamshort": "OBG",
-    "nickname": "Generals",
-    "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "jmitchell@demo.com"
-  },
-  {
     "id": 82,
     "leagueId": 2,
     "name": "Las Vegas",
@@ -348,18 +336,6 @@
     "email": "matsikoudis@comcast.net"
   },
   {
-    "id": 52,
-    "leagueId": 1,
-    "name": "Old Bridge",
-    "coach": "Ed Casserly",
-    "teamshort": "OBG",
-    "nickname": "Gamblers",
-    "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-735-6134",
-    "email": "edcas13@yahoo.com"
-  },
-  {
     "id": 53,
     "leagueId": 1,
     "name": "Satriale",
@@ -396,6 +372,18 @@
     "email": "fullen.michael@gmail.com"
   },
   {
+    "id": 81,
+    "leagueId": 2,
+    "name": "Old Bridge",
+    "coach": "James Mitchell",
+    "teamshort": "OBG",
+    "nickname": "Generals",
+    "isCommissioner": false,
+    "status": "active",
+    "mobile": null,
+    "email": "jmitchell@demo.com"
+  },
+  {
     "id": 58,
     "leagueId": 1,
     "name": "Vico",
@@ -406,6 +394,18 @@
     "status": "active",
     "mobile": "+1-646-296-1164",
     "email": "gdimartino@gmail.com"
+  },
+  {
+    "id": 52,
+    "leagueId": 1,
+    "name": "Old Bridge",
+    "coach": "Ed Casserly",
+    "teamshort": "OBG",
+    "nickname": "Gamblers",
+    "isCommissioner": false,
+    "status": "active",
+    "mobile": "+1-732-735-6134",
+    "email": "edcas13@yahoo.com"
   },
   {
     "id": 60,
