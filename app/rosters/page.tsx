@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import PlayerCard from '@/components/PlayerCard';
+import NflStatsTab from '@/components/NflStatsTab';
 import TeamSelector from '@/components/TeamSelector';
 import { useTeam } from '@/context/TeamContext';
 import { useSession } from "next-auth/react";
@@ -46,7 +47,7 @@ function RosterContent() {
   const [rules, setRules] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [sortBy, setSortBy] = useState<'default' | 'name' | 'pos'>('default');
-  const [activeTab, setActiveTab] = useState<'ROSTER' | 'HISTORY'>('ROSTER');
+  const [activeTab, setActiveTab] = useState<'ROSTER' | 'HISTORY' | 'STATS'>('ROSTER');
   const [viewingPlayer, setViewingPlayer] = useState<Player | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [tradeBlock, setTradeBlock] = useState<Set<string>>(new Set());
@@ -541,11 +542,17 @@ function RosterContent() {
         >
           Personnel & Depth
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab('HISTORY')}
           className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'HISTORY' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}
         >
           Draft History
+        </button>
+        <button
+          onClick={() => setActiveTab('STATS')}
+          className={`px-8 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'STATS' ? 'bg-slate-900 text-white shadow-xl' : 'text-slate-400 hover:text-slate-900'}`}
+        >
+          NFL Stats
         </button>
       </div>
 
@@ -744,6 +751,17 @@ function RosterContent() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* NFL STATS CONTENT */}
+      {activeTab === 'STATS' && selectedTeam && (
+        <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-8 pb-16">
+          <div className="mb-6 border-b border-slate-100 pb-6">
+            <h2 className="font-black uppercase tracking-tighter text-xl">NFL Season Stats</h2>
+            <p className="text-xs text-slate-400 mt-1">Live from ESPN · Data may be incomplete for players not found by name</p>
+          </div>
+          <NflStatsTab teamshort={selectedTeam} />
         </div>
       )}
     </div>
