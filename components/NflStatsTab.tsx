@@ -223,6 +223,7 @@ function QbTable({ players, isCommissioner, onLink }: TableProps) {
         <thead className="border-b border-slate-100 bg-slate-50">
           <tr>
             <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="completions" {...s}>Cmp</Th>
             <Th statKey="passingAttempts" {...s}>Att</Th>
             <Th statKey="completionPct" {...s}>Cmp%</Th>
@@ -241,6 +242,7 @@ function QbTable({ players, isCommissioner, onLink }: TableProps) {
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'QB'} /></td>
+              <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'completions')} />
               <Td v={n(p.stats, 'passingAttempts')} />
               <Td v={pct(p.stats, 'completionPct')} />
@@ -272,6 +274,7 @@ function RbTable({ players, isCommissioner, onLink }: TableProps) {
         <thead className="border-b border-slate-100 bg-slate-50">
           <tr>
             <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="rushingAttempts" {...s}>Rush Att</Th>
             <Th statKey="rushingYards" {...s}>Rush Yds</Th>
             <Th statKey="yardsPerRushAttempt" {...s}>YPC</Th>
@@ -287,6 +290,7 @@ function RbTable({ players, isCommissioner, onLink }: TableProps) {
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'RB'} /></td>
+              <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'rushingAttempts')} />
               <Td v={n(p.stats, 'rushingYards')} />
               <Td v={n(p.stats, 'yardsPerRushAttempt', 1)} />
@@ -315,6 +319,7 @@ function WrTeTable({ players, label, isCommissioner, onLink }: TableProps & { la
         <thead className="border-b border-slate-100 bg-slate-50">
           <tr>
             <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="receivingTargets" {...s}>Tgt</Th>
             <Th statKey="receptions" {...s}>Rec</Th>
             <Th statKey="receivingYards" {...s}>Rec Yds</Th>
@@ -330,6 +335,7 @@ function WrTeTable({ players, label, isCommissioner, onLink }: TableProps & { la
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'WR'} /></td>
+              <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'receivingTargets')} />
               <Td v={n(p.stats, 'receptions')} />
               <Td v={n(p.stats, 'receivingYards')} />
@@ -359,6 +365,7 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
           <tr>
             <ThL statKey="name" {...s}>Player</ThL>
             <ThL statKey="defPos" {...s}>Pos</ThL>
+            <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="totalTackles" {...s}>Tackles</Th>
             <Th statKey="soloTackles" {...s}>Solo</Th>
             <Th statKey="assistedTackles" {...s}>Ast</Th>
@@ -375,6 +382,7 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos={p.defense || p.position || 'DEF'} /></td>
+              <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'totalTackles')} />
               <Td v={n(p.stats, 'soloTackles')} />
               <Td v={n(p.stats, 'assistedTackles')} />
@@ -392,36 +400,31 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
   );
 }
 
-function OlTable({ players }: { players: PlayerStat[] }) {
+function OlTable({ players, isCommissioner, onLink }: TableProps) {
+  const [sort, setSort] = useState<SortState>({ key: 'gamesPlayed', dir: 'desc' });
+  const sorted = useSortedPlayers(players, sort);
   if (!players.length) return null;
+  const s = { sort, setSort };
   return (
     <>
       <SectionHeader title="Offensive Line" />
-      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="border-b border-slate-100 bg-slate-50">
-            <tr><ThL>Player</ThL><ThL>Pos</ThL><ThL>Note</ThL></tr>
-          </thead>
-          <tbody>
-            {players.map((p) => (
-              <tr key={p.id} className="border-b border-slate-50">
-                <td className="py-2 px-3 font-bold text-slate-800 text-sm">
-                  <a
-                    href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' NFL')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:text-blue-600 transition-colors"
-                  >
-                    {p.name}
-                  </a>
-                </td>
-                <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'OL'} /></td>
-                <td className="py-2 px-3 text-xs text-slate-400 italic">Individual OL stats not tracked in NFL</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <TableWrap>
+        <thead className="border-b border-slate-100 bg-slate-50">
+          <tr>
+            <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <Th statKey="gamesPlayed" {...s}>GP</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map((p) => (
+            <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+              <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
+              <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'OL'} /></td>
+              <Td v={n(p.stats, 'gamesPlayed')} />
+            </tr>
+          ))}
+        </tbody>
+      </TableWrap>
     </>
   );
 }
@@ -438,6 +441,7 @@ function KickerTable({ players, isCommissioner, onLink }: TableProps) {
         <thead className="border-b border-slate-100 bg-slate-50">
           <tr>
             <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="fieldGoalsMade" {...s}>FGM</Th>
             <Th statKey="fieldGoalAttempts" {...s}>FGA</Th>
             <Th statKey="fieldGoalPct" {...s}>FG%</Th>
@@ -452,6 +456,7 @@ function KickerTable({ players, isCommissioner, onLink }: TableProps) {
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos="K" /></td>
+              <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'fieldGoalsMade')} />
               <Td v={n(p.stats, 'fieldGoalAttempts')} />
               <Td v={pct(p.stats, 'fieldGoalPct')} />
@@ -479,6 +484,7 @@ function PunterTable({ players, isCommissioner, onLink }: TableProps) {
         <thead className="border-b border-slate-100 bg-slate-50">
           <tr>
             <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="punts" {...s}>Punts</Th>
             <Th statKey="grossAvgPuntYards" {...s}>Avg</Th>
             <Th statKey="netAvgPuntYards" {...s}>Net Avg</Th>
@@ -492,6 +498,7 @@ function PunterTable({ players, isCommissioner, onLink }: TableProps) {
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos="P" /></td>
+              <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'punts')} />
               <Td v={n(p.stats, 'grossAvgPuntYards', 1)} />
               <Td v={n(p.stats, 'netAvgPuntYards', 1)} />
@@ -758,7 +765,7 @@ export default function NflStatsTab({ teamshort }: Props) {
           <RbTable players={groups.RB} isCommissioner={isCommissioner} onLink={setLinking} />
           <WrTeTable players={groups.WR} label="Wide Receivers" isCommissioner={isCommissioner} onLink={setLinking} />
           <WrTeTable players={groups.TE} label="Tight Ends" isCommissioner={isCommissioner} onLink={setLinking} />
-          <OlTable players={groups.OL} />
+          <OlTable players={groups.OL} isCommissioner={isCommissioner} onLink={setLinking} />
           <DefTable players={groups.DEF} isCommissioner={isCommissioner} onLink={setLinking} />
           <KickerTable players={groups.K} isCommissioner={isCommissioner} onLink={setLinking} />
           <PunterTable players={groups.P} isCommissioner={isCommissioner} onLink={setLinking} />

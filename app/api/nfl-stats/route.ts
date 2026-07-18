@@ -6,12 +6,6 @@ import { eq, and } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { findEspnId, getEspnSeasonStats } from '@/lib/espn-stats';
 
-const OL_POSITIONS = new Set(['OL', 'OT', 'OG', 'C', 'G', 'T']);
-
-function isOL(p: { offense?: string | null; defense?: string | null; special?: string | null; position?: string | null }): boolean {
-  const pos = (p.offense || p.defense || p.special || p.position || '').toUpperCase();
-  return OL_POSITIONS.has(pos);
-}
 
 export async function GET(req: NextRequest) {
   const [session, leagueId] = await Promise.all([auth(), getLeagueId()]);
@@ -47,11 +41,8 @@ export async function GET(req: NextRequest) {
 
   if (!roster.length) return NextResponse.json([], { headers: { 'Cache-Control': 'private, max-age=300' } });
 
-  const skillPlayers = roster.filter((p) => !isOL(p));
-  const olPlayers = roster.filter((p) => isOL(p));
-
-  const skillResults = await Promise.all(
-    skillPlayers.map(async (player) => {
+  const results = await Promise.all(
+    roster.map(async (player) => {
       // Use stored ESPN ID if available; otherwise search and persist it
       let espnId = player.espnId || null;
       if (!espnId) {
@@ -69,9 +60,7 @@ export async function GET(req: NextRequest) {
     }),
   );
 
-  const olResults = olPlayers.map((p) => ({ ...p, espnId: null, stats: null }));
-
-  return NextResponse.json([...skillResults, ...olResults], {
+  return NextResponse.json(results, {
     headers: { 'Cache-Control': 'private, max-age=300' },
   });
 }
