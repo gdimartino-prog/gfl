@@ -408,23 +408,25 @@ function OlTable({ players, isCommissioner, onLink }: TableProps) {
   return (
     <>
       <SectionHeader title="Offensive Line" />
-      <TableWrap>
-        <thead className="border-b border-slate-100 bg-slate-50">
-          <tr>
-            <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
-            <Th statKey="gamesPlayed" {...s}>GP</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {sorted.map((p) => (
-            <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-              <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
-              <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'OL'} /></td>
-              <Td v={n(p.stats, 'gamesPlayed')} />
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm inline-block min-w-[320px]">
+        <table className="text-left border-collapse">
+          <thead className="border-b border-slate-100 bg-slate-50">
+            <tr>
+              <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+              <Th statKey="gamesPlayed" {...s}>GP</Th>
             </tr>
-          ))}
-        </tbody>
-      </TableWrap>
+          </thead>
+          <tbody>
+            {sorted.map((p) => (
+              <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
+                <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'OL'} /></td>
+                <Td v={n(p.stats, 'gamesPlayed')} />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
