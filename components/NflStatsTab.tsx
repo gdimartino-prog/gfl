@@ -27,6 +27,9 @@ interface EspnResult {
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = [CURRENT_YEAR - 1, CURRENT_YEAR];
+// Default to current year during NFL season (Sep–Jan), prior year in offseason
+const month = new Date().getMonth() + 1; // 1-based
+const DEFAULT_YEAR = month >= 9 || month === 1 ? CURRENT_YEAR : CURRENT_YEAR - 1;
 
 function n(stats: Record<string, number> | null, key: string, decimals = 0): string {
   if (!stats || stats[key] === undefined) return '—';
@@ -660,7 +663,7 @@ export default function NflStatsTab({ teamshort }: Props) {
   const role = (session?.user as { role?: string } | undefined)?.role || '';
   const isCommissioner = role === 'admin' || role === 'superuser';
 
-  const [year, setYear] = useState(CURRENT_YEAR - 1);
+  const [year, setYear] = useState(DEFAULT_YEAR);
   const [data, setData] = useState<PlayerStat[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
