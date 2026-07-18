@@ -14,7 +14,7 @@ function isOL(p: { offense?: string | null; defense?: string | null; special?: s
 }
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
+  const [session, leagueId] = await Promise.all([auth(), getLeagueId()]);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
@@ -28,9 +28,6 @@ export async function GET(req: NextRequest) {
   }
   const year = rawYear;
 
-  const leagueId = await getLeagueId();
-
-  // Single join to get team + roster together
   const roster = await db
     .select({
       id: players.id,
@@ -42,6 +39,7 @@ export async function GET(req: NextRequest) {
       defense: players.defense,
       special: players.special,
       isIR: players.isIR,
+      espnId: players.espnId,
     })
     .from(players)
     .innerJoin(teams, and(eq(players.teamId, teams.id), eq(teams.leagueId, leagueId)))
@@ -49,13 +47,22 @@ export async function GET(req: NextRequest) {
 
   if (!roster.length) return NextResponse.json([], { headers: { 'Cache-Control': 'private, max-age=300' } });
 
-  // OL players have no meaningful individual ESPN stats — skip the fan-out for them
   const skillPlayers = roster.filter((p) => !isOL(p));
   const olPlayers = roster.filter((p) => isOL(p));
 
   const skillResults = await Promise.all(
     skillPlayers.map(async (player) => {
-      const espnId = await findEspnId(player.first || '', player.last || '');
+      // Use stored ESPN ID if available; otherwise search and persist it
+      let espnId = player.espnId || null;
+      if (!espnId) {
+        espnId = await findEspnId(player.first || '', player.last || '');
+        if (espnId) {
+          // Persist so next load skips the search
+          await db.update(players)
+            .set({ espnId, touch_id: 'espn-sync', touch_dt: new Date() })
+            .where(eq(players.id, player.id));
+        }
+      }
       if (!espnId) return { ...player, espnId: null, stats: null };
       const stats = await getEspnSeasonStats(espnId, year);
       return { ...player, espnId, stats };

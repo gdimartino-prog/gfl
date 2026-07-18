@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Mail, Phone, ShieldCheck, ExternalLink, UserCircle } from 'lucide-react';
+import { Search, Mail, Phone, ShieldCheck, ExternalLink, UserCircle, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { formatPhone } from '@/lib/utils';
 import { useSession } from 'next-auth/react';
@@ -13,6 +13,8 @@ export default function DirectoryPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortKey, setSortKey] = useState<'name' | 'coach'>('name');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [seasonYear, setSeasonYear] = useState('2026');
   const [leagueName, setLeagueName] = useState('League');
 
@@ -37,13 +39,27 @@ export default function DirectoryPage() {
       });
   }, []);
 
+  const handleSort = (key: 'name' | 'coach') => {
+    if (sortKey === key) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+  };
+
   const filteredTeams = useMemo(() => {
-    return teams.filter(t => 
+    const filtered = teams.filter(t =>
       t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       t.coach?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       t.short?.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [teams, searchTerm]);
+    return [...filtered].sort((a, b) => {
+      const av = (a[sortKey] ?? '').toLowerCase();
+      const bv = (b[sortKey] ?? '').toLowerCase();
+      return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+  }, [teams, searchTerm, sortKey, sortDir]);
 
   if (status === "loading" || loading) {
     return (
@@ -80,8 +96,26 @@ export default function DirectoryPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.2em]">
-                <th className="px-8 py-5">Franchise</th>
-                <th className="px-8 py-5">Coach</th>
+                <th className="px-8 py-5">
+                  <button onClick={() => handleSort('name')} className="flex items-center gap-1.5 hover:text-blue-300 transition-colors">
+                    Franchise
+                    {sortKey === 'name' ? (
+                      sortDir === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
+                    ) : (
+                      <ChevronsUpDown size={12} className="opacity-40" />
+                    )}
+                  </button>
+                </th>
+                <th className="px-8 py-5">
+                  <button onClick={() => handleSort('coach')} className="flex items-center gap-1.5 hover:text-blue-300 transition-colors">
+                    Coach
+                    {sortKey === 'coach' ? (
+                      sortDir === 'asc' ? <ChevronUp size={12} /> : <ChevronDown size={12} />
+                    ) : (
+                      <ChevronsUpDown size={12} className="opacity-40" />
+                    )}
+                  </button>
+                </th>
                 <th className="px-8 py-5">Email Address</th>
                 <th className="px-8 py-5">Mobile</th>
                 <th className="px-8 py-5 text-right">Actions</th>

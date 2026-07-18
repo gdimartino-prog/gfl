@@ -4,9 +4,13 @@ const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/football/leagues/n
 function normalizeName(s: string): string {
   return s
     .toLowerCase()
-    .replace(/\./g, '')        // D.J. → dj
-    .replace(/\bjr\.?\b/g, '') // remove Jr suffix
-    .replace(/\bsr\.?\b/g, '')
+    .replace(/\./g, '')             // D.J. → dj
+    .replace(/'/g, '')              // To'o → Too
+    .replace(/\bjr\.?\b/gi, '')     // remove Jr/Jr.
+    .replace(/\bsr\.?\b/gi, '')     // remove Sr/Sr.
+    .replace(/\biii\b/gi, '')       // remove III
+    .replace(/\bii\b/gi, '')        // remove II
+    .replace(/\biv\b/gi, '')        // remove IV
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -15,7 +19,10 @@ function normalizeName(s: string): string {
 export async function findEspnId(firstName: string, lastName: string): Promise<string | null> {
   if (!firstName && !lastName) return null;
   try {
-    const query = encodeURIComponent(`${firstName} ${lastName}`.trim());
+    // Strip suffixes from search query so "Tim Settle Jr." finds "Tim Settle"
+    const cleanFirst = normalizeName(firstName);
+    const cleanLast = normalizeName(lastName);
+    const query = encodeURIComponent(`${cleanFirst} ${cleanLast}`.trim());
     const res = await fetch(`${ESPN_SEARCH}?query=${query}&sports=football-nfl&limit=10`, {
       next: { revalidate: 86400 * 7 },
     });
@@ -65,7 +72,12 @@ export async function getEspnSeasonStats(
       data?.splits?.categories || [];
     for (const cat of categories) {
       for (const s of cat.stats || []) {
-        if (s.name && typeof s.value === 'number') stats[s.name] = s.value;
+        // Keep the first occurrence — duplicate stat names across categories
+        // (e.g. "interceptions" appears in both "passing" and "defensiveInterceptions")
+        // should resolve to the primary category's value.
+        if (s.name && typeof s.value === 'number' && !(s.name in stats)) {
+          stats[s.name] = s.value;
+        }
       }
     }
     return Object.keys(stats).length > 0 ? stats : null;
