@@ -67,6 +67,7 @@ export const players = pgTable("players", {
   durability: varchar("durability", { length: 20 }),
   scouting: jsonb("scouting").$type<Record<string, string>>(),
   espnId: varchar("espn_id", { length: 20 }),
+  nflTeam: varchar("nfl_team", { length: 100 }),
   teamId: integer("team_id").references(() => teams.id),
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),

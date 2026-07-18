@@ -52,6 +52,32 @@ export async function findEspnId(firstName: string, lastName: string): Promise<s
   }
 }
 
+// Fetch the NFL team abbreviation (e.g. "KC") for a given ESPN athlete ID.
+export async function getNflTeam(espnId: string): Promise<string | null> {
+  try {
+    const athleteRes = await fetch(
+      `${ESPN_CORE}/athletes/${encodeURIComponent(espnId)}`,
+      { next: { revalidate: 86400 } },
+    );
+    if (!athleteRes.ok) return null;
+    const athleteData = await athleteRes.json();
+    const ref: string | undefined = athleteData?.team?.$ref;
+    if (!ref) return null;
+    // Validate hostname before following the $ref to prevent SSRF
+    try {
+      if (new URL(ref).hostname !== 'sports.core.api.espn.com') return null;
+    } catch {
+      return null;
+    }
+    const teamRes = await fetch(ref, { next: { revalidate: 86400 } });
+    if (!teamRes.ok) return null;
+    const teamData = await teamRes.json();
+    return (teamData?.abbreviation as string) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // Fetch regular-season stats for a given ESPN athlete ID and season year.
 // Returns a flat map of stat name → value (e.g. { passingYards: 3864, ... }).
 export async function getEspnSeasonStats(

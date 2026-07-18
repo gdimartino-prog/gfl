@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
       special: players.special,
       isIR: players.isIR,
       espnId: players.espnId,
+      nflTeam: players.nflTeam,
     })
     .from(players)
     .innerJoin(teams, and(eq(players.teamId, teams.id), eq(teams.leagueId, leagueId)))
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest) {
           // Persist so next load skips the search
           await db.update(players)
             .set({ espnId, touch_id: 'espn-sync', touch_dt: new Date() })
-            .where(eq(players.id, player.id));
+            .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
         }
       }
       if (!espnId) return { ...player, espnId: null, stats: null };

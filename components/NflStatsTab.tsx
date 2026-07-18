@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { Loader2, AlertCircle, Link2, X, Search, ChevronUp, ChevronDown } from 'lucide-react';
+import { posGroup as libPosGroup, powerScore as libPowerScore } from '@/lib/power-score';
 
 interface PlayerStat {
   id: number;
@@ -15,7 +16,17 @@ interface PlayerStat {
   special: string | null;
   isIR: boolean | null;
   espnId: string | null;
+  nflTeam: string | null;
   stats: Record<string, number> | null;
+}
+
+interface TeamRanking {
+  teamshort: string;
+  teamName: string;
+  playerCount: number;
+  offenseScore: number;
+  defenseScore: number;
+  totalScore: number;
 }
 
 interface EspnResult {
@@ -69,29 +80,45 @@ function PlayerName({
   return (
     <td className="py-2 px-3 text-sm whitespace-nowrap">
       <div className="flex items-center gap-1.5">
-        <a
-          href={`https://www.google.com/search?q=${encodeURIComponent(player.name + ' NFL')}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-bold text-slate-800 hover:text-blue-600 transition-colors"
-        >
-          {player.name}
-        </a>
-        {player.isIR && (
-          <span className="text-[9px] font-black text-red-500 uppercase">IR</span>
+        {player.espnId && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`https://a.espncdn.com/i/headshots/nfl/players/full/${player.espnId}.png`}
+            alt={player.name}
+            className="w-7 h-7 rounded-full object-cover bg-slate-100 flex-shrink-0"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          />
         )}
-        {!player.espnId && isCommissioner && (
-          <button
-            onClick={() => onLink(player)}
-            title="Link ESPN player"
-            className="text-slate-300 hover:text-blue-500 transition-colors"
-          >
-            <Link2 size={11} />
-          </button>
-        )}
-        {!player.espnId && !isCommissioner && (
-          <span className="text-[9px] text-slate-300">(not found)</span>
-        )}
+        <div>
+          <div className="flex items-center gap-1">
+            <a
+              href={`https://www.google.com/search?q=${encodeURIComponent(player.name + ' NFL')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-slate-800 hover:text-blue-600 transition-colors"
+            >
+              {player.name}
+            </a>
+            {player.isIR && (
+              <span className="text-[9px] font-black text-red-500 uppercase">IR</span>
+            )}
+            {!player.espnId && isCommissioner && (
+              <button
+                onClick={() => onLink(player)}
+                title="Link ESPN player"
+                className="text-slate-300 hover:text-blue-500 transition-colors"
+              >
+                <Link2 size={11} />
+              </button>
+            )}
+            {!player.espnId && !isCommissioner && (
+              <span className="text-[9px] text-slate-300">(not found)</span>
+            )}
+          </div>
+          {player.nflTeam && (
+            <div className="text-[10px] text-slate-400">{player.nflTeam}</div>
+          )}
+        </div>
       </div>
     </td>
   );
@@ -110,6 +137,14 @@ function defPosRank(p: PlayerStat): number {
   return DEF_POS_ORDER[pos] ?? 3;
 }
 
+function posGroup(p: PlayerStat): string {
+  return libPosGroup(p.offense, p.defense, p.special, p.position);
+}
+
+function computePowerScore(p: PlayerStat): number {
+  return libPowerScore(p.offense, p.defense, p.special, p.position, p.stats);
+}
+
 function useSortedPlayers(players: PlayerStat[], sort: SortState) {
   return useMemo(() => {
     if (!sort.key) return players;
@@ -121,6 +156,10 @@ function useSortedPlayers(players: PlayerStat[], sort: SortState) {
       if (sort.key === 'defPos') {
         const cmp = defPosRank(a) - defPosRank(b);
         return sort.dir === 'asc' ? cmp : -cmp;
+      }
+      if (sort.key === 'powerScore') {
+        const cmp = computePowerScore(a) - computePowerScore(b);
+        return sort.dir === 'desc' ? -cmp : cmp;
       }
       const va = a.stats?.[sort.key] ?? -Infinity;
       const vb = b.stats?.[sort.key] ?? -Infinity;
@@ -214,6 +253,11 @@ interface TableProps {
   onLink: (p: PlayerStat) => void;
 }
 
+function scoreCell(p: PlayerStat): string {
+  if (p.stats === null) return '—';
+  return computePowerScore(p).toFixed(1);
+}
+
 function QbTable({ players, isCommissioner, onLink }: TableProps) {
   const [sort, setSort] = useState<SortState>({ key: 'passingYards', dir: 'desc' });
   const sorted = useSortedPlayers(players, sort);
@@ -238,6 +282,7 @@ function QbTable({ players, isCommissioner, onLink }: TableProps) {
             <Th statKey="rushingYards" {...s}>Rush Yds</Th>
             <Th statKey="rushingTouchdowns" {...s}>Rush TD</Th>
             <Th statKey="fumblesLost" {...s}>FL</Th>
+            <Th statKey="powerScore" {...s}>Score</Th>
           </tr>
         </thead>
         <tbody>
@@ -257,6 +302,7 @@ function QbTable({ players, isCommissioner, onLink }: TableProps) {
               <Td v={n(p.stats, 'rushingYards')} />
               <Td v={n(p.stats, 'rushingTouchdowns')} />
               <Td v={n(p.stats, 'fumblesLost')} />
+              <Td v={scoreCell(p)} />
             </tr>
           ))}
         </tbody>
@@ -286,6 +332,7 @@ function RbTable({ players, isCommissioner, onLink }: TableProps) {
             <Th statKey="receivingYards" {...s}>Rec Yds</Th>
             <Th statKey="receivingTouchdowns" {...s}>Rec TD</Th>
             <Th statKey="fumblesLost" {...s}>FL</Th>
+            <Th statKey="powerScore" {...s}>Score</Th>
           </tr>
         </thead>
         <tbody>
@@ -302,6 +349,7 @@ function RbTable({ players, isCommissioner, onLink }: TableProps) {
               <Td v={n(p.stats, 'receivingYards')} />
               <Td v={n(p.stats, 'receivingTouchdowns')} />
               <Td v={n(p.stats, 'fumblesLost')} />
+              <Td v={scoreCell(p)} />
             </tr>
           ))}
         </tbody>
@@ -331,6 +379,7 @@ function WrTeTable({ players, label, isCommissioner, onLink }: TableProps & { la
             <Th statKey="rushingAttempts" {...s}>Rush Att</Th>
             <Th statKey="rushingYards" {...s}>Rush Yds</Th>
             <Th statKey="fumblesLost" {...s}>FL</Th>
+            <Th statKey="powerScore" {...s}>Score</Th>
           </tr>
         </thead>
         <tbody>
@@ -347,6 +396,7 @@ function WrTeTable({ players, label, isCommissioner, onLink }: TableProps & { la
               <Td v={n(p.stats, 'rushingAttempts')} />
               <Td v={n(p.stats, 'rushingYards')} />
               <Td v={n(p.stats, 'fumblesLost')} />
+              <Td v={scoreCell(p)} />
             </tr>
           ))}
         </tbody>
@@ -378,6 +428,7 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
             <Th statKey="passesDefended" {...s}>PD</Th>
             <Th statKey="forcedFumbles" {...s}>FF</Th>
             <Th statKey="fumbleRecoveries" {...s}>FR</Th>
+            <Th statKey="powerScore" {...s}>Score</Th>
           </tr>
         </thead>
         <tbody>
@@ -395,6 +446,7 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
               <Td v={n(p.stats, 'passesDefended')} />
               <Td v={n(p.stats, 'forcedFumbles')} />
               <Td v={n(p.stats, 'fumbleRecoveries')} />
+              <Td v={scoreCell(p)} />
             </tr>
           ))}
         </tbody>
@@ -417,6 +469,7 @@ function OlTable({ players, isCommissioner, onLink }: TableProps) {
             <tr>
               <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
               <Th statKey="gamesPlayed" {...s}>GP</Th>
+              <Th statKey="powerScore" {...s}>Score</Th>
             </tr>
           </thead>
           <tbody>
@@ -425,6 +478,7 @@ function OlTable({ players, isCommissioner, onLink }: TableProps) {
                 <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
                 <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'OL'} /></td>
                 <Td v={n(p.stats, 'gamesPlayed')} />
+                <Td v={scoreCell(p)} />
               </tr>
             ))}
           </tbody>
@@ -454,6 +508,7 @@ function KickerTable({ players, isCommissioner, onLink }: TableProps) {
             <Th statKey="extraPointsMade" {...s}>XPM</Th>
             <Th statKey="extraPointAttempts" {...s}>XPA</Th>
             <Th statKey="extraPointPct" {...s}>XP%</Th>
+            <Th statKey="powerScore" {...s}>Score</Th>
           </tr>
         </thead>
         <tbody>
@@ -469,6 +524,7 @@ function KickerTable({ players, isCommissioner, onLink }: TableProps) {
               <Td v={n(p.stats, 'extraPointsMade')} />
               <Td v={n(p.stats, 'extraPointAttempts')} />
               <Td v={pct(p.stats, 'extraPointPct')} />
+              <Td v={scoreCell(p)} />
             </tr>
           ))}
         </tbody>
@@ -518,19 +574,88 @@ function PunterTable({ players, isCommissioner, onLink }: TableProps) {
   );
 }
 
-function posGroup(p: PlayerStat): string {
-  const pos = (p.offense || p.defense || p.special || p.position || '').toUpperCase();
-  if (pos === 'QB') return 'QB';
-  if (['RB', 'HB', 'FB'].includes(pos)) return 'RB';
-  if (pos === 'WR') return 'WR';
-  if (pos === 'TE') return 'TE';
-  if (['OL', 'OT', 'OG', 'C', 'G', 'T'].includes(pos)) return 'OL';
-  if (['DL', 'DE', 'DT', 'NT'].includes(pos)) return 'DL';
-  if (['LB', 'ILB', 'OLB', 'MLB'].includes(pos)) return 'LB';
-  if (['DB', 'CB', 'S', 'SS', 'FS'].includes(pos)) return 'DB';
-  if (pos === 'K') return 'K';
-  if (pos === 'P') return 'P';
-  return 'OTHER';
+function LeagueRankingsTable({ data, currentTeamshort }: { data: TeamRanking[]; currentTeamshort: string }) {
+  const [sort, setSort] = useState<SortState>({ key: 'totalScore', dir: 'desc' });
+
+  const sorted = useMemo(() => {
+    return [...data].sort((a, b) => {
+      const va = a[sort.key as keyof TeamRanking];
+      const vb = b[sort.key as keyof TeamRanking];
+      if (typeof va === 'string' && typeof vb === 'string') {
+        const cmp = va.localeCompare(vb);
+        return sort.dir === 'asc' ? cmp : -cmp;
+      }
+      const na = (va as number) ?? 0;
+      const nb = (vb as number) ?? 0;
+      return sort.dir === 'desc' ? nb - na : na - nb;
+    });
+  }, [data, sort]);
+
+  // Leaders across the unsorted data
+  const leaders = useMemo(() => {
+    if (!data.length) return { off: '', def: '', total: '' };
+    const maxOff = Math.max(...data.map(t => t.offenseScore));
+    const maxDef = Math.max(...data.map(t => t.defenseScore));
+    const maxTotal = Math.max(...data.map(t => t.totalScore));
+    return {
+      off: data.find(t => t.offenseScore === maxOff)?.teamshort ?? '',
+      def: data.find(t => t.defenseScore === maxDef)?.teamshort ?? '',
+      total: data.find(t => t.totalScore === maxTotal)?.teamshort ?? '',
+    };
+  }, [data]);
+
+  const s = { sort, setSort };
+
+  return (
+    <TableWrap>
+      <thead className="border-b border-slate-100 bg-slate-50">
+        <tr>
+          <ThL>Rank</ThL>
+          <ThL statKey="teamName" {...s}>Team</ThL>
+          <Th statKey="playerCount" {...s}>Players</Th>
+          <Th statKey="offenseScore" {...s}>Off Score</Th>
+          <Th statKey="defenseScore" {...s}>Def Score</Th>
+          <Th statKey="totalScore" {...s}>Total</Th>
+        </tr>
+      </thead>
+      <tbody>
+        {sorted.map((team, i) => {
+          const isCurrentTeam = team.teamshort.toUpperCase() === currentTeamshort.toUpperCase();
+          const ts = team.teamshort;
+          return (
+            <tr
+              key={ts}
+              className={`border-b border-slate-50 transition-colors ${isCurrentTeam ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
+            >
+              <td className="py-2 px-3 text-sm font-bold text-slate-500 tabular-nums">{i + 1}</td>
+              <td className="py-2 px-3 text-sm whitespace-nowrap">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-slate-800">{team.teamName}</span>
+                  {ts === leaders.total && <span title="Best Total">🏆</span>}
+                  {ts !== leaders.total && ts === leaders.off && <span title="Best Offense">⚔️</span>}
+                  {ts !== leaders.total && ts === leaders.def && <span title="Best Defense">🛡️</span>}
+                  {isCurrentTeam && (
+                    <span className="text-[9px] font-black text-blue-600 uppercase">You</span>
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-400">{ts}</div>
+              </td>
+              <Td v={String(team.playerCount)} />
+              <td className={`py-2 px-3 text-sm text-right tabular-nums font-semibold ${ts === leaders.off ? 'text-orange-600' : 'text-slate-700'}`}>
+                {team.offenseScore.toFixed(1)}
+              </td>
+              <td className={`py-2 px-3 text-sm text-right tabular-nums font-semibold ${ts === leaders.def ? 'text-blue-600' : 'text-slate-700'}`}>
+                {team.defenseScore.toFixed(1)}
+              </td>
+              <td className={`py-2 px-3 text-sm text-right tabular-nums font-semibold ${ts === leaders.total ? 'text-emerald-600' : 'text-slate-700'}`}>
+                {team.totalScore.toFixed(1)}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </TableWrap>
+  );
 }
 
 // Commissioner modal: search ESPN and link a player
@@ -663,11 +788,19 @@ export default function NflStatsTab({ teamshort }: Props) {
   const role = (session?.user as { role?: string } | undefined)?.role || '';
   const isCommissioner = role === 'admin' || role === 'superuser';
 
+  const [view, setView] = useState<'myTeam' | 'league'>('myTeam');
   const [year, setYear] = useState(DEFAULT_YEAR);
+
+  // My Team state
   const [data, setData] = useState<PlayerStat[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [linking, setLinking] = useState<PlayerStat | null>(null);
+
+  // League view state
+  const [leagueData, setLeagueData] = useState<TeamRanking[] | null>(null);
+  const [leagueLoading, setLeagueLoading] = useState(false);
+  const [leagueError, setLeagueError] = useState<string | null>(null);
 
   const loadStats = useCallback(async () => {
     if (!teamshort) return;
@@ -685,9 +818,32 @@ export default function NflStatsTab({ teamshort }: Props) {
     }
   }, [teamshort, year]);
 
+  const loadLeagueStats = useCallback(async () => {
+    setLeagueLoading(true);
+    setLeagueError(null);
+    setLeagueData(null);
+    try {
+      const r = await fetch(`/api/league-stats?year=${year}`);
+      if (!r.ok) throw new Error('Failed to load league stats');
+      setLeagueData(await r.json());
+    } catch (e) {
+      setLeagueError((e as Error).message);
+    } finally {
+      setLeagueLoading(false);
+    }
+  }, [year]);
+
   useEffect(() => {
-    loadStats();
-  }, [loadStats]);
+    if (view === 'myTeam') {
+      loadStats();
+    }
+  }, [view, loadStats]);
+
+  useEffect(() => {
+    if (view === 'league') {
+      loadLeagueStats();
+    }
+  }, [view, loadLeagueStats]);
 
   // After a successful link, update the local data so the link icon disappears
   const handleLinked = useCallback((playerId: number, espnId: string) => {
@@ -711,6 +867,8 @@ export default function NflStatsTab({ teamshort }: Props) {
 
   const notFound = data?.filter((p) => !p.espnId && posGroup(p) !== 'OL').length ?? 0;
 
+  const isLeagueLoading = view === 'league' ? leagueLoading : loading;
+
   return (
     <div>
       {linking && (
@@ -721,8 +879,8 @@ export default function NflStatsTab({ teamshort }: Props) {
         />
       )}
 
-      {/* Year picker */}
-      <div className="flex items-center gap-2 mb-6">
+      {/* Year picker + view toggle */}
+      <div className="flex items-center gap-3 mb-6 flex-wrap">
         <span className="text-xs font-black uppercase text-slate-400 tracking-widest">Season</span>
         <div className="flex bg-white p-1 rounded-xl shadow-sm border border-slate-200">
           {YEARS.map((y) => (
@@ -737,45 +895,93 @@ export default function NflStatsTab({ teamshort }: Props) {
             </button>
           ))}
         </div>
-        {loading && <Loader2 size={14} className="animate-spin text-slate-400" />}
+
+        <div className="flex bg-white p-1 rounded-xl shadow-sm border border-slate-200">
+          {(['myTeam', 'league'] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${
+                view === v ? 'bg-slate-900 text-white shadow' : 'text-slate-400 hover:text-slate-900'
+              }`}
+            >
+              {v === 'myTeam' ? 'My Team' : 'League'}
+            </button>
+          ))}
+        </div>
+
+        {isLeagueLoading && <Loader2 size={14} className="animate-spin text-slate-400" />}
       </div>
 
-      {error && (
-        <div className="flex items-center gap-2 text-red-500 text-sm font-bold p-4 bg-red-50 rounded-2xl">
-          <AlertCircle size={16} /> {error}
-        </div>
-      )}
-
-      {loading && (
-        <div className="py-16 text-center">
-          <Loader2 size={24} className="animate-spin text-slate-400 mx-auto mb-2" />
-          <p className="text-xs font-black uppercase text-slate-400 tracking-widest">
-            Fetching {year} NFL stats from ESPN...
-          </p>
-          <p className="text-xs text-slate-300 mt-1">First load may take a few seconds</p>
-        </div>
-      )}
-
-      {groups && !loading && (
+      {/* My Team view */}
+      {view === 'myTeam' && (
         <>
-          {notFound > 0 && (
-            <p className="text-xs text-slate-400 mb-4">
-              {notFound} player{notFound > 1 ? 's' : ''} could not be matched on ESPN.
-              {isCommissioner && ' Click the '}
-              {isCommissioner && <Link2 size={10} className="inline" />}
-              {isCommissioner && ' icon next to a player name to link them manually.'}
-            </p>
+          {error && (
+            <div className="flex items-center gap-2 text-red-500 text-sm font-bold p-4 bg-red-50 rounded-2xl">
+              <AlertCircle size={16} /> {error}
+            </div>
           )}
-          <QbTable players={groups.QB} isCommissioner={isCommissioner} onLink={setLinking} />
-          <RbTable players={groups.RB} isCommissioner={isCommissioner} onLink={setLinking} />
-          <WrTeTable players={groups.WR} label="Wide Receivers" isCommissioner={isCommissioner} onLink={setLinking} />
-          <WrTeTable players={groups.TE} label="Tight Ends" isCommissioner={isCommissioner} onLink={setLinking} />
-          <OlTable players={groups.OL} isCommissioner={isCommissioner} onLink={setLinking} />
-          <DefTable players={groups.DEF} isCommissioner={isCommissioner} onLink={setLinking} />
-          <KickerTable players={groups.K} isCommissioner={isCommissioner} onLink={setLinking} />
-          <PunterTable players={groups.P} isCommissioner={isCommissioner} onLink={setLinking} />
-          {!data?.length && (
-            <p className="text-slate-400 text-sm py-8 text-center">No players on roster.</p>
+
+          {loading && (
+            <div className="py-16 text-center">
+              <Loader2 size={24} className="animate-spin text-slate-400 mx-auto mb-2" />
+              <p className="text-xs font-black uppercase text-slate-400 tracking-widest">
+                Fetching {year} NFL stats from ESPN...
+              </p>
+              <p className="text-xs text-slate-300 mt-1">First load may take a few seconds</p>
+            </div>
+          )}
+
+          {groups && !loading && (
+            <>
+              {notFound > 0 && (
+                <p className="text-xs text-slate-400 mb-4">
+                  {notFound} player{notFound > 1 ? 's' : ''} could not be matched on ESPN.
+                  {isCommissioner && ' Click the '}
+                  {isCommissioner && <Link2 size={10} className="inline" />}
+                  {isCommissioner && ' icon next to a player name to link them manually.'}
+                </p>
+              )}
+              <QbTable players={groups.QB} isCommissioner={isCommissioner} onLink={setLinking} />
+              <RbTable players={groups.RB} isCommissioner={isCommissioner} onLink={setLinking} />
+              <WrTeTable players={groups.WR} label="Wide Receivers" isCommissioner={isCommissioner} onLink={setLinking} />
+              <WrTeTable players={groups.TE} label="Tight Ends" isCommissioner={isCommissioner} onLink={setLinking} />
+              <OlTable players={groups.OL} isCommissioner={isCommissioner} onLink={setLinking} />
+              <DefTable players={groups.DEF} isCommissioner={isCommissioner} onLink={setLinking} />
+              <KickerTable players={groups.K} isCommissioner={isCommissioner} onLink={setLinking} />
+              <PunterTable players={groups.P} isCommissioner={isCommissioner} onLink={setLinking} />
+              {!data?.length && (
+                <p className="text-slate-400 text-sm py-8 text-center">No players on roster.</p>
+              )}
+            </>
+          )}
+        </>
+      )}
+
+      {/* League Rankings view */}
+      {view === 'league' && (
+        <>
+          {leagueError && (
+            <div className="flex items-center gap-2 text-red-500 text-sm font-bold p-4 bg-red-50 rounded-2xl">
+              <AlertCircle size={16} /> {leagueError}
+            </div>
+          )}
+
+          {leagueLoading && (
+            <div className="py-16 text-center">
+              <Loader2 size={24} className="animate-spin text-slate-400 mx-auto mb-2" />
+              <p className="text-xs font-black uppercase text-slate-400 tracking-widest">
+                Computing {year} power scores for all teams...
+              </p>
+              <p className="text-xs text-slate-300 mt-1">Fetching ESPN stats for every roster player</p>
+            </div>
+          )}
+
+          {leagueData && !leagueLoading && (
+            <>
+              <SectionHeader title={`${year} League Power Rankings`} />
+              <LeagueRankingsTable data={leagueData} currentTeamshort={teamshort} />
+            </>
           )}
         </>
       )}
