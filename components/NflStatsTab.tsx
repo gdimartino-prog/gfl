@@ -364,7 +364,7 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
             <Th statKey="assistedTackles" {...s}>Ast</Th>
             <Th statKey="tacklesForLoss" {...s}>TFL</Th>
             <Th statKey="sacks" {...s}>Sacks</Th>
-            <Th statKey="defensiveInterceptions" {...s}>INT</Th>
+            <Th statKey="interceptions" {...s}>INT</Th>
             <Th statKey="passesDefended" {...s}>PD</Th>
             <Th statKey="forcedFumbles" {...s}>FF</Th>
             <Th statKey="fumbleRecoveries" {...s}>FR</Th>
@@ -380,7 +380,7 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
               <Td v={n(p.stats, 'assistedTackles')} />
               <Td v={n(p.stats, 'tacklesForLoss', 1)} />
               <Td v={n(p.stats, 'sacks', 1)} />
-              <Td v={n(p.stats, 'defensiveInterceptions')} />
+              <Td v={n(p.stats, 'interceptions')} />
               <Td v={n(p.stats, 'passesDefended')} />
               <Td v={n(p.stats, 'forcedFumbles')} />
               <Td v={n(p.stats, 'fumbleRecoveries')} />
