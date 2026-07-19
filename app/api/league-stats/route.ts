@@ -10,10 +10,13 @@ import { unstable_cache } from 'next/cache';
 
 const DEF_GROUPS = new Set(['DL', 'LB', 'DB']);
 const OFF_GROUPS = new Set(['QB', 'RB', 'WR', 'TE', 'K', 'OL']);
+const POS_ORDER = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'];
 
 async function fetchLeagueStats(leagueId: number, year: number) {
   const roster = await db
     .select({
+      id: players.id,
+      name: players.name,
       offense: players.offense,
       defense: players.defense,
       special: players.special,
@@ -26,7 +29,7 @@ async function fetchLeagueStats(leagueId: number, year: number) {
     .innerJoin(teams, eq(players.teamId, teams.id))
     .where(and(eq(players.leagueId, leagueId), eq(teams.leagueId, leagueId)));
 
-  if (!roster.length) return [];
+  if (!roster.length) return { teams: [], players: [] };
 
   // Fetch ESPN stats in chunks of 40 to avoid rate-limit burst on cold cache
   const CHUNK = 40;
@@ -48,7 +51,18 @@ async function fetchLeagueStats(leagueId: number, year: number) {
     offenseScore: number;
     defenseScore: number;
     playerCount: number;
+    byGroup: Record<string, number>;
   }>();
+
+  const playerList: Array<{
+    id: number;
+    name: string;
+    espnId: string | null;
+    teamshort: string;
+    teamName: string;
+    posGroup: string;
+    score: number;
+  }> = [];
 
   for (const player of withStats) {
     const group = posGroup(player.offense, player.defense, player.special, player.position);
@@ -56,22 +70,42 @@ async function fetchLeagueStats(leagueId: number, year: number) {
     const key = player.teamshort.toUpperCase();
 
     if (!teamMap.has(key)) {
-      teamMap.set(key, { teamName: player.teamName, offenseScore: 0, defenseScore: 0, playerCount: 0 });
+      teamMap.set(key, { teamName: player.teamName, offenseScore: 0, defenseScore: 0, playerCount: 0, byGroup: {} });
     }
     const team = teamMap.get(key)!;
     team.playerCount++;
+    team.byGroup[group] = (team.byGroup[group] ?? 0) + score;
     if (DEF_GROUPS.has(group)) team.defenseScore += score;
     else if (OFF_GROUPS.has(group)) team.offenseScore += score;
+
+    playerList.push({
+      id: player.id,
+      name: player.name ?? '',
+      espnId: player.espnId ?? null,
+      teamshort: key,
+      teamName: player.teamName,
+      posGroup: group,
+      score,
+    });
   }
 
-  return Array.from(teamMap.entries()).map(([teamshort, data]) => ({
-    teamshort,
-    teamName: data.teamName,
-    playerCount: data.playerCount,
-    offenseScore: Math.round(data.offenseScore * 10) / 10,
-    defenseScore: Math.round(data.defenseScore * 10) / 10,
-    totalScore: Math.round((data.offenseScore + data.defenseScore) * 10) / 10,
-  }));
+  const teamList = Array.from(teamMap.entries()).map(([teamshort, data]) => {
+    const byGroup: Record<string, number> = {};
+    for (const g of POS_ORDER) {
+      if ((data.byGroup[g] ?? 0) > 0) byGroup[g] = Math.round(data.byGroup[g] * 10) / 10;
+    }
+    return {
+      teamshort,
+      teamName: data.teamName,
+      playerCount: data.playerCount,
+      offenseScore: Math.round(data.offenseScore * 10) / 10,
+      defenseScore: Math.round(data.defenseScore * 10) / 10,
+      totalScore: Math.round((data.offenseScore + data.defenseScore) * 10) / 10,
+      byGroup,
+    };
+  });
+
+  return { teams: teamList, players: playerList };
 }
 
 const _cachedLeagueStats = unstable_cache(
@@ -93,9 +127,9 @@ export async function GET(req: NextRequest) {
   }
 
   const result = await _cachedLeagueStats(leagueId, rawYear);
-  result.sort((a, b) => b.totalScore - a.totalScore);
+  const sortedTeams = [...result.teams].sort((a, b) => b.totalScore - a.totalScore);
 
-  return NextResponse.json(result, {
+  return NextResponse.json({ teams: sortedTeams, players: result.players }, {
     headers: { 'Cache-Control': 'private, max-age=3600' },
   });
 }

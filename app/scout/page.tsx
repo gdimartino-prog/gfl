@@ -1,10 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Sparkles, X, FileSearch } from 'lucide-react';
+import { Loader2, Sparkles, X, FileSearch, TrendingUp } from 'lucide-react';
 import { POSITION_GROUPS } from '@/lib/positionGroups';
+
+const FA_CURRENT_YEAR = new Date().getFullYear();
+const FA_YEARS = [FA_CURRENT_YEAR - 1, FA_CURRENT_YEAR];
+const FA_MONTH = new Date().getMonth() + 1;
+const FA_DEFAULT_YEAR = FA_MONTH >= 9 || FA_MONTH === 1 ? FA_CURRENT_YEAR : FA_CURRENT_YEAR - 1;
+
+const FA_POS_COLORS: Record<string, string> = {
+  QB: 'bg-blue-100 text-blue-800', RB: 'bg-green-100 text-green-800',
+  WR: 'bg-purple-100 text-purple-800', TE: 'bg-yellow-100 text-yellow-800',
+  OL: 'bg-slate-100 text-slate-600', DL: 'bg-red-100 text-red-800',
+  LB: 'bg-orange-100 text-orange-800', DB: 'bg-pink-100 text-pink-800',
+  K: 'bg-teal-100 text-teal-800',
+};
+const FA_POS_ORDER = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K'];
+
+interface FaPlayer {
+  id: number;
+  name: string;
+  espnId: string | null;
+  nflTeam: string | null;
+  posGroup: string;
+  score: number;
+}
 
 const RECENT_NEEDS_KEY = 'gfl-scout-recent-needs';
 const RECENT_NEEDS_CAP = 5;
@@ -33,7 +56,7 @@ type ScoutMode = 'fast' | 'full' | 'copy';
 type Meta = { teamName: string; currentRound: number | null; picksUntilNext: number | null; poolSize: number; rosterSize: number; maxAge?: number | null; rookiesOnly?: boolean; mode?: ScoutMode };
 type TeamOption = { teamshort: string; team: string };
 type RosterPlayerOption = { name: string; position: string | null; age: string | null; last: string | null };
-type PageTab = 'draft-scout' | 'player-report';
+type PageTab = 'draft-scout' | 'player-report' | 'fa-power';
 
 export default function ScoutPage() {
   const { data: session, status } = useSession();
@@ -55,8 +78,18 @@ export default function ScoutPage() {
   const [copyPromptText, setCopyPromptText] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const role = (session?.user as { role?: string } | undefined)?.role ?? '';
+  const isCommissioner = role === 'admin' || role === 'superuser';
+
   // Page tab
   const [activeTab, setActiveTab] = useState<PageTab>('draft-scout');
+
+  // FA Power state
+  const [faYear, setFaYear] = useState(FA_DEFAULT_YEAR);
+  const [faFilterGroup, setFaFilterGroup] = useState<string | null>(null);
+  const [faData, setFaData] = useState<FaPlayer[] | null>(null);
+  const [faLoading, setFaLoading] = useState(false);
+  const [faError, setFaError] = useState<string | null>(null);
 
   // Player report state
   const [reportTeamShort, setReportTeamShort] = useState('');
@@ -103,6 +136,38 @@ export default function ScoutPage() {
       }
     }
   }, [session]);
+
+  const loadFaPower = useCallback(async (year: number) => {
+    setFaLoading(true);
+    setFaError(null);
+    setFaData(null);
+    try {
+      const r = await fetch(`/api/fa-power?year=${year}`);
+      if (!r.ok) throw new Error('Failed to load FA rankings');
+      setFaData(await r.json());
+    } catch (e) {
+      setFaError((e as Error).message);
+    } finally {
+      setFaLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'fa-power' && status === 'authenticated' && isCommissioner) {
+      loadFaPower(faYear);
+    }
+  }, [activeTab, faYear, status, isCommissioner, loadFaPower]);
+
+  const faFiltered = useMemo(() => {
+    if (!faData) return [];
+    return faFilterGroup ? faData.filter(p => p.posGroup === faFilterGroup) : faData;
+  }, [faData, faFilterGroup]);
+
+  const faAvailableGroups = useMemo(() => {
+    if (!faData) return [];
+    const seen = new Set(faData.map(p => p.posGroup));
+    return FA_POS_ORDER.filter(g => seen.has(g));
+  }, [faData]);
 
   useEffect(() => {
     if (!reportTeamShort) { setReportRoster([]); setSelectedPlayer(''); return; }
@@ -369,6 +434,20 @@ export default function ScoutPage() {
             <FileSearch size={14} />
             Player Report
           </button>
+          {isCommissioner && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('fa-power')}
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-black uppercase tracking-widest transition-colors ${
+                activeTab === 'fa-power'
+                  ? 'bg-white text-blue-700 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700'
+              }`}
+            >
+              <TrendingUp size={14} />
+              FA Power
+            </button>
+          )}
         </div>
 
         {activeTab === 'player-report' ? (
@@ -813,6 +892,118 @@ export default function ScoutPage() {
           </div>
         ) : null}
         </>
+        )}
+
+        {activeTab === 'fa-power' && isCommissioner && (
+          <div>
+            <p className="text-slate-600 text-sm mb-8 max-w-2xl">
+              Top available free agents ranked by last season&apos;s performance score. Use this to identify high-value targets before making moves.
+            </p>
+
+            <div className="flex items-center gap-3 mb-6 flex-wrap">
+              <span className="text-xs font-black uppercase text-slate-400 tracking-widest">Season</span>
+              <div className="flex bg-white p-1 rounded-xl shadow-sm border border-slate-200">
+                {FA_YEARS.map((y) => (
+                  <button
+                    key={y}
+                    onClick={() => setFaYear(y)}
+                    className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${
+                      faYear === y ? 'bg-slate-900 text-white shadow' : 'text-slate-400 hover:text-slate-900'
+                    }`}
+                  >
+                    {y}
+                  </button>
+                ))}
+              </div>
+              {faLoading && <Loader2 size={14} className="animate-spin text-slate-400" />}
+            </div>
+
+            {faError && (
+              <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                {faError}
+              </div>
+            )}
+
+            {faLoading && !faData && (
+              <div className="py-16 text-center">
+                <Loader2 size={24} className="animate-spin text-slate-400 mx-auto mb-2" />
+                <p className="text-xs font-black uppercase text-slate-400 tracking-widest">
+                  Computing {faYear} power scores for all free agents...
+                </p>
+                <p className="text-xs text-slate-300 mt-1">First load may take up to 30 seconds</p>
+              </div>
+            )}
+
+            {faData && !faLoading && (
+              <>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  <button
+                    onClick={() => setFaFilterGroup(null)}
+                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${faFilterGroup === null ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+                  >
+                    All
+                  </button>
+                  {faAvailableGroups.map(g => (
+                    <button
+                      key={g}
+                      onClick={() => setFaFilterGroup(faFilterGroup === g ? null : g)}
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${faFilterGroup === g ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="border-b border-slate-100 bg-slate-50">
+                      <tr>
+                        <th className="py-2 px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">#</th>
+                        <th className="py-2 px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Player</th>
+                        <th className="py-2 px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Pos</th>
+                        <th className="py-2 px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">NFL Team</th>
+                        <th className="py-2 px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {faFiltered.map((p, i) => (
+                        <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                          <td className="py-2 px-3 text-sm font-bold text-slate-500 tabular-nums">{i + 1}</td>
+                          <td className="py-2 px-3 text-sm whitespace-nowrap">
+                            <div className="flex items-center gap-1.5">
+                              {p.espnId && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={`https://a.espncdn.com/i/headshots/nfl/players/full/${p.espnId}.png`}
+                                  alt={p.name}
+                                  className="w-7 h-7 rounded-full object-cover bg-slate-100 flex-shrink-0"
+                                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                />
+                              )}
+                              <span className="font-bold text-slate-800">{p.name}</span>
+                            </div>
+                          </td>
+                          <td className="py-2 px-3">
+                            <span className={`inline-block text-[9px] font-black px-1.5 py-0.5 rounded uppercase ${FA_POS_COLORS[p.posGroup] ?? 'bg-slate-100 text-slate-600'}`}>
+                              {p.posGroup}
+                            </span>
+                          </td>
+                          <td className="py-2 px-3 text-xs text-slate-500">{p.nflTeam ?? '—'}</td>
+                          <td className="py-2 px-3 text-sm text-right tabular-nums font-semibold text-slate-700">{p.score.toFixed(1)}</td>
+                        </tr>
+                      ))}
+                      {faFiltered.length === 0 && (
+                        <tr>
+                          <td colSpan={5} className="py-8 text-center text-xs text-slate-400">No free agents found with stats</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[10px] text-slate-400 mt-2">{faFiltered.length} players shown</p>
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>

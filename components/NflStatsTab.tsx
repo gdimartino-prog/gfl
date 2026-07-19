@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
-import { Loader2, AlertCircle, Link2, X, Search, ChevronUp, ChevronDown } from 'lucide-react';
+import { Loader2, AlertCircle, Link2, X, Search, ChevronUp, ChevronDown, ChevronRight } from 'lucide-react';
 import { posGroup as libPosGroup, powerScore as libPowerScore } from '@/lib/power-score';
 
 interface PlayerStat {
@@ -27,6 +27,17 @@ interface TeamRanking {
   offenseScore: number;
   defenseScore: number;
   totalScore: number;
+  byGroup: Record<string, number>;
+}
+
+interface LeaguePlayer {
+  id: number;
+  name: string;
+  espnId: string | null;
+  teamshort: string;
+  teamName: string;
+  posGroup: string;
+  score: number;
 }
 
 interface EspnResult {
@@ -131,6 +142,8 @@ const DEF_POS_ORDER: Record<string, number> = {
   LB: 1, ILB: 1, OLB: 1, MLB: 1,
   DB: 2, CB: 2, S: 2, SS: 2, FS: 2,
 };
+
+const POS_GROUPS_ORDER = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'];
 
 function defPosRank(p: PlayerStat): number {
   const pos = (p.defense || p.position || '').toUpperCase();
@@ -576,6 +589,7 @@ function PunterTable({ players, isCommissioner, onLink }: TableProps) {
 
 function LeagueRankingsTable({ data, currentTeamshort }: { data: TeamRanking[]; currentTeamshort: string }) {
   const [sort, setSort] = useState<SortState>({ key: 'totalScore', dir: 'desc' });
+  const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
 
   const sorted = useMemo(() => {
     return [...data].sort((a, b) => {
@@ -585,13 +599,13 @@ function LeagueRankingsTable({ data, currentTeamshort }: { data: TeamRanking[]; 
         const cmp = va.localeCompare(vb);
         return sort.dir === 'asc' ? cmp : -cmp;
       }
-      const na = (va as number) ?? 0;
-      const nb = (vb as number) ?? 0;
-      return sort.dir === 'desc' ? nb - na : na - nb;
+      if (typeof va === 'number' && typeof vb === 'number') {
+        return sort.dir === 'desc' ? vb - va : va - vb;
+      }
+      return 0;
     });
   }, [data, sort]);
 
-  // Leaders across the unsorted data
   const leaders = useMemo(() => {
     if (!data.length) return { off: '', def: '', total: '' };
     const maxOff = Math.max(...data.map(t => t.offenseScore));
@@ -603,6 +617,15 @@ function LeagueRankingsTable({ data, currentTeamshort }: { data: TeamRanking[]; 
       total: data.find(t => t.totalScore === maxTotal)?.teamshort ?? '',
     };
   }, [data]);
+
+  const toggleExpand = (ts: string) => {
+    setExpandedTeams(prev => {
+      const next = new Set(prev);
+      if (next.has(ts)) next.delete(ts);
+      else next.add(ts);
+      return next;
+    });
+  };
 
   const s = { sort, setSort };
 
@@ -619,17 +642,25 @@ function LeagueRankingsTable({ data, currentTeamshort }: { data: TeamRanking[]; 
         </tr>
       </thead>
       <tbody>
-        {sorted.map((team, i) => {
+        {sorted.flatMap((team, i) => {
           const isCurrentTeam = team.teamshort.toUpperCase() === currentTeamshort.toUpperCase();
           const ts = team.teamshort;
-          return (
+          const isExpanded = expandedTeams.has(ts);
+          const hasBreakdown = Object.keys(team.byGroup ?? {}).length > 0;
+          const rows = [
             <tr
               key={ts}
-              className={`border-b border-slate-50 transition-colors ${isCurrentTeam ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
+              className={`border-b border-slate-50 transition-colors ${isCurrentTeam ? 'bg-blue-50' : 'hover:bg-slate-50'} ${hasBreakdown ? 'cursor-pointer' : ''}`}
+              onClick={() => hasBreakdown && toggleExpand(ts)}
             >
               <td className="py-2 px-3 text-sm font-bold text-slate-500 tabular-nums">{i + 1}</td>
               <td className="py-2 px-3 text-sm whitespace-nowrap">
                 <div className="flex items-center gap-1.5">
+                  {hasBreakdown && (
+                    <span className="text-slate-400 flex-shrink-0">
+                      {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+                    </span>
+                  )}
                   <span className="font-bold text-slate-800">{team.teamName}</span>
                   {ts === leaders.total && <span title="Best Total">🏆</span>}
                   {ts !== leaders.total && ts === leaders.off && <span title="Best Offense">⚔️</span>}
@@ -650,11 +681,124 @@ function LeagueRankingsTable({ data, currentTeamshort }: { data: TeamRanking[]; 
               <td className={`py-2 px-3 text-sm text-right tabular-nums font-semibold ${ts === leaders.total ? 'text-emerald-600' : 'text-slate-700'}`}>
                 {team.totalScore.toFixed(1)}
               </td>
-            </tr>
-          );
+            </tr>,
+          ];
+          if (isExpanded && hasBreakdown) {
+            rows.push(
+              <tr key={`${ts}-breakdown`} className={`border-b border-slate-100 ${isCurrentTeam ? 'bg-blue-50/50' : 'bg-slate-50/60'}`}>
+                <td colSpan={6} className="px-8 py-3">
+                  <div className="flex flex-wrap gap-3">
+                    {POS_GROUPS_ORDER.filter(g => (team.byGroup[g] ?? 0) > 0).map(g => (
+                      <div key={g} className="flex items-center gap-1.5">
+                        <PosBadge pos={g} />
+                        <span className="text-xs font-semibold text-slate-700">{(team.byGroup[g] ?? 0).toFixed(1)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </td>
+              </tr>,
+            );
+          }
+          return rows;
         })}
       </tbody>
     </TableWrap>
+  );
+}
+
+function LeaguePlayersTable({ data }: { data: LeaguePlayer[] }) {
+  const [filterGroup, setFilterGroup] = useState<string | null>(null);
+  const [sort, setSort] = useState<SortState>({ key: 'score', dir: 'desc' });
+
+  const availableGroups = useMemo(() => {
+    const seen = new Set<string>();
+    data.forEach(p => seen.add(p.posGroup));
+    return POS_GROUPS_ORDER.filter(g => seen.has(g));
+  }, [data]);
+
+  const filtered = useMemo(() => {
+    const list = filterGroup ? data.filter(p => p.posGroup === filterGroup) : data;
+    return [...list].sort((a, b) => {
+      if (sort.key === 'name') {
+        const cmp = a.name.localeCompare(b.name);
+        return sort.dir === 'asc' ? cmp : -cmp;
+      }
+      if (sort.key === 'posGroup') {
+        const ca = POS_GROUPS_ORDER.indexOf(a.posGroup);
+        const cb = POS_GROUPS_ORDER.indexOf(b.posGroup);
+        return sort.dir === 'asc' ? ca - cb : cb - ca;
+      }
+      return sort.dir === 'desc' ? b.score - a.score : a.score - b.score;
+    });
+  }, [data, filterGroup, sort]);
+
+  const s = { sort, setSort };
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-1.5 mb-4">
+        <button
+          onClick={() => setFilterGroup(null)}
+          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${filterGroup === null ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+        >
+          All
+        </button>
+        {availableGroups.map(g => (
+          <button
+            key={g}
+            onClick={() => setFilterGroup(filterGroup === g ? null : g)}
+            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${filterGroup === g ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+          >
+            {g}
+          </button>
+        ))}
+      </div>
+      <TableWrap>
+        <thead className="border-b border-slate-100 bg-slate-50">
+          <tr>
+            <ThL>Rank</ThL>
+            <ThL statKey="name" {...s}>Player</ThL>
+            <ThL statKey="posGroup" {...s}>Pos</ThL>
+            <ThL>GFL Team</ThL>
+            <Th statKey="score" {...s}>Score</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map((p, i) => (
+            <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+              <td className="py-2 px-3 text-sm font-bold text-slate-500 tabular-nums">{i + 1}</td>
+              <td className="py-2 px-3 text-sm whitespace-nowrap">
+                <div className="flex items-center gap-1.5">
+                  {p.espnId && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={`https://a.espncdn.com/i/headshots/nfl/players/full/${p.espnId}.png`}
+                      alt={p.name}
+                      className="w-7 h-7 rounded-full object-cover bg-slate-100 flex-shrink-0"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  )}
+                  <div>
+                    <div className="font-bold text-slate-800">{p.name}</div>
+                    <div className="text-[10px] text-slate-400">{p.teamName}</div>
+                  </div>
+                </div>
+              </td>
+              <td className="py-2 px-3"><PosBadge pos={p.posGroup} /></td>
+              <td className="py-2 px-3 text-xs font-bold text-slate-500">{p.teamshort}</td>
+              <td className={`py-2 px-3 text-sm text-right tabular-nums font-semibold ${p.score > 0 ? 'text-slate-700' : 'text-slate-300'}`}>
+                {p.score > 0 ? p.score.toFixed(1) : '—'}
+              </td>
+            </tr>
+          ))}
+          {filtered.length === 0 && (
+            <tr>
+              <td colSpan={5} className="py-8 text-center text-xs text-slate-400">No players found</td>
+            </tr>
+          )}
+        </tbody>
+      </TableWrap>
+    </div>
   );
 }
 
@@ -799,6 +943,8 @@ export default function NflStatsTab({ teamshort }: Props) {
 
   // League view state
   const [leagueData, setLeagueData] = useState<TeamRanking[] | null>(null);
+  const [leaguePlayers, setLeaguePlayers] = useState<LeaguePlayer[] | null>(null);
+  const [leagueSubView, setLeagueSubView] = useState<'teams' | 'players'>('teams');
   const [leagueLoading, setLeagueLoading] = useState(false);
   const [leagueError, setLeagueError] = useState<string | null>(null);
 
@@ -822,10 +968,13 @@ export default function NflStatsTab({ teamshort }: Props) {
     setLeagueLoading(true);
     setLeagueError(null);
     setLeagueData(null);
+    setLeaguePlayers(null);
     try {
       const r = await fetch(`/api/league-stats?year=${year}`);
       if (!r.ok) throw new Error('Failed to load league stats');
-      setLeagueData(await r.json());
+      const json = await r.json();
+      setLeagueData(json.teams ?? []);
+      setLeaguePlayers(json.players ?? []);
     } catch (e) {
       setLeagueError((e as Error).message);
     } finally {
@@ -979,8 +1128,32 @@ export default function NflStatsTab({ teamshort }: Props) {
 
           {leagueData && !leagueLoading && (
             <>
-              <SectionHeader title={`${year} League Power Rankings`} />
-              <LeagueRankingsTable data={leagueData} currentTeamshort={teamshort} />
+              <div className="flex gap-1 bg-white p-1 rounded-xl shadow-sm border border-slate-200 w-fit mb-5">
+                {(['teams', 'players'] as const).map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setLeagueSubView(v)}
+                    className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${
+                      leagueSubView === v ? 'bg-slate-900 text-white shadow' : 'text-slate-400 hover:text-slate-900'
+                    }`}
+                  >
+                    {v === 'teams' ? 'Teams' : 'Top Players'}
+                  </button>
+                ))}
+              </div>
+
+              {leagueSubView === 'teams' ? (
+                <>
+                  <SectionHeader title={`${year} League Power Rankings`} />
+                  <p className="text-[10px] text-slate-400 mb-3">Click a team row to expand position breakdown</p>
+                  <LeagueRankingsTable data={leagueData} currentTeamshort={teamshort} />
+                </>
+              ) : (
+                <>
+                  <SectionHeader title={`${year} Top Players`} />
+                  <LeaguePlayersTable data={leaguePlayers ?? []} />
+                </>
+              )}
             </>
           )}
         </>
