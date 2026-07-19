@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useConfirm } from "@/components/ConfirmDialog";
 import Link from "next/link";
-import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList, Bell, Search, Eye } from "lucide-react";
+import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList, Bell, Search, Eye, Terminal } from "lucide-react";
 
 type RuleRow = { setting: string; value: string; desc: string | null; year: number | null };
 const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
@@ -715,6 +715,44 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
     }
   };
 
+  const [photosDl, setPhotosDl] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
+  const [photosProgress, setPhotosProgress] = useState({ ok: 0, err: 0, total: 0, dir: '' });
+
+  const downloadPhotos = async () => {
+    setPhotosDl('running');
+    setPhotosProgress({ ok: 0, err: 0, total: 0, dir: '' });
+    try {
+      const res = await fetch('/api/maintenance/player-photos', { method: 'POST' });
+      if (!res.ok) {
+        const { error } = await res.json();
+        alert(error);
+        setPhotosDl('error');
+        return;
+      }
+      const reader = res.body!.getReader();
+      const dec = new TextDecoder();
+      let buf = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        const lines = buf.split('\n\n');
+        buf = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          try {
+            const evt = JSON.parse(line.slice(6));
+            if (evt.type === 'start') setPhotosProgress(p => ({ ...p, total: evt.total, dir: evt.dir }));
+            if (evt.type === 'progress') setPhotosProgress(p => ({ ...p, ok: evt.ok, err: evt.err }));
+            if (evt.type === 'done') { setPhotosProgress(p => ({ ...p, ok: evt.ok, err: evt.err, dir: evt.dir })); setPhotosDl('done'); }
+          } catch { /* skip malformed SSE lines */ }
+        }
+      }
+    } catch {
+      setPhotosDl('error');
+    }
+  };
+
   const seasonGames = parseInt(rulesData.find(r => r.setting.toLowerCase() === 'season_games')?.value ?? '') || 14;
   const weekOptions = [...Array.from({ length: seasonGames }, (_, i) => String(i + 1)), 'WC', 'CONF', 'SB'];
 
@@ -754,6 +792,51 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
             <p className="text-sm font-black uppercase italic text-slate-900">Scout →</p>
           </div>
         </Link>
+
+        {/* Action Game photo downloader */}
+        <div className="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-5 py-4 shadow-sm min-w-[220px]">
+          <div className="bg-violet-50 p-2 rounded-xl text-violet-600 mt-0.5 shrink-0">
+            <Terminal size={18} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Action Game</p>
+            <p className="text-sm font-black uppercase italic text-slate-900 mb-2">Player Photos</p>
+            {photosDl === 'idle' && (
+              <button onClick={downloadPhotos} className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all">
+                <Terminal size={11} /> Download All Photos
+              </button>
+            )}
+            {photosDl === 'running' && (
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-[10px] font-bold text-slate-500">
+                  <span>{photosProgress.ok + photosProgress.err} / {photosProgress.total || '…'}</span>
+                  {photosProgress.err > 0 && <span className="text-amber-500">{photosProgress.err} skipped</span>}
+                </div>
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-violet-500 transition-all duration-300"
+                    style={{ width: photosProgress.total ? `${Math.round((photosProgress.ok + photosProgress.err) / photosProgress.total * 100)}%` : '0%' }}
+                  />
+                </div>
+                <p className="text-[9px] text-slate-400 italic">Running locally only — do not close this tab</p>
+              </div>
+            )}
+            {photosDl === 'done' && (
+              <div className="space-y-1.5">
+                <p className="text-[10px] font-black text-emerald-600">✓ {photosProgress.ok} photos saved</p>
+                {photosProgress.err > 0 && <p className="text-[10px] text-amber-500">{photosProgress.err} skipped (stale ESPN IDs)</p>}
+                <div className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Saved to</p>
+                  <p className="text-[10px] font-mono text-slate-700 break-all" title={photosProgress.dir}>{photosProgress.dir}</p>
+                </div>
+                <button onClick={() => { setPhotosDl('idle'); }} className="text-[10px] text-violet-500 hover:text-violet-700 font-black uppercase">Run again</button>
+              </div>
+            )}
+            {photosDl === 'error' && (
+              <button onClick={() => setPhotosDl('idle')} className="text-[10px] text-red-500 font-black uppercase">Error — try again</button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* File Upload Section */}
