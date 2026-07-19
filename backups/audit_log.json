@@ -10168,5 +10168,50 @@
     "team": "OBG",
     "action": "COA_UPLOAD",
     "details": "Uploaded OLD_BRIDGE.COA"
+  },
+  {
+    "id": 1131,
+    "leagueId": 1,
+    "timestamp": "2026-07-18T15:20:52.701Z",
+    "coach": "George Di Martino",
+    "team": "System",
+    "action": "PLAYER_UPDATE",
+    "details": "Set ESPN ID for player #23270: 4426350"
+  },
+  {
+    "id": 1132,
+    "leagueId": 1,
+    "timestamp": "2026-07-18T15:21:31.102Z",
+    "coach": "George Di Martino",
+    "team": "System",
+    "action": "PLAYER_UPDATE",
+    "details": "Set ESPN ID for player #23780: 3039707"
+  },
+  {
+    "id": 1133,
+    "leagueId": 1,
+    "timestamp": "2026-07-18T15:22:04.063Z",
+    "coach": "George Di Martino",
+    "team": "System",
+    "action": "PLAYER_UPDATE",
+    "details": "Set ESPN ID for player #23780: 3039707"
+  },
+  {
+    "id": 1134,
+    "leagueId": 1,
+    "timestamp": "2026-07-18T15:24:32.657Z",
+    "coach": "George Di Martino",
+    "team": "System",
+    "action": "PLAYER_UPDATE",
+    "details": "Set ESPN ID for player #23701: 4575131"
+  },
+  {
+    "id": 1135,
+    "leagueId": 1,
+    "timestamp": "2026-07-19T01:44:24.744Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
