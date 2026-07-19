@@ -486,6 +486,15 @@ export default function CutsClient() {
                 <div key={p.identity} className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col sm:flex-row justify-between items-center group hover:shadow-xl transition-all gap-6">
                   <div className="text-left flex-1">
                     <div className="flex items-center gap-4">
+                      {p.espnId && /^\d+$/.test(p.espnId) && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={`https://a.espncdn.com/i/headshots/nfl/players/full/${p.espnId}.png`}
+                          alt={`${p.first} ${p.last}`}
+                          className="w-7 h-7 rounded-full object-cover bg-slate-100 flex-shrink-0"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      )}
                       <h3 onClick={() => window.open(`https://www.google.com/search?q=${encodeURIComponent(p.first + ' ' + p.last)}`, '_blank')} className="font-black text-2xl text-slate-800 uppercase italic tracking-tighter leading-none cursor-pointer hover:text-blue-600 transition-all">{p.first} {p.last}</h3>
                       <button onClick={() => fetchPlayerDetails(p.identity)} className="bg-slate-50 text-slate-400 text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all italic">Stats Terminal</button>
                     </div>

@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
         sack: p.sack,
         dur: p.dur,
         overall: p.overall,
+        espnId: p.espnId ?? null,
         salary: p.salary ?? p.scouting?.salary ?? null,
         receiving: p.receiving ?? p.scouting?.receiving ?? null,
         ...(includeScouting ? { scouting: p.scouting ?? null } : {}),

@@ -13,6 +13,7 @@ interface TradeBlockPlayer {
   team: string;
   position: string;
   asking: string;
+  espnId?: string | null;
 }
 
 export default function TradeBlockPage() {
@@ -192,14 +193,25 @@ export default function TradeBlockPage() {
                 {sortedPlayers.map((player) => (
                   <tr key={player.playerId} className="hover:bg-slate-50 transition-colors group">
                     <td className="px-8 py-6">
-                      <a
-                        href={`https://www.google.com/search?q=${encodeURIComponent(player.playerName)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-black text-slate-900 uppercase italic tracking-tight text-lg leading-none hover:text-blue-600"
-                      >
-                        {player.playerName}
-                      </a>
+                      <div className="flex items-center gap-3">
+                        {player.espnId && /^\d+$/.test(player.espnId) && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={`https://a.espncdn.com/i/headshots/nfl/players/full/${player.espnId}.png`}
+                            alt={player.playerName}
+                            className="w-7 h-7 rounded-full object-cover bg-slate-100 flex-shrink-0"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        )}
+                        <a
+                          href={`https://www.google.com/search?q=${encodeURIComponent(player.playerName)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-black text-slate-900 uppercase italic tracking-tight text-lg leading-none hover:text-blue-600"
+                        >
+                          {player.playerName}
+                        </a>
+                      </div>
                     </td>
                     <td className="px-8 py-6 text-slate-500 font-bold text-xs uppercase">{teamNameMap[player.team.toUpperCase()] || player.team}</td>
                     <td className="px-8 py-6 text-slate-500 font-bold text-xs uppercase">{player.position}</td>

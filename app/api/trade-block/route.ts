@@ -10,7 +10,17 @@ import { isAdmin } from '@/lib/auth';
 export async function GET() {
   try {
     const leagueId = await getLeagueId();
-    const rows = await db.select().from(tradeBlock)
+    const rows = await db
+      .select({
+        playerId: tradeBlock.playerId,
+        playerName: tradeBlock.playerName,
+        team: tradeBlock.team,
+        position: tradeBlock.position,
+        asking: tradeBlock.asking,
+        espnId: players.espnId,
+      })
+      .from(tradeBlock)
+      .leftJoin(players, and(eq(players.identity, tradeBlock.playerId), eq(players.leagueId, leagueId)))
       .where(eq(tradeBlock.leagueId, leagueId))
       .orderBy(tradeBlock.touch_dt);
     return NextResponse.json(
@@ -20,6 +30,7 @@ export async function GET() {
         team: r.team,
         position: r.position,
         asking: r.asking,
+        espnId: r.espnId ?? null,
       })),
       { headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' } },
     );

@@ -84,6 +84,7 @@ export interface Player {
   defense?: string;
   special?: string;
   age?: number;
+  espnId?: string | null;
   salary?: string | number;
   team?: string;
   group?: string;

@@ -794,6 +794,15 @@ function RosterSection({ title, players, accent, color, onDetails, onToggleTrade
             <div key={i} className="group flex items-center justify-between p-5 hover:bg-slate-50 transition-all">
               <div className="flex items-center gap-4 min-w-0">
                 <span className={`shrink-0 font-mono text-[9px] font-black ${color} w-10 h-10 flex items-center justify-center rounded-xl uppercase italic shadow-inner`}>{p.pos}</span>
+                {p.espnId && /^\d+$/.test(p.espnId) && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`https://a.espncdn.com/i/headshots/nfl/players/full/${p.espnId}.png`}
+                    alt={p.name || ''}
+                    className="w-7 h-7 rounded-full object-cover bg-slate-100 flex-shrink-0"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                )}
                 <div className="min-w-0">
                   <a href={`https://www.google.com/search?q=${encodeURIComponent(p.name || '')}`} target="_blank" rel="noopener noreferrer" className="text-sm font-black text-slate-900 uppercase italic tracking-tighter leading-none hover:text-blue-600 truncate block flex items-center gap-2">
                     {p.name}

@@ -31,6 +31,7 @@ interface FaPlayer {
   sack: string | number | null;
   scouting: Record<string, string | number> | null;
   identity: string;
+  espnId?: string | null;
 }
 
 type SortDir = 'asc' | 'desc';
@@ -496,15 +497,28 @@ function PositionTable({
                   </td>
                   {/* Player name */}
                   <td className="px-3 py-1.5 sticky left-10 bg-inherit z-10 whitespace-nowrap">
-                    <a
-                      href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' NFL')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-semibold text-white hover:text-blue-400 transition-colors"
-                    >
-                      {p.first} {p.last}
-                    </a>
-                    <span className="ml-1.5 text-slate-500 font-normal text-[10px]">{pos}</span>
+                    <div className="flex items-center gap-1.5">
+                      {p.espnId && /^\d+$/.test(p.espnId) && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={`https://a.espncdn.com/i/headshots/nfl/players/full/${p.espnId}.png`}
+                          alt={p.name}
+                          className="w-7 h-7 rounded-full object-cover bg-slate-700 flex-shrink-0"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      )}
+                      <div>
+                        <a
+                          href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' NFL')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-semibold text-white hover:text-blue-400 transition-colors"
+                        >
+                          {p.first} {p.last}
+                        </a>
+                        <span className="ml-1.5 text-slate-500 font-normal text-[10px]">{pos}</span>
+                      </div>
+                    </div>
                   </td>
                   {/* Stats */}
                   {group.cols.map(col => {

@@ -24,6 +24,7 @@ const sharedSelect = {
   defense: players.defense,
   special: players.special,
   identity: players.identity,
+  espnId: players.espnId,
   isIR: players.isIR,
   overall: players.overall,
   runBlock: players.runBlock,
@@ -62,7 +63,7 @@ const _getPlayers = unstable_cache(async (leagueId: number) => {
     .where(eq(players.leagueId, leagueId));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return rows.map(p => mapRow(p as any));
-}, ['players-lean-v4'], { revalidate: 300, tags: ['players'] });
+}, ['players-lean-v5'], { revalidate: 300, tags: ['players'] });
 
 // Full query — includes scouting JSON. Too large for unstable_cache (>2MB);
 // rely on CDN Cache-Control headers at the API route level instead.
@@ -98,7 +99,7 @@ const _getFAPlayersWithScouting = unstable_cache(
       return mapped;
     });
   },
-  ['players-fa-scouting-v1'],
+  ['players-fa-scouting-v2'],
   { revalidate: 60, tags: ['players', 'players-fa'] }
 );
 

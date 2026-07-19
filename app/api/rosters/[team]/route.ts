@@ -46,6 +46,7 @@ export async function GET(_req: Request, { params }: RouteContext) {
         int: p.int,
         sack: p.sack,
         dur: p.dur,
+        espnId: p.espnId ?? null,
       }));
 
     const picks = allPicks
