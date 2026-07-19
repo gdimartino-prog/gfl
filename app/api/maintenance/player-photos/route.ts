@@ -32,7 +32,7 @@ export async function POST() {
 
   // Validate year from DB before interpolating into a filesystem path
   const yearRule = await db.select({ value: rules.value }).from(rules)
-    .where(and(eq(rules.leagueId, 1), eq(rules.setting, 'cuts_year')))
+    .where(and(eq(rules.leagueId, 1), eq(rules.rule, 'cuts_year')))
     .limit(1);
   const year = yearRule[0]?.value ?? String(new Date().getFullYear());
   if (!/^\d{4}$/.test(year)) {
