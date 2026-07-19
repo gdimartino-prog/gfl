@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { players } from '@/schema';
-import { eq, and, isNull, isNotNull } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
-import { getEspnSeasonStats } from '@/lib/espn-stats';
+import { findEspnId, getEspnSeasonStats } from '@/lib/espn-stats';
 import { posGroup, powerScore } from '@/lib/power-score';
 import { unstable_cache } from 'next/cache';
 
@@ -12,6 +12,8 @@ async function fetchFaPower(leagueId: number, year: number) {
   const roster = await db
     .select({
       id: players.id,
+      first: players.first,
+      last: players.last,
       name: players.name,
       offense: players.offense,
       defense: players.defense,
@@ -24,7 +26,6 @@ async function fetchFaPower(leagueId: number, year: number) {
     .where(and(
       eq(players.leagueId, leagueId),
       isNull(players.teamId),
-      isNotNull(players.espnId),
     ));
 
   if (!roster.length) return [];
@@ -33,7 +34,7 @@ async function fetchFaPower(leagueId: number, year: number) {
   const results: Array<{
     id: number;
     name: string;
-    espnId: string;
+    espnId: string | null;
     nflTeam: string | null;
     posGroup: string;
     score: number;
@@ -43,20 +44,34 @@ async function fetchFaPower(leagueId: number, year: number) {
     const batch = roster.slice(i, i + CHUNK);
     const batchResults = await Promise.all(
       batch.map(async (player) => {
-        const stats = await getEspnSeasonStats(player.espnId!, year);
+        let espnId = player.espnId ?? null;
+
+        // Auto-search and persist missing espnIds (same pattern as nfl-stats route)
+        if (!espnId) {
+          espnId = await findEspnId(player.first ?? '', player.last ?? '');
+          if (espnId) {
+            await db.update(players)
+              .set({ espnId, touch_id: 'fa-power-sync', touch_dt: new Date() })
+              .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
+          }
+        }
+
+        if (!espnId) return null;
+
+        const stats = await getEspnSeasonStats(espnId, year);
         const group = posGroup(player.offense, player.defense, player.special, player.position);
         const score = powerScore(player.offense, player.defense, player.special, player.position, stats);
         return {
           id: player.id,
           name: player.name ?? '',
-          espnId: player.espnId!,
+          espnId,
           nflTeam: player.nflTeam ?? null,
           posGroup: group,
           score,
         };
       }),
     );
-    results.push(...batchResults);
+    results.push(...batchResults.filter((r): r is NonNullable<typeof r> => r !== null));
   }
 
   return results
