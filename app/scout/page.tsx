@@ -980,7 +980,14 @@ export default function ScoutPage() {
                                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                                 />
                               )}
-                              <span className="font-bold text-slate-800">{p.name}</span>
+                              <a
+                                href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' NFL')}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-bold text-slate-800 hover:text-blue-600 transition-colors"
+                              >
+                                {p.name}
+                              </a>
                             </div>
                           </td>
                           <td className="py-2 px-3">

@@ -779,7 +779,14 @@ function LeaguePlayersTable({ data }: { data: LeaguePlayer[] }) {
                     />
                   )}
                   <div>
-                    <div className="font-bold text-slate-800">{p.name}</div>
+                    <a
+                      href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' NFL')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-bold text-slate-800 hover:text-blue-600 transition-colors"
+                    >
+                      {p.name}
+                    </a>
                     <div className="text-[10px] text-slate-400">{p.teamName}</div>
                   </div>
                 </div>
