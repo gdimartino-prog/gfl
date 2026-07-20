@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import LogoutButton from '@/components/LogoutButton';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getLeagueRow } from '@/lib/getLeagueInfo';
+import DemoLoginButton from '@/components/DemoLoginButton';
 
 export default async function HomePage() {
   const session = await auth();
@@ -23,6 +24,8 @@ export default async function HomePage() {
       legacyUrl = row?.legacyUrl ?? null;
     } catch {}
   }
+
+  const photosBlobUrl = process.env.PLAYER_PHOTOS_BLOB_URL ?? null;
 
   const cards = [
     {
@@ -123,7 +126,17 @@ export default async function HomePage() {
       icon: '📖',
       color: 'border-sky-500',
       protected: false
-    }
+    },
+    ...(photosBlobUrl ? [{
+      title: 'Player Photos 2026',
+      desc: 'Download the full Action PC Football player photo library (106×116 px, all GFL rosters).',
+      href: photosBlobUrl,
+      icon: '🖼️',
+      color: 'border-teal-500',
+      isExternal: true,
+      isDownload: true,
+      protected: false,
+    }] : []),
   ];
 
   return (
@@ -160,8 +173,37 @@ export default async function HomePage() {
         )}
       </header>
 
+      {/* DEMO + DOWNLOAD BANNER — shown to unauthenticated visitors */}
+      {!session && (
+        <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex items-center justify-between bg-slate-900 text-white rounded-2xl px-6 py-5 shadow-lg">
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-400 mb-1">Free to explore</p>
+              <p className="text-base font-black uppercase italic tracking-tight leading-tight">Try the Demo League</p>
+              <p className="text-[11px] text-slate-400 mt-1 font-medium">Full read-only access — no account needed</p>
+            </div>
+            <DemoLoginButton />
+          </div>
+
+          {photosBlobUrl && (
+            <a
+              href={photosBlobUrl}
+              download
+              className="flex items-center justify-between bg-teal-600 hover:bg-teal-700 text-white rounded-2xl px-6 py-5 shadow-lg transition-all group"
+            >
+              <div>
+                <p className="text-[9px] font-black uppercase tracking-[0.25em] text-teal-200 mb-1">Action PC Football</p>
+                <p className="text-base font-black uppercase italic tracking-tight leading-tight">Player Photos 2026</p>
+                <p className="text-[11px] text-teal-200 mt-1 font-medium">106×116 px · All GFL rosters · ZIP</p>
+              </div>
+              <span className="text-3xl group-hover:scale-110 transition-transform">⬇️</span>
+            </a>
+          )}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
+
         {/* LEFT COLUMN: Tool Cards */}
         <div className="lg:col-span-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -195,7 +237,7 @@ export default async function HomePage() {
                   </p>
                   {!isDisabled && (
                     <div className={`mt-4 text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest ${card.color.replace('border-', 'text-')}`}>
-                      {isLocked ? 'Unlock via Login →' : (card.isExternal ? 'External Link ↗' : 'Launch Tool →')}
+                      {isLocked ? 'Unlock via Login →' : ((card as { isDownload?: boolean }).isDownload ? 'Download ↓' : card.isExternal ? 'External Link ↗' : 'Launch Tool →')}
                     </div>
                   )}
                 </>
@@ -206,7 +248,14 @@ export default async function HomePage() {
               }
 
               return card.isExternal ? (
-                <a key={card.title} href={card.href} target="_blank" rel="noopener noreferrer" className={cardClasses}>
+                <a
+                  key={card.title}
+                  href={card.href}
+                  target={(card as { isDownload?: boolean }).isDownload ? '_self' : '_blank'}
+                  rel="noopener noreferrer"
+                  {...((card as { isDownload?: boolean }).isDownload ? { download: true } : {})}
+                  className={cardClasses}
+                >
                   {innerContent}
                 </a>
               ) : (

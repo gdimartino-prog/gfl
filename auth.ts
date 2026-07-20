@@ -36,8 +36,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             rawInput.toLowerCase() === demoUsername.toLowerCase() &&
             password === demoPassword
           ) {
-            await logSystemEvent('Demo Commissioner', 'VV', 'LOGIN', 'Demo user accessed Front Office', 1);
-            return { id: 'VV', name: 'Demo Commissioner', team: 'Vico', role: 'demo' };
+            await logSystemEvent('Demo Commissioner', 'VV', 'LOGIN', 'Demo user accessed Front Office', 2);
+            return { id: 'VV', name: 'Demo Commissioner', team: 'Vico', role: 'demo', leagueId: 2 };
           }
 
           const { db } = await import('@/lib/db');

@@ -162,7 +162,13 @@ const handleUndoMyPick = async () => {
 
       if (Array.isArray(rRes)) {
         const dYear = rRes.find(r => r.setting === 'draft_year');
-        if (dYear?.value) setYearFilter(dYear.value.toString());
+        if (dYear?.value) {
+          setYearFilter(dYear.value.toString());
+        } else if (sortedPicks.length > 0) {
+          // No draft_year rule — default to the most recent year in the picks data
+          const maxYear = Math.max(...sortedPicks.map(p => Number(p.year)).filter(Boolean));
+          if (maxYear) setYearFilter(String(maxYear));
+        }
 
         const dStart = rRes.find((r: {setting: string; value: string}) => r.setting === 'draft_start_date');
         if (dStart?.value) {
@@ -682,7 +688,7 @@ const handleUndoMyPick = async () => {
                   const isNewRound = index === 0 || filteredPicks[index - 1].round !== pick.round;
 
                   return (
-                    <React.Fragment key={pick.overall}>
+                    <React.Fragment key={`${pick.year}-${pick.draftType}-${pick.overall}`}>
                       {isNewRound && (
                         <tr className="z-10">
                           <td colSpan={5} className="sticky top-[60px] px-10 py-3 bg-slate-50/95 backdrop-blur-md border-y border-slate-100">

@@ -134,6 +134,20 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 
       {/* 2. LOGIN FORM */}
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="border-b border-slate-100 pb-6">
+          <p className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4">
+            Just browsing?
+          </p>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={handleDemoLogin}
+            className="w-full bg-slate-800 hover:bg-slate-700 disabled:bg-slate-200 text-white font-black uppercase italic tracking-widest py-4 rounded-2xl transition-all active:scale-[0.98] text-sm"
+          >
+            View Demo League →
+          </button>
+        </div>
+
         {error && (
           <div className="flex items-center gap-3 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 animate-in slide-in-from-top-2">
             <AlertCircle size={18} />
@@ -235,19 +249,6 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
           </button>
         </div>
 
-        <div className="border-t border-slate-100 pt-6">
-          <p className="text-center text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-            Just browsing?
-          </p>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleDemoLogin}
-            className="w-full bg-slate-800 hover:bg-slate-700 disabled:bg-slate-200 text-white font-black uppercase italic tracking-widest py-4 rounded-2xl transition-all active:scale-[0.98] text-sm"
-          >
-            View Demo League →
-          </button>
-        </div>
       </form>
     </>
   );

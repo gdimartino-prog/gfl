@@ -8,8 +8,8 @@ export async function isAdmin() {
   const session = await auth();
   const role = session?.user?.role;
   if (role === "superuser") return true;
-  if (role !== "admin") return false;
-  // 'admin' role means commissioner — verify against the current league
+  if (role !== "admin" && role !== "demo") return false;
+  // verify commissioner status against DB (works for both 'admin' and 'demo' roles)
   return isCommissioner();
 }
 
