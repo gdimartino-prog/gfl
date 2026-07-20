@@ -152,12 +152,13 @@ export default async function HomePage() {
       <header className="mb-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-6">
           <div className="bg-white p-2 rounded-xl shadow-sm border border-slate-100">
-              <Image 
-              src="/icon.png" 
+              <Image
+              src="/icon.png"
               alt={`${leagueName} Logo`}
               className="h-20 w-auto object-contain"
-                width={80}
-                height={80}
+              width={80}
+              height={80}
+              style={{ width: 'auto' }}
             />
           </div>
 
