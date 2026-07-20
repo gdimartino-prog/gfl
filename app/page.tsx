@@ -7,6 +7,8 @@ import LogoutButton from '@/components/LogoutButton';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getLeagueRow } from '@/lib/getLeagueInfo';
 import DemoLoginButton from '@/components/DemoLoginButton';
+import PlayerPhotosCard from '@/components/PlayerPhotosCard';
+import { isCommissioner } from '@/lib/auth';
 
 export default async function HomePage() {
   const session = await auth();
@@ -15,6 +17,7 @@ export default async function HomePage() {
   let leagueSlug = '';
   let legacyUrl: string | null = null;
   let leagueId = 1;
+  let commissioner = false;
   if (session) {
     try {
       leagueId = await getLeagueId();
@@ -22,6 +25,7 @@ export default async function HomePage() {
       if (row?.name) leagueName = row.name;
       if (row?.slug) leagueSlug = row.slug.toUpperCase();
       legacyUrl = row?.legacyUrl ?? null;
+      commissioner = await isCommissioner();
     } catch {}
   }
 
@@ -238,6 +242,13 @@ export default async function HomePage() {
               );
             })}
           </div>
+
+          {/* COMMISSIONER-ONLY TOOLS */}
+          {commissioner && (
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <PlayerPhotosCard />
+            </div>
+          )}
 
           {/* AUTHORIZED FOOTER ACTIONS */}
           {session && (
