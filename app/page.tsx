@@ -7,8 +7,9 @@ import LogoutButton from '@/components/LogoutButton';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getLeagueRow } from '@/lib/getLeagueInfo';
 import DemoLoginButton from '@/components/DemoLoginButton';
-import PlayerPhotosCard from '@/components/PlayerPhotosCard';
-import { isCommissioner } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { resources } from '@/schema';
+import { and, eq } from 'drizzle-orm';
 
 export default async function HomePage() {
   const session = await auth();
@@ -17,7 +18,7 @@ export default async function HomePage() {
   let leagueSlug = '';
   let legacyUrl: string | null = null;
   let leagueId = 1;
-  let commissioner = false;
+  let photosResource: { url: string | null } | null = null;
   if (session) {
     try {
       leagueId = await getLeagueId();
@@ -25,9 +26,15 @@ export default async function HomePage() {
       if (row?.name) leagueName = row.name;
       if (row?.slug) leagueSlug = row.slug.toUpperCase();
       legacyUrl = row?.legacyUrl ?? null;
-      commissioner = await isCommissioner();
     } catch {}
   }
+  try {
+    const [r] = await db.select({ url: resources.url })
+      .from(resources)
+      .where(and(eq(resources.leagueId, leagueId), eq(resources.title, 'Player Photos')))
+      .limit(1);
+    if (r?.url) photosResource = r;
+  } catch {}
 
   const cards = [
     {
@@ -129,6 +136,15 @@ export default async function HomePage() {
       color: 'border-sky-500',
       protected: false
     },
+    ...(photosResource?.url ? [{
+      title: 'Player Photos',
+      desc: 'Download Action PC Football player headshots for all GFL rosters (106×116 px).',
+      href: photosResource.url,
+      icon: '📸',
+      color: 'border-violet-500',
+      isExternal: true,
+      protected: false,
+    }] : []),
   ];
 
   return (
@@ -243,12 +259,6 @@ export default async function HomePage() {
             })}
           </div>
 
-          {/* COMMISSIONER-ONLY TOOLS */}
-          {commissioner && (
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <PlayerPhotosCard />
-            </div>
-          )}
 
           {/* AUTHORIZED FOOTER ACTIONS */}
           {session && (
