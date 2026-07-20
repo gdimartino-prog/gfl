@@ -8,13 +8,21 @@ type State = 'idle' | 'running' | 'done' | 'error';
 export default function PlayerPhotosCard() {
   const [state, setState] = useState<State>('idle');
   const [progress, setProgress] = useState({ ok: 0, err: 0, total: 0, dir: '' });
+  const [errorMsg, setErrorMsg] = useState('');
 
   async function download() {
     setState('running');
     setProgress({ ok: 0, err: 0, total: 0, dir: '' });
+    setErrorMsg('');
     try {
       const res = await fetch('/api/maintenance/player-photos', { method: 'POST' });
-      if (!res.ok || !res.body) { setState('error'); return; }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        setErrorMsg(body.error ?? 'Something went wrong.');
+        setState('error');
+        return;
+      }
+      if (!res.body) { setState('error'); return; }
       const reader = res.body.getReader();
       const dec = new TextDecoder();
       let buf = '';
@@ -88,9 +96,12 @@ export default function PlayerPhotosCard() {
         )}
 
         {state === 'error' && (
-          <button onClick={() => setState('idle')} className="text-[10px] text-red-500 font-black uppercase">
-            Error — tap to retry
-          </button>
+          <div className="space-y-2">
+            <p className="text-[10px] text-red-500 font-bold">{errorMsg || 'Something went wrong.'}</p>
+            <button onClick={() => setState('idle')} className="text-[10px] text-violet-500 hover:text-violet-700 font-black uppercase">
+              Dismiss
+            </button>
+          </div>
         )}
       </div>
     </div>
