@@ -1,5 +1,15 @@
 [
   {
+    "id": 17,
+    "leagueId": 2,
+    "group": "Game & Reference",
+    "title": "Player Photos",
+    "url": "https://drive.google.com/file/d/1KstkniWWeSjHSAIZaV9hh0csM--ZvGFz/view?usp=drive_link",
+    "sortOrder": 0,
+    "touch_dt": "2026-02-16T12:41:09.427Z",
+    "touch_id": "Demo Commissioner"
+  },
+  {
     "id": 13,
     "leagueId": 1,
     "group": "Game & Reference",
@@ -62,6 +72,66 @@
   {
     "id": 16,
     "leagueId": 1,
+    "group": "Season Downloads",
+    "title": "2026 Prelimiary Ratings",
+    "url": "https://docs.google.com/spreadsheets/d/1GTA3ljkxGxl-gRMvJ5jynFLkaJcDBCo9mOaqb9gC_k8/edit?usp=sharing",
+    "sortOrder": 4,
+    "touch_dt": "2026-04-02T23:03:55.959Z",
+    "touch_id": "George Di Martino"
+  },
+  {
+    "id": 18,
+    "leagueId": 2,
+    "group": "Season Downloads",
+    "title": "2025 Playoffs",
+    "url": "https://drive.google.com/file/d/1vsw3I4QWsAQTDPVVcgz4mK9Tva8CgnsW/view?usp=sharing",
+    "sortOrder": 2,
+    "touch_dt": "2026-02-16T12:41:09.427Z",
+    "touch_id": "George Di Martino"
+  },
+  {
+    "id": 19,
+    "leagueId": 2,
+    "group": "Season Downloads",
+    "title": "Past Seasons",
+    "url": "https://drive.google.com/drive/folders/10IQPCDzy_MhNbBUT3_0kiGICptNw8Ni0?usp=sharing",
+    "sortOrder": 5,
+    "touch_dt": "2026-02-16T12:41:09.427Z",
+    "touch_id": "George Di Martino"
+  },
+  {
+    "id": 20,
+    "leagueId": 2,
+    "group": "Season Downloads",
+    "title": "2025 Season",
+    "url": "https://drive.google.com/file/d/1rF_zF_FhibOt5IQ0YyH4dQ7vwe7lb0z8/view?usp=sharing",
+    "sortOrder": 3,
+    "touch_dt": "2026-02-16T12:41:09.427Z",
+    "touch_id": "George Di Martino"
+  },
+  {
+    "id": 21,
+    "leagueId": 2,
+    "group": "Season Downloads",
+    "title": "2026 Season",
+    "url": "https://drive.google.com/file/d/1sdf4JPGATzzs3f-bQZbVb_r0L8rsGVki/view?usp=sharing",
+    "sortOrder": 1,
+    "touch_dt": "2026-03-21T20:47:31.713Z",
+    "touch_id": "George Di Martino"
+  },
+  {
+    "id": 22,
+    "leagueId": 2,
+    "group": "Game & Reference",
+    "title": "GFL Encyclopedia",
+    "url": "https://drive.google.com/file/d/1a9E7FaiIwg36G4NYorh1EaMuCsI_AZA8/view?usp=sharing",
+    "sortOrder": 0,
+    "touch_dt": "2026-02-16T12:41:09.427Z",
+    "touch_id": "George Di Martino"
+  },
+  {
+    "id": 23,
+    "leagueId": 2,
     "group": "Season Downloads",
     "title": "2026 Prelimiary Ratings",
     "url": "https://docs.google.com/spreadsheets/d/1GTA3ljkxGxl-gRMvJ5jynFLkaJcDBCo9mOaqb9gC_k8/edit?usp=sharing",

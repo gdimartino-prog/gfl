@@ -672,18 +672,6 @@
     "email": null
   },
   {
-    "id": 98,
-    "leagueId": 2,
-    "name": "Vico",
-    "coach": "Frank Vitale",
-    "teamshort": "VV",
-    "nickname": "Vipers",
-    "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "gdimartino@gmail.com"
-  },
-  {
     "id": 115,
     "leagueId": 3,
     "name": "Jacksonville",
@@ -958,6 +946,18 @@
     "status": "active",
     "mobile": null,
     "email": "inbudget@yahoo.com"
+  },
+  {
+    "id": 98,
+    "leagueId": 2,
+    "name": "Vico",
+    "coach": "Frank Vitale",
+    "teamshort": "VV",
+    "nickname": "Vipers",
+    "isCommissioner": true,
+    "status": "active",
+    "mobile": null,
+    "email": "gdimartino@gmail.com"
   },
   {
     "id": 140,
