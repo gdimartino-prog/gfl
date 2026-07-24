@@ -65,11 +65,12 @@ export async function getNflTeam(espnId: string): Promise<string | null> {
     if (!ref) return null;
     // Validate hostname before following the $ref to prevent SSRF
     try {
-      if (new URL(ref).hostname !== 'sports.core.api.espn.com') return null;
+      const u = new URL(ref);
+      if (u.protocol !== 'https:' || u.host !== 'sports.core.api.espn.com') return null;
     } catch {
       return null;
     }
-    const teamRes = await fetch(ref, { next: { revalidate: 86400 } });
+    const teamRes = await fetch(ref, { next: { revalidate: 86400 }, redirect: 'error' });
     if (!teamRes.ok) return null;
     const teamData = await teamRes.json();
     return (teamData?.abbreviation as string) ?? null;
