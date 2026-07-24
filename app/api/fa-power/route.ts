@@ -15,6 +15,7 @@ async function fetchFaPower(leagueId: number, year: number) {
       first: players.first,
       last: players.last,
       name: players.name,
+      age: players.age,
       offense: players.offense,
       defense: players.defense,
       special: players.special,
@@ -66,6 +67,7 @@ async function fetchFaPower(leagueId: number, year: number) {
           name: player.name ?? '',
           espnId,
           nflTeam: player.nflTeam ?? null,
+          age: player.age ?? null,
           posGroup: group,
           score,
         };
@@ -81,7 +83,7 @@ async function fetchFaPower(leagueId: number, year: number) {
 
 const _cachedFaPower = unstable_cache(
   fetchFaPower,
-  ['fa-power'],
+  ['fa-power-v2'],
   { revalidate: 3600, tags: ['fa-power'] },
 );
 

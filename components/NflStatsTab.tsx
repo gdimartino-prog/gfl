@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, createContext, useContext } from 'react';
 import { useSession } from 'next-auth/react';
-import { Loader2, AlertCircle, Link2, X, Search, ChevronUp, ChevronDown, ChevronRight } from 'lucide-react';
+import { Loader2, AlertCircle, Link2, X, Search, ChevronUp, ChevronDown, ChevronRight, Newspaper } from 'lucide-react';
 import { posGroup as libPosGroup, powerScore as libPowerScore } from '@/lib/power-score';
 
 interface PlayerStat {
@@ -34,11 +34,15 @@ interface LeaguePlayer {
   id: number;
   name: string;
   espnId: string | null;
+  nflTeam?: string | null;
+  age?: number | null;
   teamshort: string;
   teamName: string;
   posGroup: string;
   score: number;
 }
+
+const NewsContext = createContext<Set<string>>(new Set());
 
 interface EspnResult {
   espnId: string;
@@ -88,6 +92,7 @@ function PlayerName({
   isCommissioner: boolean;
   onLink: (p: PlayerStat) => void;
 }) {
+  const newsIds = useContext(NewsContext);
   return (
     <td className="py-2 px-3 text-sm whitespace-nowrap">
       <div className="flex items-center gap-1.5">
@@ -110,6 +115,17 @@ function PlayerName({
             >
               {player.name}
             </a>
+            {player.espnId && newsIds.has(player.espnId) && (
+              <a
+                href={`https://www.espn.com/nfl/player/news/_/id/${player.espnId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Recent ESPN news"
+                className="text-orange-400 hover:text-orange-600 transition-colors"
+              >
+                <Newspaper size={11} />
+              </a>
+            )}
             {player.isIR && (
               <span className="text-[9px] font-black text-red-500 uppercase">IR</span>
             )}
@@ -707,6 +723,7 @@ function LeagueRankingsTable({ data, currentTeamshort }: { data: TeamRanking[]; 
 }
 
 function LeaguePlayersTable({ data }: { data: LeaguePlayer[] }) {
+  const newsIds = useContext(NewsContext);
   const [filterGroup, setFilterGroup] = useState<string | null>(null);
   const [sort, setSort] = useState<SortState>({ key: 'score', dir: 'desc' });
 
@@ -760,6 +777,8 @@ function LeaguePlayersTable({ data }: { data: LeaguePlayer[] }) {
             <ThL statKey="name" {...s}>Player</ThL>
             <ThL statKey="posGroup" {...s}>Pos</ThL>
             <ThL>GFL Team</ThL>
+            <ThL>NFL Team</ThL>
+            <Th>Age</Th>
             <Th statKey="score" {...s}>Score</Th>
           </tr>
         </thead>
@@ -779,20 +798,35 @@ function LeaguePlayersTable({ data }: { data: LeaguePlayer[] }) {
                     />
                   )}
                   <div>
-                    <a
-                      href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' NFL')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-bold text-slate-800 hover:text-blue-600 transition-colors"
-                    >
-                      {p.name}
-                    </a>
+                    <div className="flex items-center gap-1">
+                      <a
+                        href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' NFL')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-bold text-slate-800 hover:text-blue-600 transition-colors"
+                      >
+                        {p.name}
+                      </a>
+                      {p.espnId && newsIds.has(p.espnId) && (
+                        <a
+                          href={`https://www.espn.com/nfl/player/news/_/id/${p.espnId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Recent ESPN news"
+                          className="text-orange-400 hover:text-orange-600 transition-colors"
+                        >
+                          <Newspaper size={11} />
+                        </a>
+                      )}
+                    </div>
                     <div className="text-[10px] text-slate-400">{p.teamName}</div>
                   </div>
                 </div>
               </td>
               <td className="py-2 px-3"><PosBadge pos={p.posGroup} /></td>
               <td className="py-2 px-3 text-xs font-bold text-slate-500">{p.teamshort}</td>
+              <td className="py-2 px-3 text-xs text-slate-500 whitespace-nowrap">{p.nflTeam ?? '—'}</td>
+              <td className="py-2 px-3 text-sm text-right tabular-nums text-slate-500">{p.age ?? '—'}</td>
               <td className={`py-2 px-3 text-sm text-right tabular-nums font-semibold ${p.score > 0 ? 'text-slate-700' : 'text-slate-300'}`}>
                 {p.score > 0 ? p.score.toFixed(1) : '—'}
               </td>
@@ -1001,6 +1035,15 @@ export default function NflStatsTab({ teamshort }: Props) {
     }
   }, [view, loadLeagueStats]);
 
+  // ESPN news ids
+  const [newsIds, setNewsIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    fetch('/api/espn-news')
+      .then(r => r.ok ? r.json() : { ids: [] })
+      .then(d => setNewsIds(new Set<string>(d.ids ?? [])))
+      .catch(() => {});
+  }, []);
+
   // After a successful link, update the local data so the link icon disappears
   const handleLinked = useCallback((playerId: number, espnId: string) => {
     setData((prev) =>
@@ -1026,6 +1069,7 @@ export default function NflStatsTab({ teamshort }: Props) {
   const isLeagueLoading = view === 'league' ? leagueLoading : loading;
 
   return (
+    <NewsContext.Provider value={newsIds}>
     <div>
       {linking && (
         <LinkModal
@@ -1166,5 +1210,6 @@ export default function NflStatsTab({ teamshort }: Props) {
         </>
       )}
     </div>
+    </NewsContext.Provider>
   );
 }

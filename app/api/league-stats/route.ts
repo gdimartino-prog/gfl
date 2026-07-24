@@ -17,11 +17,13 @@ async function fetchLeagueStats(leagueId: number, year: number) {
     .select({
       id: players.id,
       name: players.name,
+      age: players.age,
       offense: players.offense,
       defense: players.defense,
       special: players.special,
       position: players.position,
       espnId: players.espnId,
+      nflTeam: players.nflTeam,
       teamshort: teams.teamshort,
       teamName: teams.name,
     })
@@ -82,6 +84,8 @@ async function fetchLeagueStats(leagueId: number, year: number) {
       id: player.id,
       name: player.name ?? '',
       espnId: player.espnId ?? null,
+      nflTeam: player.nflTeam ?? null,
+      age: player.age ?? null,
       teamshort: key,
       teamName: player.teamName,
       posGroup: group,
@@ -110,7 +114,7 @@ async function fetchLeagueStats(leagueId: number, year: number) {
 
 const _cachedLeagueStats = unstable_cache(
   fetchLeagueStats,
-  ['league-stats'],
+  ['league-stats-v2'],
   { revalidate: 3600, tags: ['league-stats'] },
 );
 

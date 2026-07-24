@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Sparkles, X, FileSearch, TrendingUp } from 'lucide-react';
+import { Loader2, Sparkles, X, FileSearch, TrendingUp, Newspaper } from 'lucide-react';
 import { POSITION_GROUPS } from '@/lib/positionGroups';
 
 const FA_CURRENT_YEAR = new Date().getFullYear();
@@ -25,6 +25,7 @@ interface FaPlayer {
   name: string;
   espnId: string | null;
   nflTeam: string | null;
+  age?: number | null;
   posGroup: string;
   score: number;
 }
@@ -83,6 +84,15 @@ export default function ScoutPage() {
 
   // Page tab
   const [activeTab, setActiveTab] = useState<PageTab>('draft-scout');
+
+  // ESPN news ids
+  const [newsIds, setNewsIds] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    fetch('/api/espn-news')
+      .then(r => r.ok ? r.json() : { ids: [] })
+      .then(d => setNewsIds(new Set<string>(d.ids ?? [])))
+      .catch(() => {});
+  }, []);
 
   // FA Power state
   const [faYear, setFaYear] = useState(FA_DEFAULT_YEAR);
@@ -962,6 +972,7 @@ export default function ScoutPage() {
                         <th className="py-2 px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Player</th>
                         <th className="py-2 px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">Pos</th>
                         <th className="py-2 px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest">NFL Team</th>
+                        <th className="py-2 px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Age</th>
                         <th className="py-2 px-3 text-[9px] font-black text-slate-400 uppercase tracking-widest text-right">Score</th>
                       </tr>
                     </thead>
@@ -980,14 +991,27 @@ export default function ScoutPage() {
                                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                                 />
                               )}
-                              <a
-                                href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' NFL')}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-bold text-slate-800 hover:text-blue-600 transition-colors"
-                              >
-                                {p.name}
-                              </a>
+                              <div className="flex items-center gap-1">
+                                <a
+                                  href={`https://www.google.com/search?q=${encodeURIComponent(p.name + ' NFL')}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="font-bold text-slate-800 hover:text-blue-600 transition-colors"
+                                >
+                                  {p.name}
+                                </a>
+                                {p.espnId && newsIds.has(p.espnId) && (
+                                  <a
+                                    href={`https://www.espn.com/nfl/player/news/_/id/${p.espnId}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="Recent ESPN news"
+                                    className="text-orange-400 hover:text-orange-600 transition-colors"
+                                  >
+                                    <Newspaper size={11} />
+                                  </a>
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td className="py-2 px-3">
@@ -995,13 +1019,14 @@ export default function ScoutPage() {
                               {p.posGroup}
                             </span>
                           </td>
-                          <td className="py-2 px-3 text-xs text-slate-500">{p.nflTeam ?? '—'}</td>
+                          <td className="py-2 px-3 text-xs text-slate-500 whitespace-nowrap">{p.nflTeam ?? '—'}</td>
+                          <td className="py-2 px-3 text-sm text-right tabular-nums text-slate-500">{p.age ?? '—'}</td>
                           <td className="py-2 px-3 text-sm text-right tabular-nums font-semibold text-slate-700">{p.score.toFixed(1)}</td>
                         </tr>
                       ))}
                       {faFiltered.length === 0 && (
                         <tr>
-                          <td colSpan={5} className="py-8 text-center text-xs text-slate-400">No free agents found with stats</td>
+                          <td colSpan={6} className="py-8 text-center text-xs text-slate-400">No free agents found with stats</td>
                         </tr>
                       )}
                     </tbody>
