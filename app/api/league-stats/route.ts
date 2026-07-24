@@ -60,6 +60,8 @@ async function fetchLeagueStats(leagueId: number, year: number) {
     id: number;
     name: string;
     espnId: string | null;
+    nflTeam: string | null;
+    age: number | null;
     teamshort: string;
     teamName: string;
     posGroup: string;
