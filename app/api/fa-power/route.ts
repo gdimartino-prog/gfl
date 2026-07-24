@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { players } from '@/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
-import { findEspnId, getEspnSeasonStats } from '@/lib/espn-stats';
+import { findEspnId, getEspnSeasonStats, getNflTeam } from '@/lib/espn-stats';
 import { posGroup, powerScore } from '@/lib/power-score';
 import { unstable_cache } from 'next/cache';
 
@@ -59,14 +59,27 @@ async function fetchFaPower(leagueId: number, year: number) {
 
         if (!espnId) return null;
 
-        const stats = await getEspnSeasonStats(espnId, year);
+        // Fetch stats and NFL team in parallel; persist nflTeam if newly found
+        const [stats, fetchedTeam] = await Promise.all([
+          getEspnSeasonStats(espnId, year),
+          player.nflTeam ? Promise.resolve(null) : getNflTeam(espnId),
+        ]);
+
+        let nflTeam = player.nflTeam ?? null;
+        if (!nflTeam && fetchedTeam) {
+          nflTeam = fetchedTeam;
+          await db.update(players)
+            .set({ nflTeam, touch_id: 'fa-power-sync', touch_dt: new Date() })
+            .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
+        }
+
         const group = posGroup(player.offense, player.defense, player.special, player.position);
         const score = powerScore(player.offense, player.defense, player.special, player.position, stats);
         return {
           id: player.id,
           name: player.name ?? '',
           espnId,
-          nflTeam: player.nflTeam ?? null,
+          nflTeam,
           age: player.age ?? null,
           posGroup: group,
           score,
@@ -83,7 +96,7 @@ async function fetchFaPower(leagueId: number, year: number) {
 
 const _cachedFaPower = unstable_cache(
   fetchFaPower,
-  ['fa-power-v2'],
+  ['fa-power-v3'],
   { revalidate: 3600, tags: ['fa-power'] },
 );
 

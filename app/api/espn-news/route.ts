@@ -11,9 +11,10 @@ async function fetchNewsIds(): Promise<string[]> {
     const data = await res.json();
     const ids = new Set<string>();
     for (const article of (data.articles ?? [])) {
-      for (const athlete of (article.athletes ?? [])) {
-        const id = String(athlete.id ?? '');
-        if (/^\d+$/.test(id)) ids.add(id);
+      for (const cat of (article.categories ?? [])) {
+        if (cat.type === 'athlete' && cat.athleteId) {
+          ids.add(String(cat.athleteId));
+        }
       }
     }
     return Array.from(ids);
@@ -22,7 +23,7 @@ async function fetchNewsIds(): Promise<string[]> {
   }
 }
 
-const _cached = unstable_cache(fetchNewsIds, ['espn-news-v1'], { revalidate: 3600, tags: ['espn-news'] });
+const _cached = unstable_cache(fetchNewsIds, ['espn-news-v2'], { revalidate: 3600, tags: ['espn-news'] });
 
 export async function GET() {
   const ids = await _cached();
