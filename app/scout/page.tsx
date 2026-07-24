@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Sparkles, X, FileSearch, TrendingUp, Newspaper } from 'lucide-react';
+import { Loader2, Sparkles, X, FileSearch, TrendingUp, Newspaper, Search } from 'lucide-react';
 import { POSITION_GROUPS } from '@/lib/positionGroups';
 
 const FA_CURRENT_YEAR = new Date().getFullYear();
@@ -97,6 +97,7 @@ export default function ScoutPage() {
   // FA Power state
   const [faYear, setFaYear] = useState(FA_DEFAULT_YEAR);
   const [faFilterGroup, setFaFilterGroup] = useState<string | null>(null);
+  const [faSearch, setFaSearch] = useState('');
   const [faData, setFaData] = useState<FaPlayer[] | null>(null);
   const [faLoading, setFaLoading] = useState(false);
   const [faError, setFaError] = useState<string | null>(null);
@@ -170,8 +171,13 @@ export default function ScoutPage() {
 
   const faFiltered = useMemo(() => {
     if (!faData) return [];
-    return faFilterGroup ? faData.filter(p => p.posGroup === faFilterGroup) : faData;
-  }, [faData, faFilterGroup]);
+    let list = faFilterGroup ? faData.filter(p => p.posGroup === faFilterGroup) : faData;
+    if (faSearch.trim()) {
+      const q = faSearch.trim().toLowerCase();
+      list = list.filter(p => p.name.toLowerCase().includes(q));
+    }
+    return list;
+  }, [faData, faFilterGroup, faSearch]);
 
   const faAvailableGroups = useMemo(() => {
     if (!faData) return [];
@@ -926,6 +932,22 @@ export default function ScoutPage() {
                 ))}
               </div>
               {faLoading && <Loader2 size={14} className="animate-spin text-slate-400" />}
+            </div>
+
+            <div className="relative w-full max-w-xs mb-2">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={faSearch}
+                onChange={e => setFaSearch(e.target.value)}
+                placeholder="Search players…"
+                className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {faSearch && (
+                <button onClick={() => setFaSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                  <X size={13} />
+                </button>
+              )}
             </div>
 
             {faError && (
