@@ -656,7 +656,7 @@ export default function ScoutPage() {
               </div>
             ) : null}
           </div>
-        ) : (
+        ) : activeTab === 'draft-scout' ? (
         <>
         <p className="text-slate-600 text-sm mb-8 max-w-2xl">
           An expert NFL scout that considers your GFL ratings, current roster gaps, draft context, and live NFL news to recommend who to target with your next pick.
@@ -908,7 +908,7 @@ export default function ScoutPage() {
           </div>
         ) : null}
         </>
-        )}
+        ) : null}
 
         {activeTab === 'fa-power' && isCommissioner && (
           <div>
