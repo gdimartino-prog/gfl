@@ -10573,5 +10573,23 @@
     "team": "Vico",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1176,
+    "leagueId": 2,
+    "timestamp": "2026-07-26T19:49:08.363Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1177,
+    "leagueId": 2,
+    "timestamp": "2026-07-27T09:57:38.728Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
   }
 ]
