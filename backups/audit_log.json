@@ -10591,5 +10591,14 @@
     "team": "VV",
     "action": "LOGIN",
     "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1178,
+    "leagueId": 2,
+    "timestamp": "2026-07-27T17:57:57.152Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
   }
 ]
