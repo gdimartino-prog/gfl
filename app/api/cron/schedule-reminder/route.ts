@@ -19,6 +19,12 @@ export async function GET(req: Request) {
     const results = [];
 
     for (const { id: leagueId } of allLeagues) {
+    // Only GFL (leagueId 1) has email and WhatsApp configured
+    if (leagueId !== 1) {
+      results.push({ leagueId, skipped: 'Notifications not configured for this league' });
+      continue;
+    }
+
     // Get config from rules
     const rulesRows = await db.select({ rule: rules.rule, value: rules.value })
       .from(rules).where(eq(rules.leagueId, leagueId));
@@ -59,8 +65,12 @@ export async function GET(req: Request) {
           eq(schedule.week, '1'),
         ));
 
-      const weeksUntilStart = 1 - parsedLeagueWeek;
-      const weekWord = weeksUntilStart === 1 ? '1 week' : `${weeksUntilStart} weeks`;
+      // NFL kickoff = Thursday after Labor Day (first Monday of September)
+      const sep1 = new Date(currentSeasonYear, 8, 1);
+      const laborDayOffset = (8 - sep1.getDay()) % 7;
+      const laborDay = new Date(currentSeasonYear, 8, 1 + laborDayOffset);
+      const nflKickoff = new Date(laborDay.getTime() + 3 * 24 * 60 * 60 * 1000);
+      const kickoffStr = nflKickoff.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
       const esc = (s: string | null) =>
         (s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -77,8 +87,8 @@ export async function GET(req: Request) {
       const psHtml = `<div style="max-width:600px;border:1px solid #eee;padding:20px;font-family:sans-serif;">
         <h2 style="color:#0047AB;">GFL ${currentSeasonYear} Season — Coming Soon</h2>
         <div style="background:#eff6ff;padding:10px;border-left:5px solid #1E56A0;margin-bottom:20px;">
-          <strong>📅 Week 1 scores will be due in approximately ${weekWord}.</strong><br>
-          Scores open when the NFL season kicks off — due each Sunday by 1:00 PM EST.
+          <strong>📅 The NFL ${currentSeasonYear} season opens ${kickoffStr}.</strong><br>
+          GFL Week 1 scores will open on that date — due each Sunday by 1:00 PM EST.
         </div>
         <h3 style="color:#0047AB;border-bottom:2px solid #eee;padding-bottom:8px;">Week 1 Matchups</h3>
         <table style="border-collapse:collapse;width:100%;font-size:13px;">
@@ -91,15 +101,11 @@ export async function GET(req: Request) {
         </p>
       </div>`;
 
-      const psWaFull = `📅 *GFL ${currentSeasonYear} — Season Starting Soon*\nWeek 1 scores due in ~${weekWord}.\n\n*WEEK 1 MATCHUPS*\n${psWa}`;
+      const psWaFull = `📅 *GFL ${currentSeasonYear} Season — Coming Soon*\nNFL season opens ${kickoffStr}. GFL Week 1 scores open on that date.\n\n*WEEK 1 MATCHUPS*\n${psWa}`;
 
-      if (leagueId !== 1) {
-        results.push({ leagueId, skipped: 'Preseason email is GFL-only', currentLeagueWeek });
-        continue;
-      }
-      await sendEmail({ subject: `GFL ${currentSeasonYear} Season Starts in ~${weekWord}`, html: psHtml });
+      await sendEmail({ subject: `GFL ${currentSeasonYear} Season — Coming Soon`, html: psHtml });
       await sendWhatsApp(psWaFull);
-      results.push({ leagueId, preseason: true, weeksUntilStart });
+      results.push({ leagueId, preseason: true });
       continue;
     }
 
