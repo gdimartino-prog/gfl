@@ -32,13 +32,70 @@ export async function GET(req: Request) {
       ? rawNflWeek
       : String(parseInt(rawNflWeek) - offset);
 
-    // Skip during preseason / before GFL season starts. When NFL is in
-    // preseason (current_nfl_week=0) or hasn't progressed past the
-    // schedule_due offset, GFL week is 0 or negative — no real games are
-    // due yet and we'd otherwise spam a "Week 1 PAST DUE" reminder.
     const parsedLeagueWeek = parseInt(currentLeagueWeek);
+
+    // Preseason window: send a heads-up email during the 4 weeks before the
+    // regular-season emails kick in (gflWeek = -3 through 0). Before that,
+    // skip entirely to avoid noise.
     if (!isNaN(parsedLeagueWeek) && parsedLeagueWeek <= 0) {
-      results.push({ leagueId, skipped: 'GFL season not yet started', currentLeagueWeek });
+      if (parsedLeagueWeek < -3) {
+        results.push({ leagueId, skipped: 'Too early for preseason email', currentLeagueWeek });
+        continue;
+      }
+
+      // Fetch Week 1 matchups so members can see their opener
+      const homeTeamsPs = alias(teams, 'homeTeams');
+      const awayTeamsPs = alias(teams, 'awayTeams');
+      const week1Games = await db.select({
+        home: homeTeamsPs.name,
+        away: awayTeamsPs.name,
+      })
+        .from(schedule)
+        .leftJoin(homeTeamsPs, eq(schedule.homeTeamId, homeTeamsPs.id))
+        .leftJoin(awayTeamsPs, eq(schedule.awayTeamId, awayTeamsPs.id))
+        .where(and(
+          eq(schedule.leagueId, leagueId),
+          eq(schedule.year, currentSeasonYear),
+          eq(schedule.week, '1'),
+        ));
+
+      const weeksUntilStart = 1 - parsedLeagueWeek;
+      const weekWord = weeksUntilStart === 1 ? '1 week' : `${weeksUntilStart} weeks`;
+
+      const esc = (s: string | null) =>
+        (s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      let psRows = '';
+      let psWa = '';
+      for (const g of week1Games) {
+        psRows += `<tr>
+          <td style="padding:8px;border:1px solid #ddd;">${esc(g.away)} @ ${esc(g.home)}</td>
+        </tr>`;
+        psWa += `🏈 ${g.away} @ ${g.home}\n`;
+      }
+
+      const psHtml = `<div style="max-width:600px;border:1px solid #eee;padding:20px;font-family:sans-serif;">
+        <h2 style="color:#0047AB;">GFL ${currentSeasonYear} Season — Coming Soon</h2>
+        <div style="background:#eff6ff;padding:10px;border-left:5px solid #1E56A0;margin-bottom:20px;">
+          <strong>📅 Week 1 scores will be due in approximately ${weekWord}.</strong><br>
+          Scores open when the NFL season kicks off — due each Sunday by 1:00 PM EST.
+        </div>
+        <h3 style="color:#0047AB;border-bottom:2px solid #eee;padding-bottom:8px;">Week 1 Matchups</h3>
+        <table style="border-collapse:collapse;width:100%;font-size:13px;">
+          <tr style="background:#333;color:white;"><th style="padding:8px;border:1px solid #ddd;">Matchup</th></tr>
+          ${psRows}
+        </table>
+        <p style="margin-top:20px;font-size:12px;color:#666;">
+          You will receive your first weekly game update once Week 1 is underway.<br>
+          Scores are entered at gfl.vercel.app
+        </p>
+      </div>`;
+
+      const psWaFull = `📅 *GFL ${currentSeasonYear} — Season Starting Soon*\nWeek 1 scores due in ~${weekWord}.\n\n*WEEK 1 MATCHUPS*\n${psWa}`;
+
+      await sendEmail({ subject: `GFL ${currentSeasonYear} Season Starts in ~${weekWord}`, html: psHtml });
+      if (leagueId === 1) await sendWhatsApp(psWaFull);
+      results.push({ leagueId, preseason: true, weeksUntilStart });
       continue;
     }
 
