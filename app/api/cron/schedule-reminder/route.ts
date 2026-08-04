@@ -93,8 +93,12 @@ export async function GET(req: Request) {
 
       const psWaFull = `📅 *GFL ${currentSeasonYear} — Season Starting Soon*\nWeek 1 scores due in ~${weekWord}.\n\n*WEEK 1 MATCHUPS*\n${psWa}`;
 
+      if (leagueId !== 1) {
+        results.push({ leagueId, skipped: 'Preseason email is GFL-only', currentLeagueWeek });
+        continue;
+      }
       await sendEmail({ subject: `GFL ${currentSeasonYear} Season Starts in ~${weekWord}`, html: psHtml });
-      if (leagueId === 1) await sendWhatsApp(psWaFull);
+      await sendWhatsApp(psWaFull);
       results.push({ leagueId, preseason: true, weeksUntilStart });
       continue;
     }
