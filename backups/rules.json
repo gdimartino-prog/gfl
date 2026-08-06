@@ -50,6 +50,16 @@
     "touch_id": "migration-script"
   },
   {
+    "id": 38,
+    "leagueId": 1,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "0",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
     "id": 25,
     "leagueId": 1,
     "year": null,
@@ -168,6 +178,16 @@
     "desc": "Minimum Punters",
     "touch_dt": "2026-03-04T16:08:49.166Z",
     "touch_id": "migration-script"
+  },
+  {
+    "id": 71,
+    "leagueId": 3,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "0",
+    "desc": null,
+    "touch_dt": "2026-03-25T12:38:20.671Z",
+    "touch_id": "cron-nfl-week"
   },
   {
     "id": 40,
@@ -450,16 +470,6 @@
     "touch_id": "maintenance"
   },
   {
-    "id": 62,
-    "leagueId": 2,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "0",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-05T15:35:08.929Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
     "id": 77,
     "leagueId": 1,
     "year": 2026,
@@ -490,23 +500,13 @@
     "touch_id": null
   },
   {
-    "id": 71,
-    "leagueId": 3,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "0",
-    "desc": null,
-    "touch_dt": "2026-03-25T12:38:20.671Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
-    "id": 38,
-    "leagueId": 1,
+    "id": 62,
+    "leagueId": 2,
     "year": null,
     "rule": "current_nfl_week",
     "value": "0",
     "desc": "Current NFL Week",
-    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
     "touch_id": "cron-nfl-week"
   }
 ]
