@@ -1,5 +1,24 @@
 [
   {
+    "id": 511,
+    "leagueId": 1,
+    "date": "2026-08-07T02:38:08.546Z",
+    "type": "WAIVE",
+    "description": "CB - Trevon Diggs",
+    "fromTeam": "Fur Peace",
+    "toTeam": "FA",
+    "owner": "Jack Wyville",
+    "status": "Pending",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-08-07T02:38:08.551Z",
+    "touch_id": "Jack Wyville"
+  },
+  {
     "id": 51,
     "leagueId": 1,
     "date": "2026-03-20T00:00:00.000Z",

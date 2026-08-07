@@ -129170,9 +129170,9 @@
     },
     "espnId": "4040966",
     "nflTeam": "GB",
-    "teamId": 45,
+    "teamId": null,
     "touch_dt": "2026-07-18T22:03:27.519Z",
-    "touch_id": "sync-nfl-teams"
+    "touch_id": "transaction"
   },
   {
     "id": 23232,

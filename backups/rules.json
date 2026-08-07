@@ -50,16 +50,6 @@
     "touch_id": "migration-script"
   },
   {
-    "id": 38,
-    "leagueId": 1,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "0",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-04T16:08:49.166Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
     "id": 25,
     "leagueId": 1,
     "year": null,
@@ -180,13 +170,13 @@
     "touch_id": "migration-script"
   },
   {
-    "id": 71,
-    "leagueId": 3,
+    "id": 62,
+    "leagueId": 2,
     "year": null,
     "rule": "current_nfl_week",
     "value": "0",
-    "desc": null,
-    "touch_dt": "2026-03-25T12:38:20.671Z",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
     "touch_id": "cron-nfl-week"
   },
   {
@@ -380,6 +370,16 @@
     "touch_id": "initialize"
   },
   {
+    "id": 71,
+    "leagueId": 3,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "0",
+    "desc": null,
+    "touch_dt": "2026-03-25T12:38:20.671Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
     "id": 69,
     "leagueId": 1,
     "year": null,
@@ -398,6 +398,16 @@
     "desc": "Draft clock for round 3+ (minutes)",
     "touch_dt": "2026-03-20T13:35:57.263Z",
     "touch_id": "seed-draft-clock"
+  },
+  {
+    "id": 38,
+    "leagueId": 1,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "0",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "cron-nfl-week"
   },
   {
     "id": 66,
@@ -498,15 +508,5 @@
     "desc": "Draft year 2026 marked complete by cron at 2026-06-29T02:00:08.464Z",
     "touch_dt": "2026-06-29T02:00:08.471Z",
     "touch_id": null
-  },
-  {
-    "id": 62,
-    "leagueId": 2,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "0",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-05T15:35:08.929Z",
-    "touch_id": "cron-nfl-week"
   }
 ]
