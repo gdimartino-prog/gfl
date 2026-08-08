@@ -10672,5 +10672,23 @@
     "team": "Fur Peace",
     "action": "WAIVE",
     "details": "CB - Trevon Diggs"
+  },
+  {
+    "id": 1187,
+    "leagueId": 1,
+    "timestamp": "2026-08-07T07:48:59.631Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #511 marked Done"
+  },
+  {
+    "id": 1188,
+    "leagueId": 1,
+    "timestamp": "2026-08-08T06:59:32.986Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
   }
 ]
