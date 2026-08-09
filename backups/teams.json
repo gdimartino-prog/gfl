@@ -60,18 +60,6 @@
     "email": "nbrooks@demo.com"
   },
   {
-    "id": 88,
-    "leagueId": 2,
-    "name": "DC",
-    "coach": "Anthony Carter",
-    "teamshort": "DC",
-    "nickname": "Capital",
-    "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "acarter@demo.com"
-  },
-  {
     "id": 89,
     "leagueId": 2,
     "name": "Tampa",
@@ -252,18 +240,6 @@
     "email": "skunkleaf101@gmail.com"
   },
   {
-    "id": 44,
-    "leagueId": 1,
-    "name": "DC",
-    "coach": "Alex Matsikoudis",
-    "teamshort": "DC",
-    "nickname": "D-Trains",
-    "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-804-2768",
-    "email": "amatsikoudis@yahoo.com"
-  },
-  {
     "id": 45,
     "leagueId": 1,
     "name": "Fur Peace",
@@ -406,6 +382,30 @@
     "status": "active",
     "mobile": "+1-732-735-6134",
     "email": "edcas13@yahoo.com"
+  },
+  {
+    "id": 88,
+    "leagueId": 2,
+    "name": "DC",
+    "coach": "Anthony Carter",
+    "teamshort": "DC",
+    "nickname": "Capital",
+    "isCommissioner": false,
+    "status": "active",
+    "mobile": null,
+    "email": "acarter@demo.com"
+  },
+  {
+    "id": 44,
+    "leagueId": 1,
+    "name": "DC",
+    "coach": "Alex Matsikoudis",
+    "teamshort": "DC",
+    "nickname": "D-Trains",
+    "isCommissioner": false,
+    "status": "active",
+    "mobile": "+1-732-804-2768",
+    "email": "amatsikoudis@yahoo.com"
   },
   {
     "id": 60,

@@ -10690,5 +10690,23 @@
     "team": "admin",
     "action": "IMPORT_PLAYERS",
     "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1189,
+    "leagueId": 1,
+    "timestamp": "2026-08-09T04:01:55.938Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1190,
+    "leagueId": 1,
+    "timestamp": "2026-08-09T04:02:20.995Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded DC.COA"
   }
 ]
