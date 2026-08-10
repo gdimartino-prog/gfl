@@ -120,18 +120,6 @@
     "email": "rwalsh@demo.com"
   },
   {
-    "id": 94,
-    "leagueId": 2,
-    "name": "Fur Peace",
-    "coach": "Chad Cooper",
-    "teamshort": "FPR",
-    "nickname": "Ranch",
-    "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "ccooper@demo.com"
-  },
-  {
     "id": 59,
     "leagueId": 1,
     "name": "Pyongyang",
@@ -240,16 +228,16 @@
     "email": "skunkleaf101@gmail.com"
   },
   {
-    "id": 45,
-    "leagueId": 1,
+    "id": 94,
+    "leagueId": 2,
     "name": "Fur Peace",
-    "coach": "Jack Wyville",
+    "coach": "Chad Cooper",
     "teamshort": "FPR",
-    "nickname": "Ranchers",
+    "nickname": "Ranch",
     "isCommissioner": false,
     "status": "active",
-    "mobile": "+1-732-539-4430",
-    "email": "jackwyville@gmail.com"
+    "mobile": null,
+    "email": "ccooper@demo.com"
   },
   {
     "id": 46,
@@ -286,6 +274,18 @@
     "status": "active",
     "mobile": "+1-732-688-8112",
     "email": "nkikta@gmail.com"
+  },
+  {
+    "id": 45,
+    "leagueId": 1,
+    "name": "Fur Peace",
+    "coach": "Jack Wyville",
+    "teamshort": "FPR",
+    "nickname": "Ranchers",
+    "isCommissioner": false,
+    "status": "active",
+    "mobile": "+1-732-539-4430",
+    "email": "jackwyville@gmail.com"
   },
   {
     "id": 57,

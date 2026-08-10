@@ -10708,5 +10708,32 @@
     "team": "DC",
     "action": "COA_UPLOAD",
     "details": "Uploaded DC.COA"
+  },
+  {
+    "id": 1191,
+    "leagueId": 1,
+    "timestamp": "2026-08-10T03:39:50.414Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1192,
+    "leagueId": 1,
+    "timestamp": "2026-08-10T03:55:19.597Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded FUR_PEACE.COA"
+  },
+  {
+    "id": 1193,
+    "leagueId": 1,
+    "timestamp": "2026-08-10T05:48:13.456Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
