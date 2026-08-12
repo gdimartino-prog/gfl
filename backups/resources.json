@@ -138,5 +138,15 @@
     "sortOrder": 4,
     "touch_dt": "2026-04-02T23:03:55.959Z",
     "touch_id": "George Di Martino"
+  },
+  {
+    "id": 24,
+    "leagueId": 1,
+    "group": "Game & Reference",
+    "title": "Action PC Football Hosting Guide",
+    "url": "https://docs.google.com/document/d/1MP2UyaxUZzqygsZTByO8nbRhOUcGhDKI9G9s9n_Ntvo/edit",
+    "sortOrder": 2,
+    "touch_dt": "2026-08-11T13:00:58.085Z",
+    "touch_id": "doctor-session"
   }
 ]
