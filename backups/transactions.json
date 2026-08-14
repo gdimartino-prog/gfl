@@ -889,6 +889,25 @@
     "touch_id": "commissioner"
   },
   {
+    "id": 512,
+    "leagueId": 1,
+    "date": "2026-08-14T05:58:12.508Z",
+    "type": "ADD",
+    "description": "TE - Mitchell Evans",
+    "fromTeam": "FA",
+    "toTeam": "Fur Peace",
+    "owner": "George Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-08-14T05:58:12.508Z",
+    "touch_id": "commissioner"
+  },
+  {
     "id": 152,
     "leagueId": 1,
     "date": "2026-05-19T11:49:40.067Z",

@@ -10762,5 +10762,59 @@
     "team": "VV",
     "action": "LOGIN",
     "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1197,
+    "leagueId": 1,
+    "timestamp": "2026-08-13T09:37:46.700Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1198,
+    "leagueId": 1,
+    "timestamp": "2026-08-13T09:37:50.662Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1199,
+    "leagueId": 1,
+    "timestamp": "2026-08-13T09:39:24.549Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1200,
+    "leagueId": 1,
+    "timestamp": "2026-08-13T09:46:13.467Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1201,
+    "leagueId": 1,
+    "timestamp": "2026-08-14T05:58:12.534Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "TE - Mitchell Evans"
+  },
+  {
+    "id": 1202,
+    "leagueId": 1,
+    "timestamp": "2026-08-14T05:58:33.075Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #512 marked Done"
   }
 ]
