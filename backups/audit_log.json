@@ -10816,5 +10816,14 @@
     "team": "VV",
     "action": "TRANSACTION_STATUS",
     "details": "Transaction #512 marked Done"
+  },
+  {
+    "id": 1203,
+    "leagueId": 1,
+    "timestamp": "2026-08-14T21:16:40.562Z",
+    "coach": "Bill Kobus",
+    "team": "Tampa",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
