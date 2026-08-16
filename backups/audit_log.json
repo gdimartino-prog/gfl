@@ -10825,5 +10825,23 @@
     "team": "Tampa",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1204,
+    "leagueId": 1,
+    "timestamp": "2026-08-16T02:40:05.478Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "WAIVE",
+    "details": "S - Jordan Poyer"
+  },
+  {
+    "id": 1205,
+    "leagueId": 1,
+    "timestamp": "2026-08-16T05:25:52.985Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "DL - Rylie Mills"
   }
 ]
