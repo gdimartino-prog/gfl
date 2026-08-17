@@ -10843,5 +10843,14 @@
     "team": "FA",
     "action": "ADD",
     "details": "DL - Rylie Mills"
+  },
+  {
+    "id": 1206,
+    "leagueId": 1,
+    "timestamp": "2026-08-16T17:53:12.763Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
