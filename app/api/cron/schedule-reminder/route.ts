@@ -55,6 +55,8 @@ export async function GET(req: Request) {
       const week1Games = await db.select({
         home: homeTeamsPs.name,
         away: awayTeamsPs.name,
+        homeScore: schedule.home_score,
+        awayScore: schedule.away_score,
       })
         .from(schedule)
         .leftJoin(homeTeamsPs, eq(schedule.homeTeamId, homeTeamsPs.id))
@@ -78,10 +80,16 @@ export async function GET(req: Request) {
       let psRows = '';
       let psWa = '';
       for (const g of week1Games) {
-        psRows += `<tr>
+        const isFinal = g.homeScore !== null && g.awayScore !== null;
+        const scoreStr = isFinal ? `<strong>${g.awayScore}–${g.homeScore}</strong> Final` : 'Upcoming';
+        const rowStyle = isFinal ? 'background:#f0fdf4;' : '';
+        psRows += `<tr style="${rowStyle}">
           <td style="padding:8px;border:1px solid #ddd;">${esc(g.away)} @ ${esc(g.home)}</td>
+          <td style="padding:8px;border:1px solid #ddd;text-align:right;white-space:nowrap;">${scoreStr}</td>
         </tr>`;
-        psWa += `🏈 ${g.away} @ ${g.home}\n`;
+        psWa += isFinal
+          ? `✅ ${g.away} @ ${g.home} — Final: ${g.awayScore}-${g.homeScore}\n`
+          : `🏈 ${g.away} @ ${g.home}\n`;
       }
 
       const psHtml = `<div style="max-width:600px;border:1px solid #eee;padding:20px;font-family:sans-serif;">
@@ -92,7 +100,7 @@ export async function GET(req: Request) {
         </div>
         <h3 style="color:#0047AB;border-bottom:2px solid #eee;padding-bottom:8px;">Week 1 Matchups</h3>
         <table style="border-collapse:collapse;width:100%;font-size:13px;">
-          <tr style="background:#333;color:white;"><th style="padding:8px;border:1px solid #ddd;">Matchup</th></tr>
+          <tr style="background:#333;color:white;"><th style="padding:8px;border:1px solid #ddd;">Matchup</th><th style="padding:8px;border:1px solid #ddd;text-align:right;">Result</th></tr>
           ${psRows}
         </table>
         <p style="margin-top:20px;font-size:12px;color:#666;">
