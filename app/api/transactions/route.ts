@@ -127,6 +127,11 @@ export async function POST(req: Request) {
 
     const leagueId = await getLeagueId();
 
+    const ALLOWED_TYPES = ['ADD', 'INJURY PICKUP', 'DROP', 'WAIVE', 'IR', 'IR MOVE', 'CONDITIONAL TRADE'];
+    if (!type || !ALLOWED_TYPES.includes(type)) {
+      return Response.json({ error: 'Invalid transaction type' }, { status: 400 });
+    }
+
     // CONDITIONAL TRADE is a record-keeping entry only — no player moves, no
     // team-id update, no trade-block cleanup. The standard player-lookup path
     // 404s for this type because the request body has no `identity`. Branch
@@ -184,10 +189,36 @@ export async function POST(req: Request) {
     if (!playerRows[0]) return Response.json({ error: 'Player not found' }, { status: 404 });
     const player = playerRows[0];
 
-    // Ownership check: coaches can only transact their own players
+    // Resolve new team ownership
+    let newTeamId: number | null = player.teamId ?? null;
+    let resolvedToTeamshort: string | null = null;
+    const resolvedFromTeam = fromTeam || player.teamName || player.teamshort || '';
+
+    if (type === 'ADD' || type === 'INJURY PICKUP') {
+      const toTeamRow = await db.select({ id: teams.id, teamshort: teams.teamshort })
+        .from(teams)
+        .where(and(eq(teams.leagueId, leagueId), eq(teams.name, toTeam)))
+        .limit(1);
+      // Also try by teamshort if name didn't match
+      if (!toTeamRow[0]) {
+        const byShort = await db.select({ id: teams.id, teamshort: teams.teamshort })
+          .from(teams)
+          .where(and(eq(teams.leagueId, leagueId), eq(teams.teamshort, (toTeam || '').toUpperCase())))
+          .limit(1);
+        newTeamId = byShort[0]?.id ?? null;
+        resolvedToTeamshort = byShort[0]?.teamshort ?? null;
+      } else {
+        newTeamId = toTeamRow[0].id;
+        resolvedToTeamshort = toTeamRow[0].teamshort ?? null;
+      }
+    }
+
+    // Ownership check: coaches can only transact their own players.
+    // Compare callerTeamshort against the resolved teamshort of the target
+    // team (not the raw toTeam string, which may be a full name).
     if (!privileged) {
       if ((type === 'ADD' || type === 'INJURY PICKUP') &&
-          callerTeamshort.toLowerCase() !== (toTeam || '').toLowerCase()) {
+          callerTeamshort.toLowerCase() !== (resolvedToTeamshort || '').toLowerCase()) {
         return Response.json({ error: 'Forbidden: you can only add players to your own team' }, { status: 403 });
       }
       // Player must be a free agent — prevents stealing a rostered player
@@ -215,26 +246,7 @@ export async function POST(req: Request) {
       }
     }
 
-    // Resolve new team ownership
-    let newTeamId: number | null = player.teamId ?? null;
-    const resolvedFromTeam = fromTeam || player.teamName || player.teamshort || '';
-
-    if (type === 'ADD' || type === 'INJURY PICKUP') {
-      const toTeamRow = await db.select({ id: teams.id })
-        .from(teams)
-        .where(and(eq(teams.leagueId, leagueId), eq(teams.name, toTeam)))
-        .limit(1);
-      // Also try by teamshort if name didn't match
-      if (!toTeamRow[0]) {
-        const byShort = await db.select({ id: teams.id })
-          .from(teams)
-          .where(and(eq(teams.leagueId, leagueId), eq(teams.teamshort, toTeam)))
-          .limit(1);
-        newTeamId = byShort[0]?.id ?? null;
-      } else {
-        newTeamId = toTeamRow[0].id;
-      }
-    } else if (type === 'DROP' || type === 'WAIVE') {
+    if (type === 'DROP' || type === 'WAIVE') {
       newTeamId = null; // FA
       if (player.isIR) {
         await db.update(players).set({ isIR: false, touch_id: 'transaction', touch_dt: new Date() })
@@ -248,8 +260,8 @@ export async function POST(req: Request) {
 
     if (type !== 'IR' && type !== 'IR MOVE') {
       await db.update(players)
-        .set({ teamId: newTeamId, touch_id: 'transaction' })
-        .where(eq(players.id, player.id));
+        .set({ teamId: newTeamId, touch_id: 'transaction', touch_dt: new Date() })
+        .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
     }
 
     // Remove from trade block if present
