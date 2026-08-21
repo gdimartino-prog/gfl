@@ -58,13 +58,15 @@ export default function FreeAgentPanel({
       .sort((a, b) => (a.last || '').localeCompare(b.last || ''));
   }, [freeAgents, faSearch, faPosFilter, OL_POS]);
 
-  const loadData = useCallback(async () => {
+  // Plain fetches honor the API's Cache-Control headers; pass fresh=true
+  // only right after a mutation so the browser skips its HTTP cache.
+  const loadData = useCallback(async (fresh = false) => {
     try {
-      const timestamp = Date.now();
+      const opts: RequestInit = fresh ? { cache: 'no-store' } : {};
       const [faRes, playersRes, teamsRes] = await Promise.all([
-        fetch(`/api/free-agents?t=${timestamp}`, { cache: 'no-store' }),
-        fetch(`/api/players?t=${timestamp}`, { cache: 'no-store' }),
-        fetch(`/api/teams?t=${timestamp}`, { cache: 'no-store' })
+        fetch('/api/free-agents', opts),
+        fetch('/api/players', opts),
+        fetch('/api/teams', opts)
       ]);
 
       if (!faRes.ok || !playersRes.ok || !teamsRes.ok) {
@@ -152,7 +154,7 @@ export default function FreeAgentPanel({
         setSelectedIdentity('');
         setInjuredIdentity('');
         setIsInjuryMode(false);
-        await loadData();
+        await loadData(true);
         if (onComplete) onComplete();
         alert('Transaction Successful');
       } else {

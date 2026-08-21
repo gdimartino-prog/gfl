@@ -5,8 +5,7 @@ import { db } from '@/lib/db';
 import { resources } from '@/schema';
 import { asc, eq, and } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
-
-export const dynamic = 'force-dynamic';
+import { revalidateTag } from 'next/cache';
 
 export async function GET() {
   const session = await auth();
@@ -37,6 +36,7 @@ export async function POST(req: NextRequest) {
     sortOrder: Number(sortOrder) || 0,
     touch_id: session.user.name || 'admin',
   }).returning();
+  revalidateTag('resources', 'max');
 
   return NextResponse.json(row);
 }
@@ -59,6 +59,7 @@ export async function PATCH(req: NextRequest) {
     sortOrder: Number(sortOrder) || 0,
     touch_id: session.user.name || 'admin',
   }).where(and(eq(resources.id, id), eq(resources.leagueId, leagueId)));
+  revalidateTag('resources', 'max');
 
   return NextResponse.json({ success: true });
 }
@@ -74,5 +75,6 @@ export async function DELETE(req: NextRequest) {
 
   const leagueId = await getLeagueId();
   await db.delete(resources).where(and(eq(resources.id, id), eq(resources.leagueId, leagueId)));
+  revalidateTag('resources', 'max');
   return NextResponse.json({ success: true });
 }

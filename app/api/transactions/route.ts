@@ -289,6 +289,7 @@ export async function POST(req: Request) {
     });
     revalidateTag('transactions', 'max');
     revalidateTag('players', 'max');
+    revalidateTag('trade-block', 'max'); // player may have been delisted above
     await logSystemEvent(actorName, resolvedFromTeam, type, details || identity, leagueId);
 
     if (type === 'IR' || type === 'IR MOVE') {

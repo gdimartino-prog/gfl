@@ -65,17 +65,6 @@ const _getPlayers = unstable_cache(async (leagueId: number) => {
   return rows.map(p => mapRow(p as any));
 }, ['players-lean-v5'], { revalidate: 300, tags: ['players'] });
 
-// Full query — includes scouting JSON. Too large for unstable_cache (>2MB);
-// rely on CDN Cache-Control headers at the API route level instead.
-async function _getPlayersWithScouting(leagueId: number) {
-  const rows = await db.select({ ...sharedSelect, scouting: players.scouting })
-    .from(players)
-    .leftJoin(teams, eq(players.teamId, teams.id))
-    .where(eq(players.leagueId, leagueId));
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return rows.map(p => mapRow(p as any));
-}
-
 // FA-only query with scouting — filtered at DB level (~1.4MB, within unstable_cache limits).
 // Scouting keys redundant with top-level fields (salary, durability) and unused by the
 // FA page (years, uniform, pressure) are stripped to reduce payload size.
@@ -103,22 +92,42 @@ const _getFAPlayersWithScouting = unstable_cache(
   { revalidate: 60, tags: ['players', 'players-fa'] }
 );
 
+// Single-player lookup with scouting — one indexed row instead of the full
+// table + JSONB. This is the hot path behind every player-card click
+// (rosters, trade block, cuts, draft); keep it a point query.
+const _getPlayerDetail = unstable_cache(
+  async (leagueId: number, identityLower: string) => {
+    const rows = await db.select({ ...sharedSelect, scouting: players.scouting })
+      .from(players)
+      .leftJoin(teams, eq(players.teamId, teams.id))
+      .where(and(
+        eq(players.leagueId, leagueId),
+        sql`lower(${players.identity}) = ${identityLower}`,
+      ))
+      .limit(1);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return rows[0] ? mapRow(rows[0] as any) : null;
+  },
+  ['player-detail-v1'],
+  { revalidate: 300, tags: ['players'] },
+);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function getPlayerDetail(leagueId: number, identity: string): Promise<any | null> {
+  try {
+    return await _getPlayerDetail(leagueId, identity.toLowerCase().trim());
+  } catch (err) {
+    console.error('getPlayerDetail Error:', err);
+    return null;
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getPlayers(leagueId: number = 1): Promise<any[]> {
   try {
     return await _getPlayers(leagueId);
   } catch (err) {
     console.error('getPlayers Error:', err);
-    return [];
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getPlayersWithScouting(leagueId: number = 1): Promise<any[]> {
-  try {
-    return await _getPlayersWithScouting(leagueId);
-  } catch (err) {
-    console.error('getPlayersWithScouting Error:', err);
     return [];
   }
 }

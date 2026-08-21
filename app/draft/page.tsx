@@ -136,11 +136,14 @@ const handleUndoMyPick = async () => {
   const loadData = useCallback(async (showRefreshState = false) => {
     if (showRefreshState) setIsRefreshing(true);
     try {
-      const typeParam = draftTypeFilter !== 'all' ? `&type=${draftTypeFilter}` : '';
+      const typeParam = draftTypeFilter !== 'all' ? `?type=${draftTypeFilter}` : '';
+      // Plain fetches honor the APIs' short max-age headers; an explicit
+      // refresh (button / post-undo) bypasses the browser cache.
+      const opts: RequestInit = showRefreshState ? { cache: 'no-store' } : {};
       const [pRes, tRes, rRes] = await Promise.all([
-        fetch(`/api/draft-picks?t=${Date.now()}${typeParam}`, { cache: 'no-store' }).then(res => res.json()),
-        fetch(`/api/teams?t=${Date.now()}`, { cache: 'no-store' }).then(res => res.json()),
-        fetch(`/api/rules?t=${Date.now()}`, { cache: 'no-store' }).then(res => res.json()) 
+        fetch(`/api/draft-picks${typeParam}`, opts).then(res => res.json()),
+        fetch('/api/teams', opts).then(res => res.json()),
+        fetch('/api/rules', opts).then(res => res.json())
       ]);
 
       const sortedPicks = Array.isArray(pRes) 

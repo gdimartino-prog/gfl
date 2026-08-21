@@ -6,6 +6,7 @@ import { and, eq, asc } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getLastPickForTeam, getNextOnClockTeamId, clearPickSelection } from '@/lib/draftPicks';
 import { logSystemEvent } from '@/lib/db-helpers';
+import { revalidateTag } from 'next/cache';
 
 export async function POST() {
   const session = await auth();
@@ -63,6 +64,10 @@ export async function POST() {
     }
 
     await clearPickSelection(lastPick.id, teamshort, leagueId);
+    // Undo frees the player back to FA and empties the pick — bust both
+    // caches so the board and FA list reflect it immediately.
+    revalidateTag('draft-picks', 'max');
+    revalidateTag('players', 'max');
     await logSystemEvent(session.user.name || teamshort, teamshort, 'DRAFT_UNDO_PICK', `Undid pick #${lastPick.pick} (year ${year})`, leagueId);
 
     return NextResponse.json({ success: true });

@@ -112,12 +112,16 @@ function RosterContent() {
 
     const loadFranchiseData = async () => {
       try {
-        const timestamp = Date.now();
-        const [standingsRes, rulesRes, draftPicksRes, teamsRes] = await Promise.all([
-          fetch(`/api/standings?t=${timestamp}`),
-          fetch(`/api/rules?t=${timestamp}`),
-          fetch(`/api/draft-picks?t=${timestamp}`),
-          fetch(`/api/teams?t=${timestamp}`)
+        // No cache-busters — these responses set private max-age headers the
+        // browser should honor. The roster (the page's primary content) only
+        // depends on selectedTeam, so it joins the first parallel batch
+        // instead of waiting a full round-trip behind it.
+        const [standingsRes, rulesRes, draftPicksRes, teamsRes, rosterRes] = await Promise.all([
+          fetch('/api/standings'),
+          fetch('/api/rules'),
+          fetch(`/api/draft-picks?owner=${encodeURIComponent(selectedTeam)}`),
+          fetch('/api/teams'),
+          fetch(`/api/rosters/${selectedTeam}`)
         ]);
 
         const standingsData = await standingsRes.json();
@@ -161,10 +165,8 @@ function RosterContent() {
           return matchesTeam && yearMatch;
         });
 
-        const [rosterRes, scheduleRes] = await Promise.all([
-          fetch(`/api/rosters/${selectedTeam}`),
-          fetch(`/api/schedule?team=${teamEntry?.teamshort || selectedTeam}`)
-        ]);
+        // Only the schedule fetch needs the resolved teamEntry
+        const scheduleRes = await fetch(`/api/schedule?team=${teamEntry?.teamshort || selectedTeam}`);
 
         const rosterData = await rosterRes.json();
         const scheduleData = await scheduleRes.json();

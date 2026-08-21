@@ -17,7 +17,6 @@ import {
   DraftOrderEntry,
 } from '@/lib/draftPicks';
 
-export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   if (!await isAdmin() && !await isCommissioner()) {

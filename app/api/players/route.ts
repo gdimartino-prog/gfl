@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPlayers, getPlayersWithScouting } from '@/lib/players';
+import { getPlayers } from '@/lib/players';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
 
@@ -8,12 +8,21 @@ export async function GET(req: NextRequest) {
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   const { searchParams } = new URL(req.url);
   const teamFilter = searchParams.get('team');
-  const includeScouting = searchParams.get('scouting') === '1';
+
+  // The old ?scouting=1 path ran an uncached full-table + JSONB query per
+  // request. No in-repo caller remains — FA views use /api/free-agents and
+  // player cards use /api/players/details/[id]. Gone for good.
+  if (searchParams.get('scouting') === '1') {
+    return NextResponse.json(
+      { error: 'scouting=1 is retired — use /api/free-agents or /api/players/details/[id]' },
+      { status: 410 },
+    );
+  }
 
   try {
     // 1. Fetch parsed players from the centralized utility
     const leagueId = await getLeagueId();
-    const players = includeScouting ? await getPlayersWithScouting(leagueId) : await getPlayers(leagueId);
+    const players = await getPlayers(leagueId);
     
     // 2. Map to ensure compatibility and STRIP heavy scouting data for the list view
     // This keeps the JSON response small and fast.
@@ -38,9 +47,8 @@ export async function GET(req: NextRequest) {
         dur: p.dur,
         overall: p.overall,
         espnId: p.espnId ?? null,
-        salary: p.salary ?? p.scouting?.salary ?? null,
-        receiving: p.receiving ?? p.scouting?.receiving ?? null,
-        ...(includeScouting ? { scouting: p.scouting ?? null } : {}),
+        salary: p.salary ?? null,
+        receiving: p.receiving ?? null,
         name: `${p.first} ${p.last}`.trim(),
         pos: p.position // Map 'position' to 'pos' for frontend consistency
       };

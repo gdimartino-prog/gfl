@@ -7,9 +7,7 @@ import LogoutButton from '@/components/LogoutButton';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getLeagueRow } from '@/lib/getLeagueInfo';
 import DemoLoginButton from '@/components/DemoLoginButton';
-import { db } from '@/lib/db';
-import { resources } from '@/schema';
-import { and, eq } from 'drizzle-orm';
+import { getResources } from '@/lib/getResources';
 
 export default async function HomePage() {
   const session = await auth();
@@ -29,11 +27,12 @@ export default async function HomePage() {
     } catch {}
   }
   try {
-    const [r] = await db.select({ url: resources.url })
-      .from(resources)
-      .where(and(eq(resources.leagueId, leagueId), eq(resources.title, 'Player Photos')))
-      .limit(1);
-    if (r?.url) photosResource = r;
+    // Reuse the cached resources map instead of a per-render DB query
+    const grouped = await getResources(leagueId);
+    for (const group of Object.values(grouped)) {
+      const hit = group.find(r => r.title === 'Player Photos');
+      if (hit?.url) { photosResource = { url: hit.url }; break; }
+    }
   } catch {}
 
   const cards = [

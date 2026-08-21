@@ -4,8 +4,7 @@ import { db } from '@/lib/db';
 import { standings, teams } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
-
-export const dynamic = 'force-dynamic';
+import { revalidateTag } from 'next/cache';
 
 // GET /api/admin/standings?year=2025
 // Returns all standings rows for the active league + year, joined with team names
@@ -57,6 +56,7 @@ export async function PATCH(req: NextRequest) {
     isChampion: !!isChampion,
     touch_id: 'admin-awards',
   }).where(and(eq(standings.id, Number(id)), eq(standings.leagueId, leagueId)));
+  revalidateTag('standings', 'max');
 
   return NextResponse.json({ success: true });
 }

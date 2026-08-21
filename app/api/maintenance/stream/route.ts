@@ -3,7 +3,6 @@ import { processPlayersFile, processStandingsFile, processScheduleFile } from '@
 import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 
-export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   const admin = await isAdmin();

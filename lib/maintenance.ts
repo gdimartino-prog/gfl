@@ -350,8 +350,26 @@ export async function processScheduleFile(fileContent: string, leagueId: number 
 
   const allTeams = await db.select({ id: teams.id, name: teams.name, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId));
 
-  let updateCount = 0;
-  let insertCount = 0;
+  // Preload the season's existing games once — the per-line SELECT was
+  // ~150 sequential round-trips for a full season file.
+  const existingGames = await db.select({
+    id: schedule.id,
+    week: schedule.week,
+    homeTeamId: schedule.homeTeamId,
+    awayTeamId: schedule.awayTeamId,
+    home_score: schedule.home_score,
+  })
+    .from(schedule)
+    .where(and(
+      eq(schedule.leagueId, leagueId),
+      year !== null ? eq(schedule.year, year) : undefined,
+    ));
+  const gameKey = (week: string, homeId: number | null, awayId: number | null) =>
+    `${week}|${homeId}|${awayId}`;
+  const existingByKey = new Map(existingGames.map(g => [gameKey(g.week, g.homeTeamId, g.awayTeamId), g]));
+
+  const updates: { id: number; homeScore: number; awayScore: number | null }[] = [];
+  const inserts: (typeof schedule.$inferInsert)[] = [];
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -383,30 +401,16 @@ export async function processScheduleFile(fileContent: string, leagueId: number 
         homeScore = parseInt(scores[1], 10);
       }
 
-      const existing = await db.select()
-        .from(schedule)
-        .where(and(
-          eq(schedule.leagueId, leagueId),
-          eq(schedule.week, String(week)),
-          eq(schedule.homeTeamId, homeTeam.id),
-          eq(schedule.awayTeamId, awayTeam.id),
-          year !== null ? eq(schedule.year, year) : undefined,
-        ))
-        .limit(1);
-
-      if (existing.length > 0) {
-        const game = existing[0];
+      const existing = existingByKey.get(gameKey(String(week), homeTeam.id, awayTeam.id));
+      if (existing) {
         // Already has scores (Final) — skip
-        if (game.home_score !== null) continue;
+        if (existing.home_score !== null) continue;
         // Update with scores if provided
         if (homeScore !== null) {
-          await db.update(schedule)
-            .set({ home_score: homeScore, away_score: awayScore, touch_id: 'maintenance' })
-            .where(eq(schedule.id, game.id));
-          updateCount++;
+          updates.push({ id: existing.id, homeScore, awayScore });
         }
       } else {
-        await db.insert(schedule).values([{
+        inserts.push({
           leagueId,
           year,
           week: String(week),
@@ -416,17 +420,27 @@ export async function processScheduleFile(fileContent: string, leagueId: number 
           away_score: awayScore,
           is_bye: false,
           touch_id: 'maintenance',
-        }]);
-        insertCount++;
+        });
       }
     } catch (e) {
       console.error(`Failed to parse line: "${trimmed}"`, e);
     }
   }
 
+  if (inserts.length > 0) await db.insert(schedule).values(inserts);
+  // Updates are per-row (different score values) — run them concurrently in chunks
+  const CHUNK = 10;
+  for (let i = 0; i < updates.length; i += CHUNK) {
+    await Promise.all(updates.slice(i, i + CHUNK).map(u =>
+      db.update(schedule)
+        .set({ home_score: u.homeScore, away_score: u.awayScore, touch_id: 'maintenance' })
+        .where(eq(schedule.id, u.id))
+    ));
+  }
+
   revalidateTag('schedule', 'max');
 
-  return { success: true, message: `Import Complete. Updated: ${updateCount}, Inserted: ${insertCount}` };
+  return { success: true, message: `Import Complete. Updated: ${updates.length}, Inserted: ${inserts.length}` };
 }
 
 export async function processStandingsFile(fileContent: string, leagueId: number = 1) {

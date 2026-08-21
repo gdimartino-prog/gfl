@@ -105,13 +105,15 @@ export default function TradePanel({
   const [condLoading, setCondLoading] = useState(false);
   const [condStatus, setCondStatus] = useState('');
 
-  const loadData = useCallback(async () => {
+  // Plain fetches honor the API's Cache-Control headers; pass fresh=true
+  // only right after a mutation so the browser skips its HTTP cache.
+  const loadData = useCallback(async (fresh = false) => {
     try {
-      const timestamp = Date.now();
+      const opts: RequestInit = fresh ? { cache: 'no-store' } : {};
       const [tRes, pRes, dRes] = await Promise.all([
-        fetch(`/api/teams?t=${timestamp}`, { cache: 'no-store' }),
-        fetch(`/api/players?t=${timestamp}`, { cache: 'no-store' }),
-        fetch(`/api/draft-picks?t=${timestamp}`, { cache: 'no-store' })
+        fetch('/api/teams', opts),
+        fetch('/api/players', opts),
+        fetch('/api/draft-picks', opts)
       ]);
       if (!tRes.ok || !pRes.ok || !dRes.ok) throw new Error("One or more trade data sources failed to load.");
       const [tData, pData, dData] = await Promise.all([tRes.json(), pRes.json(), dRes.json()]);
@@ -236,7 +238,7 @@ export default function TradePanel({
       if (res.ok) {
         setStatus(isCommissioner ? '✅ Trade logged.' : '✅ Trade submitted — pending commissioner approval.');
         setFromPlayers([]); setToPlayers([]); setFromDraftPicks([]); setToDraftPicks([]); setToTeam('');
-        await loadData();
+        await loadData(true);
         if (onComplete) onComplete();
       } else {
         const errData = await res.json();

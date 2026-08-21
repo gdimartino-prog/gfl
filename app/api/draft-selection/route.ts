@@ -199,6 +199,9 @@ export async function POST(req: NextRequest) {
       }));
 
     await revalidateTag('draft-picks', 'max');
+    // The drafted player's teamId changed — bust the players caches too or
+    // they linger on the FA board / lean list for up to 5 minutes mid-draft.
+    await revalidateTag('players', 'max');
     await logSystemEvent(coachName || newOwnerCode, newOwnerCode, 'DRAFT_PICK', `R${pickRow.round} #${overallPick}: ${selectedPlayerName}`, leagueId);
 
     console.log('[draft-selection] notifying pick, leagueId:', leagueId);

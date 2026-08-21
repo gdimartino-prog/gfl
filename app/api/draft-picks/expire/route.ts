@@ -7,6 +7,7 @@ import { alias } from 'drizzle-orm/pg-core';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyDraftPick } from '@/lib/notify';
 import { getDraftStartDate, computePickTimings } from '@/lib/draftClock';
+import { revalidateTag } from 'next/cache';
 
 export async function POST() {
   const session = await auth();
@@ -81,6 +82,8 @@ export async function POST() {
     await db.update(draftPicks)
       .set({ selectedPlayerName: 'SKIPPED (Time Expired)', pickedAt: now, touch_id: 'client-expire' })
       .where(eq(draftPicks.id, activePick.id));
+    // Board changed — without this the skip stays invisible for up to 30s.
+    revalidateTag('draft-picks', 'max');
 
     const recentPicks = allPicks
       .slice(Math.max(0, activeIdx - 5), activeIdx)

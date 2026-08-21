@@ -152,7 +152,20 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json(formattedPicks, {
+    // ?owner=XX trims the multi-year payload to one team's picks — the
+    // rosters page only renders one team's draft history. Matching mirrors
+    // the client logic: team code in parentheses, or the full string.
+    const ownerFilter = req.nextUrl.searchParams.get('owner')?.trim().toUpperCase();
+    const responsePicks = ownerFilter
+      ? formattedPicks.filter(p => {
+          const ownerStr = p.currentOwner || '';
+          const m = ownerStr.match(/\(([^)]+)\)/);
+          const code = (m ? m[1] : ownerStr).trim().toUpperCase();
+          return code === ownerFilter;
+        })
+      : formattedPicks;
+
+    return NextResponse.json(responsePicks, {
       headers: { 'Cache-Control': 'private, max-age=15, stale-while-revalidate=30' },
     });
   } catch (error) {

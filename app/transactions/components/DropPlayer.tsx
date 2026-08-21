@@ -27,13 +27,15 @@ export default function DropPlayer({
     setTimeout(() => setToast(null), 3000);
   };
 
-  const fetchData = useCallback(async () => {
+  // Plain fetches honor the API's Cache-Control headers; pass fresh=true
+  // only right after a mutation so the browser skips its HTTP cache.
+  const fetchData = useCallback(async (fresh = false) => {
     if (!team) return;
     try {
-      const timestamp = Date.now();
+      const opts: RequestInit = fresh ? { cache: 'no-store' } : {};
       const [playerRes, teamRes] = await Promise.all([
-        fetch(`/api/players?t=${timestamp}`, { cache: 'no-store' }),
-        fetch(`/api/teams?t=${timestamp}`, { cache: 'no-store' })
+        fetch('/api/players', opts),
+        fetch('/api/teams', opts)
       ]);
 
       if (!playerRes.ok || !teamRes.ok) {
@@ -101,7 +103,7 @@ export default function DropPlayer({
 
       if (res.ok) {
         setSelectedIdentity('');
-        await fetchData();
+        await fetchData(true);
         if (onComplete) onComplete();
         showToast(`${confirmPlayer.description} waived successfully.`);
       } else {

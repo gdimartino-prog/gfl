@@ -117,8 +117,11 @@ async function fetchLeagueStats(leagueId: number, year: number) {
 const _cachedLeagueStats = unstable_cache(
   fetchLeagueStats,
   ['league-stats-v2'],
-  { revalidate: 3600, tags: ['league-stats'] },
+  // 12h — a cold rebuild loops every rostered player through ESPN calls.
+  { revalidate: 43200, tags: ['league-stats'] },
 );
+
+export const maxDuration = 300;
 
 export async function GET(req: NextRequest) {
   const [session, leagueId] = await Promise.all([auth(), getLeagueId()]);

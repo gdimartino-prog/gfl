@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPlayersWithScouting } from '@/lib/players';
+import { getPlayerDetail } from '@/lib/players';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
 
@@ -15,20 +15,16 @@ export async function GET(
     const targetId = decodeURIComponent(id).toLowerCase().trim();
 
     const leagueId = await getLeagueId();
-    // 1. Fetch from Cache (Uses the centralized utility)
-    const players = await getPlayersWithScouting(leagueId);
-    
-    // 2. Find the player in the cached array
-    const matchedPlayer = players.find(
-      (p) => p.identity.toLowerCase().trim() === targetId
-    );
+    // Single-row indexed lookup — this route fires on every player-card
+    // click; it must never pull the full player table.
+    const matchedPlayer = await getPlayerDetail(leagueId, targetId);
 
     if (!matchedPlayer) {
       return NextResponse.json({ error: 'Player Not Found' }, { status: 404 });
     }
 
     // 3. Extract Stats using your existing logic
-    const s = matchedPlayer.scouting;
+    const s = matchedPlayer.scouting || {};
     const getVal = (key: string, fallback: string = '0') => {
       const val = s[key.toLowerCase().trim()];
       return (val !== undefined && val !== '') ? val : fallback;

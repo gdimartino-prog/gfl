@@ -9,7 +9,6 @@ import { auth } from '@/auth';
 import bcrypt from 'bcrypt';
 import { revalidateTag } from 'next/cache';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const admin = await isAdmin();

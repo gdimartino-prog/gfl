@@ -61,6 +61,12 @@ export async function GET(req: Request) {
         results.push({ leagueId, skipped: 'draft_start_date not configured' });
         continue;
       }
+      // Pre-draft window can last weeks — skip before the heavy all-picks
+      // query, not after it.
+      if (new Date() < draftStartDate) {
+        results.push({ leagueId, skipped: 'before draft start date' });
+        continue;
+      }
 
       const originalTeams = alias(teams, 'originalTeams');
       const currentTeams = alias(teams, 'currentTeams');
@@ -180,12 +186,8 @@ export async function GET(req: Request) {
 
       const activePick = allPicks[activeIdx];
 
-      // draftStartDate was already loaded above and is known non-null here.
+      // draftStartDate already validated (non-null, in the past) above.
       const now = new Date();
-      if (now < draftStartDate) {
-        results.push({ leagueId, skipped: 'before draft start date', draftStartDate });
-        continue;
-      }
 
       // If the pick has a scheduled start time that hasn't arrived yet, skip
       if (activePick.scheduledAt && new Date(activePick.scheduledAt) > now) {

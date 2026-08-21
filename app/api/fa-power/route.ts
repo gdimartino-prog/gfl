@@ -98,8 +98,14 @@ async function fetchFaPower(leagueId: number, year: number) {
 const _cachedFaPower = unstable_cache(
   fetchFaPower,
   ['fa-power-v3'],
-  { revalidate: 3600, tags: ['fa-power'] },
+  // 12h — a cold rebuild fans out hundreds of ESPN calls; season stats
+  // don't move fast enough to justify hourly rebuilds.
+  { revalidate: 43200, tags: ['fa-power'] },
 );
+
+// Cold rebuild loops every FA through ESPN lookups — needs more than the
+// default function budget or a timeout wastes the whole run.
+export const maxDuration = 300;
 
 export async function GET(req: NextRequest) {
   const [session, leagueId] = await Promise.all([auth(), getLeagueId()]);

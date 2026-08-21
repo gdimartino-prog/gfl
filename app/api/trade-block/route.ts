@@ -6,15 +6,13 @@ import { and, eq, sql } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyTradeBlock } from '@/lib/notify';
 import { isPrivileged } from '@/lib/auth';
+import { unstable_cache, revalidateTag } from 'next/cache';
 
-export async function GET() {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-  try {
-    const leagueId = await getLeagueId();
-    const rows = await db
+// Tiny, rarely-mutated table fetched on every rosters-page visit — cache it.
+// POST/DELETE bust the 'trade-block' tag below.
+const _getTradeBlock = unstable_cache(
+  async (leagueId: number) => {
+    return db
       .select({
         playerId: tradeBlock.playerId,
         playerName: tradeBlock.playerName,
@@ -27,6 +25,19 @@ export async function GET() {
       .leftJoin(players, and(eq(players.identity, tradeBlock.playerId), eq(players.leagueId, leagueId)))
       .where(eq(tradeBlock.leagueId, leagueId))
       .orderBy(tradeBlock.touch_dt);
+  },
+  ['trade-block-v1'],
+  { revalidate: 300, tags: ['trade-block'] },
+);
+
+export async function GET() {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+  try {
+    const leagueId = await getLeagueId();
+    const rows = await _getTradeBlock(leagueId);
     return NextResponse.json(
       rows.map(r => ({
         playerId: r.playerId,
@@ -103,6 +114,7 @@ export async function POST(req: NextRequest) {
       position: tradeBlock.position,
       asking: tradeBlock.asking,
     }).from(tradeBlock).where(eq(tradeBlock.leagueId, leagueId)).orderBy(tradeBlock.touch_dt);
+    revalidateTag('trade-block', 'max');
 
     await notifyTradeBlock({
       newPlayer: { playerName, team, position: position || null, asking: asking || null },
@@ -150,6 +162,7 @@ export async function DELETE(req: NextRequest) {
     await db.delete(tradeBlock).where(
       and(eq(tradeBlock.playerId, playerId), eq(tradeBlock.leagueId, leagueId))
     );
+    revalidateTag('trade-block', 'max');
     return NextResponse.json({ message: "Player removed from trade block" });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);

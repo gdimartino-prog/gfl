@@ -5,7 +5,6 @@ import { db } from '@/lib/db';
 import { teams } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET() {
   if (!await isAdmin() && !await isCommissioner()) {

@@ -7,7 +7,6 @@ import { getLeagueId } from '@/lib/getLeagueId';
 import { alias } from 'drizzle-orm/pg-core';
 import { revalidateTag } from 'next/cache';
 
-export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   const admin = await isAdmin();

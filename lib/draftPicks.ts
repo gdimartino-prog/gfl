@@ -1,7 +1,7 @@
 
 import { db } from './db';
 import { draftPicks, pickTransfers, teams, players } from '@/schema';
-import { and, eq, isNotNull, asc, sql, or, inArray } from 'drizzle-orm';
+import { and, eq, isNotNull, asc, desc, sql, or, inArray } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { unstable_cache } from 'next/cache';
 
@@ -205,9 +205,10 @@ export async function getLastPickForTeam(teamId: number, leagueId: number, year:
       eq(draftPicks.currentTeamId, teamId),
       isNotNull(draftPicks.playerId),
     ))
-    .orderBy(asc(draftPicks.pick));
+    .orderBy(desc(draftPicks.pick))
+    .limit(1);
 
-  return rows.length > 0 ? rows[rows.length - 1] : null;
+  return rows[0] ?? null;
 }
 
 /**
