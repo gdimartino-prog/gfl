@@ -7,9 +7,7 @@
     "teamshort": "LV",
     "nickname": "Aces",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "crivera@demo.com"
+    "status": "active"
   },
   {
     "id": 83,
@@ -19,9 +17,7 @@
     "teamshort": "UF",
     "nickname": "Foxes",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "djohnson@demo.com"
+    "status": "active"
   },
   {
     "id": 84,
@@ -31,9 +27,7 @@
     "teamshort": "TT",
     "nickname": "Titans",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "mwilliams@demo.com"
+    "status": "active"
   },
   {
     "id": 85,
@@ -43,9 +37,7 @@
     "teamshort": "LM",
     "nickname": "Monarchs",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "ohayes@demo.com"
+    "status": "active"
   },
   {
     "id": 86,
@@ -55,9 +47,7 @@
     "teamshort": "LES",
     "nickname": "Eagles",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "nbrooks@demo.com"
+    "status": "active"
   },
   {
     "id": 89,
@@ -67,9 +57,7 @@
     "teamshort": "TC",
     "nickname": "Charge",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "blee@demo.com"
+    "status": "active"
   },
   {
     "id": 90,
@@ -79,9 +67,7 @@
     "teamshort": "CT",
     "nickname": "Thunder",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "kdavis@demo.com"
+    "status": "active"
   },
   {
     "id": 91,
@@ -91,9 +77,7 @@
     "teamshort": "NBT",
     "nickname": "Tides",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "spark@demo.com"
+    "status": "active"
   },
   {
     "id": 92,
@@ -103,9 +87,7 @@
     "teamshort": "SG",
     "nickname": "Grills",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "tmoretti@demo.com"
+    "status": "active"
   },
   {
     "id": 93,
@@ -115,9 +97,7 @@
     "teamshort": "LBI",
     "nickname": "Claws",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "rwalsh@demo.com"
+    "status": "active"
   },
   {
     "id": 59,
@@ -127,9 +107,7 @@
     "teamshort": "PT",
     "nickname": "Tigers",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-201-925-6990",
-    "email": "thurlowjp3@gmail.com"
+    "status": "active"
   },
   {
     "id": 95,
@@ -139,9 +117,7 @@
     "teamshort": "PT",
     "nickname": "Tigers",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-201-925-6990",
-    "email": "thurlowjp3@gmail.com"
+    "status": "active"
   },
   {
     "id": 56,
@@ -151,9 +127,7 @@
     "teamshort": "TFT",
     "nickname": "Tittie Suckers  ",
     "isCommissioner": false,
-    "status": "Inactive",
-    "mobile": "NULL",
-    "email": "NULL"
+    "status": "Inactive"
   },
   {
     "id": 47,
@@ -163,9 +137,7 @@
     "teamshort": "LBI",
     "nickname": "Blue Claws",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-646-270-2947",
-    "email": "gardnergfl@gmail.com"
+    "status": "active"
   },
   {
     "id": 87,
@@ -175,9 +147,7 @@
     "teamshort": "AFL",
     "nickname": "Coast",
     "isCommissioner": true,
-    "status": "active",
-    "mobile": null,
-    "email": "grossi@demo.com"
+    "status": "active"
   },
   {
     "id": 50,
@@ -187,9 +157,7 @@
     "teamshort": "JJ",
     "nickname": "Jets",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-551-217-4373",
-    "email": "dinobone4@gmail.com"
+    "status": "active"
   },
   {
     "id": 41,
@@ -199,9 +167,7 @@
     "teamshort": "AFL",
     "nickname": "Fighting Lemons",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-693-7265",
-    "email": "adrianscherer3@gmail.com"
+    "status": "active"
   },
   {
     "id": 42,
@@ -211,9 +177,7 @@
     "teamshort": "CT",
     "nickname": "Thunder",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-201-280-9169",
-    "email": "pvuckovaz@gmail.com"
+    "status": "active"
   },
   {
     "id": 43,
@@ -223,9 +187,7 @@
     "teamshort": "CK",
     "nickname": "Kings",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-201-779-8984",
-    "email": "skunkleaf101@gmail.com"
+    "status": "active"
   },
   {
     "id": 46,
@@ -235,9 +197,7 @@
     "teamshort": "Kig",
     "nickname": "Rhinos",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-771-4525",
-    "email": "matsikoudi@me.com"
+    "status": "active"
   },
   {
     "id": 49,
@@ -247,9 +207,7 @@
     "teamshort": "LV",
     "nickname": "Golden Showers",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-201-892-4919",
-    "email": "deemark2320@gmail.com"
+    "status": "active"
   },
   {
     "id": 48,
@@ -259,9 +217,7 @@
     "teamshort": "LES",
     "nickname": "Stallions",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-688-8112",
-    "email": "nkikta@gmail.com"
+    "status": "active"
   },
   {
     "id": 57,
@@ -271,9 +227,7 @@
     "teamshort": "UF",
     "nickname": "FUBAR Giants",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-201-933-4031",
-    "email": "urbanfubar@gmail.com"
+    "status": "active"
   },
   {
     "id": 51,
@@ -283,9 +237,7 @@
     "teamshort": "NBT",
     "nickname": "Tanks",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-201-725-8413",
-    "email": "matsikoudis@comcast.net"
+    "status": "active"
   },
   {
     "id": 94,
@@ -295,9 +247,7 @@
     "teamshort": "FPR",
     "nickname": "Ranch",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "ccooper@demo.com"
+    "status": "active"
   },
   {
     "id": 53,
@@ -307,9 +257,7 @@
     "teamshort": "SG",
     "nickname": "Gabagool",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-908-967-4087",
-    "email": "satrialegabagool@gmail.com"
+    "status": "active"
   },
   {
     "id": 54,
@@ -319,9 +267,7 @@
     "teamshort": "TC",
     "nickname": "Cockatoos",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-201-951-6470",
-    "email": "tampacockatoos@gmail.com"
+    "status": "active"
   },
   {
     "id": 55,
@@ -331,9 +277,7 @@
     "teamshort": "TT",
     "nickname": "Titans",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-890-6323",
-    "email": "fullen.michael@gmail.com"
+    "status": "active"
   },
   {
     "id": 81,
@@ -343,9 +287,7 @@
     "teamshort": "OBG",
     "nickname": "Generals",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "jmitchell@demo.com"
+    "status": "active"
   },
   {
     "id": 45,
@@ -355,9 +297,7 @@
     "teamshort": "FPR",
     "nickname": "Ranchers",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-539-4430",
-    "email": "jackwyville@gmail.com"
+    "status": "active"
   },
   {
     "id": 58,
@@ -367,9 +307,7 @@
     "teamshort": "VV",
     "nickname": "Vikes",
     "isCommissioner": true,
-    "status": "active",
-    "mobile": "+1-646-296-1164",
-    "email": "gdimartino@gmail.com"
+    "status": "active"
   },
   {
     "id": 52,
@@ -379,9 +317,7 @@
     "teamshort": "OBG",
     "nickname": "Gamblers",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-735-6134",
-    "email": "edcas13@yahoo.com"
+    "status": "active"
   },
   {
     "id": 88,
@@ -391,9 +327,7 @@
     "teamshort": "DC",
     "nickname": "Capital",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "acarter@demo.com"
+    "status": "active"
   },
   {
     "id": 44,
@@ -403,9 +337,7 @@
     "teamshort": "DC",
     "nickname": "D-Trains",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": "+1-732-804-2768",
-    "email": "amatsikoudis@yahoo.com"
+    "status": "active"
   },
   {
     "id": 60,
@@ -415,9 +347,7 @@
     "teamshort": "HA",
     "nickname": "Aloha",
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": "+1-732-865-0688",
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 62,
@@ -427,9 +357,7 @@
     "teamshort": "GCG",
     "nickname": "Gargoyles",
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 96,
@@ -439,9 +367,7 @@
     "teamshort": "Kig",
     "nickname": "Kings",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "sosei@demo.com"
+    "status": "active"
   },
   {
     "id": 97,
@@ -451,9 +377,7 @@
     "teamshort": "CK",
     "nickname": "Kings",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "rgaines@demo.com"
+    "status": "active"
   },
   {
     "id": 122,
@@ -463,9 +387,7 @@
     "teamshort": "IND",
     "nickname": "Colts",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "montalbanovalentino@yahoo.it"
+    "status": "active"
   },
   {
     "id": 137,
@@ -475,9 +397,7 @@
     "teamshort": "TB",
     "nickname": "Buccaneers",
     "isCommissioner": true,
-    "status": "active",
-    "mobile": null,
-    "email": "deepflyball@gmail.com"
+    "status": "active"
   },
   {
     "id": 114,
@@ -487,9 +407,7 @@
     "teamshort": "BUF",
     "nickname": "Bills",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "ncrazynfl@yahoo.it"
+    "status": "active"
   },
   {
     "id": 99,
@@ -499,9 +417,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 100,
@@ -511,9 +427,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 101,
@@ -523,9 +437,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 102,
@@ -535,9 +447,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 103,
@@ -547,9 +457,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 104,
@@ -559,9 +467,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 105,
@@ -571,9 +477,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 106,
@@ -583,9 +487,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 107,
@@ -595,9 +497,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 108,
@@ -607,9 +507,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 109,
@@ -619,9 +517,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 110,
@@ -631,9 +527,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 111,
@@ -643,9 +537,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 112,
@@ -655,9 +547,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 113,
@@ -667,9 +557,7 @@
     "teamshort": null,
     "nickname": null,
     "isCommissioner": false,
-    "status": "inactive",
-    "mobile": null,
-    "email": null
+    "status": "inactive"
   },
   {
     "id": 115,
@@ -679,9 +567,7 @@
     "teamshort": "JAC",
     "nickname": "Jaguars",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "ravensmac@gmail.com"
+    "status": "active"
   },
   {
     "id": 116,
@@ -691,9 +577,7 @@
     "teamshort": "MIA",
     "nickname": "Dolphins",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "luke.dalfiume@yahoo.com"
+    "status": "active"
   },
   {
     "id": 117,
@@ -703,9 +587,7 @@
     "teamshort": "NE",
     "nickname": "Patriots",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "dantone100@aol.com"
+    "status": "active"
   },
   {
     "id": 118,
@@ -715,9 +597,7 @@
     "teamshort": "NYJ",
     "nickname": "Jets",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "ricejim01@aol.com"
+    "status": "active"
   },
   {
     "id": 119,
@@ -727,9 +607,7 @@
     "teamshort": "BAL",
     "nickname": "Ravens",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "jabanko@roadrunner.com"
+    "status": "active"
   },
   {
     "id": 120,
@@ -739,9 +617,7 @@
     "teamshort": "CIN",
     "nickname": "Bengals",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "apccommish@yahoo.com"
+    "status": "active"
   },
   {
     "id": 121,
@@ -751,9 +627,7 @@
     "teamshort": "CLE",
     "nickname": "Browns",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "keller351@gmail.com"
+    "status": "active"
   },
   {
     "id": 123,
@@ -763,9 +637,7 @@
     "teamshort": "PIT",
     "nickname": "Steelers",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "roachman3212@gmail.com"
+    "status": "active"
   },
   {
     "id": 124,
@@ -775,9 +647,7 @@
     "teamshort": "DEN",
     "nickname": "Broncos",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "go_utes@comcast.net"
+    "status": "active"
   },
   {
     "id": 125,
@@ -787,9 +657,7 @@
     "teamshort": "KC",
     "nickname": "Chiefs",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "bfletch61@mediacombb.net"
+    "status": "active"
   },
   {
     "id": 126,
@@ -799,9 +667,7 @@
     "teamshort": "LAC",
     "nickname": "Chargers",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "sam.alberry@yahoo.com"
+    "status": "active"
   },
   {
     "id": 127,
@@ -811,9 +677,7 @@
     "teamshort": "LV",
     "nickname": "Raiders",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "minbadgers@gmail.com"
+    "status": "active"
   },
   {
     "id": 128,
@@ -823,9 +687,7 @@
     "teamshort": "ATL",
     "nickname": "Falcons",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "flagat0r@aol.com"
+    "status": "active"
   },
   {
     "id": 129,
@@ -835,9 +697,7 @@
     "teamshort": "CAR",
     "nickname": "Panthers",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "dylanmys2413@yahoo.com"
+    "status": "active"
   },
   {
     "id": 130,
@@ -847,9 +707,7 @@
     "teamshort": "DAL",
     "nickname": "Cowboys",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "amc9187437@aol.com"
+    "status": "active"
   },
   {
     "id": 131,
@@ -859,9 +717,7 @@
     "teamshort": "PHI",
     "nickname": "Eagles",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "roberto.tosco@gmail.com"
+    "status": "active"
   },
   {
     "id": 132,
@@ -871,9 +727,7 @@
     "teamshort": "WAS",
     "nickname": "Commanders",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "tomurchek@yahoo.com"
+    "status": "active"
   },
   {
     "id": 133,
@@ -883,9 +737,7 @@
     "teamshort": "CHI",
     "nickname": "Bears",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "izperez@comcast.net"
+    "status": "active"
   },
   {
     "id": 134,
@@ -895,9 +747,7 @@
     "teamshort": "DET",
     "nickname": "Lions",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "mightyjoey1@yahoo.com"
+    "status": "active"
   },
   {
     "id": 135,
@@ -907,9 +757,7 @@
     "teamshort": "GB",
     "nickname": "Packers",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "toddcichon@outlook.com"
+    "status": "active"
   },
   {
     "id": 136,
@@ -919,9 +767,7 @@
     "teamshort": "MIN",
     "nickname": "Vikings",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "m19arcand@outlook.com"
+    "status": "active"
   },
   {
     "id": 138,
@@ -931,9 +777,7 @@
     "teamshort": "ARI",
     "nickname": "Cardinals",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "adneely@yahoo.com"
+    "status": "active"
   },
   {
     "id": 139,
@@ -943,9 +787,7 @@
     "teamshort": "NO",
     "nickname": "Saints",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "inbudget@yahoo.com"
+    "status": "active"
   },
   {
     "id": 98,
@@ -955,9 +797,7 @@
     "teamshort": "VV",
     "nickname": "Vipers",
     "isCommissioner": true,
-    "status": "active",
-    "mobile": null,
-    "email": "gdimartino@gmail.com"
+    "status": "active"
   },
   {
     "id": 140,
@@ -967,9 +807,7 @@
     "teamshort": "SF",
     "nickname": "49ers",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "bpmccormick85@gmail.com"
+    "status": "active"
   },
   {
     "id": 141,
@@ -979,8 +817,6 @@
     "teamshort": "SEA",
     "nickname": "Seahawks",
     "isCommissioner": false,
-    "status": "active",
-    "mobile": null,
-    "email": "ipmallet@gmail.com"
+    "status": "active"
   }
 ]

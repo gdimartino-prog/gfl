@@ -20,8 +20,10 @@ const tablesToBackup = [
     id: teams.id, leagueId: teams.leagueId, name: teams.name,
     coach: teams.coach, teamshort: teams.teamshort, nickname: teams.nickname,
     isCommissioner: teams.isCommissioner, status: teams.status,
-    mobile: teams.mobile, email: teams.email,
-    // password intentionally excluded from backup
+    // password, email, and mobile intentionally excluded — these backups
+    // are committed to git daily, so PII/credentials would live in repo
+    // history forever. After a full restore, coaches re-enter contact
+    // info via Settings (same recovery path as passwords).
   }).from(teams) },
   { name: 'players',              query: () => db.select().from(players) },
   { name: 'transactions',         query: () => db.select().from(transactions) },
