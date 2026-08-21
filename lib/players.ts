@@ -114,14 +114,12 @@ const _getPlayerDetail = unstable_cache(
   { revalidate: 300, tags: ['players'] },
 );
 
+// Deliberately does NOT swallow DB errors — null means "no such player"
+// (route returns 404); a DB failure must propagate so the route's catch
+// returns 500 instead of a misleading Not Found.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getPlayerDetail(leagueId: number, identity: string): Promise<any | null> {
-  try {
-    return await _getPlayerDetail(leagueId, identity.toLowerCase().trim());
-  } catch (err) {
-    console.error('getPlayerDetail Error:', err);
-    return null;
-  }
+  return _getPlayerDetail(leagueId, identity.toLowerCase().trim());
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
