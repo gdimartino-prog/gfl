@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { getCoaches, updateCoachContact } from '@/lib/config';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
+import { revalidateTag } from 'next/cache';
 
 export async function GET() {
   try {
@@ -42,15 +43,26 @@ export async function POST(req: Request) {
     const teamCode = (session.user as { id?: string }).id || "";
     const leagueId = await getLeagueId();
 
+    // Email is the cross-league identity anchor (getLeagueId membership) —
+    // capture the old value so every change is auditable, and bust the
+    // membership cache so grants aren't stale.
+    const before = (await getCoaches(leagueId)).find(
+      c => c.teamshort.toUpperCase() === teamCode.toUpperCase()
+    );
+    const oldEmail = before?.email || '';
+
     const result = await updateCoachContact(teamCode, leagueId, mobile, email, coach, nickname, team);
 
     if (result.success) {
+      const emailChanged = (email || '').trim().toLowerCase() !== oldEmail.trim().toLowerCase();
       await logSystemEvent(
         session.user.name || "Unknown Coach",
         teamCode,
         "UPDATE_CONTACT",
-        `Coach: ${(coach || '').slice(0, 50)}, Nickname: ${(nickname || '').slice(0, 50)}`
+        `Coach: ${(coach || '').slice(0, 50)}, Nickname: ${(nickname || '').slice(0, 50)}` +
+          (emailChanged ? `, Email: ${oldEmail.slice(0, 60)} → ${(email || '').slice(0, 60)}` : '')
       );
+      if (emailChanged) revalidateTag('team-leagues', 'max');
     }
 
     return NextResponse.json(result);

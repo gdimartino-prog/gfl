@@ -236,7 +236,7 @@ const handleUndoMyPick = async () => {
 
   // Fetch roster counts for all teams whenever picks reload
   useEffect(() => {
-    fetch('/api/rosters/counts', { cache: 'no-store' })
+    fetch('/api/rosters/counts')
       .then(r => r.ok ? r.json() : {})
       .then(setRosterCounts)
       .catch(() => {});

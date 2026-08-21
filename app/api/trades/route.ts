@@ -43,10 +43,17 @@ export async function POST(req: Request) {
     const fromTeamId = fromTeamRow[0]?.id;
     const toTeamId = toTeamRow[0]?.id;
 
+    // Both teams must resolve — a nonexistent toTeam would otherwise skip
+    // the ownership block below while the player moves still execute
+    // (fail-open: a coach could move arbitrary players onto their roster).
+    if (!fromTeamId || !toTeamId) {
+      return Response.json({ message: 'One or both teams not found in this league.' }, { status: 404 });
+    }
+
     // Verify asset ownership before moving anything — prevents a coach from
     // including players or picks they don't own in a trade submission.
     // Privileged users (admin/commissioner) are exempt to allow corrections.
-    if (!privileged && fromTeamId && toTeamId) {
+    if (!privileged) {
       if (Array.isArray(rawIdentitiesFrom) && rawIdentitiesFrom.length > 0) {
         const owned = await db.select({ identity: players.identity }).from(players)
           .where(and(eq(players.leagueId, leagueId), eq(players.teamId, fromTeamId), inArray(players.identity, rawIdentitiesFrom as string[])));

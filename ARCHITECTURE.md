@@ -68,7 +68,7 @@ gfl/
 │   ├── db.ts                         # Vercel Postgres + Drizzle connection
 │   ├── db-helpers.ts                 # logSystemEvent()
 │   ├── getLeagueId.ts                # Cookie-based active league resolver
-│   ├── players.ts                    # getPlayers(), getPlayersWithScouting()
+│   ├── players.ts                    # getPlayers(), getPlayerDetail(), getFAPlayersWithScouting()
 │   ├── config.ts                     # getCoaches() / team helpers
 │   ├── transactions.ts               # logTransaction(), getTransactions()
 │   ├── draftPicks.ts                 # getAllDraftPicks(), upsertPickTransfer()
@@ -342,8 +342,8 @@ Every tenant table has a `leagueId` column. All queries filter by it.
 ### Authenticated
 | Route | Method | Description |
 |-------|--------|-------------|
-| `/api/players` | GET | All players; `?scouting=1` includes full scouting JSON |
-| `/api/players/details/[id]` | GET | Single player detail |
+| `/api/players` | GET | All players (lean — no scouting JSON; `?scouting=1` retired, returns 410) |
+| `/api/players/details/[id]` | GET | Single player detail with scouting (cached single-row lookup) |
 | `/api/rosters/[team]` | GET | Roster for a teamshort code |
 | `/api/teams` | GET | All active teams for league |
 | `/api/transactions` | GET/POST | Transaction log; POST logs new transaction |
@@ -579,9 +579,9 @@ Strike count is capped at 3 — accumulation stops once a team reaches 3 regardl
 | `draft-start-date` | `rules` | 60s | `draft_start_date` rule lookup |
 | `draft-clock-minutes` | `rules` | 60s | Per-round clock duration (LIKE-pattern rule lookup) |
 
-`getPlayersWithScouting` exceeds the 2MB `unstable_cache` limit — not cached; uses CDN `Cache-Control: s-maxage=300` at the API route level instead.
+The full-table-with-scouting query was retired (it exceeded the 2MB `unstable_cache` limit and cost multi-MB egress per call). Player detail now uses `getPlayerDetail(leagueId, identity)` — a cached single-row lookup under the `players` tag; FA views use the cached `getFAPlayersWithScouting`.
 
-`getLeagueId()` is wrapped in React's `cache()` so the auth + cookie + DB resolution runs at most once per request (layout, footer, page, and API routes all call it). The inner `teamshort → leagueIds` DB lookup is also `unstable_cache`'d for cross-request reuse.
+`getLeagueId()` is wrapped in React's `cache()` so the auth + cookie + DB resolution runs at most once per request (layout, footer, page, and API routes all call it). Cross-league cookie switches are validated by email-based membership (`_getAllowedLeagueIds`, `unstable_cache`'d) anchored to the session's login league — teamshort alone is not a cross-league identity.
 
 Cache invalidation via `revalidateTag(tag, 'max')` in mutation routes. When a team is renamed/updated, both `coaches` and `players` tags are invalidated so rosters reflect the new teamshort immediately. Rule writes invalidate the `rules` tag, which busts all four rules-tagged caches simultaneously.
 

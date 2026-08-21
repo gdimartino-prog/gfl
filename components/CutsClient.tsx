@@ -124,7 +124,7 @@ export default function CutsClient() {
     async function init() {
       try {
         setLoading(true);
-        const rulesRes = await fetch(`/api/rules?ts=${Date.now()}`, { cache: 'no-store' });
+        const rulesRes = await fetch('/api/rules');
         const rulesArr = await rulesRes.json();
         const newCfg: Config = { protected: 30, pullback: 8, cuts_year: '', draft_year: '', cuts_due_date: '' };
 
@@ -143,8 +143,8 @@ export default function CutsClient() {
         setViewYear(currentYear);
 
         const [tRes, yRes] = await Promise.all([
-          fetch(`/api/teams?ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
-          fetch(`/api/cuts?yearsOnly=true&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
+          fetch('/api/teams').then(r => r.json()),
+          fetch('/api/cuts?yearsOnly=true').then(r => r.json()),
         ]);
         setTeams([...tRes].sort((a: Team, b: Team) => (a.name || '').localeCompare(b.name || '')));
         // Always include current year even if no cuts submitted yet; sort descending
@@ -159,7 +159,7 @@ export default function CutsClient() {
   // Fetch summary whenever viewYear changes
   useEffect(() => {
     if (!viewYear) return;
-    fetch(`/api/cuts?year=${viewYear}&ts=${Date.now()}`, { cache: 'no-store' })
+    fetch(`/api/cuts?year=${viewYear}`)
       .then(r => r.json())
       .then(d => setSummary(d.summary || {}))
       .catch(console.error);
@@ -172,8 +172,8 @@ export default function CutsClient() {
         if (isCurrentYear) {
           // Current year: load live roster + apply cuts with age-change fallback
           const [pRes, cRes] = await Promise.all([
-            fetch(`/api/players?team=${selectedTeam}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json()),
-            fetch(`/api/cuts?team=${selectedTeam}&year=${viewYear}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json())
+            fetch(`/api/players?team=${selectedTeam}`).then(r => r.json()),
+            fetch(`/api/cuts?team=${selectedTeam}&year=${viewYear}`).then(r => r.json())
           ]);
 
           const processedRoster = pRes.map((p: Player) => ({
@@ -215,7 +215,7 @@ export default function CutsClient() {
           setSelections(mergedCuts);
         } else {
           // Past year: reconstruct read-only roster from cuts table entries
-          const cRes = await fetch(`/api/cuts?team=${selectedTeam}&year=${viewYear}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json());
+          const cRes = await fetch(`/api/cuts?team=${selectedTeam}&year=${viewYear}`, { cache: 'no-store' }).then(r => r.json());
           const cutsData: Record<string, string> = cRes.selections || {};
 
           // Build pseudo-roster from cuts identity keys
@@ -279,7 +279,7 @@ export default function CutsClient() {
         body: JSON.stringify({ team: selectedTeam, year: config.cuts_year, selections: combined })
       });
       if (res.ok) {
-        const sRes = await fetch(`/api/cuts?year=${config.cuts_year}&ts=${Date.now()}`, { cache: 'no-store' }).then(r => r.json());
+        const sRes = await fetch(`/api/cuts?year=${config.cuts_year}`, { cache: 'no-store' }).then(r => r.json());
         setSummary(sRes.summary || {});
         setInitialSelections(selections);
         if (!isAutoSave) {

@@ -42,6 +42,11 @@ export async function POST(req: NextRequest) {
     if (!leagueId || !teamName || !teamShort || !coachName || !password) {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
     }
+    for (const [field, val, max] of [['teamName', teamName, 100], ['teamShort', teamShort, 10], ['coachName', coachName, 100], ['email', email, 254], ['mobile', mobile, 30]] as const) {
+      if (val != null && (typeof val !== 'string' || val.length > max)) {
+        return NextResponse.json({ error: `${field} must be a string of at most ${max} characters.` }, { status: 400 });
+      }
+    }
 
     // Validate league exists
     const leagueRows = await db
@@ -145,6 +150,9 @@ export async function PATCH(req: NextRequest) {
 
   if (action === 'approve') {
     await db.update(teams).set({ status: 'active' }).where(eq(teams.id, id));
+    // Membership grants are keyed on active status — bust so the newly
+    // approved team is recognized without waiting out the cache TTL.
+    revalidateTag('team-leagues', 'max');
   } else {
     await db.delete(teams).where(eq(teams.id, id));
     revalidateTag('team-leagues', 'max');

@@ -2,6 +2,7 @@ import { put, list } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { updateCoachSync } from '@/lib/config';
 import { auth } from "@/auth";
+import { isPrivileged } from '@/lib/auth';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
@@ -28,10 +29,20 @@ export async function GET() {
       leagueTeams.map(t => t.name.replace(/\s+/g, '_').toUpperCase() + '.COA')
     );
 
+    // Match this league's prefixed keys ("<leagueId>/NAME.COA") plus legacy
+    // unprefixed keys from before league scoping. Full-path matching — a
+    // basename-only check would surface another league's same-named team.
     const { blobs } = await list();
     const coachFiles = blobs.filter(f => {
-      const fileName = f.pathname.split('/').pop() || '';
-      return fileName.toLowerCase().endsWith('.coa') && leagueFileNames.has(fileName.toUpperCase());
+      const path = f.pathname.toUpperCase();
+      for (const name of leagueFileNames) {
+        // Unprefixed legacy keys belong to GFL (league 1) only — other
+        // leagues use "<leagueId>/NAME.COA" and must not see GFL's files
+        // when a team name happens to repeat across leagues.
+        if (leagueId === 1 && path === name) return true;
+        if (path === `${leagueId}/${name}`) return true;
+      }
+      return false;
     });
 
     return NextResponse.json(coachFiles);
@@ -50,8 +61,7 @@ export async function POST(request: Request) {
     if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const callerTeamshort = (session.user as { id?: string }).id || '';
-    const role = (session.user as { role?: string }).role || '';
-    const privileged = role === 'superuser' || role === 'admin';
+    const privileged = await isPrivileged();
     const leagueId = await getLeagueId();
 
     const { searchParams } = new URL(request.url);
@@ -73,7 +83,12 @@ export async function POST(request: Request) {
       .limit(1);
     if (!teamRow[0]) return NextResponse.json({ error: 'Team not found' }, { status: 404 });
 
-    const filename = teamRow[0].name.replace(/\s+/g, '_').toUpperCase() + '.COA';
+    // League-prefixed key — team names repeat across leagues, and
+    // allowOverwrite on a shared key would let one league clobber another's
+    // file. GFL (league 1) keeps legacy unprefixed keys so existing files
+    // and download links stay valid.
+    const baseName = teamRow[0].name.replace(/\s+/g, '_').toUpperCase() + '.COA';
+    const filename = leagueId === 1 ? baseName : `${leagueId}/${baseName}`;
 
     const blobFile = await request.blob();
     if (blobFile.size === 0) {

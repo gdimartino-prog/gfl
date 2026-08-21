@@ -18,14 +18,21 @@ export async function POST() {
   try {
     const leagueId = await getLeagueId();
 
-    const draftYearRow = await db.select({ value: rules.value })
-      .from(rules)
-      .where(and(eq(rules.rule, 'draft_year'), eq(rules.leagueId, leagueId)))
-      .limit(1);
+    const [draftYearRow, draftStartDate] = await Promise.all([
+      db.select({ value: rules.value })
+        .from(rules)
+        .where(and(eq(rules.rule, 'draft_year'), eq(rules.leagueId, leagueId)))
+        .limit(1),
+      getDraftStartDate(leagueId),
+    ]);
 
     const draftYear = parseInt(draftYearRow[0]?.value || '0');
     if (!draftYear) return NextResponse.json({ skipped: 'no draft_year configured' });
     if (draftYear > new Date().getFullYear()) return NextResponse.json({ skipped: `draft_year ${draftYear} is in the future` });
+    // Check before the heavy all-picks query — nothing can expire pre-start.
+    if (draftStartDate && new Date() < draftStartDate) {
+      return NextResponse.json({ skipped: 'before draft start date' });
+    }
 
     const originalTeams = alias(teams, 'originalTeams');
     const currentTeams = alias(teams, 'currentTeams');
@@ -51,12 +58,7 @@ export async function POST() {
     if (activeIdx === -1) return NextResponse.json({ skipped: 'draft complete' });
 
     const activePick = allPicks[activeIdx];
-
-    const draftStartDate = await getDraftStartDate(leagueId);
     const now = new Date();
-    if (draftStartDate && now < draftStartDate) {
-      return NextResponse.json({ skipped: 'before draft start date' });
-    }
 
     // Use the full chain computation — the simplified prevPick.pickedAt approach
     // breaks when the previous pick is a passed/stale/instant-skip with an old timestamp.

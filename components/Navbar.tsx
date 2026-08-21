@@ -22,7 +22,7 @@ export default function Navbar() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const rulesRes = await fetch('/api/rules', { cache: 'no-store' });
+        const rulesRes = await fetch('/api/rules');
         const rules = await rulesRes.json();
         if (Array.isArray(rules)) {
           const cYear = rules.find(r => r.setting === 'cuts_year');

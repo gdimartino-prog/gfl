@@ -345,7 +345,7 @@ export async function notifyTradeBlock({
       </p>
     </div>`;
 
-  await sendEmail({ subject: `GFL Trade Block: ${newPlayer.playerName} (${newPlayer.team}) listed`, html });
+  await sendEmail({ subject: `GFL Trade Block: ${newPlayer.playerName.slice(0, 60)} (${newPlayer.team.slice(0, 40)}) listed`, html });
 
   if (leagueId === 1 || leagueId === undefined) {
     await sendWhatsApp(

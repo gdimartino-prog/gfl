@@ -23,18 +23,22 @@ const _getAllowedLeagueIds = unstable_cache(
       .where(and(
         eq(teams.leagueId, homeLeagueId),
         sql`upper(${teams.teamshort}) = ${teamshortUpper}`,
+        eq(teams.status, 'active'),
       ))
       .limit(1);
 
     const email = homeTeam[0]?.email?.trim().toLowerCase();
     if (!email) return [homeLeagueId];
 
+    // status filter matters: a pending self-signup with a matching email
+    // must not grant league access before commissioner approval.
     const rows = await db
       .selectDistinct({ leagueId: teams.leagueId })
       .from(teams)
       .where(and(
         sql`lower(${teams.email}) = ${email}`,
         sql`${teams.password} IS NOT NULL`,
+        eq(teams.status, 'active'),
       ));
     const ids = rows.map(r => r.leagueId).filter((id): id is number => id != null);
     return ids.includes(homeLeagueId) ? ids : [homeLeagueId, ...ids];

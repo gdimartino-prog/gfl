@@ -134,6 +134,9 @@ export async function POST(req: Request) {
     if (!type || !ALLOWED_TYPES.includes(type)) {
       return Response.json({ error: 'Invalid transaction type' }, { status: 400 });
     }
+    if (details !== undefined && (typeof details !== 'string' || details.length > 2000)) {
+      return Response.json({ error: 'details must be a string ≤ 2000 characters' }, { status: 400 });
+    }
 
     // CONDITIONAL TRADE is a record-keeping entry only — no player moves, no
     // team-id update, no trade-block cleanup. The standard player-lookup path

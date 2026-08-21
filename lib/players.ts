@@ -102,7 +102,9 @@ const _getPlayerDetail = unstable_cache(
       .leftJoin(teams, eq(players.teamId, teams.id))
       .where(and(
         eq(players.leagueId, leagueId),
-        sql`lower(${players.identity}) = ${identityLower}`,
+        // identities are written lowercase (buildPlayerIdentity) — plain eq
+        // hits players_identity_league_idx; lower() would force a scan.
+        eq(players.identity, identityLower),
       ))
       .limit(1);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

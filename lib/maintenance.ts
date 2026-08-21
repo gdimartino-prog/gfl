@@ -348,6 +348,12 @@ export async function processScheduleFile(fileContent: string, leagueId: number 
     year = rulesRow[0]?.value ? parseInt(rulesRow[0].value, 10) || null : null;
   }
 
+  // Without a year the preload spans all seasons and the week|home|away
+  // key collides across years — wrong-year rows get skipped or updated.
+  if (!year) {
+    return { success: false, message: 'Could not determine schedule year (no year in header, no cuts_year rule).' };
+  }
+
   const allTeams = await db.select({ id: teams.id, name: teams.name, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId));
 
   // Preload the season's existing games once — the per-line SELECT was
@@ -401,7 +407,8 @@ export async function processScheduleFile(fileContent: string, leagueId: number 
         homeScore = parseInt(scores[1], 10);
       }
 
-      const existing = existingByKey.get(gameKey(String(week), homeTeam.id, awayTeam.id));
+      const key = gameKey(String(week), homeTeam.id, awayTeam.id);
+      const existing = existingByKey.get(key);
       if (existing) {
         // Already has scores (Final) — skip
         if (existing.home_score !== null) continue;
@@ -410,6 +417,8 @@ export async function processScheduleFile(fileContent: string, leagueId: number 
           updates.push({ id: existing.id, homeScore, awayScore });
         }
       } else {
+        // Mark as seen so a duplicate line in the same file can't double-insert
+        existingByKey.set(key, { id: -1, week: String(week), homeTeamId: homeTeam.id, awayTeamId: awayTeam.id, home_score: homeScore });
         inserts.push({
           leagueId,
           year,

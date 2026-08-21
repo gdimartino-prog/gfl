@@ -1,6 +1,15 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { logSystemEvent } from "@/lib/db-helpers";
+import { timingSafeEqual } from "crypto";
+
+// Constant-time string compare for env-credential checks
+function safeEqual(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -22,7 +31,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (
             superUsername && superPassword &&
             rawInput.toLowerCase() === superUsername.toLowerCase() &&
-            password === superPassword
+            safeEqual(password, superPassword)
           ) {
             await logSystemEvent('Administrator', 'System', 'LOGIN', 'Superuser accessed Front Office');
             return { id: 'SUPER', name: 'Administrator', team: 'System', role: 'superuser' };
@@ -34,7 +43,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (
             demoUsername && demoPassword &&
             rawInput.toLowerCase() === demoUsername.toLowerCase() &&
-            password === demoPassword
+            safeEqual(password, demoPassword)
           ) {
             await logSystemEvent('Demo Commissioner', 'VV', 'LOGIN', 'Demo user accessed Front Office', 2);
             return { id: 'VV', name: 'Demo Commissioner', team: 'Vico', role: 'demo', leagueId: 2 };
@@ -96,7 +105,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 role: dbTeam[0].isCommissioner ? 'admin' : 'coach',
                 leagueId: dbTeam[0].leagueId ?? 1,
               };
-              logSystemEvent(user.name, user.team, 'LOGIN', 'Coach entered Front Office', dbTeam[0].leagueId ?? undefined);
+              // Awaited — Vercel kills unawaited promises on response return
+              await logSystemEvent(user.name, user.team, 'LOGIN', 'Coach entered Front Office', dbTeam[0].leagueId ?? undefined);
               return user;
             }
           }

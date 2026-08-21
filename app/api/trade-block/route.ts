@@ -67,6 +67,11 @@ export async function POST(req: NextRequest) {
     if (!playerId || !playerName || !team) {
       return NextResponse.json({ message: "Missing required player information" }, { status: 400 });
     }
+    for (const [field, val, max] of [['playerName', playerName, 120], ['team', team, 100], ['position', position, 20], ['asking', asking, 500]] as const) {
+      if (val != null && (typeof val !== 'string' || val.length > max)) {
+        return NextResponse.json({ message: `${field} must be a string ≤ ${max} characters` }, { status: 400 });
+      }
+    }
 
     const leagueId = await getLeagueId();
     const callerTeamshort = (session.user as { id?: string }).id || '';

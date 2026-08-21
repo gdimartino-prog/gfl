@@ -242,12 +242,18 @@ export async function DELETE(req: Request) {
     if (clearAll) {
       if (!year) return NextResponse.json({ error: 'year required for clearAll' }, { status: 400 });
       await clearAllPickSelections(leagueId, Number(year), actor, draftType);
+      // Players were freed back to FA — bust both caches or the board and
+      // FA pool stay stale mid-draft.
+      await revalidateTag('draft-picks', 'max');
+      await revalidateTag('players', 'max');
       await logSystemEvent(actor, 'admin', 'DRAFT_CLEAR_ALL', `Cleared all picks for ${year}${draftType ? ` (${draftType})` : ''}`, leagueId);
       return NextResponse.json({ success: true });
     }
 
     if (!pickId) return NextResponse.json({ error: 'pickId required' }, { status: 400 });
     await clearPickSelection(Number(pickId), actor, leagueId);
+    await revalidateTag('draft-picks', 'max');
+    await revalidateTag('players', 'max');
     await logSystemEvent(actor, 'admin', 'DRAFT_DELETE_PICK', `Deleted pick #${pickId}`, leagueId);
     return NextResponse.json({ success: true });
   } catch (error) {
