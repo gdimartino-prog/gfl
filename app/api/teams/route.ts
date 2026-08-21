@@ -54,7 +54,8 @@ export async function POST(req: Request) {
     const result = await updateCoachContact(teamCode, leagueId, mobile, email, coach, nickname, team);
 
     if (result.success) {
-      const emailChanged = (email || '').trim().toLowerCase() !== oldEmail.trim().toLowerCase();
+      const emailChanged = email !== undefined &&
+        (email || '').trim().toLowerCase() !== oldEmail.trim().toLowerCase();
       await logSystemEvent(
         session.user.name || "Unknown Coach",
         teamCode,

@@ -87,7 +87,9 @@ export async function POST(request: Request) {
     // allowOverwrite on a shared key would let one league clobber another's
     // file. GFL (league 1) keeps legacy unprefixed keys so existing files
     // and download links stay valid.
-    const baseName = teamRow[0].name.replace(/\s+/g, '_').toUpperCase() + '.COA';
+    // Strip path separators — a team name containing "/" could otherwise
+    // collide with another league's prefixed key.
+    const baseName = teamRow[0].name.replace(/[/\\]/g, '').replace(/\s+/g, '_').toUpperCase() + '.COA';
     const filename = leagueId === 1 ? baseName : `${leagueId}/${baseName}`;
 
     const blobFile = await request.blob();
