@@ -177,6 +177,6 @@ export async function POST(req: Request) {
     return Response.json({ success: true });
   } catch (error: unknown) {
     console.error('Trade API Error:', error);
-    return Response.json({ success: false, error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
+    return Response.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }
 }

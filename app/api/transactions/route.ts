@@ -37,7 +37,8 @@ export async function GET() {
       conditionalDetails: t.conditionalDetails ?? null,
     })));
   } catch (error: unknown) {
-    return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
+    console.error('[Transactions GET]', error);
+    return Response.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
@@ -77,7 +78,8 @@ export async function PATCH(req: NextRequest) {
     await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_STATUS', `Transaction #${id} marked ${status}`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
-    return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
+    console.error('[Transactions PATCH]', error);
+    return Response.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
@@ -111,7 +113,8 @@ export async function DELETE(req: NextRequest) {
     await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_DELETE', `Transaction #${id} deleted${pickIds?.length ? ` (reverted ${pickIds.length} pick transfer(s))` : ''}`, leagueId);
     return Response.json({ success: true });
   } catch (error: unknown) {
-    return Response.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
+    console.error('[Transactions DELETE]', error);
+    return Response.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
@@ -306,6 +309,7 @@ export async function POST(req: Request) {
 
     return Response.json({ success: true });
   } catch (err: unknown) {
-    return Response.json({ error: err instanceof Error ? err.message : 'Internal Server Error' }, { status: 500 });
+    console.error('[Transactions POST]', err);
+    return Response.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

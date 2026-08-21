@@ -158,7 +158,10 @@ export default function FreeAgentPanel({
         if (onComplete) onComplete();
         alert('Transaction Successful');
       } else {
-        throw new Error("Transaction failed on server");
+        // Surface the server's actual message — it distinguishes a
+        // race-lost pickup ("already on a roster") from a real bug.
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || 'Error processing pickup');
       }
     } catch {
       alert('Error processing pickup');

@@ -286,7 +286,8 @@ export default function CutsClient() {
           alert("Roster changes saved to secure database.");
         }
       } else {
-        if (!isAutoSave) alert("Error saving cuts.");
+        const err = await res.json().catch(() => ({}));
+        if (!isAutoSave) alert(err.error || "Error saving cuts.");
       }
     } catch {
       if (!isAutoSave) alert("Error saving cuts.");
