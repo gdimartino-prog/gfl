@@ -40,7 +40,7 @@ node --env-file=.env.local --import tsx scripts/foo.ts
 
 ## Pre-push code review
 
-Before pushing any non-trivial code change (API routes, DB queries, auth, external API calls, user input handling, file uploads, background jobs), run the **secops**, **finops**, and **perf** agents in parallel on the uncommitted diff. All three agents are user-level (installed under `~/.claude/agents/`) — available in every project, no per-project setup needed.
+Before pushing any non-trivial code change (API routes, DB queries, auth, external API calls, user input handling, file uploads, background jobs), run the **secops**, **finops**, and **perf** agents in parallel on the uncommitted diff. All three agents are user-level (installed under `~/.claude/agents/`) — available in every project, no per-project setup needed. **finops findings always take precedence over perf findings** when they conflict — cost/egress concerns outrank raw speed optimizations.
 
 **Also include the `qa` agent in the parallel review when the change touches UI, auth, login flow, or interactive elements** (page edits, components, forms, navigation, session handling). Skip qa for pure backend, prompt, utility, schema, or docs changes — the pre-push hook (lint + build) plus secops/finops/perf already cover those, and qa runs a 5–15 min Playwright browser session that's overkill for backend-only edits.
 
@@ -75,7 +75,18 @@ Bust caches in mutation routes: `revalidateTag('tag', 'max')`. See [ARCHITECTURE
 - **Cuts:** same as players; age-mismatch fallback drops the age field.
 
 ### Mixed-case `teamshort`
-Some leagues have mixed-case `teamshort` values seeded historically. **Always `.toUpperCase()` before matching** in lookups.
+Some leagues have mixed-case `teamshort` values seeded historically. **Always compare case-insensitively** — in SQL use `sql`upper(${teams.teamshort}) = ${code.toUpperCase()}`` , never a bare `eq()`.
+
+### Privilege checks
+Use **`isPrivileged()`** from `lib/auth.ts` (superuser, or DB-verified commissioner in the active league; React-`cache()`d so repeated calls cost one query). Never trust the JWT `role` alone — it's stale for up to 30 days after a demotion — and never write `await isAdmin() || await isCommissioner()` (redundant double lookup).
+
+### Client fetches
+No `?t=${Date.now()}` cache-busters and no `cache: 'no-store'` on **reads** — plain fetches honor the `private, max-age` headers the APIs set. Use `no-store` only for the refetch immediately after a mutation (see the `loadData(fresh = false)` pattern in the transaction panels).
+
+### Player data access
+- Lists: `getPlayers()` (lean, cached). FA views: `getFAPlayersWithScouting()`.
+- Single player with scouting: `getPlayerDetail(leagueId, identity)` — a cached indexed row lookup. **Never fetch the full player table with scouting JSON**; that path was retired (`/api/players?scouting=1` returns 410).
+- Player mutations that change `teamId` must bust the `players` tag (drafts, trades, transactions all do).
 
 ### Audit fields
 Every mutation writes `touch_id` (actor) and `touch_dt` (timestamp). Don't skip these — they're how we trace incidents.
@@ -110,6 +121,18 @@ Same reason as `notify*()`. Vercel kills unawaited promises.
 
 ### Player file imports clean up duplicates
 `processPlayersFile` consolidates same-identity rows in the DB before upserting. The standalone `scripts/dedupe-players.ts` runs the same logic as a one-shot cleanup.
+
+### Trades execute unilaterally (intentional)
+`/api/trades` moves assets on one coach's submission — no acceptance step. Same trust model as the permissive late-pick auth: audit log + league-wide notification + commissioner undo are the guardrails. Don't propose an approval workflow; do keep the ownership checks (both teams must resolve, assets must belong to the sending teams).
+
+### Cross-league identity is email-based
+`getLeagueId()` honors the league cookie only if the user's email matches an **active** credentialed team in that league (teamshort is NOT unique across leagues). Email changes via `/api/teams` are audited and bust the `team-leagues` cache — keep it that way.
+
+### COA blob keys are league-scoped
+Uploads write `<leagueId>/NAME.COA` for non-GFL leagues; GFL (league 1) keeps legacy unprefixed keys. The GET matches full paths — don't revert to basename matching.
+
+### DB backups exclude PII
+`scripts/backup-db.ts` deliberately omits `password`, `email`, and `mobile` from the committed `backups/teams.json` — backups live in git history forever. Never add them back.
 
 ---
 
