@@ -10870,5 +10870,14 @@
     "team": "VV",
     "action": "TRANSACTION_STATUS",
     "details": "Transaction #514 marked Done"
+  },
+  {
+    "id": 1209,
+    "leagueId": 1,
+    "timestamp": "2026-08-20T16:06:49.832Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
