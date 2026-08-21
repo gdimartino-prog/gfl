@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { cuts, teams } from '@/schema';
-import { eq, and, asc } from 'drizzle-orm';
+import { eq, and, asc, sql } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { auth } from '@/auth';
+import { isPrivileged } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';
 
 export async function GET(req: NextRequest) {
@@ -95,15 +96,15 @@ export async function POST(req: NextRequest) {
 
     // Verify caller owns this team unless admin/commissioner
     const callerTeamshort = (session.user as { id?: string }).id || '';
-    const role = (session.user as { role?: string }).role || '';
-    const isSuperuser = role === 'superuser' || role === 'admin';
-    if (!isSuperuser && callerTeamshort.toLowerCase() !== (team || '').toLowerCase()) {
+    const privileged = await isPrivileged();
+    if (!privileged && callerTeamshort.toLowerCase() !== (team || '').toLowerCase()) {
       return NextResponse.json({ error: 'Forbidden: you can only submit cuts for your own team' }, { status: 403 });
     }
 
+    // upper() on both sides — some leagues have mixed-case teamshort seeds
     const teamRow = await db.select({ id: teams.id })
       .from(teams)
-      .where(and(eq(teams.teamshort, team), eq(teams.leagueId, leagueId)))
+      .where(and(sql`upper(${teams.teamshort}) = ${String(team || '').toUpperCase()}`, eq(teams.leagueId, leagueId)))
       .limit(1);
 
     if (!teamRow[0]) return NextResponse.json({ error: 'Team not found' }, { status: 400 });

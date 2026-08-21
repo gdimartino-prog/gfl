@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 import { draftPicks, pickTransfers, teams } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 import { auth } from '@/auth';
-import { isAdmin, isCommissioner } from '@/lib/auth';
+import { isPrivileged } from '@/lib/auth';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { getDraftClockMinutes, getDraftStartDate, getDraftYear, computePickTimings } from '@/lib/draftClock';
 import { getTeamShortMap } from '@/lib/config';
@@ -164,7 +164,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const authorized = await isAdmin() || await isCommissioner();
+  const authorized = await isPrivileged();
   if (!authorized) return NextResponse.json({ error: 'Commissioner access required' }, { status: 403 });
   try {
     const body = await req.json();
@@ -218,7 +218,7 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const authorized = await isAdmin() || await isCommissioner();
+  const authorized = await isPrivileged();
   if (!authorized) return NextResponse.json({ error: 'Commissioner access required' }, { status: 403 });
 
   try {
@@ -247,7 +247,7 @@ export async function DELETE(req: Request) {
 export async function PATCH(req: Request) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const authorized = await isAdmin() || await isCommissioner();
+  const authorized = await isPrivileged();
   if (!authorized) return NextResponse.json({ error: 'Commissioner access required' }, { status: 403 });
 
   try {

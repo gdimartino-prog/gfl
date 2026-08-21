@@ -42,25 +42,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           const { db } = await import('@/lib/db');
           const { teams } = await import('@/schema');
-          const { sql: drizzleSql, eq, and, or } = await import('drizzle-orm');
+          const { sql: drizzleSql, eq, and } = await import('drizzle-orm');
           const { default: bcrypt } = await import('bcrypt');
 
           const selectedLeagueId = credentials.leagueId ? parseInt(String(credentials.leagueId)) : null;
+          // League team logins must name their league — an unscoped lookup
+          // could authenticate against a same-named team in another league.
+          if (!selectedLeagueId || isNaN(selectedLeagueId)) return null;
           let lookupName = rawInput.toLowerCase();
 
           // If input looks like an email, resolve to team name via DB
+          // (scoped to the selected league)
           if (rawInput.includes('@')) {
             const emailRows = await db
               .select({ name: teams.name })
               .from(teams)
-              .where(drizzleSql`lower(${teams.email}) = ${rawInput.toLowerCase()}`)
+              .where(and(
+                drizzleSql`lower(${teams.email}) = ${rawInput.toLowerCase()}`,
+                eq(teams.leagueId, selectedLeagueId),
+              ))
               .limit(1);
             if (emailRows[0]?.name) lookupName = emailRows[0].name.toLowerCase();
           }
 
           // DB lookup — teams with bcrypt password (status = active)
-          // Scoped by leagueId when provided; accepts full team name OR team short code
-          const leagueFilter = selectedLeagueId ? eq(teams.leagueId, selectedLeagueId) : drizzleSql`1=1`;
+          // Accepts full team name OR team short code
+          const leagueFilter = eq(teams.leagueId, selectedLeagueId);
           const dbTeam = await db
             .select({
               teamshort: teams.teamshort,
@@ -79,11 +86,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             .orderBy(drizzleSql`${teams.password} IS NOT NULL DESC`)
             .limit(1);
 
-          console.log('[auth] lookupName:', lookupName, '| found:', dbTeam[0]?.name, '| hasPassword:', !!dbTeam[0]?.password);
-
           if (dbTeam[0]?.password) {
             const passwordMatch = await bcrypt.compare(password, dbTeam[0].password);
-            console.log('[auth] passwordMatch:', passwordMatch);
             if (passwordMatch) {
               const user = {
                 id: dbTeam[0].teamshort!,

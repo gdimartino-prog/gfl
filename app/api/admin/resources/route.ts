@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { isAdmin, isCommissioner } from '@/lib/auth';
+import { isPrivileged } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { resources } from '@/schema';
 import { asc, eq, and } from 'drizzle-orm';
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const authorized = await isAdmin() || await isCommissioner();
+  const authorized = await isPrivileged();
   if (!authorized) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const leagueId = await getLeagueId();
@@ -22,7 +22,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const authorized = await isAdmin() || await isCommissioner();
+  const authorized = await isPrivileged();
   if (!authorized) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { title, url, group, sortOrder } = await req.json();
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const authorized = await isAdmin() || await isCommissioner();
+  const authorized = await isPrivileged();
   if (!authorized) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id, title, url, group, sortOrder } = await req.json();
@@ -66,7 +66,7 @@ export async function PATCH(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const authorized = await isAdmin() || await isCommissioner();
+  const authorized = await isPrivileged();
   if (!authorized) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const { id } = await req.json();

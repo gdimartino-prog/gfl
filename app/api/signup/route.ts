@@ -4,23 +4,38 @@ import { teams, leagues } from '@/schema';
 import { eq, and, or, sql } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 import { auth } from '@/auth';
+import { isCommissioner } from '@/lib/auth';
+import { getLeagueId } from '@/lib/getLeagueId';
+import { tokenBucket } from '@/lib/rateLimit';
 import { revalidateTag } from 'next/cache';
 
-// Returns { isSuperuser, isCommissioner, leagueId } for the current session
+// Returns { isSuperuser, leagueId } for the current session.
+// Commissioner status is verified against the DB — the JWT role can be
+// stale for up to 30 days after a demotion.
 async function getSessionAccess() {
   const session = await auth();
-  const role = session?.user?.role;
-  if (!role || (role !== 'admin' && role !== 'superuser')) return null;
-
-  if (role === 'superuser') return { isSuperuser: true, leagueId: null };
-
-  // Commissioner — league is already in the JWT, no DB round-trip needed
-  const leagueId = (session!.user as { leagueId?: number }).leagueId ?? null;
-  return { isSuperuser: false, leagueId };
+  if (!session?.user) return null;
+  if (session.user.role === 'superuser') return { isSuperuser: true, leagueId: null };
+  if (await isCommissioner()) {
+    const leagueId = await getLeagueId();
+    return { isSuperuser: false, leagueId };
+  }
+  return null;
 }
 
 export async function POST(req: NextRequest) {
   try {
+    // Unauthenticated endpoint doing bcrypt cost-12 work — rate-limit by IP
+    // so it can't be used to flood the teams table or burn CPU.
+    const ip = (req.headers.get('x-forwarded-for') || 'unknown').split(',')[0].trim();
+    const limit = tokenBucket(`signup:${ip}`, 5, 3600);
+    if (!limit.ok) {
+      return NextResponse.json(
+        { error: 'Too many signup attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(limit.retryAfterSec) } },
+      );
+    }
+
     const body = await req.json();
     const { leagueId, teamName, teamShort, coachName, email, mobile, password } = body;
 

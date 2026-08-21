@@ -7,7 +7,7 @@ import { notifyDraftPick } from '@/lib/notify';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { alias } from 'drizzle-orm/pg-core';
 import { auth } from '@/auth';
-import { isAdmin, isCommissioner } from '@/lib/auth';
+import { isPrivileged } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';
 
 export async function POST(req: NextRequest) {
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     const isLateSelection = pickRow.pickedAt !== null || pickRow.passed === true;
     if (!isLateSelection) {
       const callerTeamshort = (session.user as { id?: string }).id || '';
-      const privileged = await isAdmin() || await isCommissioner();
+      const privileged = await isPrivileged();
       if (!privileged) {
         // Caller must match newOwnerCode (they are who they say they are)
         if (callerTeamshort.toLowerCase() !== (newOwnerCode || '').toLowerCase()) {

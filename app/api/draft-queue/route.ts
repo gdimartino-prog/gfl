@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
+import { isPrivileged } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { players, rules } from '@/schema';
 import { eq, and } from 'drizzle-orm';
@@ -38,8 +39,7 @@ export async function GET(req: NextRequest) {
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const callerShort = (session.user as { id?: string }).id ?? '';
-  const role = (session.user as { role?: string }).role ?? '';
-  const admin = role === 'superuser' || role === 'admin';
+  const admin = await isPrivileged();
 
   const leagueId = await getLeagueId();
   const year = await getDraftYear(leagueId);

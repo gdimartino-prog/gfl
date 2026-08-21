@@ -4,7 +4,7 @@ import { eq, and, isNull } from 'drizzle-orm';
 import { logTransaction, getTransactions, updateTransactionStatus, updateTransactionConditional } from '@/lib/transactions';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
-import { isAdmin, isCommissioner } from '@/lib/auth';
+import { isPrivileged } from '@/lib/auth';
 import { notifyTransaction } from '@/lib/notify';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { revalidateTag } from 'next/cache';
@@ -45,7 +45,7 @@ export async function PATCH(req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!await isAdmin() && !await isCommissioner()) {
+    if (!(await isPrivileged())) {
       return Response.json({ error: 'Commissioner access required' }, { status: 403 });
     }
 
@@ -85,7 +85,7 @@ export async function DELETE(req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (!await isAdmin() && !await isCommissioner()) {
+    if (!(await isPrivileged())) {
       return Response.json({ error: 'Commissioner access required' }, { status: 403 });
     }
 
@@ -123,7 +123,7 @@ export async function POST(req: Request) {
     const { type, identity, toTeam, details, fromTeam } = body;
 
     const callerTeamshort = (session.user as { id?: string }).id || '';
-    const privileged = await isAdmin() || await isCommissioner();
+    const privileged = await isPrivileged();
 
     const leagueId = await getLeagueId();
 
@@ -274,7 +274,19 @@ export async function POST(req: Request) {
     const season = seasonRule[0] ? parseInt(seasonRule[0].value) || null : null;
 
     const actorName = session.user.name || (session.user as { id?: string }).id || 'Commissioner';
-    await logTransaction({ ...body, coach: actorName, fromTeam: resolvedFromTeam, details, leagueId, season });
+    // Explicit field list — never spread the client body: coaches could
+    // attach pickIds/touch_id/etc. that downstream commissioner actions
+    // (e.g. DELETE's pick-transfer revert) would act on.
+    await logTransaction({
+      type,
+      details,
+      fromTeam: resolvedFromTeam,
+      toTeam,
+      coach: actorName,
+      weekBack: typeof body.weekBack === 'string' || typeof body.weekBack === 'number' ? body.weekBack : undefined,
+      leagueId,
+      season: season ?? undefined,
+    });
     revalidateTag('transactions', 'max');
     revalidateTag('players', 'max');
     await logSystemEvent(actorName, resolvedFromTeam, type, details || identity, leagueId);

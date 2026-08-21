@@ -2,12 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from "@/auth";
 import { db } from '@/lib/db';
 import { tradeBlock, teams, players } from '@/schema';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { notifyTradeBlock } from '@/lib/notify';
-import { isAdmin } from '@/lib/auth';
+import { isPrivileged } from '@/lib/auth';
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
   try {
     const leagueId = await getLeagueId();
     const rows = await db
@@ -55,7 +59,7 @@ export async function POST(req: NextRequest) {
 
     const leagueId = await getLeagueId();
     const callerTeamshort = (session.user as { id?: string }).id || '';
-    const privileged = await isAdmin();
+    const privileged = await isPrivileged();
     if (!privileged && callerTeamshort.toLowerCase() !== (team || '').toLowerCase()) {
       return NextResponse.json({ message: "Forbidden: you can only list players from your own team" }, { status: 403 });
     }
@@ -70,7 +74,7 @@ export async function POST(req: NextRequest) {
           .limit(1),
         db.select({ id: teams.id })
           .from(teams)
-          .where(and(eq(teams.teamshort, callerTeamshort), eq(teams.leagueId, leagueId)))
+          .where(and(sql`upper(${teams.teamshort}) = ${callerTeamshort.toUpperCase()}`, eq(teams.leagueId, leagueId)))
           .limit(1),
       ]);
       if (!playerRow[0] || !callerTeamRow[0] || playerRow[0].teamId !== callerTeamRow[0].id) {
@@ -131,20 +135,10 @@ export async function DELETE(req: NextRequest) {
   try {
     const leagueId = await getLeagueId();
     const teamCode = (session.user as { id?: string }).id || '';
-    const isAdminUser = (session.user as { role?: string }).role === 'admin' || (session.user as { role?: string }).role === 'superuser';
-
-    // Check commissioner status from DB if not admin
-    let isCommissioner = false;
-    if (!isAdminUser && teamCode) {
-      const teamRow = await db.select({ isCommissioner: teams.isCommissioner })
-        .from(teams)
-        .where(and(eq(teams.teamshort, teamCode), eq(teams.leagueId, leagueId)))
-        .limit(1);
-      isCommissioner = teamRow[0]?.isCommissioner ?? false;
-    }
+    const privileged = await isPrivileged();
 
     // Verify ownership unless admin or commissioner
-    if (!isAdminUser && !isCommissioner) {
+    if (!privileged) {
       const existing = await db.select({ team: tradeBlock.team }).from(tradeBlock)
         .where(and(eq(tradeBlock.playerId, playerId), eq(tradeBlock.leagueId, leagueId)))
         .limit(1);

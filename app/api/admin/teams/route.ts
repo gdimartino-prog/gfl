@@ -77,8 +77,8 @@ export async function PATCH(req: Request) {
 
   // Password-only reset
   if (newPassword !== undefined) {
-    if (!newPassword || newPassword.length < 4) {
-      return NextResponse.json({ error: 'Password must be at least 4 characters.' }, { status: 400 });
+    if (!newPassword || newPassword.length < 8) {
+      return NextResponse.json({ error: 'Password must be at least 8 characters.' }, { status: 400 });
     }
     const hashed = await bcrypt.hash(newPassword, 10);
     const target = await db.select({ teamshort: teams.teamshort })

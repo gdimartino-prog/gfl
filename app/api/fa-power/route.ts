@@ -6,6 +6,7 @@ import { eq, and, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { findEspnId, getEspnSeasonStats, getNflTeam } from '@/lib/espn-stats';
 import { posGroup, powerScore } from '@/lib/power-score';
+import { isPrivileged } from '@/lib/auth';
 import { unstable_cache } from 'next/cache';
 
 async function fetchFaPower(leagueId: number, year: number) {
@@ -104,8 +105,7 @@ export async function GET(req: NextRequest) {
   const [session, leagueId] = await Promise.all([auth(), getLeagueId()]);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const role = (session.user as { role?: string }).role;
-  if (role !== 'admin' && role !== 'superuser') {
+  if (!(await isPrivileged())) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

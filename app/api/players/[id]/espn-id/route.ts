@@ -5,13 +5,13 @@ import { players } from '@/schema';
 import { eq, and } from 'drizzle-orm';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { getLeagueId } from '@/lib/getLeagueId';
+import { isPrivileged } from '@/lib/auth';
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const role = (session.user as { role?: string }).role || '';
-  if (role !== 'admin' && role !== 'superuser') {
+  if (!(await isPrivileged())) {
     return NextResponse.json({ error: 'Commissioner only' }, { status: 403 });
   }
 

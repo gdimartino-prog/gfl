@@ -6,6 +6,17 @@ const SEND_WHATSAPP = process.env.SEND_WHATSAPP !== 'false';
 export const GFL_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://afl.gddevco.com';
 const FROM_EMAIL = process.env.NOTIFY_FROM_EMAIL || `GFL <${MY_EMAIL}>`;
 
+/** Escape DB/user-sourced strings before interpolating into email HTML —
+ *  team names, player names, and trade-block "asking" text are all
+ *  user-controlled and would otherwise inject markup into every inbox. */
+export function escapeHtml(s: string | null | undefined): string {
+  return (s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 let _transporter: nodemailer.Transporter | null = null;
 function getTransporter() {
   if (!_transporter) {
@@ -36,7 +47,7 @@ export async function sendEmail({ subject, html, text }: {
       to: GROUP_EMAIL,
       cc: MY_EMAIL,
       subject,
-      html: html || `<pre>${text}</pre>`,
+      html: html || `<pre>${escapeHtml(text)}</pre>`,
       text,
     });
   } catch (e) {
@@ -254,11 +265,11 @@ export async function notifyTransaction({
   let waSectionsText = '';
 
   for (const path in directions) {
-    const assets = directions[path].map(item => `<li>${item}</li>`).join('');
+    const assets = directions[path].map(item => `<li>${escapeHtml(item)}</li>`).join('');
     const waAssets = directions[path].map(item => `• ${item}`).join('\n');
     emailSectionsHtml += `
       <div style="margin-bottom:20px;border:1px solid #eee;border-radius:8px;overflow:hidden;">
-        <div style="background:#f1f3f4;padding:10px;font-weight:bold;border-bottom:1px solid #eee;">${path}</div>
+        <div style="background:#f1f3f4;padding:10px;font-weight:bold;border-bottom:1px solid #eee;">${escapeHtml(path)}</div>
         <ul style="padding:15px 40px;margin:0;font-style:italic;">${assets}</ul>
       </div>`;
     waSectionsText += `*${path}:*\n${waAssets}\n\n`;
@@ -268,7 +279,7 @@ export async function notifyTransaction({
     <div style="max-width:500px;border:2px solid #0047AB;border-radius:12px;font-family:sans-serif;text-align:center;padding:0;overflow:hidden;">
       <div style="background:#0047AB;color:white;padding:10px;"><p style="margin:0;font-size:12px;font-weight:bold;">OFFICIAL LEAGUE ACTIVITY</p></div>
       <div style="padding:20px;text-align:left;">
-        <p style="font-size:24px;font-weight:bold;text-align:center;margin-bottom:20px;">${type}</p>
+        <p style="font-size:24px;font-weight:bold;text-align:center;margin-bottom:20px;">${escapeHtml(type)}</p>
         ${emailSectionsHtml}
       </div>
       <p style="text-align:center;margin-top:25px;">
@@ -292,11 +303,11 @@ export async function notifyTradeBlock({
   leagueId?: number;
 }) {
   const blockRows = block.map(p => {
-    const pos = p.position ? `[${p.position}] ` : '';
-    const asking = p.asking ? ` — ${p.asking}` : '';
+    const pos = p.position ? `[${escapeHtml(p.position)}] ` : '';
+    const asking = p.asking ? ` — ${escapeHtml(p.asking)}` : '';
     return `<tr>
-      <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-weight:bold;">${pos}${p.playerName}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#555;">${p.team}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;font-weight:bold;">${pos}${escapeHtml(p.playerName)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#555;">${escapeHtml(p.team)}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #f0f0f0;color:#888;font-style:italic;">${asking || '—'}</td>
     </tr>`;
   }).join('');
@@ -315,7 +326,7 @@ export async function notifyTradeBlock({
       <div style="padding:20px;">
         <p style="font-size:22px;font-weight:bold;text-align:center;margin-bottom:4px;">TRADE BLOCK UPDATE</p>
         <p style="text-align:center;color:#555;font-size:13px;margin-bottom:20px;">
-          <strong>${newPlayer.playerName}</strong>${newPlayer.position ? ` (${newPlayer.position})` : ''} listed by ${newPlayer.team}
+          <strong>${escapeHtml(newPlayer.playerName)}</strong>${newPlayer.position ? ` (${escapeHtml(newPlayer.position)})` : ''} listed by ${escapeHtml(newPlayer.team)}
         </p>
         <p style="font-size:13px;font-weight:bold;color:#333;margin-bottom:8px;">FULL TRADE BLOCK (${block.length} player${block.length !== 1 ? 's' : ''})</p>
         <table style="width:100%;border-collapse:collapse;font-size:13px;">

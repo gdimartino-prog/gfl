@@ -5,7 +5,7 @@ import { logTransaction } from '@/lib/transactions';
 import { upsertPickTransfer } from '@/lib/draftPicks';
 import { notifyTransaction } from '@/lib/notify';
 import { auth } from '@/auth';
-import { isAdmin, isCommissioner } from '@/lib/auth';
+import { isPrivileged } from '@/lib/auth';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { revalidateTag } from 'next/cache';
 import { logSystemEvent } from '@/lib/db-helpers';
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     } = body;
 
     const callerTeamshort = (session.user as { id?: string }).id || '';
-    const privileged = await isAdmin() || await isCommissioner();
+    const privileged = await isPrivileged();
 
     // Coaches can only submit trades involving their own team
     if (!privileged && callerTeamshort.toUpperCase() !== (fromTeam || '').toUpperCase()) {
@@ -103,9 +103,14 @@ export async function POST(req: Request) {
     }
     await Promise.all(transferUpserts);
 
-    // Move players to their new teams immediately. Reverting a rejected
-    // trade requires the commissioner to manually correct rosters (or
-    // re-sync from the Action game file).
+    // TRUST MODEL (intentional, same philosophy as the permissive late-pick
+    // auth on /api/draft-selection): trades are agreed between coaches
+    // offline, then one coach enters them, and assets move immediately with
+    // no in-app acceptance step. Guardrails are the audit log, the
+    // league-wide transaction notification both parties receive, and
+    // commissioner undo. Reverting a disputed trade requires the
+    // commissioner to manually correct rosters (or re-sync from the Action
+    // game file).
     const touchId = callerTeamshort || 'trade';
     const playerMoves: Promise<unknown>[] = [];
     if (Array.isArray(rawIdentitiesFrom) && rawIdentitiesFrom.length > 0 && toTeamId) {
