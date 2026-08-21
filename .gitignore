@@ -20,8 +20,14 @@ next-env.d.ts
 
 # Playwright test artifacts
 .playwright-mcp/
+test-results/
+playwright-report/
 *.png
 *.jpeg
+
+# Logs
+*.log
+server.log
 
 # Allow manual screenshots in public/
 !public/manual-screenshots/*.png
