@@ -40,8 +40,9 @@ export async function POST(req: Request) {
 
     const { email, mobile, coach, nickname, team } = await req.json();
     const teamCode = (session.user as { id?: string }).id || "";
+    const leagueId = await getLeagueId();
 
-    const result = await updateCoachContact(teamCode, mobile, email, coach, nickname, team);
+    const result = await updateCoachContact(teamCode, leagueId, mobile, email, coach, nickname, team);
 
     if (result.success) {
       await logSystemEvent(

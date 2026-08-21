@@ -1,7 +1,7 @@
 
 import { db } from './db';
 import { teams } from '@/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { unstable_cache, revalidateTag } from 'next/cache';
 
 export type Coach = {
@@ -91,6 +91,7 @@ export async function getCoachByTeamCode(teamCode: string) {
  */
 export async function updateCoachContact(
     teamCode: string,
+    leagueId: number,
     mobile: string,
     email: string,
     coach?: string,
@@ -98,11 +99,16 @@ export async function updateCoachContact(
     team?: string,
 ) {
     try {
-        const fields: Record<string, unknown> = { mobile, email };
+        const fields: Record<string, unknown> = { mobile, email, touch_id: teamCode, touch_dt: new Date() };
         if (coach !== undefined) fields.coach = coach;
         if (nickname !== undefined) fields.nickname = nickname;
         if (team !== undefined) fields.name = team;
-        await db.update(teams).set(fields).where(eq(teams.teamshort, teamCode.toUpperCase()));
+        // leagueId filter is load-bearing: teamshort values are NOT unique
+        // across leagues, so an unscoped update writes into other tenants.
+        await db.update(teams).set(fields).where(and(
+            eq(teams.leagueId, leagueId),
+            sql`upper(${teams.teamshort}) = ${teamCode.toUpperCase()}`,
+        ));
         revalidateTag('coaches', 'max');
         return { success: true };
     } catch (error) {
@@ -114,9 +120,12 @@ export async function updateCoachContact(
 /**
  * Updates the last_sync timestamp for a specific coach in the Coaches tab (Column I)
  */
-export async function updateCoachSync(teamCode: string) {
+export async function updateCoachSync(teamCode: string, leagueId: number) {
     try {
-        await db.update(teams).set({ touch_dt: new Date() }).where(eq(teams.teamshort, teamCode.toUpperCase()));
+        await db.update(teams).set({ touch_dt: new Date() }).where(and(
+            eq(teams.leagueId, leagueId),
+            sql`upper(${teams.teamshort}) = ${teamCode.toUpperCase()}`,
+        ));
         revalidateTag('coaches', 'max');
         return { success: true, timestamp: new Date() };
     } catch (error) {

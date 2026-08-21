@@ -6,7 +6,9 @@ import { logSystemEvent } from '@/lib/db-helpers';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
 import { teams } from '@/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
+
+const MAX_COA_BYTES = 2 * 1024 * 1024; // 2MB — .COA files are small text exports
 
 // 1. GET: Fetches the list of .COA files for the current league's teams only
 export async function GET() {
@@ -38,43 +40,61 @@ export async function GET() {
   }
 }
 
-// 2. POST: Saves the uploaded file from the coach
-// Inside app/api/upload/route.ts
-
+// 2. POST: Saves the uploaded .COA file from the coach.
+// The blob filename is derived server-side from the caller's own team, so a
+// coach can only ever write their own <TEAM_NAME>.COA. Admins/commissioners
+// may upload for any team in their league by passing ?team=<teamshort>.
 export async function POST(request: Request) {
   try {
     const session = await auth();
-    
-    const { searchParams } = new URL(request.url);
-    const filename = searchParams.get('filename');
+    if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!filename) {
-      return NextResponse.json({ error: "Filename required" }, { status: 400 });
+    const callerTeamshort = (session.user as { id?: string }).id || '';
+    const role = (session.user as { role?: string }).role || '';
+    const privileged = role === 'superuser' || role === 'admin';
+    const leagueId = await getLeagueId();
+
+    const { searchParams } = new URL(request.url);
+    const requestedTeam = searchParams.get('team');
+    const targetTeamshort = privileged && requestedTeam ? requestedTeam : callerTeamshort;
+    if (!targetTeamshort) {
+      return NextResponse.json({ error: 'No team associated with this session' }, { status: 400 });
     }
 
-    const teamCode = (session?.user as { id?: string })?.id;
+    // Resolve the team's full name in this league — the blob name comes from
+    // the DB, never from client input.
+    const teamRow = await db
+      .select({ name: teams.name })
+      .from(teams)
+      .where(and(
+        eq(teams.leagueId, leagueId),
+        sql`upper(${teams.teamshort}) = ${targetTeamshort.toUpperCase()}`,
+      ))
+      .limit(1);
+    if (!teamRow[0]) return NextResponse.json({ error: 'Team not found' }, { status: 404 });
+
+    const filename = teamRow[0].name.replace(/\s+/g, '_').toUpperCase() + '.COA';
 
     const blobFile = await request.blob();
+    if (blobFile.size === 0) {
+      return NextResponse.json({ error: 'Empty file' }, { status: 400 });
+    }
+    if (blobFile.size > MAX_COA_BYTES) {
+      return NextResponse.json({ error: 'File too large (max 2MB)' }, { status: 413 });
+    }
 
-    // UPDATED PUT FUNCTION
     const blob = await put(filename, blobFile, {
       access: 'public',
       addRandomSuffix: false, // Prevents "Team_ABC_123.COA"
       allowOverwrite: true,    // PERMITS REPLACING THE OLD FILE
     });
 
-    const leagueId = await getLeagueId();
-
-    // 🚀 SYNC TO GOOGLE SHEETS
-    if (teamCode) {
-      await updateCoachSync(teamCode);
-    }
-    logSystemEvent(session?.user?.name || teamCode || 'unknown', teamCode || 'unknown', 'COA_UPLOAD', `Uploaded ${filename}`, leagueId);
+    await updateCoachSync(targetTeamshort, leagueId);
+    await logSystemEvent(session.user.name || callerTeamshort, callerTeamshort, 'COA_UPLOAD', `Uploaded ${filename}`, leagueId);
 
     return NextResponse.json(blob);
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Unknown upload error";
-    console.error("Upload Error:", message);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error("Upload Error:", error instanceof Error ? error.message : error);
+    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }
