@@ -10879,5 +10879,32 @@
     "team": "Pyongyang",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1210,
+    "leagueId": 1,
+    "timestamp": "2026-08-21T13:58:48.515Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 1211,
+    "leagueId": 2,
+    "timestamp": "2026-08-21T16:42:45.132Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1212,
+    "leagueId": 1,
+    "timestamp": "2026-08-21T19:58:56.428Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
