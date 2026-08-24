@@ -10906,5 +10906,14 @@
     "team": "Old Bridge",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1213,
+    "leagueId": 2,
+    "timestamp": "2026-08-24T06:52:52.255Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
   }
 ]
