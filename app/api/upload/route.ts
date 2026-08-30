@@ -1,4 +1,4 @@
-import { put, list } from '@vercel/blob';
+import { put, list, del } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { updateCoachSync } from '@/lib/config';
 import { auth } from "@/auth";
@@ -11,6 +11,29 @@ import { eq, and, sql } from 'drizzle-orm';
 
 const MAX_COA_BYTES = 2 * 1024 * 1024; // 2MB — .COA files are small text exports
 
+// Shared by GET (list) and DELETE (path validation) so the filename-mangling
+// rule can't drift between the two and reopen a cross-league gap.
+async function getLeagueFileNames(leagueId: number): Promise<Set<string>> {
+  const leagueTeams = await db
+    .select({ name: teams.name })
+    .from(teams)
+    .where(eq(teams.leagueId, leagueId));
+  return new Set(
+    leagueTeams.map(t => t.name.replace(/[/\\]/g, '').replace(/\s+/g, '_').toUpperCase() + '.COA')
+  );
+}
+
+// True if `pathname` is this league's blob key for one of `names`. League 1
+// keeps legacy unprefixed keys; every other league is "<leagueId>/NAME.COA".
+function isLeaguePath(pathname: string, leagueId: number, names: Set<string>): boolean {
+  const upperPath = pathname.toUpperCase();
+  for (const name of names) {
+    if (leagueId === 1 && upperPath === name) return true;
+    if (upperPath === `${leagueId}/${name}`) return true;
+  }
+  return false;
+}
+
 // 1. GET: Fetches the list of .COA files for the current league's teams only
 export async function GET() {
   const session = await auth();
@@ -18,32 +41,13 @@ export async function GET() {
 
   try {
     const leagueId = await getLeagueId();
-
-    // Get team names for this league to filter blobs
-    const leagueTeams = await db
-      .select({ name: teams.name })
-      .from(teams)
-      .where(eq(teams.leagueId, leagueId));
-
-    const leagueFileNames = new Set(
-      leagueTeams.map(t => t.name.replace(/\s+/g, '_').toUpperCase() + '.COA')
-    );
+    const leagueFileNames = await getLeagueFileNames(leagueId);
 
     // Match this league's prefixed keys ("<leagueId>/NAME.COA") plus legacy
     // unprefixed keys from before league scoping. Full-path matching — a
     // basename-only check would surface another league's same-named team.
     const { blobs } = await list();
-    const coachFiles = blobs.filter(f => {
-      const path = f.pathname.toUpperCase();
-      for (const name of leagueFileNames) {
-        // Unprefixed legacy keys belong to GFL (league 1) only — other
-        // leagues use "<leagueId>/NAME.COA" and must not see GFL's files
-        // when a team name happens to repeat across leagues.
-        if (leagueId === 1 && path === name) return true;
-        if (path === `${leagueId}/${name}`) return true;
-      }
-      return false;
-    });
+    const coachFiles = blobs.filter(f => isLeaguePath(f.pathname, leagueId, leagueFileNames));
 
     return NextResponse.json(coachFiles);
   } catch {
@@ -113,5 +117,41 @@ export async function POST(request: Request) {
   } catch (error: unknown) {
     console.error("Upload Error:", error instanceof Error ? error.message : error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+  }
+}
+
+// 3. DELETE: Removes a .COA file. Commissioner/superuser only — coaches
+// re-upload to replace their own file but cannot delete opponent intel.
+export async function DELETE(request: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!(await isPrivileged())) {
+      return NextResponse.json({ error: 'Commissioner access required' }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const pathname = searchParams.get('pathname');
+    if (!pathname) return NextResponse.json({ error: 'pathname required' }, { status: 400 });
+
+    const leagueId = await getLeagueId();
+    const actorTeamshort = (session.user as { id?: string }).id || 'admin';
+
+    // Re-derive this league's valid blob paths server-side and require the
+    // requested pathname to be one of them — never pass client input
+    // straight to del(), or a commissioner in one league could delete
+    // another league's file by guessing its path.
+    const leagueFileNames = await getLeagueFileNames(leagueId);
+    if (!isLeaguePath(pathname, leagueId, leagueFileNames)) {
+      return NextResponse.json({ error: 'File not found in this league' }, { status: 404 });
+    }
+
+    await del(pathname);
+    await logSystemEvent(session.user.name || actorTeamshort, actorTeamshort, 'COA_DELETE', `Deleted ${pathname}`, leagueId);
+
+    return NextResponse.json({ success: true });
+  } catch (error: unknown) {
+    console.error("Delete Error:", error instanceof Error ? error.message : error);
+    return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
   }
 }

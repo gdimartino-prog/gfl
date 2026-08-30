@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { UploadCloud, FileCheck, ShieldAlert, Download, Clock, Loader2, RefreshCw, File } from 'lucide-react';
+import { UploadCloud, FileCheck, ShieldAlert, Download, Clock, Loader2, RefreshCw, File, Trash2 } from 'lucide-react';
+import { useConfirm } from '@/components/ConfirmDialog';
 
 interface CoachFile {
   pathname: string;
@@ -10,13 +11,15 @@ interface CoachFile {
   uploadedAt: string;
 }
 
-export default function CoachingTerminal({ teamName }: { teamName: string }) {
+export default function CoachingTerminal({ teamName, canDelete = false }: { teamName: string; canDelete?: boolean }) {
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [blob, setBlob] = useState<{ url: string } | null>(null);
   const [uploading, setUploading] = useState(false);
   const [allFiles, setAllFiles] = useState<CoachFile[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
+  const [deletingPath, setDeletingPath] = useState<string | null>(null);
+  const [confirm, ConfirmDialog] = useConfirm();
 
   const fetchFiles = async () => {
     setLoadingFiles(true);
@@ -53,6 +56,34 @@ export default function CoachingTerminal({ teamName }: { teamName: string }) {
     }
   };
 
+  const handleDelete = async (file: CoachFile) => {
+    const displayName = (file.pathname.split('/').pop() || '').replace(/\.(coa|COA)$/, '').replace(/_/g, ' ');
+    const ok = await confirm(`Delete "${displayName}"'s uploaded file? This cannot be undone.`, {
+      title: 'Delete Coach File',
+      confirmLabel: 'Delete',
+      destructive: true,
+    });
+    if (!ok) return;
+
+    setDeletingPath(file.pathname);
+    try {
+      const response = await fetch(`/api/upload?pathname=${encodeURIComponent(file.pathname)}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        setAllFiles(prev => prev.filter(f => f.pathname !== file.pathname));
+      } else {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || 'Failed to delete file.');
+      }
+    } catch (error) {
+      console.error('Delete failed', error);
+      alert('Failed to delete file.');
+    } finally {
+      setDeletingPath(null);
+    }
+  };
+
   const handleSync = async () => {
     if (!selectedFile) return;
     setUploading(true);
@@ -63,11 +94,17 @@ export default function CoachingTerminal({ teamName }: { teamName: string }) {
         method: 'POST',
         body: selectedFile,
       });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        alert(err.error || 'Upload failed. Please try again.');
+        return;
+      }
       const newBlob = await response.json();
       setBlob(newBlob);
-      setSelectedFile(null); 
+      setSelectedFile(null);
     } catch (error) {
       console.error("Upload failed", error);
+      alert('Upload failed. Please try again.');
     } finally {
       setUploading(false);
     }
@@ -180,19 +217,32 @@ export default function CoachingTerminal({ teamName }: { teamName: string }) {
                               </span>
                           </div>
                       </div>
-                      <a 
-                        href={file.downloadUrl} 
-                        download={`${displayName.replace(/\s+/g, '_')}.COA`}
-                        className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center hover:bg-emerald-500 transition-all shadow-lg active:scale-95"
-                      >
-                          <Download size={20} />
-                      </a>
+                      <div className="flex items-center gap-2">
+                        {canDelete && (
+                          <button
+                            onClick={() => handleDelete(file)}
+                            disabled={deletingPath === file.pathname}
+                            className="w-12 h-12 rounded-2xl bg-slate-700 text-slate-300 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-lg active:scale-95 disabled:opacity-50"
+                            title="Delete file"
+                          >
+                            {deletingPath === file.pathname ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                          </button>
+                        )}
+                        <a
+                          href={file.downloadUrl}
+                          download={`${displayName.replace(/\s+/g, '_')}.COA`}
+                          className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center hover:bg-emerald-500 transition-all shadow-lg active:scale-95"
+                        >
+                            <Download size={20} />
+                        </a>
+                      </div>
                   </div>
                 );
               })
             )}
          </div>
       </div>
+      <ConfirmDialog />
     </div>
   );
 }

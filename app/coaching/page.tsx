@@ -1,5 +1,6 @@
 import CoachingTerminal from '@/components/CoachingTerminal';
 import { auth } from "@/auth";
+import { isPrivileged } from '@/lib/auth';
 import { ShieldCheck, Lock, ArrowRight, Info } from 'lucide-react';
 import Link from 'next/link';
 import { getLeagueId } from '@/lib/getLeagueId';
@@ -11,6 +12,7 @@ export default async function CoachingPage() {
   const session = await auth();
   const teamName = (session?.user as { team?: string })?.team || session?.user?.name;
   const isAuthenticated = !!session;
+  const canDelete = isAuthenticated && await isPrivileged();
 
   const leagueId = await getLeagueId();
   const seasonRows = await db.select({ value: rules.value }).from(rules)
@@ -59,7 +61,7 @@ export default async function CoachingPage() {
         </div>
       ) : (
         /* LOGGED IN - The teamName passed here will define the filename */
-        <CoachingTerminal teamName={teamName || "Unknown_Team"} />
+        <CoachingTerminal teamName={teamName || "Unknown_Team"} canDelete={canDelete} />
       )}
     </div>
   );
