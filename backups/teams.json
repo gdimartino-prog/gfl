@@ -190,6 +190,16 @@
     "status": "active"
   },
   {
+    "id": 58,
+    "leagueId": 1,
+    "name": "Vico",
+    "coach": "George Di Martino",
+    "teamshort": "VV",
+    "nickname": "Vikes",
+    "isCommissioner": true,
+    "status": "active"
+  },
+  {
     "id": 46,
     "leagueId": 1,
     "name": "Kigali",
@@ -216,16 +226,6 @@
     "coach": "Naz Kikta",
     "teamshort": "LES",
     "nickname": "Stallions",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 57,
-    "leagueId": 1,
-    "name": "Urban",
-    "coach": "John Yurchak",
-    "teamshort": "UF",
-    "nickname": "FUBAR Giants",
     "isCommissioner": false,
     "status": "active"
   },
@@ -290,16 +290,6 @@
     "status": "active"
   },
   {
-    "id": 58,
-    "leagueId": 1,
-    "name": "Vico",
-    "coach": "George Di Martino",
-    "teamshort": "VV",
-    "nickname": "Vikes",
-    "isCommissioner": true,
-    "status": "active"
-  },
-  {
     "id": 52,
     "leagueId": 1,
     "name": "Old Bridge",
@@ -336,6 +326,16 @@
     "coach": "Alex Matsikoudis",
     "teamshort": "DC",
     "nickname": "D-Trains",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 57,
+    "leagueId": 1,
+    "name": "Urban",
+    "coach": "John Yurchak",
+    "teamshort": "UF",
+    "nickname": "FUBAR Giants",
     "isCommissioner": false,
     "status": "active"
   },

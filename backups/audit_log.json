@@ -10969,5 +10969,95 @@
     "team": "TC",
     "action": "COA_UPLOAD",
     "details": "Uploaded TAMPA.COA"
+  },
+  {
+    "id": 1220,
+    "leagueId": 2,
+    "timestamp": "2026-08-30T19:48:38.500Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1221,
+    "leagueId": 1,
+    "timestamp": "2026-08-30T22:52:32.642Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team UF"
+  },
+  {
+    "id": 1222,
+    "leagueId": 1,
+    "timestamp": "2026-08-30T22:53:13.636Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1223,
+    "leagueId": 1,
+    "timestamp": "2026-08-30T23:00:32.701Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 1224,
+    "leagueId": 1,
+    "timestamp": "2026-08-30T23:02:16.145Z",
+    "coach": "Administrator",
+    "team": "SUPER",
+    "action": "COA_DELETE",
+    "details": "Deleted AMALFI.COA"
+  },
+  {
+    "id": 1225,
+    "leagueId": 1,
+    "timestamp": "2026-08-30T23:08:16.298Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1226,
+    "leagueId": 1,
+    "timestamp": "2026-08-30T23:14:18.677Z",
+    "coach": "John Yurchak",
+    "team": "UF",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded URBAN.COA"
+  },
+  {
+    "id": 1227,
+    "leagueId": 1,
+    "timestamp": "2026-08-30T23:17:40.291Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded VICO.COA"
+  },
+  {
+    "id": 1228,
+    "leagueId": 1,
+    "timestamp": "2026-08-30T23:20:36.980Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "COA_DELETE",
+    "details": "Deleted NEWARK_BAY.COA"
+  },
+  {
+    "id": 1229,
+    "leagueId": 2,
+    "timestamp": "2026-08-31T12:40:00.090Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
   }
 ]
