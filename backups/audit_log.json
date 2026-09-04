@@ -11068,5 +11068,59 @@
     "team": "VV",
     "action": "LOGIN",
     "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1231,
+    "leagueId": 1,
+    "timestamp": "2026-09-03T22:38:55.973Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1232,
+    "leagueId": 1,
+    "timestamp": "2026-09-03T22:39:30.105Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1233,
+    "leagueId": 1,
+    "timestamp": "2026-09-04T00:19:09.667Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1234,
+    "leagueId": 1,
+    "timestamp": "2026-09-04T00:19:17.195Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team CK"
+  },
+  {
+    "id": 1235,
+    "leagueId": 1,
+    "timestamp": "2026-09-04T01:06:27.439Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 1236,
+    "leagueId": 1,
+    "timestamp": "2026-09-04T01:25:30.446Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CRIMSON.COA"
   }
 ]

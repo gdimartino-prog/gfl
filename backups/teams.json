@@ -180,16 +180,6 @@
     "status": "active"
   },
   {
-    "id": 43,
-    "leagueId": 1,
-    "name": "Crimson",
-    "coach": "Bob Glade",
-    "teamshort": "CK",
-    "nickname": "Kings",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 58,
     "leagueId": 1,
     "name": "Vico",
@@ -226,6 +216,16 @@
     "coach": "Naz Kikta",
     "teamshort": "LES",
     "nickname": "Stallions",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 43,
+    "leagueId": 1,
+    "name": "Crimson",
+    "coach": "Bob Glade",
+    "teamshort": "CK",
+    "nickname": "Kings",
     "isCommissioner": false,
     "status": "active"
   },
