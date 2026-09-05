@@ -75,14 +75,28 @@ export async function getTransactions(leagueId: number = 1) {
   return _getTransactions(leagueId);
 }
 
-export async function updateTransactionStatus(id: number, status: string, leagueId: number = 1) {
+export async function updateTransactionStatus(id: number, status: string, leagueId: number = 1, actor: string = 'commissioner') {
   await db.update(transactions)
-    .set({ status, touch_id: 'commissioner' })
+    .set({ status, touch_id: actor })
     .where(and(eq(transactions.id, id), eq(transactions.leagueId, leagueId)));
 }
 
-export async function updateTransactionConditional(id: number, conditionalDetails: string | null, leagueId: number = 1) {
+export async function updateTransactionConditional(id: number, conditionalDetails: string | null, leagueId: number = 1, actor: string = 'commissioner') {
   await db.update(transactions)
-    .set({ conditionalDetails, touch_id: 'commissioner' })
+    .set({ conditionalDetails, touch_id: actor })
+    .where(and(eq(transactions.id, id), eq(transactions.leagueId, leagueId)));
+}
+
+export async function updateTransactionDetails(
+  id: number,
+  fields: { details?: string; weekBack?: number | null },
+  leagueId: number = 1,
+  actor: string = 'commissioner',
+) {
+  const set: { description?: string; weekBack?: number | null; touch_id: string } = { touch_id: actor };
+  if (fields.details !== undefined) set.description = fields.details;
+  if (fields.weekBack !== undefined) set.weekBack = fields.weekBack;
+  await db.update(transactions)
+    .set(set)
     .where(and(eq(transactions.id, id), eq(transactions.leagueId, leagueId)));
 }

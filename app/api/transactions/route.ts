@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { players, teams, transactions, rules, tradeBlock } from '@/schema';
 import { eq, and, isNull } from 'drizzle-orm';
-import { logTransaction, getTransactions, updateTransactionStatus, updateTransactionConditional } from '@/lib/transactions';
+import { logTransaction, getTransactions, updateTransactionStatus, updateTransactionConditional, updateTransactionDetails } from '@/lib/transactions';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
 import { isPrivileged } from '@/lib/auth';
@@ -54,26 +54,52 @@ export async function PATCH(req: NextRequest) {
     const leagueId = await getLeagueId();
 
     const body = await req.json();
-    const { id, status, conditionalDetails } = body;
+    const { id, status, conditionalDetails, details, weekBack } = body;
     if (!id) return Response.json({ error: 'id required' }, { status: 400 });
 
     if (conditionalDetails !== undefined) {
       if (typeof conditionalDetails === 'string' && conditionalDetails.length > 2000) {
         return Response.json({ error: 'Conditional details too long (max 2000 characters)' }, { status: 400 });
       }
-      await updateTransactionConditional(Number(id), conditionalDetails || null, leagueId);
+      await updateTransactionConditional(Number(id), conditionalDetails || null, leagueId, teamshort || 'commissioner');
       revalidateTag('transactions', 'max');
       await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_CONDITIONAL', `Transaction #${id} conditional details updated`, leagueId);
       return Response.json({ success: true });
     }
 
-    if (!status) return Response.json({ error: 'status or conditionalDetails required' }, { status: 400 });
+    if (details !== undefined || weekBack !== undefined) {
+      if (details !== undefined && (typeof details !== 'string' || !details.trim() || details.length > 500)) {
+        return Response.json({ error: 'details must be a non-empty string ≤ 500 characters' }, { status: 400 });
+      }
+      let parsedWeekBack: number | null | undefined = undefined;
+      if (weekBack !== undefined) {
+        if (weekBack === null || weekBack === '') {
+          parsedWeekBack = null;
+        } else {
+          // Strict integer check — parseInt alone would silently accept "12abc"
+          if (!/^\d+$/.test(String(weekBack).trim())) {
+            return Response.json({ error: 'weekBack must be a whole number between 0 and 30' }, { status: 400 });
+          }
+          const n = parseInt(String(weekBack), 10);
+          if (n < 0 || n > 30) {
+            return Response.json({ error: 'weekBack must be a number between 0 and 30' }, { status: 400 });
+          }
+          parsedWeekBack = n;
+        }
+      }
+      await updateTransactionDetails(Number(id), { details: details?.trim(), weekBack: parsedWeekBack }, leagueId, teamshort || 'commissioner');
+      revalidateTag('transactions', 'max');
+      await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_EDIT', `Transaction #${id} details/week updated`, leagueId);
+      return Response.json({ success: true });
+    }
+
+    if (!status) return Response.json({ error: 'status, conditionalDetails, details, or weekBack required' }, { status: 400 });
     const validStatuses = ['Done', 'Pending', 'On Team'];
     if (!validStatuses.includes(status)) {
       return Response.json({ error: 'Invalid status value' }, { status: 400 });
     }
 
-    await updateTransactionStatus(Number(id), status, leagueId);
+    await updateTransactionStatus(Number(id), status, leagueId, teamshort || 'commissioner');
     revalidateTag('transactions', 'max');
     await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_STATUS', `Transaction #${id} marked ${status}`, leagueId);
     return Response.json({ success: true });

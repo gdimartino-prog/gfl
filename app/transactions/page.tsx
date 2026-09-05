@@ -15,6 +15,7 @@ import {
   RefreshCcw,
   GitMerge,
   Download,
+  Pencil,
 } from 'lucide-react';
 import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
@@ -52,6 +53,10 @@ export default function TransactionsPage() {
   const [conditionalId, setConditionalId] = useState<string | null>(null);
   const [conditionalText, setConditionalText] = useState('');
   const [conditionalSaving, setConditionalSaving] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editDetails, setEditDetails] = useState('');
+  const [editWeekBack, setEditWeekBack] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
   const [showSpend, setShowSpend] = useState(false);
   const [spendSeason, setSpendSeason] = useState('');
   const [spendFrom, setSpendFrom] = useState('');
@@ -182,6 +187,41 @@ export default function TransactionsPage() {
       setLogs(prev => prev.map(l => l.id === logId ? { ...l, conditionalDetails: value } : l));
     } else {
       alert('Failed to save conditional details.');
+    }
+  };
+
+  const openEdit = (log: Record<string, string>) => {
+    setEditDetails(log.details || '');
+    setEditWeekBack(log.weekBack || '');
+    setEditId(editId === log.id ? null : log.id);
+    setConditionalId(null);
+    setReprocessId(null);
+  };
+
+  const handleEditSave = async (logId: string) => {
+    if (!editDetails.trim()) return;
+    setEditSaving(true);
+    try {
+      const res = await fetch('/api/transactions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: parseInt(logId), details: editDetails.trim(), weekBack: editWeekBack || null }),
+      });
+      if (res.ok) {
+        setEditId(null);
+        // Mirror the server's normalization (empty → cleared, else integer)
+        // so the optimistic value matches what was actually persisted.
+        const normalizedWeekBack = editWeekBack.trim() ? String(parseInt(editWeekBack, 10)) : '';
+        setLogs(prev => prev.map(l => l.id === logId ? { ...l, details: editDetails.trim(), weekBack: normalizedWeekBack } : l));
+      } else {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || 'Failed to save changes.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save changes.');
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -520,6 +560,13 @@ export default function TransactionsPage() {
                     {isCommissioner && (
                       <td className="px-4 py-5 text-center">
                         <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => openEdit(log)}
+                            className={`transition-colors ${editId === log.id ? 'text-blue-500' : 'text-slate-300 hover:text-blue-500'}`}
+                            title="Edit details / week"
+                          >
+                            <Pencil size={14} />
+                          </button>
                           {log.type === 'TRADE' && (
                             <>
                               <button
@@ -549,6 +596,44 @@ export default function TransactionsPage() {
                       </td>
                     )}
                   </tr>
+                  {isCommissioner && editId === log.id && (
+                    <tr className="bg-blue-50/50">
+                      <td colSpan={9} className="px-6 py-4">
+                        <div className="flex flex-wrap items-end gap-3">
+                          <div className="flex flex-col gap-1 flex-1 min-w-[240px]">
+                            <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Details</label>
+                            <textarea
+                              rows={2}
+                              value={editDetails}
+                              onChange={e => setEditDetails(e.target.value)}
+                              className="w-full px-3 py-2 border border-blue-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Week Back</label>
+                            <input
+                              type="number"
+                              min={0}
+                              max={30}
+                              value={editWeekBack}
+                              onChange={e => setEditWeekBack(e.target.value)}
+                              className="px-3 py-1.5 border border-blue-200 rounded-lg text-sm font-bold w-20 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            />
+                          </div>
+                          <div className="flex gap-2 flex-wrap pb-0.5">
+                            <button onClick={() => handleEditSave(log.id)} disabled={editSaving || !editDetails.trim()}
+                              className="px-4 py-1.5 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                              {editSaving ? 'Saving…' : 'Save'}
+                            </button>
+                            <button onClick={() => setEditId(null)}
+                              className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-colors px-2">
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                   {isCommissioner && conditionalId === log.id && (
                     <tr className="bg-amber-50/50">
                       <td colSpan={9} className="px-6 py-4">
