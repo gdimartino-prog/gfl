@@ -11122,5 +11122,50 @@
     "team": "CK",
     "action": "COA_UPLOAD",
     "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 1237,
+    "leagueId": 1,
+    "timestamp": "2026-09-05T00:52:43.583Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1238,
+    "leagueId": 1,
+    "timestamp": "2026-09-05T01:14:30.638Z",
+    "coach": "John Yurchak",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "DE - Sam Okuayinonu for injury to DE-LB - Dorance Armstrong in week 10 for 1 weeks"
+  },
+  {
+    "id": 1239,
+    "leagueId": 1,
+    "timestamp": "2026-09-05T02:24:58.240Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_EDIT",
+    "details": "Transaction #515 details/week updated"
+  },
+  {
+    "id": 1240,
+    "leagueId": 1,
+    "timestamp": "2026-09-05T02:25:34.766Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #515 marked Done"
+  },
+  {
+    "id": 1241,
+    "leagueId": 1,
+    "timestamp": "2026-09-05T02:26:24.687Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
   }
 ]

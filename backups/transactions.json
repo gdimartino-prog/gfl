@@ -2889,6 +2889,25 @@
     "touch_id": "commissioner"
   },
   {
+    "id": 515,
+    "leagueId": 1,
+    "date": "2026-09-05T01:14:30.595Z",
+    "type": "INJURY PICKUP",
+    "description": "DE - Sam Okuayinonu for injury to DE-LB - Dorance Armstrong in week 1 for 10 weeks",
+    "fromTeam": "FA",
+    "toTeam": "Urban",
+    "owner": "John Yurchak",
+    "status": "Done",
+    "weekBack": 11,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-05T01:14:30.599Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 367,
     "leagueId": 2,
     "date": "2026-05-27T22:15:47.802Z",
