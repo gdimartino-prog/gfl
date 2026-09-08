@@ -11167,5 +11167,32 @@
     "team": "admin",
     "action": "IMPORT_PLAYERS",
     "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1242,
+    "leagueId": 2,
+    "timestamp": "2026-09-07T13:48:06.790Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1243,
+    "leagueId": 2,
+    "timestamp": "2026-09-07T17:42:00.874Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1244,
+    "leagueId": 1,
+    "timestamp": "2026-09-07T20:04:40.392Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #515 marked On Team"
   }
 ]
