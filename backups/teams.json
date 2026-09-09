@@ -190,6 +190,16 @@
     "status": "active"
   },
   {
+    "id": 48,
+    "leagueId": 1,
+    "name": "LE",
+    "coach": "Naz Kikta",
+    "teamshort": "LES",
+    "nickname": "Stallions",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 46,
     "leagueId": 1,
     "name": "Kigali",
@@ -210,12 +220,12 @@
     "status": "active"
   },
   {
-    "id": 48,
+    "id": 53,
     "leagueId": 1,
-    "name": "LE",
-    "coach": "Naz Kikta",
-    "teamshort": "LES",
-    "nickname": "Stallions",
+    "name": "Satriale",
+    "coach": "Tom Fusillo",
+    "teamshort": "SG",
+    "nickname": "Gabagool",
     "isCommissioner": false,
     "status": "active"
   },
@@ -246,16 +256,6 @@
     "coach": "Chad Cooper",
     "teamshort": "FPR",
     "nickname": "Ranch",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 53,
-    "leagueId": 1,
-    "name": "Satriale",
-    "coach": "Tom Fusillo",
-    "teamshort": "SG",
-    "nickname": "Gabagool",
     "isCommissioner": false,
     "status": "active"
   },
