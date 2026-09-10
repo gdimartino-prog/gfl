@@ -11329,5 +11329,14 @@
     "team": "admin",
     "action": "IMPORT_SCHEDULE",
     "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1260,
+    "leagueId": 1,
+    "timestamp": "2026-09-09T17:53:38.815Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
