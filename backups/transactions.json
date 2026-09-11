@@ -2965,6 +2965,25 @@
     "touch_id": "Naz Kikta"
   },
   {
+    "id": 519,
+    "leagueId": 1,
+    "date": "2026-09-10T18:05:05.666Z",
+    "type": "ADD",
+    "description": "QB - Drew Lock",
+    "fromTeam": "FA",
+    "toTeam": "Crimson",
+    "owner": "Bob Glade",
+    "status": "Pending",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-10T18:05:05.669Z",
+    "touch_id": "Bob Glade"
+  },
+  {
     "id": 367,
     "leagueId": 2,
     "date": "2026-05-27T22:15:47.802Z",
@@ -5699,5 +5718,24 @@
     "conditionalDetails": null,
     "touch_dt": "2026-06-27T01:38:27.237Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 520,
+    "leagueId": 1,
+    "date": "2026-09-10T18:05:44.888Z",
+    "type": "WAIVE",
+    "description": "C - Hogan Hatten",
+    "fromTeam": "Crimson",
+    "toTeam": "FA",
+    "owner": "Bob Glade",
+    "status": "Pending",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-10T18:05:44.890Z",
+    "touch_id": "Bob Glade"
   }
 ]

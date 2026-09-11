@@ -11338,5 +11338,23 @@
     "team": "DC",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1261,
+    "leagueId": 1,
+    "timestamp": "2026-09-10T18:05:05.692Z",
+    "coach": "Bob Glade",
+    "team": "FA",
+    "action": "ADD",
+    "details": "QB - Drew Lock"
+  },
+  {
+    "id": 1262,
+    "leagueId": 1,
+    "timestamp": "2026-09-10T18:05:44.898Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "WAIVE",
+    "details": "C - Hogan Hatten"
   }
 ]
