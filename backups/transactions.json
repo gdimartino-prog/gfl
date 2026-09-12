@@ -2908,23 +2908,23 @@
     "touch_id": "VV"
   },
   {
-    "id": 516,
+    "id": 518,
     "leagueId": 1,
-    "date": "2026-09-08T22:31:00.510Z",
-    "type": "WAIVE",
-    "description": "OLB - Josaiah Stewart",
-    "fromTeam": "LE",
-    "toTeam": "FA",
+    "date": "2026-09-08T22:31:45.266Z",
+    "type": "ADD",
+    "description": "WR/RET - Nikko Remigio",
+    "fromTeam": "FA",
+    "toTeam": "LE",
     "owner": "Naz Kikta",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
-    "fee": 0,
+    "fee": 10,
     "emailStatus": null,
     "pickIds": null,
     "conditionalDetails": null,
-    "touch_dt": "2026-09-08T22:31:00.507Z",
-    "touch_id": "Naz Kikta"
+    "touch_dt": "2026-09-08T22:31:45.263Z",
+    "touch_id": "VV"
   },
   {
     "id": 517,
@@ -2935,7 +2935,7 @@
     "fromTeam": "FA",
     "toTeam": "LE",
     "owner": "Naz Kikta",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 10,
@@ -2943,26 +2943,26 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-08T22:31:23.065Z",
-    "touch_id": "Naz Kikta"
+    "touch_id": "VV"
   },
   {
-    "id": 518,
+    "id": 516,
     "leagueId": 1,
-    "date": "2026-09-08T22:31:45.266Z",
-    "type": "ADD",
-    "description": "WR/RET - Nikko Remigio",
-    "fromTeam": "FA",
-    "toTeam": "LE",
+    "date": "2026-09-08T22:31:00.510Z",
+    "type": "WAIVE",
+    "description": "OLB - Josaiah Stewart",
+    "fromTeam": "LE",
+    "toTeam": "FA",
     "owner": "Naz Kikta",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
-    "fee": 10,
+    "fee": 0,
     "emailStatus": null,
     "pickIds": null,
     "conditionalDetails": null,
-    "touch_dt": "2026-09-08T22:31:45.263Z",
-    "touch_id": "Naz Kikta"
+    "touch_dt": "2026-09-08T22:31:00.507Z",
+    "touch_id": "VV"
   },
   {
     "id": 519,
@@ -2973,7 +2973,7 @@
     "fromTeam": "FA",
     "toTeam": "Crimson",
     "owner": "Bob Glade",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 10,
@@ -2981,7 +2981,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-10T18:05:05.669Z",
-    "touch_id": "Bob Glade"
+    "touch_id": "VV"
   },
   {
     "id": 367,
@@ -5728,7 +5728,7 @@
     "fromTeam": "Crimson",
     "toTeam": "FA",
     "owner": "Bob Glade",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 0,
@@ -5736,6 +5736,6 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-10T18:05:44.890Z",
-    "touch_id": "Bob Glade"
+    "touch_id": "VV"
   }
 ]

@@ -11356,5 +11356,86 @@
     "team": "Crimson",
     "action": "WAIVE",
     "details": "C - Hogan Hatten"
+  },
+  {
+    "id": 1263,
+    "leagueId": 1,
+    "timestamp": "2026-09-11T15:21:02.639Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1264,
+    "leagueId": 2,
+    "timestamp": "2026-09-11T16:19:57.383Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1265,
+    "leagueId": 1,
+    "timestamp": "2026-09-12T01:37:14.113Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #520 marked Done"
+  },
+  {
+    "id": 1266,
+    "leagueId": 1,
+    "timestamp": "2026-09-12T01:37:16.317Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #519 marked On Team"
+  },
+  {
+    "id": 1267,
+    "leagueId": 1,
+    "timestamp": "2026-09-12T01:37:18.755Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #519 marked Done"
+  },
+  {
+    "id": 1268,
+    "leagueId": 1,
+    "timestamp": "2026-09-12T01:37:20.663Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #518 marked Done"
+  },
+  {
+    "id": 1269,
+    "leagueId": 1,
+    "timestamp": "2026-09-12T01:37:26.261Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #517 marked Done"
+  },
+  {
+    "id": 1270,
+    "leagueId": 1,
+    "timestamp": "2026-09-12T01:37:27.488Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #516 marked Done"
+  },
+  {
+    "id": 1271,
+    "leagueId": 1,
+    "timestamp": "2026-09-12T01:39:13.588Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
   }
 ]
