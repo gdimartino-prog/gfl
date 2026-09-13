@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     ]);
 
     if (!teamCode) return NextResponse.json(allGames, {
-      headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
+      headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=30' },
     });
 
     // 2. Look up the City Name (Column A) using the Short Code (Column B)
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(filtered, {
-      headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=30' },
+      headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=30' },
     });
   } catch (error) {
     console.error("Dynamic Schedule API Error:", error);

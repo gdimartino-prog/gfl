@@ -104,6 +104,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'File too large (max 2MB)' }, { status: 413 });
     }
 
+    // Public by design: COA files are meant to be downloaded by other
+    // coaches (that's the point of sharing a playbook). The pathname is
+    // still derived server-side and league-scoped (see isLeaguePath) so
+    // the app's own list/delete UI never crosses league lines — a public
+    // blob URL is reachable if someone has it, same as any shared link.
     const blob = await put(filename, blobFile, {
       access: 'public',
       addRandomSuffix: false, // Prevents "Team_ABC_123.COA"

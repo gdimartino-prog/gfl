@@ -26,15 +26,23 @@ const tables = [
   'trade_block',
   'audit_log',
   'draft_pick_transfers',
+  'draft_auto_pick_queue',
 ];
 
+const failures: string[] = [];
 for (const t of tables) {
   try {
     await db.execute(sql.raw(`ALTER TABLE ${t} ENABLE ROW LEVEL SECURITY`));
     console.log('✓ RLS enabled:', t);
   } catch (e: any) {
     console.log('  SKIP:', t, '-', e.message);
+    failures.push(t);
   }
+}
+
+if (failures.length > 0) {
+  console.error(`\nRLS NOT enabled on: ${failures.join(', ')}`);
+  process.exit(1);
 }
 
 console.log('\nDone.');

@@ -3,9 +3,10 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { teams } from "@/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
+import { getLeagueId } from "@/lib/getLeagueId";
 
 export async function updatePassword(newPassword: string) {
   const session = await auth();
@@ -20,11 +21,20 @@ export async function updatePassword(newPassword: string) {
   }
 
   try {
+    const leagueId = await getLeagueId();
     const hashed = await bcrypt.hash(newPassword, 10);
-    await db
+    const result = await db
       .update(teams)
-      .set({ password: hashed })
-      .where(eq(teams.teamshort, teamshort));
+      .set({ password: hashed, touch_id: teamshort, touch_dt: new Date() })
+      .where(and(
+        eq(teams.leagueId, leagueId),
+        sql`upper(${teams.teamshort}) = ${teamshort}`,
+      ))
+      .returning({ id: teams.id });
+
+    if (result.length === 0) {
+      return { success: false, error: "Team not found in this league." };
+    }
 
     revalidatePath("/settings");
     return { success: true };
