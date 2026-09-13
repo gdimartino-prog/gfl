@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { players, teams } from '@/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getEspnSeasonStats } from '@/lib/espn-stats';
 import { posGroup, powerScore } from '@/lib/power-score';
@@ -12,7 +12,49 @@ const DEF_GROUPS = new Set(['DL', 'LB', 'DB']);
 const OFF_GROUPS = new Set(['QB', 'RB', 'WR', 'TE', 'K', 'OL']);
 const POS_ORDER = ['QB', 'RB', 'WR', 'TE', 'OL', 'DL', 'LB', 'DB', 'K', 'P'];
 
-async function fetchLeagueStats(leagueId: number, year: number) {
+interface LeaguePlayerOut {
+  id: number;
+  name: string;
+  espnId: string | null;
+  nflTeam: string | null;
+  age: number | null;
+  teamshort: string;
+  teamName: string;
+  posGroup: string;
+  score: number;
+}
+
+interface PlayerRow {
+  id: number;
+  name: string | null;
+  age: number | null;
+  offense: string | null;
+  defense: string | null;
+  special: string | null;
+  position: string | null;
+  espnId: string | null;
+  nflTeam: string | null;
+}
+
+// ESPN calls are chunked to avoid a rate-limit burst on a cold cache.
+async function withEspnStats<T extends PlayerRow>(rows: T[], year: number) {
+  const CHUNK = 40;
+  const out: Array<T & { stats: Record<string, number> | null }> = [];
+  for (let i = 0; i < rows.length; i += CHUNK) {
+    const batch = rows.slice(i, i + CHUNK);
+    const results = await Promise.all(
+      batch.map(async (player) => {
+        if (!player.espnId) return { ...player, stats: null };
+        const stats = await getEspnSeasonStats(player.espnId, year);
+        return { ...player, stats };
+      }),
+    );
+    out.push(...results);
+  }
+  return out;
+}
+
+async function fetchRosterStats(leagueId: number, year: number) {
   const roster = await db
     .select({
       id: players.id,
@@ -28,25 +70,12 @@ async function fetchLeagueStats(leagueId: number, year: number) {
       teamName: teams.name,
     })
     .from(players)
-    .innerJoin(teams, eq(players.teamId, teams.id))
-    .where(and(eq(players.leagueId, leagueId), eq(teams.leagueId, leagueId)));
+    .innerJoin(teams, and(eq(players.teamId, teams.id), eq(teams.leagueId, leagueId)))
+    .where(eq(players.leagueId, leagueId));
 
   if (!roster.length) return { teams: [], players: [] };
 
-  // Fetch ESPN stats in chunks of 40 to avoid rate-limit burst on cold cache
-  const CHUNK = 40;
-  const withStats: Array<typeof roster[number] & { stats: Record<string, number> | null }> = [];
-  for (let i = 0; i < roster.length; i += CHUNK) {
-    const batch = roster.slice(i, i + CHUNK);
-    const results = await Promise.all(
-      batch.map(async (player) => {
-        if (!player.espnId) return { ...player, stats: null };
-        const stats = await getEspnSeasonStats(player.espnId, year);
-        return { ...player, stats };
-      }),
-    );
-    withStats.push(...results);
-  }
+  const withStats = await withEspnStats(roster, year);
 
   const teamMap = new Map<string, {
     teamName: string;
@@ -56,17 +85,7 @@ async function fetchLeagueStats(leagueId: number, year: number) {
     byGroup: Record<string, number>;
   }>();
 
-  const playerList: Array<{
-    id: number;
-    name: string;
-    espnId: string | null;
-    nflTeam: string | null;
-    age: number | null;
-    teamshort: string;
-    teamName: string;
-    posGroup: string;
-    score: number;
-  }> = [];
+  const playerList: LeaguePlayerOut[] = [];
 
   for (const player of withStats) {
     const group = posGroup(player.offense, player.defense, player.special, player.position);
@@ -114,11 +133,56 @@ async function fetchLeagueStats(leagueId: number, year: number) {
   return { teams: teamList, players: playerList };
 }
 
-const _cachedLeagueStats = unstable_cache(
-  fetchLeagueStats,
+// Free agents are only ever stat'd when a caller explicitly asks for them
+// (the "Free Agents" filter) — eagerly including the whole FA pool in the
+// main roster rebuild would multiply the ESPN call volume on every 12h
+// cache refresh and risk rate-limiting the app's other ESPN-backed features.
+async function fetchFreeAgentStats(leagueId: number, year: number) {
+  const fa = await db
+    .select({
+      id: players.id,
+      name: players.name,
+      age: players.age,
+      offense: players.offense,
+      defense: players.defense,
+      special: players.special,
+      position: players.position,
+      espnId: players.espnId,
+      nflTeam: players.nflTeam,
+    })
+    .from(players)
+    .where(and(eq(players.leagueId, leagueId), isNull(players.teamId)));
+
+  if (!fa.length) return { players: [] };
+
+  const withStats = await withEspnStats(fa, year);
+
+  const playerList: LeaguePlayerOut[] = withStats.map((player) => ({
+    id: player.id,
+    name: player.name ?? '',
+    espnId: player.espnId ?? null,
+    nflTeam: player.nflTeam ?? null,
+    age: player.age ?? null,
+    teamshort: 'FA',
+    teamName: 'Free Agent',
+    posGroup: posGroup(player.offense, player.defense, player.special, player.position),
+    score: powerScore(player.offense, player.defense, player.special, player.position, player.stats),
+  }));
+
+  return { players: playerList };
+}
+
+const _cachedRosterStats = unstable_cache(
+  fetchRosterStats,
   ['league-stats-v2'],
   // 12h — a cold rebuild loops every rostered player through ESPN calls.
   { revalidate: 43200, tags: ['league-stats'] },
+);
+
+const _cachedFreeAgentStats = unstable_cache(
+  fetchFreeAgentStats,
+  ['league-stats-fa-v1'],
+  { revalidate: 43200, tags: ['league-stats-fa'] },
 );
 
 export const maxDuration = 300;
@@ -135,7 +199,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid year' }, { status: 400 });
   }
 
-  const result = await _cachedLeagueStats(leagueId, rawYear);
+  if (searchParams.get('fa') === '1') {
+    const { players: faPlayers } = await _cachedFreeAgentStats(leagueId, rawYear);
+    return NextResponse.json({ players: faPlayers }, {
+      headers: { 'Cache-Control': 'private, max-age=3600' },
+    });
+  }
+
+  const result = await _cachedRosterStats(leagueId, rawYear);
   const sortedTeams = [...result.teams].sort((a, b) => b.totalScore - a.totalScore);
 
   return NextResponse.json({ teams: sortedTeams, players: result.players }, {

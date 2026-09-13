@@ -722,19 +722,32 @@ function LeagueRankingsTable({ data, currentTeamshort }: { data: TeamRanking[]; 
   );
 }
 
-function LeaguePlayersTable({ data }: { data: LeaguePlayer[] }) {
+function LeaguePlayersTable({
+  data,
+  faPlayers,
+  faLoading,
+  onToggleFA,
+}: {
+  data: LeaguePlayer[];
+  faPlayers: LeaguePlayer[] | null;
+  faLoading: boolean;
+  onToggleFA: (on: boolean) => void;
+}) {
   const newsIds = useContext(NewsContext);
   const [filterGroup, setFilterGroup] = useState<string | null>(null);
+  const [faOnly, setFaOnly] = useState(false);
   const [sort, setSort] = useState<SortState>({ key: 'score', dir: 'desc' });
+
+  const source = useMemo(() => (faOnly ? (faPlayers ?? []) : data), [faOnly, faPlayers, data]);
 
   const availableGroups = useMemo(() => {
     const seen = new Set<string>();
-    data.forEach(p => seen.add(p.posGroup));
+    source.forEach(p => seen.add(p.posGroup));
     return POS_GROUPS_ORDER.filter(g => seen.has(g));
-  }, [data]);
+  }, [source]);
 
   const filtered = useMemo(() => {
-    const list = filterGroup ? data.filter(p => p.posGroup === filterGroup) : data;
+    const list = filterGroup ? source.filter(p => p.posGroup === filterGroup) : source;
     return [...list].sort((a, b) => {
       if (sort.key === 'name') {
         const cmp = a.name.localeCompare(b.name);
@@ -747,7 +760,7 @@ function LeaguePlayersTable({ data }: { data: LeaguePlayer[] }) {
       }
       return sort.dir === 'desc' ? b.score - a.score : a.score - b.score;
     });
-  }, [data, filterGroup, sort]);
+  }, [source, filterGroup, sort]);
 
   const s = { sort, setSort };
 
@@ -769,6 +782,20 @@ function LeaguePlayersTable({ data }: { data: LeaguePlayer[] }) {
             {g}
           </button>
         ))}
+        <span className="w-px bg-slate-200 mx-1" />
+        <button
+          onClick={() => {
+            const next = !faOnly;
+            setFaOnly(next);
+            setFilterGroup(null);
+            onToggleFA(next);
+          }}
+          disabled={faLoading}
+          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors disabled:opacity-50 inline-flex items-center gap-1.5 ${faOnly ? 'bg-emerald-600 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+        >
+          {faOnly && faLoading && <Loader2 size={10} className="animate-spin" />}
+          Free Agents
+        </button>
       </div>
       <TableWrap>
         <thead className="border-b border-slate-100 bg-slate-50">
@@ -989,6 +1016,10 @@ export default function NflStatsTab({ teamshort }: Props) {
   const [leagueLoading, setLeagueLoading] = useState(false);
   const [leagueError, setLeagueError] = useState<string | null>(null);
 
+  // Free agent stats — fetched lazily, only once the FA filter is toggled on
+  const [faPlayers, setFaPlayers] = useState<LeaguePlayer[] | null>(null);
+  const [faLoading, setFaLoading] = useState(false);
+
   const loadStats = useCallback(async () => {
     if (!teamshort) return;
     setLoading(true);
@@ -1034,6 +1065,26 @@ export default function NflStatsTab({ teamshort }: Props) {
       loadLeagueStats();
     }
   }, [view, loadLeagueStats]);
+
+  // Reset FA stats whenever the season changes so a stale year isn't shown
+  useEffect(() => {
+    setFaPlayers(null);
+  }, [year]);
+
+  const loadFAStats = useCallback(async () => {
+    if (faPlayers || faLoading) return;
+    setFaLoading(true);
+    try {
+      const r = await fetch(`/api/league-stats?year=${year}&fa=1`);
+      if (!r.ok) throw new Error('Failed to load free agent stats');
+      const json = await r.json();
+      setFaPlayers(json.players ?? []);
+    } catch {
+      setFaPlayers([]);
+    } finally {
+      setFaLoading(false);
+    }
+  }, [year, faPlayers, faLoading]);
 
   // ESPN news ids
   const [newsIds, setNewsIds] = useState<Set<string>>(new Set());
@@ -1202,7 +1253,12 @@ export default function NflStatsTab({ teamshort }: Props) {
               ) : (
                 <>
                   <SectionHeader title={`${year} Top Players`} />
-                  <LeaguePlayersTable data={leaguePlayers ?? []} />
+                  <LeaguePlayersTable
+                    data={leaguePlayers ?? []}
+                    faPlayers={faPlayers}
+                    faLoading={faLoading}
+                    onToggleFA={(on) => { if (on) loadFAStats(); }}
+                  />
                 </>
               )}
             </>
