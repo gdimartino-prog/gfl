@@ -11437,5 +11437,14 @@
     "team": "admin",
     "action": "IMPORT_PLAYERS",
     "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1272,
+    "leagueId": 1,
+    "timestamp": "2026-09-13T20:25:44.777Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
