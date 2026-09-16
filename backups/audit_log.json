@@ -11527,5 +11527,113 @@
     "team": "Old Bridge",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1282,
+    "leagueId": 1,
+    "timestamp": "2026-09-15T15:32:52.048Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1283,
+    "leagueId": 1,
+    "timestamp": "2026-09-15T20:36:55.246Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #521 marked Done"
+  },
+  {
+    "id": 1284,
+    "leagueId": 1,
+    "timestamp": "2026-09-15T20:36:58.187Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #522 marked Done"
+  },
+  {
+    "id": 1285,
+    "leagueId": 1,
+    "timestamp": "2026-09-15T20:37:41.530Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #524 marked Done"
+  },
+  {
+    "id": 1286,
+    "leagueId": 1,
+    "timestamp": "2026-09-15T20:39:25.823Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #523 marked Done"
+  },
+  {
+    "id": 1287,
+    "leagueId": 1,
+    "timestamp": "2026-09-15T20:40:00.798Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #525 marked Done"
+  },
+  {
+    "id": 1288,
+    "leagueId": 1,
+    "timestamp": "2026-09-15T20:40:05.155Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #526 marked Done"
+  },
+  {
+    "id": 1289,
+    "leagueId": 1,
+    "timestamp": "2026-09-15T20:42:16.339Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1290,
+    "leagueId": 1,
+    "timestamp": "2026-09-15T20:59:58.359Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1291,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T00:39:47.332Z",
+    "coach": "Bob Glade",
+    "team": "FA",
+    "action": "ADD",
+    "details": "CB - Nehemiah Pritchett"
+  },
+  {
+    "id": 1292,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T00:40:44.338Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "WAIVE",
+    "details": "CB - Emmanuel Forbes"
+  },
+  {
+    "id": 1293,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T02:20:45.420Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]

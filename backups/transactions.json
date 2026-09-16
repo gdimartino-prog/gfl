@@ -19,25 +19,6 @@
     "touch_id": "commissioner"
   },
   {
-    "id": 521,
-    "leagueId": 1,
-    "date": "2026-09-14T15:19:00.944Z",
-    "type": "ADD",
-    "description": "WR/KR - Devaughn Vele",
-    "fromTeam": "FA",
-    "toTeam": "Vico",
-    "owner": "George Di Martino",
-    "status": "Pending",
-    "weekBack": null,
-    "season": 2026,
-    "fee": 10,
-    "emailStatus": null,
-    "pickIds": null,
-    "conditionalDetails": null,
-    "touch_dt": "2026-09-14T15:19:00.947Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 51,
     "leagueId": 1,
     "date": "2026-03-20T00:00:00.000Z",
@@ -946,25 +927,6 @@
     "touch_id": "commissioner"
   },
   {
-    "id": 522,
-    "leagueId": 1,
-    "date": "2026-09-14T15:19:33.440Z",
-    "type": "WAIVE",
-    "description": "S - Quandre Diggs",
-    "fromTeam": "Vico",
-    "toTeam": "FA",
-    "owner": "George Di Martino",
-    "status": "Pending",
-    "weekBack": null,
-    "season": 2026,
-    "fee": 0,
-    "emailStatus": null,
-    "pickIds": null,
-    "conditionalDetails": null,
-    "touch_dt": "2026-09-14T15:19:33.444Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 108,
     "leagueId": 1,
     "date": "2026-04-29T14:08:21.988Z",
@@ -1746,7 +1708,7 @@
     "fromTeam": "FA",
     "toTeam": "DC",
     "owner": "Alex Matsikoudis",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 10,
@@ -1754,7 +1716,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-14T19:45:21.076Z",
-    "touch_id": "Alex Matsikoudis"
+    "touch_id": "VV"
   },
   {
     "id": 524,
@@ -1765,7 +1727,7 @@
     "fromTeam": "DC",
     "toTeam": "FA",
     "owner": "Alex Matsikoudis",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 0,
@@ -1773,7 +1735,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-14T19:45:34.509Z",
-    "touch_id": "Alex Matsikoudis"
+    "touch_id": "VV"
   },
   {
     "id": 160,
@@ -2656,25 +2618,6 @@
     "touch_id": "commissioner"
   },
   {
-    "id": 525,
-    "leagueId": 1,
-    "date": "2026-09-14T21:25:16.030Z",
-    "type": "WAIVE",
-    "description": "T - Dan Moore Jr.",
-    "fromTeam": "Fur Peace",
-    "toTeam": "FA",
-    "owner": "Jack Wyville",
-    "status": "Pending",
-    "weekBack": null,
-    "season": 2026,
-    "fee": 0,
-    "emailStatus": null,
-    "pickIds": null,
-    "conditionalDetails": null,
-    "touch_dt": "2026-09-14T21:25:16.031Z",
-    "touch_id": "Jack Wyville"
-  },
-  {
     "id": 206,
     "leagueId": 1,
     "date": "2026-06-20T02:50:54.333Z",
@@ -2711,6 +2654,25 @@
     "conditionalDetails": null,
     "touch_dt": "2026-06-19T01:28:52.198Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 525,
+    "leagueId": 1,
+    "date": "2026-09-14T21:25:16.030Z",
+    "type": "WAIVE",
+    "description": "T - Dan Moore Jr.",
+    "fromTeam": "Fur Peace",
+    "toTeam": "FA",
+    "owner": "Jack Wyville",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-14T21:25:16.031Z",
+    "touch_id": "VV"
   },
   {
     "id": 207,
@@ -3011,7 +2973,7 @@
     "fromTeam": "FA",
     "toTeam": "Fur Peace",
     "owner": "Jack Wyville",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 10,
@@ -3019,7 +2981,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-14T21:25:40.450Z",
-    "touch_id": "Jack Wyville"
+    "touch_id": "VV"
   },
   {
     "id": 518,
@@ -3079,6 +3041,44 @@
     "touch_id": "VV"
   },
   {
+    "id": 521,
+    "leagueId": 1,
+    "date": "2026-09-14T15:19:00.944Z",
+    "type": "ADD",
+    "description": "WR/KR - Devaughn Vele",
+    "fromTeam": "FA",
+    "toTeam": "Vico",
+    "owner": "George Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-14T15:19:00.947Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 522,
+    "leagueId": 1,
+    "date": "2026-09-14T15:19:33.440Z",
+    "type": "WAIVE",
+    "description": "S - Quandre Diggs",
+    "fromTeam": "Vico",
+    "toTeam": "FA",
+    "owner": "George Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-14T15:19:33.444Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 519,
     "leagueId": 1,
     "date": "2026-09-10T18:05:05.666Z",
@@ -3096,6 +3096,25 @@
     "conditionalDetails": null,
     "touch_dt": "2026-09-10T18:05:05.669Z",
     "touch_id": "VV"
+  },
+  {
+    "id": 527,
+    "leagueId": 1,
+    "date": "2026-09-16T00:39:47.299Z",
+    "type": "ADD",
+    "description": "CB - Nehemiah Pritchett",
+    "fromTeam": "FA",
+    "toTeam": "Crimson",
+    "owner": "Bob Glade",
+    "status": "Pending",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-16T00:39:47.301Z",
+    "touch_id": "Bob Glade"
   },
   {
     "id": 367,
@@ -5851,5 +5870,24 @@
     "conditionalDetails": null,
     "touch_dt": "2026-09-10T18:05:44.890Z",
     "touch_id": "VV"
+  },
+  {
+    "id": 528,
+    "leagueId": 1,
+    "date": "2026-09-16T00:40:44.326Z",
+    "type": "WAIVE",
+    "description": "CB - Emmanuel Forbes",
+    "fromTeam": "Crimson",
+    "toTeam": "FA",
+    "owner": "Bob Glade",
+    "status": "Pending",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-16T00:40:44.329Z",
+    "touch_id": "Bob Glade"
   }
 ]
