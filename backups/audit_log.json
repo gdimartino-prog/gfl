@@ -11635,5 +11635,374 @@
     "team": "Kigali",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1294,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T11:43:37.099Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team NBT"
+  },
+  {
+    "id": 1295,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T13:25:58.986Z",
+    "coach": "John Yurchak",
+    "team": "FA",
+    "action": "ADD",
+    "details": "RB/RET - Trevor Etienne"
+  },
+  {
+    "id": 1296,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T13:26:48.819Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "WAIVE",
+    "details": "RB/KR - Antonio Gibson"
+  },
+  {
+    "id": 1297,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T13:34:57.697Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded LAS_VEGAS.COA"
+  },
+  {
+    "id": 1298,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T14:02:51.501Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #528 marked Done"
+  },
+  {
+    "id": 1299,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T14:04:41.777Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #527 marked Done"
+  },
+  {
+    "id": 1300,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T14:11:29.357Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #530 marked Done"
+  },
+  {
+    "id": 1301,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T14:12:16.267Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #529 marked Done"
+  },
+  {
+    "id": 1302,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T17:17:59.397Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1303,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T18:13:35.910Z",
+    "coach": "Adrian Scherer",
+    "team": "FA",
+    "action": "ADD",
+    "details": "S - Marques Sigle"
+  },
+  {
+    "id": 1304,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T18:13:52.178Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "WAIVE",
+    "details": "G-T - Jordan Morgan"
+  },
+  {
+    "id": 1305,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T22:00:25.532Z",
+    "coach": "Tom Fusillo",
+    "team": "FA",
+    "action": "ADD",
+    "details": "WR - Olamide Zaccheaus"
+  },
+  {
+    "id": 1306,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T22:00:55.697Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "WAIVE",
+    "details": "WR - Brandin Cooks"
+  },
+  {
+    "id": 1307,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T22:03:28.655Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "PRESS_BOX_STORY",
+    "details": "file=WEEK1.TXT chars=24786"
+  },
+  {
+    "id": 1308,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T22:30:07.266Z",
+    "coach": "Tom Fusillo",
+    "team": "SG",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded SATRIALE.COA"
+  },
+  {
+    "id": 1309,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T22:38:31.863Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #531 marked Done"
+  },
+  {
+    "id": 1310,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T22:38:33.102Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #532 marked Done"
+  },
+  {
+    "id": 1311,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T22:39:28.639Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1312,
+    "leagueId": 1,
+    "timestamp": "2026-09-16T23:12:50.162Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 1313,
+    "leagueId": 2,
+    "timestamp": "2026-09-16T23:36:08.105Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1314,
+    "leagueId": 2,
+    "timestamp": "2026-09-16T23:38:10.338Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1315,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:03:47.846Z",
+    "coach": "Phil Matsikoudis",
+    "team": "Newark Bay",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1316,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:05:07.775Z",
+    "coach": "Phil Matsikoudis",
+    "team": "Newark Bay",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1317,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:10:48.282Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1318,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:11:42.617Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1319,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:13:34.578Z",
+    "coach": "Phil Matsikoudis",
+    "team": "FA",
+    "action": "ADD",
+    "details": "LB - Matt Milano"
+  },
+  {
+    "id": 1320,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:15:08.694Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 1321,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:19:43.719Z",
+    "coach": "Phil Matsikoudis",
+    "team": "Newark Bay",
+    "action": "WAIVE",
+    "details": "CB - Azareye'h Thomas"
+  },
+  {
+    "id": 1322,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:55:06.044Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #533 marked Done"
+  },
+  {
+    "id": 1323,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:55:07.566Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #534 marked Done"
+  },
+  {
+    "id": 1324,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:55:29.251Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #536 marked Done"
+  },
+  {
+    "id": 1325,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:55:45.177Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #535 marked Done"
+  },
+  {
+    "id": 1326,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T01:56:24.655Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1327,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T02:06:08.040Z",
+    "coach": "Phil Matsikoudis",
+    "team": "FA",
+    "action": "ADD",
+    "details": "TE - Ja'Tavion Sanders"
+  },
+  {
+    "id": 1328,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T02:16:03.182Z",
+    "coach": "Phil Matsikoudis",
+    "team": "Newark Bay",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1329,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T02:16:42.184Z",
+    "coach": "Phil Matsikoudis",
+    "team": "Newark Bay",
+    "action": "WAIVE",
+    "details": "C - Jake Andrews"
+  },
+  {
+    "id": 1330,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T11:12:16.635Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #538 marked Done"
+  },
+  {
+    "id": 1331,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T11:12:32.963Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #537 marked Done"
+  },
+  {
+    "id": 1332,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T11:13:24.156Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1333,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T11:13:55.170Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1334,
+    "leagueId": 1,
+    "timestamp": "2026-09-17T11:14:21.539Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]

@@ -170,6 +170,16 @@
     "status": "active"
   },
   {
+    "id": 49,
+    "leagueId": 1,
+    "name": "Las Vegas",
+    "coach": "Mark Mari",
+    "teamshort": "LV",
+    "nickname": "Golden Showers",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 42,
     "leagueId": 1,
     "name": "Carolina",
@@ -210,22 +220,22 @@
     "status": "active"
   },
   {
-    "id": 49,
-    "leagueId": 1,
-    "name": "Las Vegas",
-    "coach": "Mark Mari",
-    "teamshort": "LV",
-    "nickname": "Golden Showers",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 53,
     "leagueId": 1,
     "name": "Satriale",
     "coach": "Tom Fusillo",
     "teamshort": "SG",
     "nickname": "Gabagool",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 43,
+    "leagueId": 1,
+    "name": "Crimson",
+    "coach": "Bob Glade",
+    "teamshort": "CK",
+    "nickname": "Kings",
     "isCommissioner": false,
     "status": "active"
   },
@@ -246,16 +256,6 @@
     "coach": "Chad Cooper",
     "teamshort": "FPR",
     "nickname": "Ranch",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 43,
-    "leagueId": 1,
-    "name": "Crimson",
-    "coach": "Bob Glade",
-    "teamshort": "CK",
-    "nickname": "Kings",
     "isCommissioner": false,
     "status": "active"
   },

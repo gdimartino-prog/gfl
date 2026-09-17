@@ -148,5 +148,15 @@
     "sortOrder": 2,
     "touch_dt": "2026-08-11T13:00:58.085Z",
     "touch_id": "doctor-session"
+  },
+  {
+    "id": 25,
+    "leagueId": 1,
+    "group": "Game & Reference",
+    "title": "Action PC Football 2026 Update 9/2/2026",
+    "url": "https://drive.google.com/file/d/1Jv5Jtr1lMHFXXcYQOAYSILPInB1WKHW-/view?usp=drive_link",
+    "sortOrder": 0,
+    "touch_dt": "2026-09-16T23:15:57.665Z",
+    "touch_id": "George Di Martino"
   }
 ]
