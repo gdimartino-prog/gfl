@@ -137,15 +137,22 @@ export async function GET(req: Request) {
 
     // Determine which weeks to show
     const isFinal = (g: typeof games[0]) => g.homeScore !== null;
+    // "Due" = the current GFL week or earlier. Weeks beyond that haven't
+    // been played yet, so they're naturally not-final and must be excluded
+    // here — otherwise every future week gets pulled in as "past due".
+    const isDueOrEarlier = (wk: string) => {
+      const n = parseInt(wk);
+      return !isNaN(n) && n <= 18 && n <= parsedLeagueWeek;
+    };
     const unfinishedReg = games.filter(g =>
-      !isFinal(g) && !playoffOrder.includes(g.week) && !isNaN(parseInt(g.week)) && parseInt(g.week) <= 18
+      !isFinal(g) && !playoffOrder.includes(g.week) && isDueOrEarlier(g.week)
     ).length;
 
     const weeksToShow = new Set<string>();
     for (const g of games) {
       const isPlayoff = playoffOrder.includes(g.week) || (!isNaN(parseInt(g.week)) && parseInt(g.week) > 18);
       if (unfinishedReg > 0) {
-        if (!isPlayoff && (g.week === currentLeagueWeek || !isFinal(g))) weeksToShow.add(g.week);
+        if (!isPlayoff && isDueOrEarlier(g.week) && (g.week === currentLeagueWeek || !isFinal(g))) weeksToShow.add(g.week);
       } else {
         if (isPlayoff && !isFinal(g)) weeksToShow.add(g.week);
       }
