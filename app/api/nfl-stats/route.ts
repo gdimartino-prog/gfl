@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { players, teams } from '@/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { findEspnId, getEspnSeasonStats } from '@/lib/espn-stats';
 import { unstable_cache } from 'next/cache';
@@ -28,7 +28,7 @@ const _getTeamNflStats = unstable_cache(
       })
       .from(players)
       .innerJoin(teams, and(eq(players.teamId, teams.id), eq(teams.leagueId, leagueId)))
-      .where(and(eq(teams.teamshort, teamshortUpper), eq(players.leagueId, leagueId)));
+      .where(and(sql`upper(${teams.teamshort}) = ${teamshortUpper}`, eq(players.leagueId, leagueId)));
 
     if (!roster.length) return [];
 
