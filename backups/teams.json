@@ -230,6 +230,16 @@
     "status": "active"
   },
   {
+    "id": 55,
+    "leagueId": 1,
+    "name": "Tetbury",
+    "coach": "Mike Fullen",
+    "teamshort": "TT",
+    "nickname": "Titans",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 43,
     "leagueId": 1,
     "name": "Crimson",
@@ -256,16 +266,6 @@
     "coach": "Chad Cooper",
     "teamshort": "FPR",
     "nickname": "Ranch",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 55,
-    "leagueId": 1,
-    "name": "Tetbury",
-    "coach": "Mike Fullen",
-    "teamshort": "TT",
-    "nickname": "Titans",
     "isCommissioner": false,
     "status": "active"
   },

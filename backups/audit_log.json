@@ -12058,5 +12058,104 @@
     "team": "FA",
     "action": "ADD",
     "details": "CB - Azareye'h Thomas"
+  },
+  {
+    "id": 1341,
+    "leagueId": 1,
+    "timestamp": "2026-09-18T14:24:28.442Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team TT"
+  },
+  {
+    "id": 1342,
+    "leagueId": 1,
+    "timestamp": "2026-09-18T14:26:58.449Z",
+    "coach": "Mike Fullen",
+    "team": "Tetbury",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1343,
+    "leagueId": 1,
+    "timestamp": "2026-09-18T14:27:41.359Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded TETBURY.COA"
+  },
+  {
+    "id": 1344,
+    "leagueId": 1,
+    "timestamp": "2026-09-18T14:33:35.963Z",
+    "coach": "Mike Fullen",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "WR - Van Jefferson for injury to WR - Malik Nabers in week 1 for 13 weeks"
+  },
+  {
+    "id": 1345,
+    "leagueId": 2,
+    "timestamp": "2026-09-18T22:15:16.542Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1346,
+    "leagueId": 1,
+    "timestamp": "2026-09-19T01:54:25.304Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #539 marked Done"
+  },
+  {
+    "id": 1347,
+    "leagueId": 1,
+    "timestamp": "2026-09-19T01:54:52.005Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #540 marked Done"
+  },
+  {
+    "id": 1348,
+    "leagueId": 1,
+    "timestamp": "2026-09-19T01:55:24.669Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #542 marked Done"
+  },
+  {
+    "id": 1349,
+    "leagueId": 1,
+    "timestamp": "2026-09-19T01:55:26.061Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #541 marked Done"
+  },
+  {
+    "id": 1350,
+    "leagueId": 1,
+    "timestamp": "2026-09-19T01:56:01.005Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #543 marked On Team"
+  },
+  {
+    "id": 1351,
+    "leagueId": 1,
+    "timestamp": "2026-09-19T02:02:01.118Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]

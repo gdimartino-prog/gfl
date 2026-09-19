@@ -278605,9 +278605,9 @@
     },
     "espnId": "3930066",
     "nflTeam": "WSH",
-    "teamId": null,
-    "touch_dt": "2026-07-24T01:41:59.878Z",
-    "touch_id": "maintenance"
+    "teamId": 55,
+    "touch_dt": "2026-09-18T14:33:35.858Z",
+    "touch_id": "transaction"
   },
   {
     "id": 24621,
