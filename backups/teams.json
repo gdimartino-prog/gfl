@@ -150,16 +150,6 @@
     "status": "active"
   },
   {
-    "id": 50,
-    "leagueId": 1,
-    "name": "Jefferson",
-    "coach": "James Di Martino",
-    "teamshort": "JJ",
-    "nickname": "Jets",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 41,
     "leagueId": 1,
     "name": "Amalfi",
@@ -176,16 +166,6 @@
     "coach": "Mark Mari",
     "teamshort": "LV",
     "nickname": "Golden Showers",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 42,
-    "leagueId": 1,
-    "name": "Carolina",
-    "coach": "Pete Vuckovaz",
-    "teamshort": "CT",
-    "nickname": "Thunder",
     "isCommissioner": false,
     "status": "active"
   },
@@ -266,6 +246,26 @@
     "coach": "Chad Cooper",
     "teamshort": "FPR",
     "nickname": "Ranch",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 50,
+    "leagueId": 1,
+    "name": "Jefferson",
+    "coach": "James Di Martino",
+    "teamshort": "JJ",
+    "nickname": "Jets",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 42,
+    "leagueId": 1,
+    "name": "Carolina",
+    "coach": "Pete Vuckovaz",
+    "teamshort": "CT",
+    "nickname": "Thunder",
     "isCommissioner": false,
     "status": "active"
   },

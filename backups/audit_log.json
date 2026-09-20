@@ -1332,6 +1332,15 @@
     "details": "Cleared all picks for 2026 (rookie)"
   },
   {
+    "id": 1354,
+    "leagueId": 1,
+    "timestamp": "2026-09-19T22:05:18.086Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CAROLINA.COA"
+  },
+  {
     "id": 120,
     "leagueId": 1,
     "timestamp": "2026-03-24T23:39:35.626Z",
@@ -12155,6 +12164,24 @@
     "timestamp": "2026-09-19T02:02:01.118Z",
     "coach": "Mark Mari",
     "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1352,
+    "leagueId": 1,
+    "timestamp": "2026-09-19T17:35:13.121Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team JJ"
+  },
+  {
+    "id": 1353,
+    "leagueId": 1,
+    "timestamp": "2026-09-19T17:35:20.667Z",
+    "coach": "James Di Martino",
+    "team": "Jefferson",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
   }
