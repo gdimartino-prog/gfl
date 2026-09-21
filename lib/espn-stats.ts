@@ -112,3 +112,100 @@ export async function getEspnSeasonStats(
     return null;
   }
 }
+
+const ESPN_GAMELOG = 'https://site.web.api.espn.com/apis/common/v3/sports/football/nfl';
+
+// ESPN's season-total endpoint above (`getEspnSeasonStats`) is precomputed
+// by ESPN and confirmed to lag newly-finished games by hours — the gamelog
+// endpoint already lists each game's line correctly the same day, so we sum
+// them ourselves instead of waiting on ESPN's own rollup job. Offense/kicker
+// only: gamelog has no defensive stat categories at all (checked against
+// multiple active defenders, current and prior season) — returns null for
+// those so the caller can fall back to getEspnSeasonStats.
+export async function getEspnGamelogStats(
+  espnId: string,
+  year: number,
+): Promise<Record<string, number> | null> {
+  const currentYear = new Date().getFullYear();
+  const isPast = year < currentYear;
+  try {
+    const res = await fetch(
+      `${ESPN_GAMELOG}/athletes/${encodeURIComponent(espnId)}/gamelog?season=${year}`,
+      { next: { revalidate: isPast ? 86400 * 30 : 3600 } },
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const names: string[] = data?.names || [];
+    const seasonType = (data?.seasonTypes || []).find(
+      (st: { displayName?: string }) => st?.displayName?.includes('Regular Season'),
+    );
+    const events: Array<{ stats?: string[] }> = seasonType?.categories?.[0]?.events || [];
+    if (!names.length || !events.length) return null;
+
+    const sums: Record<string, number> = {};
+    for (const ev of events) {
+      const vals = ev.stats || [];
+      for (let i = 0; i < names.length; i++) {
+        const key = names[i];
+        const raw = vals[i];
+        if (raw === undefined || raw === '-' || raw === '') continue;
+
+        // Kicker fields come back as combined "made-attempts" strings under
+        // a compound key name, e.g. "fieldGoalsMade-fieldGoalAttempts": "4-4".
+        const madeAttempts = /^(-?[\d.]+)-(-?[\d.]+)$/.exec(raw);
+        if (madeAttempts && key.includes('-')) {
+          const [madeKey, attKey] = key.split('-');
+          const made = parseFloat(madeAttempts[1]);
+          const att = parseFloat(madeAttempts[2]);
+          if (!Number.isNaN(made)) sums[madeKey] = (sums[madeKey] ?? 0) + made;
+          if (!Number.isNaN(att)) sums[attKey] = (sums[attKey] ?? 0) + att;
+          continue;
+        }
+
+        const num = parseFloat(raw);
+        if (Number.isNaN(num)) continue;
+
+        const lower = key.toLowerCase();
+        if (lower.startsWith('long')) {
+          // "Longest" stats are a max, not a running total.
+          sums[key] = Math.max(sums[key] ?? 0, num);
+        } else if (
+          lower.endsWith('pct') || lower.startsWith('yardsper') ||
+          lower === 'qbrating' || lower === 'adjqbr' || lower === 'fieldgoalsmadeyardsaverage'
+        ) {
+          // Per-game rate/average stats can't be summed — recomputed below
+          // from the summed counting stats instead.
+          continue;
+        } else {
+          sums[key] = (sums[key] ?? 0) + num;
+        }
+      }
+    }
+
+    if ('longFieldGoalMade' in sums) sums.longFieldGoal = sums.longFieldGoalMade;
+    if (sums.passingAttempts) {
+      sums.completionPct = ((sums.completions ?? 0) / sums.passingAttempts) * 100;
+      sums.yardsPerPassAttempt = (sums.passingYards ?? 0) / sums.passingAttempts;
+    }
+    if (sums.rushingAttempts) sums.yardsPerRushAttempt = (sums.rushingYards ?? 0) / sums.rushingAttempts;
+    if (sums.receptions) sums.yardsPerReception = (sums.receivingYards ?? 0) / sums.receptions;
+    if (sums.fieldGoalAttempts) sums.fieldGoalPct = ((sums.fieldGoalsMade ?? 0) / sums.fieldGoalAttempts) * 100;
+    if (sums.extraPointAttempts) sums.extraPointPct = ((sums.extraPointsMade ?? 0) / sums.extraPointAttempts) * 100;
+    sums.gamesPlayed = events.length;
+
+    return sums;
+  } catch {
+    return null;
+  }
+}
+
+// Prefer the summed-from-gamelog stats (fresher, see above) and fall back to
+// ESPN's season-total endpoint for positions/players gamelog doesn't cover.
+export async function getFreshEspnStats(
+  espnId: string,
+  year: number,
+): Promise<Record<string, number> | null> {
+  const fromGamelog = await getEspnGamelogStats(espnId, year);
+  if (fromGamelog) return fromGamelog;
+  return getEspnSeasonStats(espnId, year);
+}

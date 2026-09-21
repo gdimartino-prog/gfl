@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { players, teams } from '@/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
-import { getEspnSeasonStats } from '@/lib/espn-stats';
+import { getEspnSeasonStats, getFreshEspnStats } from '@/lib/espn-stats';
 import { posGroup, powerScore } from '@/lib/power-score';
 import { unstable_cache } from 'next/cache';
 
@@ -37,7 +37,11 @@ interface PlayerRow {
 }
 
 // ESPN calls are chunked to avoid a rate-limit burst on a cold cache.
-async function withEspnStats<T extends PlayerRow>(rows: T[], year: number) {
+async function withEspnStats<T extends PlayerRow>(
+  rows: T[],
+  year: number,
+  fetchStats: (espnId: string, year: number) => Promise<Record<string, number> | null> = getEspnSeasonStats,
+) {
   const CHUNK = 40;
   const out: Array<T & { stats: Record<string, number> | null }> = [];
   for (let i = 0; i < rows.length; i += CHUNK) {
@@ -45,7 +49,7 @@ async function withEspnStats<T extends PlayerRow>(rows: T[], year: number) {
     const results = await Promise.all(
       batch.map(async (player) => {
         if (!player.espnId) return { ...player, stats: null };
-        const stats = await getEspnSeasonStats(player.espnId, year);
+        const stats = await fetchStats(player.espnId, year);
         return { ...player, stats };
       }),
     );
@@ -155,7 +159,10 @@ async function fetchFreeAgentStats(leagueId: number, year: number) {
 
   if (!fa.length) return { players: [] };
 
-  const withStats = await withEspnStats(fa, year);
+  // Sums per-game gamelog data instead of ESPN's own season total, which
+  // was confirmed to lag already-finished games by hours (falls back to
+  // getEspnSeasonStats for defense/punters, which gamelog doesn't cover).
+  const withStats = await withEspnStats(fa, year, getFreshEspnStats);
 
   const playerList: LeaguePlayerOut[] = withStats.map((player) => ({
     id: player.id,
