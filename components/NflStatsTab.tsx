@@ -768,6 +768,19 @@ function LeaguePlayersTable({
     <div>
       <div className="flex flex-wrap gap-1.5 mb-4">
         <button
+          onClick={() => {
+            const next = !faOnly;
+            setFaOnly(next);
+            onToggleFA(next);
+          }}
+          disabled={faLoading}
+          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors disabled:opacity-50 inline-flex items-center gap-1.5 ${faOnly ? 'bg-emerald-600 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+        >
+          {faOnly && faLoading && <Loader2 size={10} className="animate-spin" />}
+          Only Free Agents
+        </button>
+        <span className="w-px bg-slate-200 mx-1" />
+        <button
           onClick={() => setFilterGroup(null)}
           className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${filterGroup === null ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
         >
@@ -782,20 +795,6 @@ function LeaguePlayersTable({
             {g}
           </button>
         ))}
-        <span className="w-px bg-slate-200 mx-1" />
-        <button
-          onClick={() => {
-            const next = !faOnly;
-            setFaOnly(next);
-            setFilterGroup(null);
-            onToggleFA(next);
-          }}
-          disabled={faLoading}
-          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors disabled:opacity-50 inline-flex items-center gap-1.5 ${faOnly ? 'bg-emerald-600 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
-        >
-          {faOnly && faLoading && <Loader2 size={10} className="animate-spin" />}
-          Free Agents
-        </button>
       </div>
       <TableWrap>
         <thead className="border-b border-slate-100 bg-slate-50">
