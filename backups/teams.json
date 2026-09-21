@@ -190,16 +190,6 @@
     "status": "active"
   },
   {
-    "id": 46,
-    "leagueId": 1,
-    "name": "Kigali",
-    "coach": "Bill Matsikoudis",
-    "teamshort": "Kig",
-    "nickname": "Rhinos",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 53,
     "leagueId": 1,
     "name": "Satriale",
@@ -276,6 +266,16 @@
     "coach": "James Mitchell",
     "teamshort": "OBG",
     "nickname": "Generals",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 46,
+    "leagueId": 1,
+    "name": "Kigali",
+    "coach": "Bill Matsikoudis",
+    "teamshort": "Kig",
+    "nickname": "Rhinos",
     "isCommissioner": false,
     "status": "active"
   },

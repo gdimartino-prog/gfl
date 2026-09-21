@@ -2556,6 +2556,33 @@
     "details": "Transaction #106 deleted"
   },
   {
+    "id": 1355,
+    "leagueId": 2,
+    "timestamp": "2026-09-20T17:18:11.508Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1357,
+    "leagueId": 2,
+    "timestamp": "2026-09-20T17:19:25.971Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1358,
+    "leagueId": 1,
+    "timestamp": "2026-09-20T17:20:00.039Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
     "id": 284,
     "leagueId": 1,
     "timestamp": "2026-05-01T01:58:17.566Z",
@@ -8271,6 +8298,15 @@
     "details": "R15 #261: WR/KR - Malachi Corley"
   },
   {
+    "id": 1359,
+    "leagueId": 1,
+    "timestamp": "2026-09-20T20:16:33.865Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kig",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded KIGALI.COA"
+  },
+  {
     "id": 919,
     "leagueId": 1,
     "timestamp": "2026-06-14T03:04:11.418Z",
@@ -8935,6 +8971,15 @@
     "team": "PT",
     "action": "DRAFT_PICK",
     "details": "R17 #302: WR - Demario Douglas"
+  },
+  {
+    "id": 1361,
+    "leagueId": 1,
+    "timestamp": "2026-09-20T21:42:51.765Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   },
   {
     "id": 993,
@@ -12182,6 +12227,150 @@
     "timestamp": "2026-09-19T17:35:20.667Z",
     "coach": "James Di Martino",
     "team": "Jefferson",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1356,
+    "leagueId": 2,
+    "timestamp": "2026-09-20T17:18:38.361Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1360,
+    "leagueId": 1,
+    "timestamp": "2026-09-20T20:34:54.819Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1365,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T00:33:04.770Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "WAIVE",
+    "details": "DE - Tyree Wilson"
+  },
+  {
+    "id": 1362,
+    "leagueId": 1,
+    "timestamp": "2026-09-20T23:14:56.543Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1363,
+    "leagueId": 1,
+    "timestamp": "2026-09-20T23:15:35.038Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1364,
+    "leagueId": 1,
+    "timestamp": "2026-09-20T23:16:06.110Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1366,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T00:33:28.399Z",
+    "coach": "Jack Wyville",
+    "team": "FA",
+    "action": "ADD",
+    "details": "DE-LB - Za'Darius Smith"
+  },
+  {
+    "id": 1367,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T00:54:17.661Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "WAIVE",
+    "details": "G - Jonah Savaiinaea"
+  },
+  {
+    "id": 1368,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T00:55:10.673Z",
+    "coach": "Bob Glade",
+    "team": "FA",
+    "action": "ADD",
+    "details": "G - Connor Colby"
+  },
+  {
+    "id": 1369,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T01:49:57.114Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #545 marked Done"
+  },
+  {
+    "id": 1370,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T01:49:58.448Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #544 marked Done"
+  },
+  {
+    "id": 1371,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T01:50:38.267Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #546 marked Done"
+  },
+  {
+    "id": 1372,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T01:50:39.504Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #547 marked Done"
+  },
+  {
+    "id": 1373,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T02:53:45.495Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1374,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T02:54:06.116Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1375,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T11:57:45.053Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
   }
