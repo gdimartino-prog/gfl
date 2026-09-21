@@ -20,6 +20,7 @@ export default function Navbar() {
   const leagueName = currentLeague?.slug.toUpperCase() ?? 'Football League';
 
   useEffect(() => {
+    if (status !== 'authenticated') return;
     async function fetchData() {
       try {
         const rulesRes = await fetch('/api/rules');
@@ -33,7 +34,7 @@ export default function Navbar() {
       }
     }
     fetchData();
-  }, []);
+  }, [status]);
 
   const handleSignOut = async () => {
     if (typeof window !== 'undefined') {

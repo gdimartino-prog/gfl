@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { useSession } from 'next-auth/react';
 
 export type League = {
   id: number;
@@ -17,11 +18,16 @@ type LeagueContextType = {
 const LeagueContext = createContext<LeagueContextType | undefined>(undefined);
 
 export function LeagueProvider({ children }: { children: ReactNode }) {
+  const { status } = useSession();
   const [availableLeagues, setAvailableLeagues] = useState<League[]>([]);
   const [currentLeague, setCurrentLeague] = useState<League | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (status !== 'authenticated') {
+      if (status === 'unauthenticated') setLoading(false);
+      return;
+    }
     async function fetchLeagues() {
       try {
         const res = await fetch('/api/leagues', { cache: 'no-store' });
@@ -36,13 +42,13 @@ export function LeagueProvider({ children }: { children: ReactNode }) {
           : null;
         setCurrentLeague(saved ?? data[0] ?? null);
       } catch {
-        // unauthenticated or network error — no leagues to show
+        // network error — no leagues to show
       } finally {
         setLoading(false);
       }
     }
     fetchLeagues();
-  }, []);
+  }, [status]);
 
   const setLeague = useCallback((league: League) => {
     setCurrentLeague(league);
