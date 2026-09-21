@@ -137,12 +137,22 @@ export async function GET(req: Request) {
 
     // Determine which weeks to show
     const isFinal = (g: typeof games[0]) => g.homeScore !== null;
-    // "Due" = the current GFL week or earlier. Weeks beyond that haven't
-    // been played yet, so they're naturally not-final and must be excluded
-    // here — otherwise every future week gets pulled in as "past due".
+    // "Due" = the current GFL week or earlier — used to decide whether we're
+    // still catching up on the regular season (vs. ready to move to
+    // playoffs). Weeks beyond that haven't been played yet, so they're
+    // naturally not-final and must be excluded here — otherwise every
+    // future week gets pulled in as "past due".
     const isDueOrEarlier = (wk: string) => {
       const n = parseInt(wk);
       return !isNaN(n) && n <= 18 && n <= parsedLeagueWeek;
+    };
+    // What actually appears in the email: due-or-earlier weeks, PLUS a
+    // one-week look-ahead so the upcoming week's matchups show alongside
+    // the "next deadline" banner (which is always the upcoming Sunday) —
+    // otherwise the email says a deadline is coming but shows no games for it.
+    const isVisibleWeek = (wk: string) => {
+      const n = parseInt(wk);
+      return !isNaN(n) && n <= 18 && n <= parsedLeagueWeek + 1;
     };
     const unfinishedReg = games.filter(g =>
       !isFinal(g) && !playoffOrder.includes(g.week) && isDueOrEarlier(g.week)
@@ -152,7 +162,7 @@ export async function GET(req: Request) {
     for (const g of games) {
       const isPlayoff = playoffOrder.includes(g.week) || (!isNaN(parseInt(g.week)) && parseInt(g.week) > 18);
       if (unfinishedReg > 0) {
-        if (!isPlayoff && isDueOrEarlier(g.week) && (g.week === currentLeagueWeek || !isFinal(g))) weeksToShow.add(g.week);
+        if (!isPlayoff && isVisibleWeek(g.week) && (g.week === currentLeagueWeek || !isFinal(g))) weeksToShow.add(g.week);
       } else {
         if (isPlayoff && !isFinal(g)) weeksToShow.add(g.week);
       }
@@ -181,7 +191,11 @@ export async function GET(req: Request) {
       waMessage += `\n*WEEK ${wk}*\n`;
       for (const g of games.filter(x => x.week === wk)) {
         const scoreStr = g.homeScore !== null && g.awayScore !== null ? `${g.awayScore}-${g.homeScore}` : '';
-        const isPastDue = wk !== currentLeagueWeek && !isFinal(g) && !playoffOrder.includes(wk);
+        // Only a week strictly before the current one can be "past due" —
+        // the current week is still in progress, and the look-ahead week
+        // hasn't happened yet, so neither should ever be flagged overdue.
+        const wkNum = parseInt(wk);
+        const isPastDue = !isNaN(wkNum) && wkNum < parsedLeagueWeek && !isFinal(g) && !playoffOrder.includes(wk);
         const displayStatus = isPastDue ? '🚨 PAST DUE' : isFinal(g) ? `Final: ${scoreStr}` : 'PENDING';
         waMessage += `${isPastDue ? '❌' : '🏈'} ${g.away} @ ${g.home} - ${displayStatus}\n`;
         const rowStyle = isPastDue ? 'background-color:#fff4f4;color:#d93025;font-weight:bold;' : '';
