@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { players, teams } from '@/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
-import { getEspnSeasonStats, getFreshEspnStats } from '@/lib/espn-stats';
+import { getEspnSeasonStats, getFreshEspnStats, getEspnRookieStatus } from '@/lib/espn-stats';
 import { posGroup, powerScore } from '@/lib/power-score';
 import { unstable_cache } from 'next/cache';
 
@@ -22,6 +22,7 @@ interface LeaguePlayerOut {
   teamName: string;
   posGroup: string;
   score: number;
+  isRookie?: boolean;
 }
 
 interface PlayerRow {
@@ -51,6 +52,29 @@ async function withEspnStats<T extends PlayerRow>(
         if (!player.espnId) return { ...player, stats: null };
         const stats = await fetchStats(player.espnId, year);
         return { ...player, stats };
+      }),
+    );
+    out.push(...results);
+  }
+  return out;
+}
+
+// Free-agent-only variant: also fetches rookie status alongside stats, run
+// concurrently per player so it doesn't add wall-clock time (the rookie
+// lookup is cached 14 days, so it's nearly free after the first chunk run).
+async function withEspnStatsAndRookie<T extends PlayerRow>(rows: T[], year: number) {
+  const CHUNK = 40;
+  const out: Array<T & { stats: Record<string, number> | null; isRookie: boolean | null }> = [];
+  for (let i = 0; i < rows.length; i += CHUNK) {
+    const batch = rows.slice(i, i + CHUNK);
+    const results = await Promise.all(
+      batch.map(async (player) => {
+        if (!player.espnId) return { ...player, stats: null, isRookie: null };
+        const [stats, isRookie] = await Promise.all([
+          getFreshEspnStats(player.espnId, year),
+          getEspnRookieStatus(player.espnId),
+        ]);
+        return { ...player, stats, isRookie };
       }),
     );
     out.push(...results);
@@ -162,7 +186,8 @@ async function fetchFreeAgentStats(leagueId: number, year: number) {
   // Sums per-game gamelog data instead of ESPN's own season total, which
   // was confirmed to lag already-finished games by hours (falls back to
   // getEspnSeasonStats for defense/punters, which gamelog doesn't cover).
-  const withStats = await withEspnStats(fa, year, getFreshEspnStats);
+  // Rookie status is fetched alongside so the FA list can flag/exclude them.
+  const withStats = await withEspnStatsAndRookie(fa, year);
 
   const playerList: LeaguePlayerOut[] = withStats.map((player) => ({
     id: player.id,
@@ -174,6 +199,7 @@ async function fetchFreeAgentStats(leagueId: number, year: number) {
     teamName: 'Free Agent',
     posGroup: posGroup(player.offense, player.defense, player.special, player.position),
     score: powerScore(player.offense, player.defense, player.special, player.position, player.stats),
+    isRookie: player.isRookie ?? false,
   }));
 
   return { players: playerList };

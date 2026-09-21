@@ -40,6 +40,7 @@ interface LeaguePlayer {
   teamName: string;
   posGroup: string;
   score: number;
+  isRookie?: boolean;
 }
 
 const NewsContext = createContext<Set<string>>(new Set());
@@ -736,9 +737,13 @@ function LeaguePlayersTable({
   const newsIds = useContext(NewsContext);
   const [filterGroup, setFilterGroup] = useState<string | null>(null);
   const [faOnly, setFaOnly] = useState(false);
+  const [excludeRookies, setExcludeRookies] = useState(false);
   const [sort, setSort] = useState<SortState>({ key: 'score', dir: 'desc' });
 
-  const source = useMemo(() => (faOnly ? (faPlayers ?? []) : data), [faOnly, faPlayers, data]);
+  const source = useMemo(() => {
+    const list = faOnly ? (faPlayers ?? []) : data;
+    return faOnly && excludeRookies ? list.filter(p => !p.isRookie) : list;
+  }, [faOnly, excludeRookies, faPlayers, data]);
 
   const availableGroups = useMemo(() => {
     const seen = new Set<string>();
@@ -779,6 +784,14 @@ function LeaguePlayersTable({
           {faOnly && faLoading && <Loader2 size={10} className="animate-spin" />}
           Only Free Agents
         </button>
+        {faOnly && (
+          <button
+            onClick={() => setExcludeRookies(!excludeRookies)}
+            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${excludeRookies ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+          >
+            Exclude Rookies
+          </button>
+        )}
         <span className="w-px bg-slate-200 mx-1" />
         <button
           onClick={() => setFilterGroup(null)}
@@ -843,6 +856,14 @@ function LeaguePlayersTable({
                         >
                           <Newspaper size={11} />
                         </a>
+                      )}
+                      {p.isRookie && (
+                        <span
+                          title="Rookie"
+                          className="text-[9px] font-black text-emerald-600 uppercase"
+                        >
+                          R
+                        </span>
                       )}
                     </div>
                     <div className="text-[10px] text-slate-400">{p.teamName}</div>

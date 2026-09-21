@@ -209,3 +209,21 @@ export async function getFreshEspnStats(
   if (fromGamelog) return fromGamelog;
   return getEspnSeasonStats(espnId, year);
 }
+
+// True if ESPN lists the athlete as a rookie (0 accrued NFL seasons). Cached
+// long (14 days) since this can't change mid-season — no reason to re-check
+// it on the same cadence as stats.
+export async function getEspnRookieStatus(espnId: string): Promise<boolean | null> {
+  try {
+    const res = await fetch(
+      `${ESPN_CORE}/athletes/${encodeURIComponent(espnId)}`,
+      { next: { revalidate: 86400 * 14 } },
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const years = data?.experience?.years;
+    return typeof years === 'number' ? years === 0 : null;
+  } catch {
+    return null;
+  }
+}
