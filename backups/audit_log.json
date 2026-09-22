@@ -12373,5 +12373,203 @@
     "team": "LBI",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1376,
+    "leagueId": 2,
+    "timestamp": "2026-09-21T16:23:12.505Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1377,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T16:27:28.172Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1378,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T16:27:47.257Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1379,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T16:38:18.449Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "IR MOVE",
+    "details": "Placed on IR: G - Cody Mauch"
+  },
+  {
+    "id": 1380,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T16:51:52.007Z",
+    "coach": "Pete Vuckovaz",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "QB - Marcus Mariota for injury to G - Cody Mauch in week 2 for 13 weeks"
+  },
+  {
+    "id": 1381,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T16:54:44.437Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #548 marked Done"
+  },
+  {
+    "id": 1382,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T16:54:59.887Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #549 marked Done"
+  },
+  {
+    "id": 1383,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T16:55:10.980Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_EDIT",
+    "details": "Transaction #549 details/week updated"
+  },
+  {
+    "id": 1384,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T16:55:49.315Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #549 deleted"
+  },
+  {
+    "id": 1385,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T17:07:03.997Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1386,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T17:08:11.757Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1387,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T17:11:16.665Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1388,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T17:14:20.529Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "QB - Marcus Mariota"
+  },
+  {
+    "id": 1389,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T17:14:35.181Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #550 deleted"
+  },
+  {
+    "id": 1390,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T17:14:49.054Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "QB - Marcus Mariota"
+  },
+  {
+    "id": 1391,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T17:15:11.859Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #551 marked Done"
+  },
+  {
+    "id": 1392,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T23:11:08.498Z",
+    "coach": "Pete Vuckovaz",
+    "team": "FA",
+    "action": "ADD",
+    "details": "T - Dylan Cook"
+  },
+  {
+    "id": 1393,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T23:16:55.257Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "WAIVE",
+    "details": "QB - Mitch Trubisky"
+  },
+  {
+    "id": 1394,
+    "leagueId": 1,
+    "timestamp": "2026-09-21T23:25:50.630Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 1395,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T02:02:44.884Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #553 marked Done"
+  },
+  {
+    "id": 1396,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T02:02:46.402Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #552 marked Done"
+  },
+  {
+    "id": 1397,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T02:19:32.381Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
