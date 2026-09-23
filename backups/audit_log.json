@@ -12571,5 +12571,383 @@
     "team": "Las Vegas",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1398,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T22:26:54.766Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team UF"
+  },
+  {
+    "id": 1399,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T22:33:34.068Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1400,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:31:52.973Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1401,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:00.395Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1402,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:00.874Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1403,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:01.135Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1404,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:01.408Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1405,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:01.638Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1406,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:01.889Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1407,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:02.143Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1408,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:02.407Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1409,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:02.634Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1410,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:02.886Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1411,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:03.126Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1412,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:03.342Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1413,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:03.671Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1414,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:03.924Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1415,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:04.145Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1416,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:04.391Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1417,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:04.728Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1418,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:05.028Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1419,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:05.299Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1420,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:05.556Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1421,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:05.788Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1422,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:06.020Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1423,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:06.282Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1424,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:06.535Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1425,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:06.797Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1426,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:07.060Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1427,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:07.315Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1428,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:07.554Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1429,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:07.859Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1430,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:08.151Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1431,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:08.368Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1432,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:08.623Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1433,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:08.870Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1434,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:09.240Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1435,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:09.509Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1436,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:09.772Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1437,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:10.019Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1438,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:32:10.263Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1439,
+    "leagueId": 1,
+    "timestamp": "2026-09-22T23:49:48.264Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded LBI.COA"
   }
 ]

@@ -130,16 +130,6 @@
     "status": "Inactive"
   },
   {
-    "id": 47,
-    "leagueId": 1,
-    "name": "LBI",
-    "coach": "Glenn Gardner",
-    "teamshort": "LBI",
-    "nickname": "Blue Claws",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 87,
     "leagueId": 2,
     "name": "Amalfi",
@@ -147,6 +137,16 @@
     "teamshort": "AFL",
     "nickname": "Coast",
     "isCommissioner": true,
+    "status": "active"
+  },
+  {
+    "id": 57,
+    "leagueId": 1,
+    "name": "Urban",
+    "coach": "John Yurchak",
+    "teamshort": "UF",
+    "nickname": "FUBAR Giants",
+    "isCommissioner": false,
     "status": "active"
   },
   {
@@ -166,6 +166,16 @@
     "coach": "Mark Mari",
     "teamshort": "LV",
     "nickname": "Golden Showers",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 47,
+    "leagueId": 1,
+    "name": "LBI",
+    "coach": "Glenn Gardner",
+    "teamshort": "LBI",
+    "nickname": "Blue Claws",
     "isCommissioner": false,
     "status": "active"
   },
@@ -326,16 +336,6 @@
     "coach": "Alex Matsikoudis",
     "teamshort": "DC",
     "nickname": "D-Trains",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 57,
-    "leagueId": 1,
-    "name": "Urban",
-    "coach": "John Yurchak",
-    "teamshort": "UF",
-    "nickname": "FUBAR Giants",
     "isCommissioner": false,
     "status": "active"
   },
