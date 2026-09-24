@@ -200,6 +200,16 @@
     "status": "active"
   },
   {
+    "id": 54,
+    "leagueId": 1,
+    "name": "Tampa",
+    "coach": "Bill Kobus",
+    "teamshort": "TC",
+    "nickname": "Cockatoos",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 53,
     "leagueId": 1,
     "name": "Satriale",
@@ -296,16 +306,6 @@
     "coach": "Ed Casserly",
     "teamshort": "OBG",
     "nickname": "Gamblers",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 54,
-    "leagueId": 1,
-    "name": "Tampa",
-    "coach": "Bill Kobus",
-    "teamshort": "TC",
-    "nickname": "Cockatoos",
     "isCommissioner": false,
     "status": "active"
   },

@@ -12949,5 +12949,320 @@
     "team": "LBI",
     "action": "COA_UPLOAD",
     "details": "Uploaded LBI.COA"
+  },
+  {
+    "id": 1440,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T11:21:17.521Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1441,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T11:22:53.650Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1442,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T11:22:53.703Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1443,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T11:23:20.524Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1444,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T11:23:56.175Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1445,
+    "leagueId": 2,
+    "timestamp": "2026-09-23T17:13:40.362Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1446,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T17:13:48.570Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1447,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T17:38:49.421Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded TAMPA.COA"
+  },
+  {
+    "id": 1448,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T17:49:03.068Z",
+    "coach": "Pete Vuckovaz",
+    "team": "FA",
+    "action": "ADD",
+    "details": "OL - Alec Anderson"
+  },
+  {
+    "id": 1449,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T17:49:21.929Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "WAIVE",
+    "details": "LB - Christian Harris"
+  },
+  {
+    "id": 1450,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T20:36:25.651Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #554 marked Done"
+  },
+  {
+    "id": 1451,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T20:36:26.814Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #555 marked Done"
+  },
+  {
+    "id": 1452,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T20:48:30.780Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "IR MOVE",
+    "details": "Placed on IR: G - James Daniels"
+  },
+  {
+    "id": 1453,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T20:49:10.854Z",
+    "coach": "John Yurchak",
+    "team": "FA",
+    "action": "ADD",
+    "details": "T - Dan Moore Jr."
+  },
+  {
+    "id": 1454,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T20:51:49.465Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "IR MOVE",
+    "details": "Placed on IR: WR/PR - Tyreek Hill"
+  },
+  {
+    "id": 1455,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T20:55:08.671Z",
+    "coach": "John Yurchak",
+    "team": "FA",
+    "action": "ADD",
+    "details": "WR - Tyrell Shavers"
+  },
+  {
+    "id": 1456,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T21:16:02.456Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #559 marked Done"
+  },
+  {
+    "id": 1457,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T21:16:03.864Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #558 marked Done"
+  },
+  {
+    "id": 1458,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T21:16:05.953Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #556 marked Done"
+  },
+  {
+    "id": 1459,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T21:16:08.243Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #557 marked Done"
+  },
+  {
+    "id": 1460,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T21:16:58.237Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1461,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T21:17:02.190Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1462,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T21:17:18.277Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1463,
+    "leagueId": 1,
+    "timestamp": "2026-09-23T23:13:08.933Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1464,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T00:08:17.889Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "WAIVE",
+    "details": "C - Lloyd Cushenberry"
+  },
+  {
+    "id": 1465,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T00:08:46.360Z",
+    "coach": "Naz Kikta",
+    "team": "LE",
+    "action": "WAIVE",
+    "details": "DL - Zach Harrison"
+  },
+  {
+    "id": 1466,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T00:09:15.393Z",
+    "coach": "Naz Kikta",
+    "team": "FA",
+    "action": "ADD",
+    "details": "DL - LaCale London"
+  },
+  {
+    "id": 1467,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T00:09:28.688Z",
+    "coach": "Naz Kikta",
+    "team": "FA",
+    "action": "ADD",
+    "details": "HB - Andrew Beck"
+  },
+  {
+    "id": 1468,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T02:39:38.699Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #561 marked Done"
+  },
+  {
+    "id": 1469,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T02:39:39.861Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #560 marked Done"
+  },
+  {
+    "id": 1470,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T02:40:14.387Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #562 marked Done"
+  },
+  {
+    "id": 1471,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T02:40:15.625Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #563 marked Done"
+  },
+  {
+    "id": 1472,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T02:41:20.952Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1473,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T02:41:24.309Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1474,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T02:41:38.009Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]
