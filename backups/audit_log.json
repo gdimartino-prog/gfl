@@ -13264,5 +13264,32 @@
     "team": "admin",
     "action": "IMPORT_SCHEDULE",
     "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1475,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T22:24:48.238Z",
+    "coach": "James Di Martino",
+    "team": "Jefferson",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1476,
+    "leagueId": 1,
+    "timestamp": "2026-09-24T23:56:13.996Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1477,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T04:34:47.988Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
