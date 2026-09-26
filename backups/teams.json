@@ -210,16 +210,6 @@
     "status": "active"
   },
   {
-    "id": 51,
-    "leagueId": 1,
-    "name": "Newark Bay",
-    "coach": "Phil Matsikoudis",
-    "teamshort": "NBT",
-    "nickname": "Tanks",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 53,
     "leagueId": 1,
     "name": "Satriale",
@@ -336,6 +326,16 @@
     "coach": "Alex Matsikoudis",
     "teamshort": "DC",
     "nickname": "D-Trains",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 51,
+    "leagueId": 1,
+    "name": "Newark Bay",
+    "coach": "Phil Matsikoudis",
+    "teamshort": "NBT",
+    "nickname": "Tanks",
     "isCommissioner": false,
     "status": "active"
   },

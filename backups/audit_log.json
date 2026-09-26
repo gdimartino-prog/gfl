@@ -13291,5 +13291,122 @@
     "team": "Old Bridge",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1478,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T13:39:08.377Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1479,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T13:40:22.715Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1480,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T16:17:50.702Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1481,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T16:18:33.843Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1482,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T18:42:51.510Z",
+    "coach": "James Di Martino",
+    "team": "Jefferson",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1483,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T19:26:57.140Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "UPDATE_CONTACT",
+    "details": "Coach: Phil Matsikoudis, Nickname: Tanks, Email: matsikoudis@comcast.net → matsikoudis@gmail"
+  },
+  {
+    "id": 1484,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T19:26:58.968Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "UPDATE_CONTACT",
+    "details": "Coach: Phil Matsikoudis, Nickname: Tanks"
+  },
+  {
+    "id": 1485,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T19:33:06.232Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "UPDATE_CONTACT",
+    "details": "Coach: Phil Matsikoudis, Nickname: Tanks"
+  },
+  {
+    "id": 1486,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T19:33:58.130Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "UPDATE_CONTACT",
+    "details": "Coach: Phil Matsikoudis, Nickname: Tanks"
+  },
+  {
+    "id": 1487,
+    "leagueId": 1,
+    "timestamp": "2026-09-25T23:14:15.591Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "PRESS_BOX_STORY",
+    "details": "file=FUR PEACE WINS.HTM chars=13293"
+  },
+  {
+    "id": 1488,
+    "leagueId": 1,
+    "timestamp": "2026-09-26T02:49:09.298Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1489,
+    "leagueId": 1,
+    "timestamp": "2026-09-26T02:49:23.478Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1490,
+    "leagueId": 1,
+    "timestamp": "2026-09-26T02:49:41.703Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]
