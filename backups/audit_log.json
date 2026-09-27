@@ -13408,5 +13408,77 @@
     "team": "admin",
     "action": "IMPORT_SCHEDULE",
     "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1491,
+    "leagueId": 1,
+    "timestamp": "2026-09-26T19:36:45.968Z",
+    "coach": "Ed Casserly",
+    "team": "OBG",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded OLD_BRIDGE.COA"
+  },
+  {
+    "id": 1492,
+    "leagueId": 1,
+    "timestamp": "2026-09-26T20:25:52.940Z",
+    "coach": "Bill Matsikoudis",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "RB - Nick Chubb for injury to DT - Ed Oliver in week 1 for -14 weeks"
+  },
+  {
+    "id": 1493,
+    "leagueId": 1,
+    "timestamp": "2026-09-26T20:27:49.052Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kig",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded KIGALI.COA"
+  },
+  {
+    "id": 1494,
+    "leagueId": 1,
+    "timestamp": "2026-09-26T21:42:22.914Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #564 marked On Team"
+  },
+  {
+    "id": 1495,
+    "leagueId": 1,
+    "timestamp": "2026-09-26T21:43:10.515Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1496,
+    "leagueId": 1,
+    "timestamp": "2026-09-26T21:43:43.575Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1497,
+    "leagueId": 1,
+    "timestamp": "2026-09-26T21:43:47.285Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1498,
+    "leagueId": 2,
+    "timestamp": "2026-09-26T22:15:15.595Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
   }
 ]

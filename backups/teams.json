@@ -130,6 +130,16 @@
     "status": "Inactive"
   },
   {
+    "id": 52,
+    "leagueId": 1,
+    "name": "Old Bridge",
+    "coach": "Ed Casserly",
+    "teamshort": "OBG",
+    "nickname": "Gamblers",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 87,
     "leagueId": 2,
     "name": "Amalfi",
@@ -210,6 +220,16 @@
     "status": "active"
   },
   {
+    "id": 46,
+    "leagueId": 1,
+    "name": "Kigali",
+    "coach": "Bill Matsikoudis",
+    "teamshort": "Kig",
+    "nickname": "Rhinos",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 53,
     "leagueId": 1,
     "name": "Satriale",
@@ -270,32 +290,12 @@
     "status": "active"
   },
   {
-    "id": 46,
-    "leagueId": 1,
-    "name": "Kigali",
-    "coach": "Bill Matsikoudis",
-    "teamshort": "Kig",
-    "nickname": "Rhinos",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 43,
     "leagueId": 1,
     "name": "Crimson",
     "coach": "Bob Glade",
     "teamshort": "CK",
     "nickname": "Kings",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 52,
-    "leagueId": 1,
-    "name": "Old Bridge",
-    "coach": "Ed Casserly",
-    "teamshort": "OBG",
-    "nickname": "Gamblers",
     "isCommissioner": false,
     "status": "active"
   },

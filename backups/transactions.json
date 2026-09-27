@@ -3307,6 +3307,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 564,
+    "leagueId": 1,
+    "date": "2026-09-26T20:25:52.912Z",
+    "type": "INJURY PICKUP",
+    "description": "RB - Nick Chubb for injury to DT - Ed Oliver in week 1 for -14 weeks",
+    "fromTeam": "FA",
+    "toTeam": "Kigali",
+    "owner": "Bill Matsikoudis",
+    "status": "On Team",
+    "weekBack": -13,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-26T20:25:52.913Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 518,
     "leagueId": 1,
     "date": "2026-09-08T22:31:45.266Z",
