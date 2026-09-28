@@ -3497,6 +3497,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 565,
+    "leagueId": 1,
+    "date": "2026-09-28T11:40:53.691Z",
+    "type": "WAIVE",
+    "description": "QB - Anthony Richardson",
+    "fromTeam": "Vico",
+    "toTeam": "FA",
+    "owner": "George Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-28T11:40:53.690Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 519,
     "leagueId": 1,
     "date": "2026-09-10T18:05:05.666Z",
@@ -3627,6 +3646,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-23T17:49:21.922Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 566,
+    "leagueId": 1,
+    "date": "2026-09-28T11:41:07.677Z",
+    "type": "ADD",
+    "description": "WR/KR - Roman Wilson",
+    "fromTeam": "FA",
+    "toTeam": "Vico",
+    "owner": "George Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-28T11:41:07.675Z",
     "touch_id": "VV"
   },
   {
