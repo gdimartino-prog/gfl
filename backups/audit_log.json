@@ -13543,5 +13543,113 @@
     "team": "admin",
     "action": "IMPORT_STANDINGS",
     "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1506,
+    "leagueId": 1,
+    "timestamp": "2026-09-28T14:21:40.840Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded LAS_VEGAS.COA"
+  },
+  {
+    "id": 1507,
+    "leagueId": 1,
+    "timestamp": "2026-09-28T18:42:14.690Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "WAIVE",
+    "details": "CB - Will Johnson"
+  },
+  {
+    "id": 1508,
+    "leagueId": 1,
+    "timestamp": "2026-09-28T18:42:23.780Z",
+    "coach": "Adrian Scherer",
+    "team": "FA",
+    "action": "ADD",
+    "details": "CB - Marcus Harris"
+  },
+  {
+    "id": 1509,
+    "leagueId": 1,
+    "timestamp": "2026-09-28T19:29:23.784Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #567 marked Done"
+  },
+  {
+    "id": 1510,
+    "leagueId": 1,
+    "timestamp": "2026-09-28T19:29:37.979Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #568 marked Done"
+  },
+  {
+    "id": 1511,
+    "leagueId": 1,
+    "timestamp": "2026-09-28T19:30:18.099Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1512,
+    "leagueId": 1,
+    "timestamp": "2026-09-28T19:30:18.131Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1513,
+    "leagueId": 1,
+    "timestamp": "2026-09-28T19:34:36.800Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1514,
+    "leagueId": 1,
+    "timestamp": "2026-09-28T21:56:16.430Z",
+    "coach": "Pete Vuckovaz",
+    "team": "FA",
+    "action": "ADD",
+    "details": "G-T - Jordan Morgan"
+  },
+  {
+    "id": 1515,
+    "leagueId": 1,
+    "timestamp": "2026-09-28T21:57:42.122Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "WAIVE",
+    "details": "T - Dylan Cook"
+  },
+  {
+    "id": 1516,
+    "leagueId": 1,
+    "timestamp": "2026-09-29T00:45:34.019Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded DC.COA"
+  },
+  {
+    "id": 1517,
+    "leagueId": 1,
+    "timestamp": "2026-09-29T03:35:00.156Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
