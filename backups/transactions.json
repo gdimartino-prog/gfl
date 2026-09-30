@@ -3076,25 +3076,6 @@
     "touch_id": "VV"
   },
   {
-    "id": 569,
-    "leagueId": 1,
-    "date": "2026-09-28T21:56:16.401Z",
-    "type": "ADD",
-    "description": "G-T - Jordan Morgan",
-    "fromTeam": "FA",
-    "toTeam": "Carolina",
-    "owner": "Pete Vuckovaz",
-    "status": "Pending",
-    "weekBack": null,
-    "season": 2026,
-    "fee": 10,
-    "emailStatus": null,
-    "pickIds": null,
-    "conditionalDetails": null,
-    "touch_dt": "2026-09-28T21:56:16.404Z",
-    "touch_id": "Pete Vuckovaz"
-  },
-  {
     "id": 570,
     "leagueId": 1,
     "date": "2026-09-28T21:57:42.115Z",
@@ -3103,7 +3084,7 @@
     "fromTeam": "Carolina",
     "toTeam": "FA",
     "owner": "Pete Vuckovaz",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 0,
@@ -3111,7 +3092,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-28T21:57:42.117Z",
-    "touch_id": "Pete Vuckovaz"
+    "touch_id": "VV"
   },
   {
     "id": 218,
@@ -3150,6 +3131,25 @@
     "conditionalDetails": null,
     "touch_dt": "2026-06-27T01:38:27.237Z",
     "touch_id": "commissioner"
+  },
+  {
+    "id": 569,
+    "leagueId": 1,
+    "date": "2026-09-28T21:56:16.401Z",
+    "type": "ADD",
+    "description": "G-T - Jordan Morgan",
+    "fromTeam": "FA",
+    "toTeam": "Carolina",
+    "owner": "Pete Vuckovaz",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-28T21:56:16.404Z",
+    "touch_id": "VV"
   },
   {
     "id": 220,
@@ -3380,6 +3380,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-26T20:25:52.913Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 571,
+    "leagueId": 1,
+    "date": "2026-09-30T03:18:21.873Z",
+    "type": "IR MOVE",
+    "description": "Placed on IR: G - Robert Hunt",
+    "fromTeam": "Old Bridge",
+    "toTeam": "IR",
+    "owner": "Ed Casserly",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-30T03:18:21.872Z",
     "touch_id": "VV"
   },
   {
