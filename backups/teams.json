@@ -150,6 +150,16 @@
     "status": "active"
   },
   {
+    "id": 51,
+    "leagueId": 1,
+    "name": "Newark Bay",
+    "coach": "Phil Matsikoudis",
+    "teamshort": "NBT",
+    "nickname": "Tanks",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 41,
     "leagueId": 1,
     "name": "Amalfi",
@@ -326,16 +336,6 @@
     "coach": "Anthony Carter",
     "teamshort": "DC",
     "nickname": "Capital",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 51,
-    "leagueId": 1,
-    "name": "Newark Bay",
-    "coach": "Phil Matsikoudis",
-    "teamshort": "NBT",
-    "nickname": "Tanks",
     "isCommissioner": false,
     "status": "active"
   },

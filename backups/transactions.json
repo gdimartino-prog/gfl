@@ -3592,6 +3592,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 572,
+    "leagueId": 1,
+    "date": "2026-09-30T20:53:51.080Z",
+    "type": "IR MOVE",
+    "description": "Placed on IR: RB - Trey Benson",
+    "fromTeam": "Tampa",
+    "toTeam": "IR",
+    "owner": "Bill Kobus",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-09-30T20:53:51.081Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 519,
     "leagueId": 1,
     "date": "2026-09-10T18:05:05.666Z",
@@ -3741,6 +3760,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-28T11:41:07.675Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 573,
+    "leagueId": 1,
+    "date": "2026-10-01T00:28:15.172Z",
+    "type": "ADD",
+    "description": "WR/RET - Myles Price",
+    "fromTeam": "FA",
+    "toTeam": "Old Bridge",
+    "owner": "Ed Casserly",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-01T00:28:15.173Z",
     "touch_id": "VV"
   },
   {

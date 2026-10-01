@@ -13696,5 +13696,50 @@
     "team": "VV",
     "action": "TRANSACTION_STATUS",
     "details": "Transaction #571 marked Done"
+  },
+  {
+    "id": 1523,
+    "leagueId": 1,
+    "timestamp": "2026-09-30T20:53:51.156Z",
+    "coach": "Bill Kobus",
+    "team": "Tampa",
+    "action": "IR MOVE",
+    "details": "Placed on IR: RB - Trey Benson"
+  },
+  {
+    "id": 1524,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T00:28:15.197Z",
+    "coach": "Ed Casserly",
+    "team": "FA",
+    "action": "ADD",
+    "details": "WR/RET - Myles Price"
+  },
+  {
+    "id": 1525,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T00:29:18.920Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1526,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T01:19:40.714Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #572 marked Done"
+  },
+  {
+    "id": 1527,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T01:20:14.696Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #573 marked Done"
   }
 ]
