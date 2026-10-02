@@ -13741,5 +13741,158 @@
     "team": "VV",
     "action": "TRANSACTION_STATUS",
     "details": "Transaction #573 marked Done"
+  },
+  {
+    "id": 1528,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T13:44:47.831Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1529,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T13:44:52.130Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1530,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T13:45:03.221Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1531,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T15:23:14.554Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1532,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T18:49:26.433Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "IR MOVE",
+    "details": "Placed on IR: DL - Nnamdi Madubuike"
+  },
+  {
+    "id": 1533,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T18:50:25.328Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "IR MOVE",
+    "details": "Placed on IR: T - Lane Johnson"
+  },
+  {
+    "id": 1534,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T19:00:20.655Z",
+    "coach": "Mark Mari",
+    "team": "FA",
+    "action": "ADD",
+    "details": "T - Jonah Williams"
+  },
+  {
+    "id": 1535,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T19:00:57.676Z",
+    "coach": "Mark Mari",
+    "team": "FA",
+    "action": "ADD",
+    "details": "DT - T.J. Slaton"
+  },
+  {
+    "id": 1536,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T21:15:12.297Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #574 marked Done"
+  },
+  {
+    "id": 1537,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T21:15:13.387Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #575 marked Done"
+  },
+  {
+    "id": 1538,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T21:15:41.707Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #576 marked Done"
+  },
+  {
+    "id": 1539,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T21:15:52.996Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #577 marked Done"
+  },
+  {
+    "id": 1540,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T23:06:58.396Z",
+    "coach": "Pete Vuckovaz",
+    "team": "FA",
+    "action": "ADD",
+    "details": "CB - Will Johnson"
+  },
+  {
+    "id": 1541,
+    "leagueId": 1,
+    "timestamp": "2026-10-01T23:08:29.761Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "WAIVE",
+    "details": "DE-LB - Dante Fowler Jr."
+  },
+  {
+    "id": 1542,
+    "leagueId": 1,
+    "timestamp": "2026-10-02T00:35:10.268Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #579 marked Done"
+  },
+  {
+    "id": 1543,
+    "leagueId": 1,
+    "timestamp": "2026-10-02T00:35:11.532Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #578 marked Done"
+  },
+  {
+    "id": 1544,
+    "leagueId": 1,
+    "timestamp": "2026-10-02T02:05:07.653Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
