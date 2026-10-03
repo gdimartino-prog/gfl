@@ -56,6 +56,7 @@ export default function TransactionsPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editDetails, setEditDetails] = useState('');
   const [editWeekBack, setEditWeekBack] = useState('');
+  const [editType, setEditType] = useState('');
   const [editSaving, setEditSaving] = useState(false);
   const [showSpend, setShowSpend] = useState(false);
   const [spendSeason, setSpendSeason] = useState('');
@@ -193,6 +194,7 @@ export default function TransactionsPage() {
   const openEdit = (log: Record<string, string>) => {
     setEditDetails(log.details || '');
     setEditWeekBack(log.weekBack || '');
+    setEditType(log.type || '');
     setEditId(editId === log.id ? null : log.id);
     setConditionalId(null);
     setReprocessId(null);
@@ -205,14 +207,14 @@ export default function TransactionsPage() {
       const res = await fetch('/api/transactions', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: parseInt(logId), details: editDetails.trim(), weekBack: editWeekBack || null }),
+        body: JSON.stringify({ id: parseInt(logId), details: editDetails.trim(), weekBack: editWeekBack || null, type: editType || undefined }),
       });
       if (res.ok) {
         setEditId(null);
         // Mirror the server's normalization (empty → cleared, else integer)
         // so the optimistic value matches what was actually persisted.
         const normalizedWeekBack = editWeekBack.trim() ? String(parseInt(editWeekBack, 10)) : '';
-        setLogs(prev => prev.map(l => l.id === logId ? { ...l, details: editDetails.trim(), weekBack: normalizedWeekBack } : l));
+        setLogs(prev => prev.map(l => l.id === logId ? { ...l, details: editDetails.trim(), weekBack: normalizedWeekBack, type: editType || l.type } : l));
       } else {
         const err = await res.json().catch(() => ({}));
         alert(err.error || 'Failed to save changes.');
@@ -600,6 +602,21 @@ export default function TransactionsPage() {
                     <tr className="bg-blue-50/50">
                       <td colSpan={9} className="px-6 py-4">
                         <div className="flex flex-wrap items-end gap-3">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Type</label>
+                            <select
+                              value={editType}
+                              onChange={e => setEditType(e.target.value)}
+                              className="px-3 py-1.5 border border-blue-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white"
+                            >
+                              <option value="ADD">Add</option>
+                              <option value="DROP">Drop</option>
+                              <option value="TRADE">Trade</option>
+                              <option value="IR MOVE">IR Move</option>
+                              <option value="INJURY PICKUP">Injury Pickup</option>
+                              <option value="CUT">Cut</option>
+                            </select>
+                          </div>
                           <div className="flex flex-col gap-1 flex-1 min-w-[240px]">
                             <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Details</label>
                             <textarea

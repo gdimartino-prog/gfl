@@ -54,7 +54,7 @@ export async function PATCH(req: NextRequest) {
     const leagueId = await getLeagueId();
 
     const body = await req.json();
-    const { id, status, conditionalDetails, details, weekBack } = body;
+    const { id, status, conditionalDetails, details, weekBack, type } = body;
     if (!id) return Response.json({ error: 'id required' }, { status: 400 });
 
     if (conditionalDetails !== undefined) {
@@ -67,7 +67,11 @@ export async function PATCH(req: NextRequest) {
       return Response.json({ success: true });
     }
 
-    if (details !== undefined || weekBack !== undefined) {
+    if (details !== undefined || weekBack !== undefined || type !== undefined) {
+      const ALLOWED_TX_TYPES = ['ADD', 'DROP', 'TRADE', 'IR MOVE', 'INJURY PICKUP', 'CUT'];
+      if (type !== undefined && (typeof type !== 'string' || !ALLOWED_TX_TYPES.includes(type))) {
+        return Response.json({ error: `type must be one of: ${ALLOWED_TX_TYPES.join(', ')}` }, { status: 400 });
+      }
       if (details !== undefined && (typeof details !== 'string' || !details.trim() || details.length > 500)) {
         return Response.json({ error: 'details must be a non-empty string ≤ 500 characters' }, { status: 400 });
       }
@@ -87,13 +91,13 @@ export async function PATCH(req: NextRequest) {
           parsedWeekBack = n;
         }
       }
-      await updateTransactionDetails(Number(id), { details: details?.trim(), weekBack: parsedWeekBack }, leagueId, teamshort || 'commissioner');
+      await updateTransactionDetails(Number(id), { details: details?.trim(), weekBack: parsedWeekBack, type }, leagueId, teamshort || 'commissioner');
       revalidateTag('transactions', 'max');
-      await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_EDIT', `Transaction #${id} details/week updated`, leagueId);
+      await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_EDIT', `Transaction #${id} updated`, leagueId);
       return Response.json({ success: true });
     }
 
-    if (!status) return Response.json({ error: 'status, conditionalDetails, details, or weekBack required' }, { status: 400 });
+    if (!status) return Response.json({ error: 'status, conditionalDetails, details, weekBack, or type required' }, { status: 400 });
     const validStatuses = ['Done', 'Pending', 'On Team'];
     if (!validStatuses.includes(status)) {
       return Response.json({ error: 'Invalid status value' }, { status: 400 });
