@@ -85,6 +85,28 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
   const [auditMsg, setAuditMsg] = useState<{ success: boolean; text: string } | null>(null);
   const [auditShowWaived, setAuditShowWaived] = useState(false);
 
+  // Press Box Report state
+  type PressBoxEvent = { id: number; timestamp: string; coach: string | null; team: string | null; leagueId: number; fileName: string | null; inputChars: number; inputTokens: number; outputTokens: number; estimatedCostUsd: number };
+  type PressBoxSummary = { totalUses: number; totalCostUsd: number; byCoach: { coach: string; team: string; uses: number; totalCost: number }[]; model: string; costNote: string };
+  const [pressBoxOpen, setPressBoxOpen] = useState(false);
+  const [pressBoxEvents, setPressBoxEvents] = useState<PressBoxEvent[]>([]);
+  const [pressBoxSummary, setPressBoxSummary] = useState<PressBoxSummary | null>(null);
+  const [pressBoxLoading, setPressBoxLoading] = useState(false);
+
+  const fetchPressBoxReport = async () => {
+    setPressBoxLoading(true);
+    try {
+      const res = await fetch('/api/maintenance/press-box-report');
+      if (res.ok) {
+        const data = await res.json();
+        setPressBoxEvents(data.events ?? []);
+        setPressBoxSummary(data.summary ?? null);
+      }
+    } finally {
+      setPressBoxLoading(false);
+    }
+  };
+
   // Season Awards state
   const [awardsOpen, setAwardsOpen] = useState(false);
   const [awardsYear, setAwardsYear] = useState('');
@@ -1047,6 +1069,114 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
           );
         })() : null}
         </>)}
+      </div>
+
+      {/* Press Box Usage Report Section */}
+      <div className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden">
+        <button type="button" className="w-full px-8 py-5 bg-slate-900 flex items-center justify-between text-left"
+          onClick={() => { const opening = !pressBoxOpen; setPressBoxOpen(opening); if (opening && pressBoxEvents.length === 0) fetchPressBoxReport(); }}>
+          <div>
+            <h3 className="text-white font-black uppercase italic tracking-tighter text-lg flex items-center gap-2">
+              📰 Press Box Usage Report
+            </h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Gemini API usage and estimated costs per coach</p>
+          </div>
+          <span className="text-slate-400">{pressBoxOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}</span>
+        </button>
+        {pressBoxOpen && (
+          <div className="p-6">
+            <div className="flex justify-end mb-4">
+              <button onClick={fetchPressBoxReport} disabled={pressBoxLoading}
+                className="flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all disabled:opacity-50">
+                <RefreshCw size={12} className={pressBoxLoading ? 'animate-spin' : ''} /> Refresh
+              </button>
+            </div>
+            {pressBoxLoading ? (
+              <p className="text-center text-slate-400 text-sm py-8">Loading…</p>
+            ) : pressBoxSummary ? (
+              <>
+                {/* Summary cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                  <div className="bg-violet-50 border border-violet-100 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-black text-violet-700">{pressBoxSummary.totalUses}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-violet-500 mt-1">Total Stories</p>
+                  </div>
+                  <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-black text-emerald-700">${pressBoxSummary.totalCostUsd.toFixed(4)}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-500 mt-1">Est. Total Cost</p>
+                  </div>
+                  <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-black text-slate-700">{pressBoxSummary.byCoach.length}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-1">Coaches Using It</p>
+                  </div>
+                  <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 text-center">
+                    <p className="text-sm font-black text-slate-700">{pressBoxSummary.model}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-1">Model</p>
+                  </div>
+                </div>
+
+                {/* By coach */}
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Usage by Coach</h4>
+                <div className="overflow-x-auto rounded-xl border border-slate-100 mb-6">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-slate-50 text-left">
+                        <th className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500">Coach</th>
+                        <th className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500">Team</th>
+                        <th className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 text-right">Stories</th>
+                        <th className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 text-right">Est. Cost</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pressBoxSummary.byCoach.map((c, i) => (
+                        <tr key={i} className="border-t border-slate-100">
+                          <td className="px-4 py-2 font-bold text-slate-800">{c.coach || '—'}</td>
+                          <td className="px-4 py-2 font-mono text-slate-600 text-[11px]">{c.team}</td>
+                          <td className="px-4 py-2 text-right font-black text-violet-700">{c.uses}</td>
+                          <td className="px-4 py-2 text-right font-mono text-emerald-700">${c.totalCost.toFixed(4)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Event log */}
+                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Event Log</h4>
+                <div className="overflow-x-auto rounded-xl border border-slate-100">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="bg-slate-50 text-left">
+                        <th className="px-3 py-2 text-[9px] font-black uppercase tracking-widest text-slate-500">Date</th>
+                        <th className="px-3 py-2 text-[9px] font-black uppercase tracking-widest text-slate-500">Coach</th>
+                        <th className="px-3 py-2 text-[9px] font-black uppercase tracking-widest text-slate-500">Team</th>
+                        <th className="px-3 py-2 text-[9px] font-black uppercase tracking-widest text-slate-500">File</th>
+                        <th className="px-3 py-2 text-[9px] font-black uppercase tracking-widest text-slate-500 text-right">Input Tokens</th>
+                        <th className="px-3 py-2 text-[9px] font-black uppercase tracking-widest text-slate-500 text-right">Est. Cost</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {pressBoxEvents.map(e => (
+                        <tr key={e.id} className="border-t border-slate-100">
+                          <td className="px-3 py-2 font-mono text-slate-500 whitespace-nowrap">
+                            {new Date(e.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </td>
+                          <td className="px-3 py-2 font-bold text-slate-700">{e.coach || '—'}</td>
+                          <td className="px-3 py-2 font-mono text-slate-500">{e.team}</td>
+                          <td className="px-3 py-2 text-slate-600 max-w-[180px] truncate">{e.fileName || '—'}</td>
+                          <td className="px-3 py-2 text-right font-mono text-slate-600">{e.inputTokens.toLocaleString()}</td>
+                          <td className="px-3 py-2 text-right font-mono text-emerald-700">${e.estimatedCostUsd.toFixed(4)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[9px] text-slate-400 mt-2 text-right">{pressBoxSummary.costNote}</p>
+              </>
+            ) : (
+              <p className="text-center text-slate-400 text-sm py-8">No data.</p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Draft Setup Section */}
