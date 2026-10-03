@@ -13894,5 +13894,32 @@
     "team": "LBI",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1545,
+    "leagueId": 1,
+    "timestamp": "2026-10-02T23:58:34.780Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "PRESS_BOX_STORY",
+    "details": "file=FUR PEACE KIGALI.HTM chars=12961"
+  },
+  {
+    "id": 1546,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T00:19:41.273Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "IR MOVE",
+    "details": "Placed on IR: DE-LB - Za'Darius Smith"
+  },
+  {
+    "id": 1547,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T00:21:20.599Z",
+    "coach": "Jack Wyville",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "OL - Blake Brandel for injury to DE-LB - Za'Darius Smith in week 3 for 9 weeks"
   }
 ]
