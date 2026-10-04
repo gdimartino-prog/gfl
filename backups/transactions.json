@@ -3866,7 +3866,7 @@
     "fromTeam": "Fur Peace",
     "toTeam": "IR",
     "owner": "Jack Wyville",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 0,
@@ -3874,26 +3874,26 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-10-03T00:19:41.245Z",
-    "touch_id": "Jack Wyville"
+    "touch_id": "VV"
   },
   {
     "id": 581,
     "leagueId": 1,
     "date": "2026-10-03T00:21:20.588Z",
-    "type": "INJURY PICKUP",
-    "description": "OL - Blake Brandel for injury to DE-LB - Za'Darius Smith in week 3 for 9 weeks",
+    "type": "ADD",
+    "description": "OL - Blake Brandel",
     "fromTeam": "FA",
     "toTeam": "Fur Peace",
     "owner": "Jack Wyville",
-    "status": "Pending",
-    "weekBack": 12,
+    "status": "Done",
+    "weekBack": null,
     "season": 2026,
-    "fee": 0,
+    "fee": 10,
     "emailStatus": null,
     "pickIds": null,
     "conditionalDetails": null,
-    "touch_dt": "2026-10-03T00:21:20.592Z",
-    "touch_id": "Jack Wyville"
+    "touch_dt": "2026-10-03T18:28:31.367Z",
+    "touch_id": "VV"
   },
   {
     "id": 367,
@@ -6857,6 +6857,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-10-01T18:50:25.322Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 582,
+    "leagueId": 1,
+    "date": "2026-10-03T18:26:48.348Z",
+    "type": "IR MOVE",
+    "description": "Placed on IR: DE - Nick Bosa",
+    "fromTeam": "Pyongyang",
+    "toTeam": "IR",
+    "owner": "James Thurlow",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-03T18:26:48.348Z",
     "touch_id": "VV"
   }
 ]

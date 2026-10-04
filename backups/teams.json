@@ -170,6 +170,16 @@
     "status": "active"
   },
   {
+    "id": 43,
+    "leagueId": 1,
+    "name": "Crimson",
+    "coach": "Bob Glade",
+    "teamshort": "CK",
+    "nickname": "Kings",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 47,
     "leagueId": 1,
     "name": "LBI",
@@ -196,16 +206,6 @@
     "coach": "Naz Kikta",
     "teamshort": "LES",
     "nickname": "Stallions",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 54,
-    "leagueId": 1,
-    "name": "Tampa",
-    "coach": "Bill Kobus",
-    "teamshort": "TC",
-    "nickname": "Cockatoos",
     "isCommissioner": false,
     "status": "active"
   },
@@ -246,6 +246,16 @@
     "coach": "John Yurchak",
     "teamshort": "UF",
     "nickname": "FUBAR Giants",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 54,
+    "leagueId": 1,
+    "name": "Tampa",
+    "coach": "Bill Kobus",
+    "teamshort": "TC",
+    "nickname": "Cockatoos",
     "isCommissioner": false,
     "status": "active"
   },
@@ -296,16 +306,6 @@
     "coach": "James Mitchell",
     "teamshort": "OBG",
     "nickname": "Generals",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 43,
-    "leagueId": 1,
-    "name": "Crimson",
-    "coach": "Bob Glade",
-    "teamshort": "CK",
-    "nickname": "Kings",
     "isCommissioner": false,
     "status": "active"
   },

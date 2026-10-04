@@ -220,17 +220,6 @@
     "touch_id": "CT"
   },
   {
-    "id": 40,
-    "leagueId": 1,
-    "playerId": "dante|fowler jr.|31||de-lb|",
-    "playerName": "Dante Fowler Jr.",
-    "team": "CT",
-    "position": "DE-LB",
-    "asking": null,
-    "touch_dt": "2026-04-27T12:26:11.608Z",
-    "touch_id": "CT"
-  },
-  {
     "id": 42,
     "leagueId": 1,
     "playerId": "d.j.|jones|30||dl|",

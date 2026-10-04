@@ -13921,5 +13921,95 @@
     "team": "FA",
     "action": "INJURY PICKUP",
     "details": "OL - Blake Brandel for injury to DE-LB - Za'Darius Smith in week 3 for 9 weeks"
+  },
+  {
+    "id": 1548,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T16:44:12.293Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1549,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T16:44:12.329Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1550,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T16:44:29.267Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1551,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T16:44:48.793Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #580 marked Done"
+  },
+  {
+    "id": 1552,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T16:44:51.114Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #581 marked Done"
+  },
+  {
+    "id": 1553,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T18:26:02.703Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 1554,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T18:26:48.364Z",
+    "coach": "James Thurlow",
+    "team": "Pyongyang",
+    "action": "IR MOVE",
+    "details": "Placed on IR: DE - Nick Bosa"
+  },
+  {
+    "id": 1555,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T18:35:53.873Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_EDIT",
+    "details": "Transaction #581 updated"
+  },
+  {
+    "id": 1556,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T18:36:15.246Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #582 marked Done"
+  },
+  {
+    "id": 1557,
+    "leagueId": 1,
+    "timestamp": "2026-10-03T22:02:31.462Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded TAMPA.COA"
   }
 ]
