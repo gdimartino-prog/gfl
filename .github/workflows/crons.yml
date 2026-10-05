@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Update NFL week
         run: |
-          curl -s -X GET "https://afl.gddevco.com/api/cron/nfl-week" \
+          curl -s --max-time 55 -X GET "https://afl.gddevco.com/api/cron/nfl-week" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | cat
 
@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Send cuts alert
         run: |
-          curl -s -X GET "https://afl.gddevco.com/api/cron/cuts-alert" \
+          curl -s --max-time 55 -X GET "https://afl.gddevco.com/api/cron/cuts-alert" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | cat
 
@@ -39,7 +39,7 @@ jobs:
     steps:
       - name: Send schedule reminder
         run: |
-          curl -s -X GET "https://afl.gddevco.com/api/cron/schedule-reminder" \
+          curl -s --max-time 55 -X GET "https://afl.gddevco.com/api/cron/schedule-reminder" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
             | cat
 
