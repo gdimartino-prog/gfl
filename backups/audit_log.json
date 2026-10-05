@@ -14011,5 +14011,59 @@
     "team": "TC",
     "action": "COA_UPLOAD",
     "details": "Uploaded TAMPA.COA"
+  },
+  {
+    "id": 1558,
+    "leagueId": 1,
+    "timestamp": "2026-10-04T20:15:13.900Z",
+    "coach": "James Thurlow",
+    "team": "FA",
+    "action": "ADD",
+    "details": "DL - Byron Young"
+  },
+  {
+    "id": 1559,
+    "leagueId": 1,
+    "timestamp": "2026-10-04T20:44:30.178Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #583 marked Done"
+  },
+  {
+    "id": 1560,
+    "leagueId": 1,
+    "timestamp": "2026-10-04T20:45:28.820Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1561,
+    "leagueId": 1,
+    "timestamp": "2026-10-04T20:45:28.860Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1562,
+    "leagueId": 1,
+    "timestamp": "2026-10-04T20:45:44.489Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1563,
+    "leagueId": 1,
+    "timestamp": "2026-10-05T14:13:23.175Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]

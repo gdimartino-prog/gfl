@@ -1871,6 +1871,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 583,
+    "leagueId": 1,
+    "date": "2026-10-04T20:15:13.883Z",
+    "type": "ADD",
+    "description": "DL - Byron Young",
+    "fromTeam": "FA",
+    "toTeam": "Pyongyang",
+    "owner": "James Thurlow",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-04T20:15:13.881Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 524,
     "leagueId": 1,
     "date": "2026-09-14T19:45:34.508Z",
