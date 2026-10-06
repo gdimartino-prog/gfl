@@ -14065,5 +14065,77 @@
     "team": "Amalfi",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1564,
+    "leagueId": 1,
+    "timestamp": "2026-10-05T23:21:56.661Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded LAS_VEGAS.COA"
+  },
+  {
+    "id": 1565,
+    "leagueId": 1,
+    "timestamp": "2026-10-05T23:24:34.031Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "WAIVE",
+    "details": "QB - Drew Lock"
+  },
+  {
+    "id": 1566,
+    "leagueId": 1,
+    "timestamp": "2026-10-05T23:25:00.407Z",
+    "coach": "Bob Glade",
+    "team": "FA",
+    "action": "ADD",
+    "details": "QB - Jameis Winston"
+  },
+  {
+    "id": 1567,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T00:50:11.697Z",
+    "coach": "Glenn Gardner",
+    "team": "LBI",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1568,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T01:18:04.431Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #584 marked Done"
+  },
+  {
+    "id": 1569,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T01:18:05.556Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #585 marked Done"
+  },
+  {
+    "id": 1570,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T07:11:29.049Z",
+    "coach": "Jack Wyville",
+    "team": "FA",
+    "action": "ADD",
+    "details": "WR - Ben Skowronek"
+  },
+  {
+    "id": 1571,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T07:11:43.180Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "WAIVE",
+    "details": "DL - Rylie Mills"
   }
 ]
