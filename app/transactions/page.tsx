@@ -457,12 +457,13 @@ export default function TransactionsPage() {
               >
                 <option value="">All Types</option>
                 <option value="ADD">Add</option>
-                <option value="WAIVE">Waive</option>
+                <option value="CONDITIONAL TRADE">Conditional Trade</option>
+                <option value="CUT">Cut</option>
                 <option value="DROP">Drop</option>
                 <option value="INJURY PICKUP">Injury Pickup</option>
                 <option value="IR MOVE">IR Move</option>
                 <option value="TRADE">Trade</option>
-                <option value="CONDITIONAL TRADE">Conditional Trade</option>
+                <option value="WAIVE">Waive</option>
               </select>
             </div>
             <div className="flex-1 min-w-[160px] relative">
@@ -473,7 +474,7 @@ export default function TransactionsPage() {
                 onChange={(e) => setFilterTeam(e.target.value)}
               >
                 <option value="">All Teams</option>
-                {teams.map((t, i) => <option key={i} value={t.name}>{t.name}</option>)}
+                {[...teams].sort((a, b) => (a.name || '').localeCompare(b.name || '')).map((t, i) => <option key={i} value={t.name}>{t.name}</option>)}
               </select>
             </div>
           </div>
