@@ -14137,5 +14137,158 @@
     "team": "Fur Peace",
     "action": "WAIVE",
     "details": "DL - Rylie Mills"
+  },
+  {
+    "id": 1572,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T14:27:06.212Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #587 marked Done"
+  },
+  {
+    "id": 1573,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T14:27:07.692Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #586 marked Done"
+  },
+  {
+    "id": 1574,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T14:28:10.739Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1575,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T14:28:14.702Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1576,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T14:28:34.124Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1577,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T23:41:55.317Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "WAIVE",
+    "details": "RB/KR - Dylan Sampson"
+  },
+  {
+    "id": 1578,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T23:42:07.485Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "RB/KR - Ollie Gordon II"
+  },
+  {
+    "id": 1579,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T23:42:27.122Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #589 marked Done"
+  },
+  {
+    "id": 1580,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T23:42:28.268Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #588 marked Done"
+  },
+  {
+    "id": 1581,
+    "leagueId": 1,
+    "timestamp": "2026-10-06T23:51:33.503Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Tetbury"
+  },
+  {
+    "id": 1582,
+    "leagueId": 1,
+    "timestamp": "2026-10-07T00:37:06.120Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #591 marked Done"
+  },
+  {
+    "id": 1583,
+    "leagueId": 1,
+    "timestamp": "2026-10-07T00:37:07.730Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #590 marked Done"
+  },
+  {
+    "id": 1584,
+    "leagueId": 1,
+    "timestamp": "2026-10-07T00:38:24.932Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1585,
+    "leagueId": 1,
+    "timestamp": "2026-10-07T00:38:24.967Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1586,
+    "leagueId": 1,
+    "timestamp": "2026-10-07T00:38:44.994Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1587,
+    "leagueId": 1,
+    "timestamp": "2026-10-07T11:01:22.490Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1588,
+    "leagueId": 1,
+    "timestamp": "2026-10-07T11:01:36.872Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]
