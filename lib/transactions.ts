@@ -89,14 +89,17 @@ export async function updateTransactionConditional(id: number, conditionalDetail
 
 export async function updateTransactionDetails(
   id: number,
-  fields: { details?: string; weekBack?: number | null; type?: string },
+  fields: { details?: string; weekBack?: number | null; type?: string; fromTeam?: string | null; toTeam?: string | null; fee?: number },
   leagueId: number = 1,
   actor: string = 'commissioner',
 ) {
-  const set: { description?: string; weekBack?: number | null; type?: string; touch_id: string } = { touch_id: actor };
+  const set: { description?: string; weekBack?: number | null; type?: string; fromTeam?: string | null; toTeam?: string | null; fee?: number; touch_id: string } = { touch_id: actor };
   if (fields.details !== undefined) set.description = fields.details;
   if (fields.weekBack !== undefined) set.weekBack = fields.weekBack;
   if (fields.type !== undefined) set.type = fields.type;
+  if (fields.fromTeam !== undefined) set.fromTeam = fields.fromTeam;
+  if (fields.toTeam !== undefined) set.toTeam = fields.toTeam;
+  if (fields.fee !== undefined) set.fee = fields.fee;
   await db.update(transactions)
     .set(set)
     .where(and(eq(transactions.id, id), eq(transactions.leagueId, leagueId)));

@@ -54,7 +54,7 @@ export async function PATCH(req: NextRequest) {
     const leagueId = await getLeagueId();
 
     const body = await req.json();
-    const { id, status, conditionalDetails, details, weekBack, type } = body;
+    const { id, status, conditionalDetails, details, weekBack, type, fromTeam, toTeam, fee } = body;
     if (!id) return Response.json({ error: 'id required' }, { status: 400 });
 
     if (conditionalDetails !== undefined) {
@@ -91,7 +91,31 @@ export async function PATCH(req: NextRequest) {
           parsedWeekBack = n;
         }
       }
-      await updateTransactionDetails(Number(id), { details: details?.trim(), weekBack: parsedWeekBack, type }, leagueId, teamshort || 'commissioner');
+      // Optional ownership / fee overrides. Empty string = clear the field.
+      let parsedFrom: string | null | undefined = undefined;
+      if (fromTeam !== undefined) {
+        const v = typeof fromTeam === 'string' ? fromTeam.trim() : null;
+        if (v !== null && v.length > 256) {
+          return Response.json({ error: 'fromTeam must be ≤ 256 characters' }, { status: 400 });
+        }
+        parsedFrom = v;
+      }
+      let parsedTo: string | null | undefined = undefined;
+      if (toTeam !== undefined) {
+        const v = typeof toTeam === 'string' ? toTeam.trim() : null;
+        if (v !== null && v.length > 256) {
+          return Response.json({ error: 'toTeam must be ≤ 256 characters' }, { status: 400 });
+        }
+        parsedTo = v;
+      }
+      let parsedFee: number | undefined = undefined;
+      if (fee !== undefined) {
+        if (typeof fee !== 'number' || !Number.isFinite(fee) || fee < 0 || fee > 1000000 || Math.floor(fee) !== fee) {
+          return Response.json({ error: 'fee must be a whole number between 0 and 1,000,000' }, { status: 400 });
+        }
+        parsedFee = fee;
+      }
+      await updateTransactionDetails(Number(id), { details: details?.trim(), weekBack: parsedWeekBack, type, fromTeam: parsedFrom, toTeam: parsedTo, fee: parsedFee }, leagueId, teamshort || 'commissioner');
       revalidateTag('transactions', 'max');
       await logSystemEvent(session.user.name || 'Commissioner', teamshort, 'TRANSACTION_EDIT', `Transaction #${id} updated`, leagueId);
       return Response.json({ success: true });

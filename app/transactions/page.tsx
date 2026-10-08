@@ -57,6 +57,9 @@ export default function TransactionsPage() {
   const [editDetails, setEditDetails] = useState('');
   const [editWeekBack, setEditWeekBack] = useState('');
   const [editType, setEditType] = useState('');
+  const [editFrom, setEditFrom] = useState('');
+  const [editTo, setEditTo] = useState('');
+  const [editFee, setEditFee] = useState('0');
   const [editSaving, setEditSaving] = useState(false);
   const [showSpend, setShowSpend] = useState(false);
   const [spendSeason, setSpendSeason] = useState('');
@@ -195,6 +198,9 @@ export default function TransactionsPage() {
     setEditDetails(log.details || '');
     setEditWeekBack(log.weekBack || '');
     setEditType(log.type || '');
+    setEditFrom(log.fromFull || '');
+    setEditTo(log.toFull || '');
+    setEditFee(log.fee != null && log.fee !== '' ? String(log.fee) : '0');
     setEditId(editId === log.id ? null : log.id);
     setConditionalId(null);
     setReprocessId(null);
@@ -204,17 +210,19 @@ export default function TransactionsPage() {
     if (!editDetails.trim()) return;
     setEditSaving(true);
     try {
+      const feeNum = editFee.trim() ? parseInt(editFee, 10) : 0;
+      const persistedFee = Number.isFinite(feeNum) && feeNum >= 0 ? feeNum : 0;
       const res = await fetch('/api/transactions', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: parseInt(logId), details: editDetails.trim(), weekBack: editWeekBack || null, type: editType || undefined }),
+        body: JSON.stringify({ id: parseInt(logId), details: editDetails.trim(), weekBack: editWeekBack || null, type: editType || undefined, fromTeam: editFrom || null, toTeam: editTo || null, fee: persistedFee }),
       });
       if (res.ok) {
         setEditId(null);
         // Mirror the server's normalization (empty → cleared, else integer)
         // so the optimistic value matches what was actually persisted.
         const normalizedWeekBack = editWeekBack.trim() ? String(parseInt(editWeekBack, 10)) : '';
-        setLogs(prev => prev.map(l => l.id === logId ? { ...l, details: editDetails.trim(), weekBack: normalizedWeekBack, type: editType || l.type } : l));
+        setLogs(prev => prev.map(l => l.id === logId ? { ...l, details: editDetails.trim(), weekBack: normalizedWeekBack, type: editType || l.type, fromFull: editFrom, toFull: editTo, fee: String(persistedFee) } : l));
       } else {
         const err = await res.json().catch(() => ({}));
         alert(err.error || 'Failed to save changes.');
@@ -635,6 +643,39 @@ export default function TransactionsPage() {
                               max={30}
                               value={editWeekBack}
                               onChange={e => setEditWeekBack(e.target.value)}
+                              className="px-3 py-1.5 border border-blue-200 rounded-lg text-sm font-bold w-20 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            />
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">From</label>
+                            <select
+                              value={editFrom}
+                              onChange={e => setEditFrom(e.target.value)}
+                              className="px-3 py-1.5 border border-blue-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white min-w-[140px]"
+                            >
+                              <option value="">—</option>
+                              {teams.map(t => <option key={t.teamshort || t.short} value={t.name}>{t.name}</option>)}
+                            </select>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">To</label>
+                            <select
+                              value={editTo}
+                              onChange={e => setEditTo(e.target.value)}
+                              className="px-3 py-1.5 border border-blue-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white min-w-[140px]"
+                            >
+                              <option value="">—</option>
+                              {teams.map(t => <option key={t.teamshort || t.short} value={t.name}>{t.name}</option>)}
+                            </select>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Fee ($)</label>
+                            <input
+                              type="number"
+                              min={0}
+                              step={1}
+                              value={editFee}
+                              onChange={e => setEditFee(e.target.value)}
                               className="px-3 py-1.5 border border-blue-200 rounded-lg text-sm font-bold w-20 focus:outline-none focus:ring-2 focus:ring-blue-300"
                             />
                           </div>
