@@ -198,7 +198,11 @@ export async function GET(req: Request) {
         const isPastDue = !isNaN(wkNum) && wkNum < parsedLeagueWeek && !isFinal(g) && !playoffOrder.includes(wk);
         const displayStatus = isPastDue ? '🚨 PAST DUE' : isFinal(g) ? `Final: ${scoreStr}` : 'PENDING';
         waMessage += `${isPastDue ? '❌' : '🏈'} ${g.away} @ ${g.home} - ${displayStatus}\n`;
-        const rowStyle = isPastDue ? 'background-color:#fff4f4;color:#d93025;font-weight:bold;' : '';
+        // Highlight PENDING games for the current GFL week in red so coaches
+        // see the scores still owed this week (the look-ahead week is left
+        // unstyled — those games haven't happened yet and aren't due).
+        const isCurrentWeekPending = wk === currentLeagueWeek && !isFinal(g) && !playoffOrder.includes(wk);
+        const rowStyle = isPastDue || isCurrentWeekPending ? 'background-color:#fff4f4;color:#d93025;font-weight:bold;' : '';
         htmlRows += `<tr style="${rowStyle}">
           <td style="padding:8px;border:1px solid #ddd;text-align:center;">${wk}</td>
           <td style="padding:8px;border:1px solid #ddd;">${g.away} @ ${g.home}</td>
