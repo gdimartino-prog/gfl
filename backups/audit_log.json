@@ -14407,5 +14407,167 @@
     "team": "admin",
     "action": "IMPORT_PLAYERS",
     "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1602,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T15:41:58.266Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_EDIT",
+    "details": "Transaction #575 updated"
+  },
+  {
+    "id": 1603,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T15:42:40.776Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_EDIT",
+    "details": "Transaction #575 updated"
+  },
+  {
+    "id": 1604,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T15:43:42.066Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "TRADE",
+    "details": "Las Vegas ↔ Fur Peace"
+  },
+  {
+    "id": 1605,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T16:48:50.414Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #597 marked Done"
+  },
+  {
+    "id": 1606,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T16:48:51.721Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #596 marked Done"
+  },
+  {
+    "id": 1607,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T17:17:15.203Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "ADD",
+    "details": "T - Theo Benedet"
+  },
+  {
+    "id": 1608,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T17:18:46.613Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #598 marked Done"
+  },
+  {
+    "id": 1609,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T17:39:12.748Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1610,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T17:40:32.497Z",
+    "coach": "Bill Kobus",
+    "team": "Tampa",
+    "action": "WAIVE",
+    "details": "WR/RET - Mecole Hardman Jr."
+  },
+  {
+    "id": 1611,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T17:41:55.795Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "ADD",
+    "details": "OLB - Elijah Ponder"
+  },
+  {
+    "id": 1612,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T18:09:52.842Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #600 marked Done"
+  },
+  {
+    "id": 1613,
+    "leagueId": 1,
+    "timestamp": "2026-10-08T18:09:53.976Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #599 marked Done"
+  },
+  {
+    "id": 1614,
+    "leagueId": 1,
+    "timestamp": "2026-10-09T02:04:19.692Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1615,
+    "leagueId": 1,
+    "timestamp": "2026-10-09T02:05:06.120Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1616,
+    "leagueId": 1,
+    "timestamp": "2026-10-09T04:45:43.962Z",
+    "coach": "Jack Wyville",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "HB - Daniel Bellinger for injury to T - Lane Johnson in week 2 for 8 weeks"
+  },
+  {
+    "id": 1617,
+    "leagueId": 1,
+    "timestamp": "2026-10-09T11:55:48.743Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #576 deleted"
+  },
+  {
+    "id": 1618,
+    "leagueId": 1,
+    "timestamp": "2026-10-09T11:56:52.641Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #601 marked On Team"
+  },
+  {
+    "id": 1619,
+    "leagueId": 1,
+    "timestamp": "2026-10-09T11:57:20.682Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_EDIT",
+    "details": "Transaction #564 updated"
   }
 ]
