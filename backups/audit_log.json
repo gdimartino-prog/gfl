@@ -14569,5 +14569,23 @@
     "team": "VV",
     "action": "TRANSACTION_EDIT",
     "details": "Transaction #564 updated"
+  },
+  {
+    "id": 1620,
+    "leagueId": 2,
+    "timestamp": "2026-10-09T15:29:54.287Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1621,
+    "leagueId": 2,
+    "timestamp": "2026-10-09T15:53:30.225Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
   }
 ]
