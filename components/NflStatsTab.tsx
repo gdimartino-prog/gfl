@@ -18,6 +18,9 @@ interface PlayerStat {
   espnId: string | null;
   nflTeam: string | null;
   stats: Record<string, number> | null;
+  longSnapper?: boolean;
+  depthPosition?: string | null;
+  depthRank?: number | null;
 }
 
 interface TeamRanking {
@@ -187,6 +190,15 @@ function useSortedPlayers(players: PlayerStat[], sort: SortState) {
         const cmp = defPosRank(a) - defPosRank(b);
         return sort.dir === 'asc' ? cmp : -cmp;
       }
+      if (sort.key === 'depthRank') {
+        // Players without depth info always sort to the bottom.
+        const va = a.depthRank ?? null;
+        const vb = b.depthRank ?? null;
+        if (va === null && vb === null) return 0;
+        if (va === null) return 1;
+        if (vb === null) return -1;
+        return sort.dir === 'desc' ? vb - va : va - vb;
+      }
       if (sort.key === 'powerScore') {
         const cmp = computePowerScore(a) - computePowerScore(b);
         return sort.dir === 'desc' ? -cmp : cmp;
@@ -261,10 +273,11 @@ function Td({ v }: { v: string }) {
   );
 }
 
-function SectionHeader({ title }: { title: string }) {
+function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
   return (
-    <div className="mt-8 mb-2 px-1">
+    <div className="mt-8 mb-2 px-1 flex items-center justify-between gap-2">
       <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{title}</span>
+      {action}
     </div>
   );
 }
@@ -288,6 +301,19 @@ function scoreCell(p: PlayerStat): string {
   return computePowerScore(p).toFixed(1);
 }
 
+function DepthCell({ pos, rank }: { pos?: string | null; rank?: number | null }) {
+  if (!pos || !rank) return <td className="py-2 px-3 text-xs text-slate-300">—</td>;
+  const norm = pos === 'LWR' || pos === 'RWR' || pos === 'SWR' ? 'WR' : pos;
+  const starter = rank === 1;
+  return (
+    <td className="py-2 px-3 whitespace-nowrap">
+      <span className={`inline-block text-[10px] font-black px-2 py-0.5 rounded-full ${starter ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+        {starter ? 'Starter' : `${norm}${rank}`}
+      </span>
+    </td>
+  );
+}
+
 function QbTable({ players, isCommissioner, onLink }: TableProps) {
   const [sort, setSort] = useState<SortState>({ key: 'passingYards', dir: 'desc' });
   const sorted = useSortedPlayers(players, sort);
@@ -300,6 +326,7 @@ function QbTable({ players, isCommissioner, onLink }: TableProps) {
         <thead className="border-b border-slate-100 bg-slate-50">
           <tr>
             <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <ThL statKey="depthRank" {...s}>Depth</ThL>
             <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="completions" {...s}>Cmp</Th>
             <Th statKey="passingAttempts" {...s}>Att</Th>
@@ -320,6 +347,7 @@ function QbTable({ players, isCommissioner, onLink }: TableProps) {
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'QB'} /></td>
+              <DepthCell pos={p.depthPosition} rank={p.depthRank} />
               <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'completions')} />
               <Td v={n(p.stats, 'passingAttempts')} />
@@ -353,6 +381,7 @@ function RbTable({ players, isCommissioner, onLink }: TableProps) {
         <thead className="border-b border-slate-100 bg-slate-50">
           <tr>
             <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <ThL statKey="depthRank" {...s}>Depth</ThL>
             <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="rushingAttempts" {...s}>Rush Att</Th>
             <Th statKey="rushingYards" {...s}>Rush Yds</Th>
@@ -370,6 +399,7 @@ function RbTable({ players, isCommissioner, onLink }: TableProps) {
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'RB'} /></td>
+              <DepthCell pos={p.depthPosition} rank={p.depthRank} />
               <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'rushingAttempts')} />
               <Td v={n(p.stats, 'rushingYards')} />
@@ -400,6 +430,7 @@ function WrTeTable({ players, label, isCommissioner, onLink }: TableProps & { la
         <thead className="border-b border-slate-100 bg-slate-50">
           <tr>
             <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <ThL statKey="depthRank" {...s}>Depth</ThL>
             <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="receivingTargets" {...s}>Tgt</Th>
             <Th statKey="receptions" {...s}>Rec</Th>
@@ -417,6 +448,7 @@ function WrTeTable({ players, label, isCommissioner, onLink }: TableProps & { la
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'WR'} /></td>
+              <DepthCell pos={p.depthPosition} rank={p.depthRank} />
               <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'receivingTargets')} />
               <Td v={n(p.stats, 'receptions')} />
@@ -448,6 +480,7 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
           <tr>
             <ThL statKey="name" {...s}>Player</ThL>
             <ThL statKey="defPos" {...s}>Pos</ThL>
+            <ThL statKey="depthRank" {...s}>Depth</ThL>
             <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="totalTackles" {...s}>Tackles</Th>
             <Th statKey="soloTackles" {...s}>Solo</Th>
@@ -466,6 +499,7 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos={p.defense || p.position || 'DEF'} /></td>
+              <DepthCell pos={p.depthPosition} rank={p.depthRank} />
               <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'totalTackles')} />
               <Td v={n(p.stats, 'soloTackles')} />
@@ -487,26 +521,48 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
 
 function OlTable({ players, isCommissioner, onLink }: TableProps) {
   const [sort, setSort] = useState<SortState>({ key: 'gamesPlayed', dir: 'desc' });
-  const sorted = useSortedPlayers(players, sort);
+  const [hideLongSnappers, setHideLongSnappers] = useState(true);
+  const hasLongSnappers = players.some((p) => p.longSnapper);
+  const visible = hideLongSnappers ? players.filter((p) => !p.longSnapper) : players;
+  const sorted = useSortedPlayers(visible, sort);
   if (!players.length) return null;
   const s = { sort, setSort };
   return (
     <>
-      <SectionHeader title="Offensive Line" />
+      <SectionHeader
+        title="Offensive Line"
+        action={hasLongSnappers ? (
+          <button
+            type="button"
+            aria-pressed={hideLongSnappers}
+            onClick={() => setHideLongSnappers((v) => !v)}
+            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${hideLongSnappers ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+          >
+            Hide Long Snappers
+          </button>
+        ) : null}
+      />
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm inline-block min-w-[320px]">
         <table className="text-left border-collapse">
           <thead className="border-b border-slate-100 bg-slate-50">
             <tr>
               <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+              <ThL statKey="depthRank" {...s}>Depth</ThL>
               <Th statKey="gamesPlayed" {...s}>GP</Th>
               <Th statKey="powerScore" {...s}>Score</Th>
             </tr>
           </thead>
           <tbody>
+            {sorted.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-6 text-center text-xs text-slate-400">All offensive linemen are long snappers.</td>
+              </tr>
+            )}
             {sorted.map((p) => (
               <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
                 <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
                 <td className="py-2 px-3"><PosBadge pos={p.offense || p.position || 'OL'} /></td>
+                <DepthCell pos={p.depthPosition} rank={p.depthRank} />
                 <Td v={n(p.stats, 'gamesPlayed')} />
                 <Td v={scoreCell(p)} />
               </tr>
@@ -530,6 +586,7 @@ function KickerTable({ players, isCommissioner, onLink }: TableProps) {
         <thead className="border-b border-slate-100 bg-slate-50">
           <tr>
             <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <ThL statKey="depthRank" {...s}>Depth</ThL>
             <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="fieldGoalsMade" {...s}>FGM</Th>
             <Th statKey="fieldGoalAttempts" {...s}>FGA</Th>
@@ -546,6 +603,7 @@ function KickerTable({ players, isCommissioner, onLink }: TableProps) {
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos="K" /></td>
+              <DepthCell pos={p.depthPosition} rank={p.depthRank} />
               <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'fieldGoalsMade')} />
               <Td v={n(p.stats, 'fieldGoalAttempts')} />
@@ -575,6 +633,7 @@ function PunterTable({ players, isCommissioner, onLink }: TableProps) {
         <thead className="border-b border-slate-100 bg-slate-50">
           <tr>
             <ThL statKey="name" {...s}>Player</ThL><ThL>Pos</ThL>
+            <ThL statKey="depthRank" {...s}>Depth</ThL>
             <Th statKey="gamesPlayed" {...s}>GP</Th>
             <Th statKey="punts" {...s}>Punts</Th>
             <Th statKey="grossAvgPuntYards" {...s}>Avg</Th>
@@ -589,6 +648,7 @@ function PunterTable({ players, isCommissioner, onLink }: TableProps) {
             <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
               <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
               <td className="py-2 px-3"><PosBadge pos="P" /></td>
+              <DepthCell pos={p.depthPosition} rank={p.depthRank} />
               <Td v={n(p.stats, 'gamesPlayed')} />
               <Td v={n(p.stats, 'punts')} />
               <Td v={n(p.stats, 'grossAvgPuntYards', 1)} />

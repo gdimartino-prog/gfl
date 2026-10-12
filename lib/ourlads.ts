@@ -35,18 +35,24 @@ export type DepthChartEntry = {
  * how GFL players' first+last fields will be normalized for lookup.
  * Order: strip suffixes → flip "Last, First" → lower → keep a-z + spaces → collapse.
  */
-function normalizeOurladsName(raw: string): string {
+export function normalizePlayerName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+export function normalizeOurladsName(raw: string): string {
   let s = raw;
   // Strip trailing draft/transaction tags: " 21/1", " SF25", " CF26", " T/LV", " U/Atl", " P/Car", etc.
+  // The slash forms must require a literal "/" — otherwise the pattern also matches a
+  // short first name in "Last, First" (e.g. "Liam", "Beau", "CASEY") and eats it.
   s = s.replace(/\s+\d+\/\d+\s*$/, '');
-  s = s.replace(/\s+[A-Z]{1,3}\/?[A-Za-z]{1,3}\d*\*?\s*$/, '');
+  s = s.replace(/\s+[A-Z]{1,3}\/[A-Za-z]{1,3}\d*\*?\s*$/, '');
   s = s.replace(/\s+[A-Z]{2,4}\d{2}\*?\s*$/, '');
   // Flip "Last, First" → "First Last"
   if (s.includes(',')) {
     const [last, ...rest] = s.split(',');
     s = rest.join(',').trim() + ' ' + last.trim();
   }
-  return s.toLowerCase().replace(/[^a-z\s]/g, '').replace(/\s+/g, ' ').trim();
+  return normalizePlayerName(s);
 }
 
 async function fetchTeamDepth(teamCode: string): Promise<DepthChartEntry[]> {
@@ -123,26 +129,43 @@ const _getAllDepthCharts = unstable_cache(
  * the entry from the most offense/defense-relevant position (lowest depthRank
  * on a non-ST position, falling back to ST).
  */
-export async function buildDepthChartIndex(): Promise<Map<string, DepthChartEntry>> {
+export type DepthChartData = {
+  index: Map<string, DepthChartEntry>;
+  longSnappers: Set<string>;
+};
+
+/**
+ * Build the depth-chart index and the long-snapper name set from a single
+ * cached scrape. Both are derived from the one `_getAllDepthCharts()` read so
+ * we never nest `unstable_cache` calls — a nested call bypasses the inner
+ * cache and forces a redundant 32-team re-scrape.
+ */
+export async function getDepthChartData(): Promise<DepthChartData> {
   const all = await _getAllDepthCharts();
-  const idx = new Map<string, DepthChartEntry>();
+  const index = new Map<string, DepthChartEntry>();
+  const longSnappers = new Set<string>();
   const ST_POSITIONS = new Set(['KR', 'PR', 'KO', 'H', 'LS', 'PT', 'PK']);
   for (const e of all) {
-    const existing = idx.get(e.normalizedName);
+    if (e.position === 'LS') longSnappers.add(e.normalizedName);
+    const existing = index.get(e.normalizedName);
     if (!existing) {
-      idx.set(e.normalizedName, e);
+      index.set(e.normalizedName, e);
       continue;
     }
     // Prefer a non-special-teams listing if one exists for this player.
     const existingIsST = ST_POSITIONS.has(existing.position);
     const newIsST = ST_POSITIONS.has(e.position);
     if (existingIsST && !newIsST) {
-      idx.set(e.normalizedName, e);
+      index.set(e.normalizedName, e);
     } else if (existingIsST === newIsST && e.depthRank < existing.depthRank) {
-      idx.set(e.normalizedName, e);
+      index.set(e.normalizedName, e);
     }
   }
-  return idx;
+  return { index, longSnappers };
+}
+
+export async function buildDepthChartIndex(): Promise<Map<string, DepthChartEntry>> {
+  return (await getDepthChartData()).index;
 }
 
 export function depthRankLabel(position: string, rank: number): string {

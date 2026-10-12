@@ -6,7 +6,22 @@ import { eq, and, sql } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { findEspnId, getEspnSeasonStats } from '@/lib/espn-stats';
 import { mapWithConcurrency } from '@/lib/concurrency';
+import { getDepthChartData, normalizePlayerName, type DepthChartEntry } from '@/lib/ourlads';
 import { unstable_cache } from 'next/cache';
+
+// Bound the OurLads scrape so a cold/slow upstream can't stall the roster
+// response — we serve depth-less data rather than time out the whole request.
+const OURLADS_TIMEOUT_MS = 8000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error('ourlads timeout')), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timer) clearTimeout(timer);
+  });
+}
 
 // One rebuild (~53 ESPN fetches per roster) serves every viewer for an hour
 // instead of re-running after each per-user fetch-cache expiry. Tagged
@@ -79,7 +94,33 @@ export async function GET(req: NextRequest) {
 
   const results = await _getTeamNflStats(leagueId, teamshort.toUpperCase(), year);
 
-  return NextResponse.json(results, {
+  // OurLads depth charts give each player's role (Starter / backup) plus the LS
+  // designation we use to keep long snappers out of the offensive-line view.
+  // Computed outside the roster cache so a corrected OurLads chart isn't stuck
+  // behind the 1h nfl-stats entry.
+  let longSnappers = new Set<string>();
+  let depth = new Map<string, DepthChartEntry>();
+  try {
+    const data = await withTimeout(getDepthChartData(), OURLADS_TIMEOUT_MS);
+    longSnappers = data.longSnappers;
+    depth = data.index;
+  } catch (err) {
+    // OurLads slow/unavailable — degrade to no depth / long-snapper data.
+    console.warn('[nfl-stats] OurLads depth data unavailable:', err);
+  }
+
+  const playersWithFlags = results.map((p) => {
+    const key = normalizePlayerName(p.name || `${p.first ?? ''} ${p.last ?? ''}`);
+    const entry = depth.get(key);
+    return {
+      ...p,
+      longSnapper: longSnappers.has(key),
+      depthPosition: entry?.position ?? null,
+      depthRank: entry?.depthRank ?? null,
+    };
+  });
+
+  return NextResponse.json(playersWithFlags, {
     headers: { 'Cache-Control': 'private, max-age=300' },
   });
 }
