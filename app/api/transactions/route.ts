@@ -67,7 +67,7 @@ export async function PATCH(req: NextRequest) {
       return Response.json({ success: true });
     }
 
-    if (details !== undefined || weekBack !== undefined || type !== undefined) {
+    if (details !== undefined || weekBack !== undefined || type !== undefined || fromTeam !== undefined || toTeam !== undefined || fee !== undefined) {
       const ALLOWED_TX_TYPES = ['ADD', 'DROP', 'TRADE', 'IR MOVE', 'INJURY PICKUP', 'CUT'];
       if (type !== undefined && (typeof type !== 'string' || !ALLOWED_TX_TYPES.includes(type))) {
         return Response.json({ error: `type must be one of: ${ALLOWED_TX_TYPES.join(', ')}` }, { status: 400 });
@@ -108,12 +108,15 @@ export async function PATCH(req: NextRequest) {
         }
         parsedTo = v;
       }
-      let parsedFee: number | undefined = undefined;
+      let parsedFee: number | null | undefined = undefined;
       if (fee !== undefined) {
-        if (typeof fee !== 'number' || !Number.isFinite(fee) || fee < 0 || fee > 1000000 || Math.floor(fee) !== fee) {
+        if (fee === null || fee === '') {
+          parsedFee = null;
+        } else if (typeof fee !== 'number' || !Number.isInteger(fee) || fee < 0 || fee > 1000000) {
           return Response.json({ error: 'fee must be a whole number between 0 and 1,000,000' }, { status: 400 });
+        } else {
+          parsedFee = fee;
         }
-        parsedFee = fee;
       }
       await updateTransactionDetails(Number(id), { details: details?.trim(), weekBack: parsedWeekBack, type, fromTeam: parsedFrom, toTeam: parsedTo, fee: parsedFee }, leagueId, teamshort || 'commissioner');
       revalidateTag('transactions', 'max');
@@ -235,6 +238,7 @@ export async function POST(req: Request) {
     }
     const playerRows = await db.select({
       id: players.id,
+      identity: players.identity,
       teamId: players.teamId,
       teamshort: teams.teamshort,
       teamName: teams.name,
@@ -324,9 +328,12 @@ export async function POST(req: Request) {
         .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
     }
 
-    // Remove from trade block if present
-    await db.delete(tradeBlock)
-      .where(and(eq(tradeBlock.playerId, String(player.id)), eq(tradeBlock.leagueId, leagueId)));
+    // Remove from trade block if present. tradeBlock.playerId stores the
+    // player identity string (first|last|age|...), NOT the numeric PK.
+    if (player.identity) {
+      await db.delete(tradeBlock)
+        .where(and(eq(tradeBlock.playerId, player.identity), eq(tradeBlock.leagueId, leagueId)));
+    }
 
     // Resolve current season from rules
     const seasonRule = await db.select({ value: rules.value }).from(rules)

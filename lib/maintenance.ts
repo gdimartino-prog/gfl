@@ -78,7 +78,7 @@ function findTeam(allTeams: TeamRow[], nameStr: string): TeamRow | null {
 
 export async function processPlayersFile(
   fileContent: string,
-  leagueId: number = 1,
+  leagueId: number,
   onProgress?: (current: number, total: number) => void,
 ) {
   const parseResult = Papa.parse(fileContent, { header: true, skipEmptyLines: true });
@@ -328,7 +328,7 @@ export async function processPlayersFile(
   return { success: true, message };
 }
 
-export async function processScheduleFile(fileContent: string, leagueId: number = 1) {
+export async function processScheduleFile(fileContent: string, leagueId: number) {
   const lines = fileContent.split(/\r?\n/);
   const firstLine = lines[0] || "";
 
@@ -452,7 +452,7 @@ export async function processScheduleFile(fileContent: string, leagueId: number 
   return { success: true, message: `Import Complete. Updated: ${updates.length}, Inserted: ${inserts.length}` };
 }
 
-export async function processStandingsFile(fileContent: string, leagueId: number = 1) {
+export async function processStandingsFile(fileContent: string, leagueId: number) {
   const lines = fileContent.split('\n');
   const firstLine = lines[0] || "";
 

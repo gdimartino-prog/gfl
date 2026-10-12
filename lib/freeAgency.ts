@@ -9,7 +9,7 @@ export async function executeFreeAgentMove(
   teamshort: string,
   addIdentity: string,
   dropIdentity: string,
-  leagueId: number = 1,
+  leagueId: number,
 ) {
   // Find the team record
   const teamRow = await db.select({ id: teams.id })

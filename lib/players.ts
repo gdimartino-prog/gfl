@@ -123,7 +123,7 @@ export async function getPlayerDetail(leagueId: number, identity: string): Promi
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getPlayers(leagueId: number = 1): Promise<any[]> {
+export async function getPlayers(leagueId: number): Promise<any[]> {
   try {
     return await _getPlayers(leagueId);
   } catch (err) {
@@ -133,7 +133,7 @@ export async function getPlayers(leagueId: number = 1): Promise<any[]> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getFAPlayersWithScouting(leagueId: number = 1): Promise<any[]> {
+export async function getFAPlayersWithScouting(leagueId: number): Promise<any[]> {
   try {
     return await _getFAPlayersWithScouting(leagueId);
   } catch (err) {

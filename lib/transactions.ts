@@ -71,17 +71,17 @@ const _getTransactions = unstable_cache(
   { revalidate: 60, tags: ['transactions'] }
 );
 
-export async function getTransactions(leagueId: number = 1) {
+export async function getTransactions(leagueId: number) {
   return _getTransactions(leagueId);
 }
 
-export async function updateTransactionStatus(id: number, status: string, leagueId: number = 1, actor: string = 'commissioner') {
+export async function updateTransactionStatus(id: number, status: string, leagueId: number, actor: string = 'commissioner') {
   await db.update(transactions)
     .set({ status, touch_id: actor })
     .where(and(eq(transactions.id, id), eq(transactions.leagueId, leagueId)));
 }
 
-export async function updateTransactionConditional(id: number, conditionalDetails: string | null, leagueId: number = 1, actor: string = 'commissioner') {
+export async function updateTransactionConditional(id: number, conditionalDetails: string | null, leagueId: number, actor: string = 'commissioner') {
   await db.update(transactions)
     .set({ conditionalDetails, touch_id: actor })
     .where(and(eq(transactions.id, id), eq(transactions.leagueId, leagueId)));
@@ -89,11 +89,11 @@ export async function updateTransactionConditional(id: number, conditionalDetail
 
 export async function updateTransactionDetails(
   id: number,
-  fields: { details?: string; weekBack?: number | null; type?: string; fromTeam?: string | null; toTeam?: string | null; fee?: number },
-  leagueId: number = 1,
+  fields: { details?: string; weekBack?: number | null; type?: string; fromTeam?: string | null; toTeam?: string | null; fee?: number | null },
+  leagueId: number,
   actor: string = 'commissioner',
 ) {
-  const set: { description?: string; weekBack?: number | null; type?: string; fromTeam?: string | null; toTeam?: string | null; fee?: number; touch_id: string } = { touch_id: actor };
+  const set: { description?: string; weekBack?: number | null; type?: string; fromTeam?: string | null; toTeam?: string | null; fee?: number | null; touch_id: string } = { touch_id: actor };
   if (fields.details !== undefined) set.description = fields.details;
   if (fields.weekBack !== undefined) set.weekBack = fields.weekBack;
   if (fields.type !== undefined) set.type = fields.type;

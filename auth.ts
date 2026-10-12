@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { logSystemEvent } from "@/lib/db-helpers";
+import { tokenBucket } from "@/lib/rateLimit";
 import { timingSafeEqual } from "crypto";
 
 // Constant-time string compare for env-credential checks
@@ -20,10 +21,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
         leagueId: { label: "League", type: "text" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         try {
           const rawInput = String(credentials.username).trim();
           const password = String(credentials.password).trim();
+
+          // Per-IP throttle to blunt credential brute-forcing. Keyed on IP (not
+          // IP+username) so rotating usernames — or submitting an email vs the
+          // team name they resolve to — can't reset the budget.
+          const ip = (request?.headers?.get('x-forwarded-for')?.split(',')[0] || 'unknown').trim();
+          const rl = tokenBucket(`login:${ip}`, 8, 600);
+          if (!rl.ok) {
+            // Record at most one audit row per IP per window. Every rejected
+            // request reaches this branch, so logging unconditionally turns a
+            // brute-force flood into unbounded DB writes / cost.
+            if (tokenBucket(`loginlog:${ip}`, 1, 600).ok) {
+              await logSystemEvent('System', 'System', 'LOGIN_RATE_LIMITED', `Rate limited login attempts from ${ip}`);
+            }
+            return null;
+          }
 
           // Superuser check — env-var credentials bypass league lookup
           const superUsername = process.env.SUPERUSER_USERNAME;
@@ -95,18 +111,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             .orderBy(drizzleSql`${teams.password} IS NOT NULL DESC`)
             .limit(1);
 
-          if (dbTeam[0]?.password) {
-            const passwordMatch = await bcrypt.compare(password, dbTeam[0].password);
+          const teamRow = dbTeam[0];
+          // teamshort is the session identity and is nullable on the schema —
+          // refuse the login rather than mint a session with a null id.
+          if (teamRow?.password && teamRow.teamshort) {
+            const passwordMatch = await bcrypt.compare(password, teamRow.password);
             if (passwordMatch) {
               const user = {
-                id: dbTeam[0].teamshort!,
-                name: dbTeam[0].coach!,
-                team: dbTeam[0].name,
-                role: dbTeam[0].isCommissioner ? 'admin' : 'coach',
-                leagueId: dbTeam[0].leagueId ?? 1,
+                id: teamRow.teamshort,
+                name: teamRow.coach!,
+                team: teamRow.name,
+                role: teamRow.isCommissioner ? 'admin' : 'coach',
+                leagueId: teamRow.leagueId ?? 1,
               };
               // Awaited — Vercel kills unawaited promises on response return
-              await logSystemEvent(user.name, user.team, 'LOGIN', 'Coach entered Front Office', dbTeam[0].leagueId ?? undefined);
+              await logSystemEvent(user.name, user.team, 'LOGIN', 'Coach entered Front Office', teamRow.leagueId ?? undefined);
               return user;
             }
           }

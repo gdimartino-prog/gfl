@@ -51,7 +51,7 @@ const _getSchedule = unstable_cache(
   { revalidate: 60, tags: ['schedule'] }
 );
 
-export async function getSchedule(leagueId: number = 1, year: number | null = null) {
+export async function getSchedule(leagueId: number, year: number | null = null) {
   try {
     return await _getSchedule(leagueId, year);
   } catch (err) {

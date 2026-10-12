@@ -8,15 +8,11 @@ import { getDraftClockMinutes, getWarningThresholdMinutes, getDraftStartDate, co
 import { findBestAutoPick, purgePickedPlayerFromQueues } from '@/lib/autoPickQueue';
 import { logSystemEvent } from '@/lib/db-helpers';
 import { getLeagueRuleValue } from '@/lib/getLeagueInfo';
+import { isAuthorizedCron } from '@/lib/cronAuth';
 import { revalidateTag } from 'next/cache';
 
-function isAuthorized(req: Request) {
-  const auth = req.headers.get('authorization');
-  return auth === `Bearer ${process.env.CRON_SECRET}`;
-}
-
 export async function GET(req: Request) {
-  if (!isAuthorized(req)) {
+  if (!isAuthorizedCron(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

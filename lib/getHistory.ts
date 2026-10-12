@@ -59,14 +59,14 @@ const _getHistory = unstable_cache(
   { revalidate: 60, tags: ['history'] }
 );
 
-export async function getHistory(leagueId: number = 1): Promise<StandingRow[]> {
+export async function getHistory(leagueId: number): Promise<StandingRow[]> {
   return _getHistory(leagueId);
 }
 
-export async function getTeamSummary() {
+export async function getTeamSummary(leagueId: number) {
   return unstable_cache(
-    async () => {
-      const allData = await getHistory();
+    async (lid: number) => {
+      const allData = await getHistory(lid);
 
       interface TeamSummary {
         team: string;
@@ -112,5 +112,5 @@ export async function getTeamSummary() {
     },
     ['team-summary-calculated'],
     { revalidate: 60, tags: ['history'] }
-  )();
+  )(leagueId);
 }

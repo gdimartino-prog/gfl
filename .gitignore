@@ -36,6 +36,7 @@ server.log
 response.txt
 AGENTmd.txt
 .claude/settings.local.json
+repomix-output.xml
 
 *-current.md
 *-after-*.md

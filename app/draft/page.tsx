@@ -10,6 +10,7 @@ import RecentPicksTicker from '@/components/RecentPicksTicker';
 import { useConfirm } from '@/components/ConfirmDialog';
 import { Team, Player, DraftPick } from '../../types';
 import DraftGridView from '@/components/DraftGridView';
+import { DraftClock, LiveCountdown, PreDraftClock } from '@/components/DraftCountdown';
 
 function formatAvgPickTime(ms: number): string {
   if (!Number.isFinite(ms)) return '—';
@@ -60,11 +61,8 @@ function DraftBoardContent() {
   // Roster counts for all teams — keyed by TEAMSHORT (uppercase)
   const [rosterCounts, setRosterCounts] = useState<Record<string, { active: number; limit: number }>>({});
 
-  // Timer States
-  const [timeLeft, setTimeLeft] = useState<string>("00:00:00");
-  const [progress, setProgress] = useState(100);
-  const [preDraftTimeLeft, setPreDraftTimeLeft] = useState<string>('');
-  const hasCalledExpireRef = useRef(false);
+  // Timer state now lives inside <DraftClock>/<LiveCountdown> so a per-second
+  // tick re-renders only the clock, not the whole board.
   const onClockRowRef = useRef<HTMLTableRowElement>(null);
   const [confirm, ConfirmDialog] = useConfirm();
 
@@ -229,11 +227,6 @@ const handleUndoMyPick = async () => {
   const canUndoMyPick = !!myLastPick && !!onClockPick &&
     Number(onClockPick.overall) === Number(myLastPick.overall) + 1;
 
-  // Reset expire ref whenever the on-clock pick changes (new pick, new timer)
-  useEffect(() => {
-    hasCalledExpireRef.current = false;
-  }, [onClockPick?.overall]);
-
   // Fetch roster counts for all teams whenever picks reload
   useEffect(() => {
     fetch('/api/rosters/counts')
@@ -256,98 +249,6 @@ const handleUndoMyPick = async () => {
     scrollToOnClock();
   }, [onClockPick?.overall, loading]);
 
-  const scheduledAtMs = onClockPick?.scheduledAt ? new Date(onClockPick.scheduledAt).getTime() : null;
-  const isScheduledFuture = scheduledAtMs !== null && scheduledAtMs > Date.now();
-
-  useEffect(() => {
-    if (!onClockPick) return;
-
-    // If pick has a future scheduled start, count down to that instead
-    if (scheduledAtMs !== null && scheduledAtMs > Date.now()) {
-      const computeCountdown = () => {
-        const diff = scheduledAtMs - Date.now();
-        if (diff <= 0) {
-          setTimeLeft("STARTING");
-          setProgress(100);
-          loadData(true);
-        } else {
-          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-          const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-          const m = Math.floor((diff / (1000 * 60)) % 60);
-          const s = Math.floor((diff / 1000) % 60);
-          setTimeLeft(d > 0
-            ? `${d}d ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-            : `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-          );
-          setProgress(100); // full bar while waiting for schedule
-        }
-      };
-      computeCountdown();
-      const timerInterval = setInterval(computeCountdown, 1000);
-      return () => clearInterval(timerInterval);
-    }
-
-    const clockMins = (onClockPick as { clockMinutes?: number | null }).clockMinutes ?? 1440;
-    const limitMs = clockMins * 60 * 1000;
-    // Prefer the API-computed effective clock start (already clamped against
-    // the previous pick's deadline so late submissions don't leak time into
-    // the active clock). Fall back to scheduledAt or previous pickedAt.
-    const apiClockStart = (onClockPick as { effectiveClockStart?: string | null }).effectiveClockStart;
-    const draftFloorMs = draftStartDate ? draftStartDate.getTime() : 0;
-    const rawClockStartMs = apiClockStart
-      ? new Date(apiClockStart).getTime()
-      : scheduledAtMs && scheduledAtMs <= Date.now()
-        ? scheduledAtMs
-        : previousPick?.timestamp ? new Date(previousPick.timestamp).getTime() : Date.now();
-    const clockStartMs = (draftFloorMs > 0 && rawClockStartMs < draftFloorMs) ? draftFloorMs : rawClockStartMs;
-    const expiryTime = clockStartMs + limitMs;
-
-    const computeAndSet = () => {
-      const diff = expiryTime - new Date().getTime();
-      if (diff <= 0) {
-        setTimeLeft("EXPIRED");
-        setProgress(0);
-        if (!hasCalledExpireRef.current) {
-          hasCalledExpireRef.current = true;
-          fetch('/api/draft-picks/expire', { method: 'POST' })
-            .then(() => loadData(true))
-            .catch(() => loadData(true));
-        }
-      } else {
-        const h = Math.floor(diff / (1000 * 60 * 60));
-        const m = Math.floor((diff / (1000 * 60)) % 60);
-        const s = Math.floor((diff / 1000) % 60);
-        setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
-        setProgress((diff / limitMs) * 100);
-      }
-    };
-
-    computeAndSet(); // set immediately so no 1-second blank flash
-    const timerInterval = setInterval(computeAndSet, 1000);
-    return () => clearInterval(timerInterval);
-  }, [onClockPick, scheduledAtMs, previousPick, loadData, draftStartDate]);
-
-  useEffect(() => {
-    if (onClockPick || !draftStartDate) { setPreDraftTimeLeft(''); return; }
-    const target = draftStartDate.getTime();
-    let fired = false;
-    const tick = () => {
-      const diff = target - Date.now();
-      if (diff <= 0) { setPreDraftTimeLeft('STARTING'); if (!fired) { fired = true; loadData(true); } return; }
-      const d = Math.floor(diff / 86400000);
-      const h = Math.floor((diff / 3600000) % 24);
-      const m = Math.floor((diff / 60000) % 60);
-      const s = Math.floor((diff / 1000) % 60);
-      setPreDraftTimeLeft(
-        d > 0
-          ? `${d}d ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-          : `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
-      );
-    };
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [onClockPick, draftStartDate, loadData]);
 
   const resolveCode = (str: string) => {
     if (!str) return "";
@@ -477,7 +378,7 @@ const handleUndoMyPick = async () => {
       <main className="max-w-7xl mx-auto p-4 md:p-8 space-y-10">
 
         {/* PRE-DRAFT COUNTDOWN */}
-        {!onClockPick && preDraftTimeLeft && draftStartDate && draftStartDate > new Date() && (
+        {!onClockPick && draftStartDate && draftStartDate > new Date() && (
           <div className="bg-slate-900 rounded-[3rem] shadow-2xl overflow-hidden border border-slate-800 p-10 flex flex-col md:flex-row justify-between items-center gap-10">
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2">
@@ -496,9 +397,7 @@ const handleUndoMyPick = async () => {
               </p>
             </div>
             <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 w-full md:min-w-[300px] text-center relative overflow-hidden">
-              <p className="text-5xl md:text-8xl font-mono font-black text-amber-400 tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
-                {preDraftTimeLeft}
-              </p>
+              <PreDraftClock draftStartDate={draftStartDate} loadData={loadData} />
               <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-widest">
                 Until Draft Starts
               </p>
@@ -549,24 +448,12 @@ const handleUndoMyPick = async () => {
               })()}
             </div>
 
-            <div className="bg-slate-800/50 p-8 rounded-[2.5rem] border border-slate-700 w-full md:min-w-[300px] text-center relative overflow-hidden">
-              <p className="text-5xl md:text-8xl font-mono font-black text-amber-400 tabular-nums drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
-                {timeLeft}
-              </p>
-              <p className="text-[10px] font-black text-slate-500 uppercase mt-4 tracking-widest">
-                {isScheduledFuture ? 'Starts In' : 'Remaining Selection Time'}
-              </p>
-
-              {/* Visual Progress Bar */}
-              <div className="absolute bottom-0 left-0 w-full h-1.5 bg-slate-700/30">
-                <div 
-                  className={`h-full transition-all duration-1000 ease-linear ${
-                    progress < 10 ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.4)]'
-                  }`}
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
+            <DraftClock
+              onClockPick={onClockPick}
+              previousPick={previousPick}
+              draftStartDate={draftStartDate}
+              loadData={loadData}
+            />
           </div>
         )}
 
@@ -659,7 +546,8 @@ const handleUndoMyPick = async () => {
             yearFilter={yearFilter}
             draftTypeFilter={draftTypeFilter}
             onClockPick={onClockPick}
-            timeLeft={timeLeft}
+            previousPick={previousPick}
+            draftStartDate={draftStartDate}
             getFullTeamName={getFullTeamName}
             onPickSelect={session ? (pick) => {
               setModalSessionId(Date.now());
@@ -740,7 +628,7 @@ const handleUndoMyPick = async () => {
                         ) : isOnClock ? (
                             <div className="flex flex-col gap-1">
                               <span className="text-[11px] font-black uppercase tracking-widest text-blue-500 animate-pulse">On the Clock</span>
-                              <span className="text-[13px] font-mono font-black text-amber-400 tabular-nums">{timeLeft}</span>
+                              <span className="text-[13px] font-mono font-black text-amber-400 tabular-nums"><LiveCountdown onClockPick={onClockPick} previousPick={previousPick} draftStartDate={draftStartDate} /></span>
                             </div>
                         ) : (
                           <span className="text-[11px] font-black uppercase tracking-widest text-slate-200">Awaiting Turn</span>

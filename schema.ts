@@ -29,7 +29,7 @@ export const teams = pgTable("teams", {
   leagueId: integer("league_id").references(() => leagues.id).notNull(),
   name: varchar("name", { length: 256 }).notNull(),
   coach: varchar("coach", { length: 256 }),
-  teamshort: varchar("teamshort", { length: 10 }).notNull(),
+  teamshort: varchar("teamshort", { length: 10 }),
   nickname: varchar("nickname", { length: 256 }),
   isCommissioner: boolean("is_commissioner").default(false),
   status: varchar("status", { length: 50 }),
@@ -175,7 +175,7 @@ export const rules = pgTable("rules", {
   touch_dt: timestamp("touch_dt").defaultNow().notNull(),
   touch_id: varchar("touch_id", { length: 256 }),
 }, (table) => [
-  unique('rules_league_year_rule_unique').on(table.leagueId, table.year, table.rule),
+  unique('rules_league_year_rule_unique').on(table.leagueId, table.year, table.rule).nullsNotDistinct(),
   index("rules_rule_idx").on(table.rule),
 ]);
 

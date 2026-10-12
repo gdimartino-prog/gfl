@@ -1,6 +1,13 @@
 const ESPN_SEARCH = 'https://site.api.espn.com/apis/search/v2';
 const ESPN_CORE = 'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl';
 
+// ESPN has occasional multi-minute hangs; without a timeout a single stuck
+// request stalls its fan-out slot (and its cache fill) indefinitely.
+const ESPN_TIMEOUT_MS = 8000;
+function espnSignal(): AbortSignal {
+  return AbortSignal.timeout(ESPN_TIMEOUT_MS);
+}
+
 function normalizeName(s: string): string {
   return s
     .toLowerCase()
@@ -25,6 +32,7 @@ export async function findEspnId(firstName: string, lastName: string): Promise<s
     const query = encodeURIComponent(`${cleanFirst} ${cleanLast}`.trim());
     const res = await fetch(`${ESPN_SEARCH}?query=${query}&sports=football-nfl&limit=10`, {
       next: { revalidate: 86400 * 7 },
+      signal: espnSignal(),
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -57,7 +65,7 @@ export async function getNflTeam(espnId: string): Promise<string | null> {
   try {
     const athleteRes = await fetch(
       `${ESPN_CORE}/athletes/${encodeURIComponent(espnId)}`,
-      { next: { revalidate: 86400 } },
+      { next: { revalidate: 86400 }, signal: espnSignal() },
     );
     if (!athleteRes.ok) return null;
     const athleteData = await athleteRes.json();
@@ -70,7 +78,7 @@ export async function getNflTeam(espnId: string): Promise<string | null> {
     } catch {
       return null;
     }
-    const teamRes = await fetch(ref, { next: { revalidate: 86400 }, redirect: 'error' });
+    const teamRes = await fetch(ref, { next: { revalidate: 86400 }, redirect: 'error', signal: espnSignal() });
     if (!teamRes.ok) return null;
     const teamData = await teamRes.json();
     return (teamData?.abbreviation as string) ?? null;
@@ -90,7 +98,7 @@ export async function getEspnSeasonStats(
   try {
     const res = await fetch(
       `${ESPN_CORE}/seasons/${year}/types/2/athletes/${encodeURIComponent(espnId)}/statistics`,
-      { next: { revalidate: isPast ? 86400 * 30 : 3600 } },
+      { next: { revalidate: isPast ? 86400 * 30 : 3600 }, signal: espnSignal() },
     );
     if (!res.ok) return null;
     const data = await res.json();
@@ -131,7 +139,7 @@ export async function getEspnGamelogStats(
   try {
     const res = await fetch(
       `${ESPN_GAMELOG}/athletes/${encodeURIComponent(espnId)}/gamelog?season=${year}`,
-      { next: { revalidate: isPast ? 86400 * 30 : 3600 } },
+      { next: { revalidate: isPast ? 86400 * 30 : 3600 }, signal: espnSignal() },
     );
     if (!res.ok) return null;
     const data = await res.json();
@@ -217,7 +225,7 @@ export async function getEspnRookieStatus(espnId: string): Promise<boolean | nul
   try {
     const res = await fetch(
       `${ESPN_CORE}/athletes/${encodeURIComponent(espnId)}`,
-      { next: { revalidate: 86400 * 14 } },
+      { next: { revalidate: 86400 * 14 }, signal: espnSignal() },
     );
     if (!res.ok) return null;
     const data = await res.json();

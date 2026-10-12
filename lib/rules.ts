@@ -16,7 +16,7 @@ export type Rule = {
 /**
  * Fetches all rules from the database.
  */
-export async function getRules(leagueId: number = 1): Promise<Rule[]> {
+export async function getRules(leagueId: number): Promise<Rule[]> {
     return await db.select().from(rules).where(eq(rules.leagueId, leagueId));
 }
 

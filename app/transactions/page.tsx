@@ -200,7 +200,7 @@ export default function TransactionsPage() {
     setEditType(log.type || '');
     setEditFrom(log.fromFull || '');
     setEditTo(log.toFull || '');
-    setEditFee(log.fee != null && log.fee !== '' ? String(log.fee) : '0');
+    setEditFee(log.fee != null && log.fee !== '' ? String(log.fee) : '');
     setEditId(editId === log.id ? null : log.id);
     setConditionalId(null);
     setReprocessId(null);
@@ -208,21 +208,31 @@ export default function TransactionsPage() {
 
   const handleEditSave = async (logId: string) => {
     if (!editDetails.trim()) return;
+    // Validate the fee client-side to match the server (whole number 0..1e6).
+    // Blank means "no fee" → send null rather than silently writing 0.
+    const feeRaw = editFee.trim();
+    let feePayload: number | null = null;
+    if (feeRaw !== '') {
+      const n = Number(feeRaw);
+      if (!Number.isInteger(n) || n < 0 || n > 1000000) {
+        alert('Fee must be a whole number between 0 and 1,000,000.');
+        return;
+      }
+      feePayload = n;
+    }
     setEditSaving(true);
     try {
-      const feeNum = editFee.trim() ? parseInt(editFee, 10) : 0;
-      const persistedFee = Number.isFinite(feeNum) && feeNum >= 0 ? feeNum : 0;
       const res = await fetch('/api/transactions', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: parseInt(logId), details: editDetails.trim(), weekBack: editWeekBack || null, type: editType || undefined, fromTeam: editFrom || null, toTeam: editTo || null, fee: persistedFee }),
+        body: JSON.stringify({ id: parseInt(logId), details: editDetails.trim(), weekBack: editWeekBack || null, type: editType || undefined, fromTeam: editFrom || null, toTeam: editTo || null, fee: feePayload }),
       });
       if (res.ok) {
         setEditId(null);
         // Mirror the server's normalization (empty → cleared, else integer)
         // so the optimistic value matches what was actually persisted.
         const normalizedWeekBack = editWeekBack.trim() ? String(parseInt(editWeekBack, 10)) : '';
-        setLogs(prev => prev.map(l => l.id === logId ? { ...l, details: editDetails.trim(), weekBack: normalizedWeekBack, type: editType || l.type, fromFull: editFrom, toFull: editTo, fee: String(persistedFee) } : l));
+        setLogs(prev => prev.map(l => l.id === logId ? { ...l, details: editDetails.trim(), weekBack: normalizedWeekBack, type: editType || l.type, fromFull: editFrom, toFull: editTo, fee: feePayload === null ? '' : String(feePayload) } : l));
       } else {
         const err = await res.json().catch(() => ({}));
         alert(err.error || 'Failed to save changes.');
@@ -654,6 +664,9 @@ export default function TransactionsPage() {
                               className="px-3 py-1.5 border border-blue-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white min-w-[140px]"
                             >
                               <option value="">—</option>
+                              {editFrom && !teams.some(t => t.name === editFrom) && (
+                                <option value={editFrom}>{editFrom} (legacy)</option>
+                              )}
                               {teams.map(t => <option key={t.teamshort || t.short} value={t.name}>{t.name}</option>)}
                             </select>
                           </div>
@@ -665,6 +678,9 @@ export default function TransactionsPage() {
                               className="px-3 py-1.5 border border-blue-200 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white min-w-[140px]"
                             >
                               <option value="">—</option>
+                              {editTo && !teams.some(t => t.name === editTo) && (
+                                <option value={editTo}>{editTo} (legacy)</option>
+                              )}
                               {teams.map(t => <option key={t.teamshort || t.short} value={t.name}>{t.name}</option>)}
                             </select>
                           </div>

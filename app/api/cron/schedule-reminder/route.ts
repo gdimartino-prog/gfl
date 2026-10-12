@@ -4,13 +4,10 @@ import { schedule, standings, teams, rules, leagues } from '@/schema';
 import { eq, and } from 'drizzle-orm';
 import { sendEmail, sendWhatsApp } from '@/lib/notify';
 import { alias } from 'drizzle-orm/pg-core';
-
-function isAuthorized(req: Request) {
-  return req.headers.get('authorization') === `Bearer ${process.env.CRON_SECRET}`;
-}
+import { isAuthorizedCron } from '@/lib/cronAuth';
 
 export async function GET(req: Request) {
-  if (!isAuthorized(req)) {
+  if (!isAuthorizedCron(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

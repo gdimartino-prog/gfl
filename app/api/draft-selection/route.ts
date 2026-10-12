@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
       originalTeam: originalTeams.name,
       currentOwner: currentTeams.name,
       currentTeamshort: currentTeams.teamshort,
+      playerId: draftPicks.playerId,
       pickedAt: draftPicks.pickedAt,
       passed: draftPicks.passed,
     })
@@ -65,6 +66,12 @@ export async function POST(req: NextRequest) {
     }
 
     const pickRow = pickRows[0];
+
+    // A pick that already has a player is finished. Even for late selections,
+    // never allow re-selecting it — that would reassign a drafted player.
+    if (pickRow.playerId) {
+      return NextResponse.json({ error: 'This pick has already been made.' }, { status: 400 });
+    }
 
     // A pick is a "late selection" once it's been auto-skipped or voluntarily
     // passed — any authenticated user may submit it to help the owner. For
@@ -132,15 +139,26 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // 4. Update draft pick: mark as selected
-    await db.update(draftPicks)
+    // 4. Update draft pick: mark as selected. The WHERE re-asserts the pick is
+    // still unclaimed so two concurrent submissions can't both "win" the same
+    // pick (the pre-check above is not atomic on its own).
+    const claimed = await db.update(draftPicks)
       .set({
         playerId,
         selectedPlayerName,
         pickedAt: now,
         touch_id: coachName || 'draft',
       })
-      .where(eq(draftPicks.id, pickRow.id));
+      .where(and(
+        eq(draftPicks.id, pickRow.id),
+        eq(draftPicks.leagueId, leagueId),
+        isNull(draftPicks.playerId),
+      ))
+      .returning({ id: draftPicks.id });
+
+    if (claimed.length === 0) {
+      return NextResponse.json({ error: 'This pick has already been made.' }, { status: 409 });
+    }
 
     // 5. Update player's team ownership
     await db.update(players)

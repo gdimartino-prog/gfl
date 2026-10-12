@@ -1,5 +1,6 @@
 'use client';
 import { DraftPick, Team } from '@/types';
+import { LiveCountdown } from '@/components/DraftCountdown';
 
 interface Props {
   picks: DraftPick[];
@@ -7,12 +8,13 @@ interface Props {
   yearFilter: string;
   draftTypeFilter: 'free_agent' | 'rookie' | 'all';
   onClockPick: DraftPick | undefined;
-  timeLeft: string;
+  previousPick: DraftPick | null;
+  draftStartDate: Date | null;
   getFullTeamName: (short: string) => string;
   onPickSelect?: (pick: DraftPick) => void;
 }
 
-export default function DraftGridView({ picks, teams, yearFilter, draftTypeFilter, onClockPick, timeLeft, getFullTeamName, onPickSelect }: Props) {
+export default function DraftGridView({ picks, teams, yearFilter, draftTypeFilter, onClockPick, previousPick, draftStartDate, getFullTeamName, onPickSelect }: Props) {
   const yearPicks = picks.filter(p =>
     String(p.year) === yearFilter &&
     (draftTypeFilter === 'all' || p.draftType === draftTypeFilter)
@@ -117,7 +119,7 @@ export default function DraftGridView({ picks, teams, yearFilter, draftTypeFilte
                   className="w-full text-left cursor-pointer"
                 >
                   <div className="font-black text-white uppercase tracking-tight">⚡ On the Clock</div>
-                  <div className="font-mono text-yellow-200 font-bold mt-0.5">{timeLeft}</div>
+                  <div className="font-mono text-yellow-200 font-bold mt-0.5"><LiveCountdown onClockPick={onClockPick} previousPick={previousPick} draftStartDate={draftStartDate} /></div>
                   <div className="text-blue-200 mt-0.5">Pick #{pick.overall}</div>
                   {onPickSelect && <div className="text-blue-100 text-[8px] mt-1 uppercase tracking-wide font-black">Tap to pick →</div>}
                 </button>

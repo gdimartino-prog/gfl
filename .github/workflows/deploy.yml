@@ -1,8 +1,11 @@
-name: Deploy to Vercel
+name: Deploy to Vercel (manual)
 
+# Vercel's Git integration auto-deploys every push to main (see
+# ARCHITECTURE.md § Deployment Pipeline). This workflow is kept only as a
+# manual fallback and must NOT run on push, otherwise every commit triggers
+# two deploys of the same commit.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:

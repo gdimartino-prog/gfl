@@ -17,7 +17,7 @@ import { db } from '../lib/db';
 import {
   leagues, teams, players, transactions, draftPicks, cuts,
   rules, resources, standings, schedule, tradeBlock, auditLog,
-  pickTransfers,
+  pickTransfers, draftAutoPickQueue, nflDraft,
 } from '../schema';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -100,6 +100,16 @@ async function main() {
       insert: (rows) => db.insert(pickTransfers).values(rows),
     },
     {
+      name: 'draft_auto_pick_queue', file: 'draft_auto_pick_queue.json', table: draftAutoPickQueue,
+      truncate: () => db.delete(draftAutoPickQueue),
+      insert: (rows) => db.insert(draftAutoPickQueue).values(rows),
+    },
+    {
+      name: 'nfl_draft', file: 'nfl_draft.json', table: nflDraft,
+      truncate: () => db.delete(nflDraft),
+      insert: (rows) => db.insert(nflDraft).values(rows),
+    },
+    {
       name: 'cuts', file: 'cuts.json', table: cuts,
       truncate: () => db.delete(cuts),
       insert: (rows) => db.insert(cuts).values(rows),
@@ -134,6 +144,22 @@ async function main() {
   }
 
   console.log('\n✅ Restore complete.');
+
+  // Backups deliberately omit password/email/mobile (teams.json is committed
+  // to git, so PII would live in history forever). Warn loudly: every coach
+  // restored from that file has NO login until credentials are re-provisioned.
+  const restoredTeams = readJson('teams.json') as Array<{ name?: string; coach?: string }> | null;
+  console.log('\n⚠️  CREDENTIALS NOT RESTORED.');
+  console.log('    teams.json excludes password/email/mobile by design.');
+  if (restoredTeams?.length) {
+    console.log('    Coaches must re-set their login (Settings → password) or an admin');
+    console.log('    must set an initial password. Teams affected:');
+    for (const t of restoredTeams) {
+      if (t?.name) console.log(`      - ${t.name}${t.coach ? ` (${t.coach})` : ''}`);
+    }
+  }
+  console.log('');
+
   process.exit(0);
 }
 

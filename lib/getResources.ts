@@ -38,7 +38,7 @@ const _getResources = unstable_cache(
   { revalidate: 60, tags: ['resources'] }
 );
 
-export async function getResources(leagueId = 1) {
+export async function getResources(leagueId: number) {
   return _getResources(leagueId);
 }
 

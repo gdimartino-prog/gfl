@@ -107,6 +107,11 @@ This Next.js version requires `revalidateTag(tag, 'max')` — single-arg form is
 ### `revalidateTag` on localhost
 Doesn't flush the file-based dev cache. Restart `npm run dev` after a player sync to see updated team assignments.
 
+### `db:push` connection + composite unique constraints
+`drizzle-kit push` runs over the **direct (non-pooling) TCP** connection (`POSTGRES_URL_NON_POOLING`, port 5432) via the `pg` devDependency (`drizzle.config.ts`). Without `pg` it falls back to `@vercel/postgres`'s WebSocket driver, which idle-times-out at the interactive prompt ("Connection terminated unexpectedly"). The app's runtime driver (`lib/db.ts`, `@vercel/postgres` over WS) is intentionally separate. `?uselibpqcompat=true` is appended to skip cert verification against Supabase's chain.
+
+drizzle-kit 0.30.x/0.31.x introspects unique-constraint columns from `information_schema.constraint_column_usage` with **no `ORDER BY`** and hardcodes `nullsNotDistinct: false`, so it can't reliably match composite `unique()` declarations. Push therefore **always proposes to drop+re-add** `rules_league_year_rule_unique`, `standings_league_team_year_unique`, and `trade_block_league_player_unique` — even though they're correct in the DB with zero duplicates. At each prompt pick **"No, add the constraint without truncating the table"**; **never** choose truncate. `rules` must stay a `unique()` constraint (not `uniqueIndex()`), because `NULLS NOT DISTINCT` isn't supported on the index builder in drizzle-orm 0.45.x.
+
 ### `force-dynamic` is rarely needed
 Dropping `force-dynamic` lets Next.js cache server-component output and honors `unstable_cache` more aggressively. Only add it when there's a concrete reason (a route that must not be cached even briefly).
 

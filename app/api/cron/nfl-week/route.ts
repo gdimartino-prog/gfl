@@ -2,13 +2,10 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { rules, leagues } from '@/schema';
 import { and, eq } from 'drizzle-orm';
-
-function isAuthorized(req: Request) {
-  return req.headers.get('authorization') === `Bearer ${process.env.CRON_SECRET}`;
-}
+import { isAuthorizedCron } from '@/lib/cronAuth';
 
 export async function GET(req: Request) {
-  if (!isAuthorized(req)) {
+  if (!isAuthorizedCron(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

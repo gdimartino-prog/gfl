@@ -5,6 +5,7 @@ import { players, teams } from '@/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { findEspnId, getEspnSeasonStats } from '@/lib/espn-stats';
+import { mapWithConcurrency } from '@/lib/concurrency';
 import { unstable_cache } from 'next/cache';
 
 // One rebuild (~53 ESPN fetches per roster) serves every viewer for an hour
@@ -32,8 +33,10 @@ const _getTeamNflStats = unstable_cache(
 
     if (!roster.length) return [];
 
-    return Promise.all(
-      roster.map(async (player) => {
+    // Cap in-flight ESPN requests so a full roster (~53 players) doesn't fan
+    // out all at once and trip ESPN rate limits / exhaust sockets.
+    return mapWithConcurrency(roster, 8, async (player) => {
+      try {
         // Use stored ESPN ID if available; otherwise search and persist it
         let espnId = player.espnId || null;
         if (!espnId) {
@@ -48,8 +51,12 @@ const _getTeamNflStats = unstable_cache(
         if (!espnId) return { ...player, espnId: null, stats: null };
         const stats = await getEspnSeasonStats(espnId, year);
         return { ...player, espnId, stats };
-      }),
-    );
+      } catch (err) {
+        // One player's ESPN/DB hiccup must not reject the whole roster.
+        console.error('[nfl-stats] player', player.id, err);
+        return { ...player, espnId: player.espnId ?? null, stats: null };
+      }
+    });
   },
   ['nfl-stats-v1'],
   { revalidate: 3600, tags: ['players', 'nfl-stats'] },

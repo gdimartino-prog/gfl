@@ -1,7 +1,7 @@
 
 import { db } from './db';
 import { draftPicks, pickTransfers, teams, players } from '@/schema';
-import { and, eq, isNotNull, asc, desc, sql, or, inArray } from 'drizzle-orm';
+import { and, eq, isNull, isNotNull, asc, desc, sql, or, inArray } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { unstable_cache } from 'next/cache';
 
@@ -36,50 +36,52 @@ export type DraftPickRow = {
 };
 
 const _getAllDraftPicks = unstable_cache(async (leagueId: number) => {
-  try {
-    const originalTeams = alias(teams, 'originalTeams');
-    const currentTeams = alias(teams, 'currentTeams');
+  const originalTeams = alias(teams, 'originalTeams');
+  const currentTeams = alias(teams, 'currentTeams');
 
-    return await db.select({
-      id: draftPicks.id,
-      year: draftPicks.year,
-      round: draftPicks.round,
-      pick: draftPicks.pick,
-      draftType: draftPicks.draftType,
-      originalTeam: originalTeams.name,
-      originalTeamShort: originalTeams.teamshort,
-      currentOwner: currentTeams.teamshort,
-      selectedPlayer: players.name,
-      selectedPlayerName: draftPicks.selectedPlayerName,
-      selectedPlayerPosition: players.position,
-      scheduledAt: draftPicks.scheduledAt,
-      pickedAt: draftPicks.pickedAt,
-      passed: draftPicks.passed,
-      transferHistory: pickTransfers.history,
-    })
-    .from(draftPicks)
-    .leftJoin(originalTeams, eq(draftPicks.originalTeamId, originalTeams.id))
-    .leftJoin(currentTeams, eq(draftPicks.currentTeamId, currentTeams.id))
-    .leftJoin(players, eq(draftPicks.playerId, players.id))
-    .leftJoin(pickTransfers, and(
-      eq(pickTransfers.leagueId, draftPicks.leagueId),
-      eq(pickTransfers.year, draftPicks.year),
-      eq(pickTransfers.draftType, draftPicks.draftType),
-      eq(pickTransfers.round, draftPicks.round),
-      eq(pickTransfers.originalTeamId, draftPicks.originalTeamId),
-    ))
-    .where(eq(draftPicks.leagueId, leagueId));
-  } catch (error) {
-    console.error('getAllDraftPicks failed:', error);
-    return [];
-  }
+  return await db.select({
+    id: draftPicks.id,
+    year: draftPicks.year,
+    round: draftPicks.round,
+    pick: draftPicks.pick,
+    draftType: draftPicks.draftType,
+    originalTeam: originalTeams.name,
+    originalTeamShort: originalTeams.teamshort,
+    currentOwner: currentTeams.teamshort,
+    selectedPlayer: players.name,
+    selectedPlayerName: draftPicks.selectedPlayerName,
+    selectedPlayerPosition: players.position,
+    scheduledAt: draftPicks.scheduledAt,
+    pickedAt: draftPicks.pickedAt,
+    passed: draftPicks.passed,
+    transferHistory: pickTransfers.history,
+  })
+  .from(draftPicks)
+  .leftJoin(originalTeams, eq(draftPicks.originalTeamId, originalTeams.id))
+  .leftJoin(currentTeams, eq(draftPicks.currentTeamId, currentTeams.id))
+  .leftJoin(players, eq(draftPicks.playerId, players.id))
+  .leftJoin(pickTransfers, and(
+    eq(pickTransfers.leagueId, draftPicks.leagueId),
+    eq(pickTransfers.year, draftPicks.year),
+    eq(pickTransfers.draftType, draftPicks.draftType),
+    eq(pickTransfers.round, draftPicks.round),
+    eq(pickTransfers.originalTeamId, draftPicks.originalTeamId),
+  ))
+  .where(eq(draftPicks.leagueId, leagueId));
 }, ['all-draft-picks'], { revalidate: 30, tags: ['draft-picks'] });
 
 /**
  * Get all draft picks with full details for a given league
  */
-export async function getAllDraftPicks(leagueId: number = 1): Promise<DraftPickRow[]> {
-  return _getAllDraftPicks(leagueId);
+export async function getAllDraftPicks(leagueId: number): Promise<DraftPickRow[]> {
+  // Catch OUTSIDE the cache: a transient DB error must not be cached as an
+  // empty board for the whole revalidate window.
+  try {
+    return await _getAllDraftPicks(leagueId);
+  } catch (error) {
+    console.error('getAllDraftPicks failed:', error);
+    return [];
+  }
 }
 
 /**
@@ -220,7 +222,7 @@ export async function getNextOnClockTeamId(leagueId: number, year: number) {
     .where(and(
       eq(draftPicks.leagueId, leagueId),
       eq(draftPicks.year, year),
-      eq(draftPicks.playerId, null as unknown as number),
+      isNull(draftPicks.playerId),
     ))
     .orderBy(asc(draftPicks.pick))
     .limit(1);
@@ -506,7 +508,7 @@ export type PickTransferRow = {
 /**
  * Get all traded picks (where original owner ≠ current owner) for a league.
  */
-export async function getPickTransferHistory(leagueId: number = 1): Promise<PickTransferRow[]> {
+export async function getPickTransferHistory(leagueId: number): Promise<PickTransferRow[]> {
   const originalTeams = alias(teams, 'originalTeams');
   const currentTeams = alias(teams, 'currentTeams');
 

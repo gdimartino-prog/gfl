@@ -46,7 +46,7 @@ const _getCoaches = unstable_cache(
 );
 
 // Reads teams table and returns coaches, optionally filtered by league
-export async function getCoaches(leagueId: number = 1): Promise<Coach[]> {
+export async function getCoaches(leagueId: number): Promise<Coach[]> {
   return _getCoaches(leagueId);
 }
 
@@ -65,7 +65,7 @@ const _getTeamShortMap = unstable_cache(
  * Cached map of team id → teamshort for the given league.
  * Reuses the 'coaches' tag for invalidation on team mutations.
  */
-export function getTeamShortMap(leagueId: number = 1): Promise<Record<number, string>> {
+export function getTeamShortMap(leagueId: number): Promise<Record<number, string>> {
   return _getTeamShortMap(leagueId);
 }
 

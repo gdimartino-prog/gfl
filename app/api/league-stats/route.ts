@@ -116,6 +116,7 @@ async function fetchRosterStats(leagueId: number, year: number) {
   const playerList: LeaguePlayerOut[] = [];
 
   for (const player of withStats) {
+    if (!player.teamshort) continue;
     const group = posGroup(player.offense, player.defense, player.special, player.position);
     const score = powerScore(player.offense, player.defense, player.special, player.position, player.stats);
     const key = player.teamshort.toUpperCase();

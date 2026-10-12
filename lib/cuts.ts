@@ -28,7 +28,7 @@ const _getCuts = unstable_cache(
 );
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getCuts(leagueId: number = 1): Promise<any[]> {
+export async function getCuts(leagueId: number): Promise<any[]> {
   return _getCuts(leagueId);
 }
 

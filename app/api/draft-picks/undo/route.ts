@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { teams, rules, draftPicks } from '@/schema';
-import { and, eq, asc } from 'drizzle-orm';
+import { and, eq, asc, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getLastPickForTeam, getNextOnClockTeamId, clearPickSelection } from '@/lib/draftPicks';
 import { logSystemEvent } from '@/lib/db-helpers';
@@ -54,7 +54,7 @@ export async function POST() {
     // Verify the next on-clock pick immediately follows the coach's last pick
     const nextPickRow = await db.select({ pick: draftPicks.pick, currentTeamId: draftPicks.currentTeamId })
       .from(draftPicks)
-      .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), eq(draftPicks.playerId, null as unknown as number)))
+      .where(and(eq(draftPicks.leagueId, leagueId), eq(draftPicks.year, year), isNull(draftPicks.playerId)))
       .orderBy(asc(draftPicks.pick))
       .limit(1);
 

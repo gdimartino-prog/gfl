@@ -49,7 +49,7 @@ const _getStandings = unstable_cache(
   { revalidate: 60, tags: ['standings'] }
 );
 
-export async function getStandings(leagueId: number = 1): Promise<StandingRow[]> {
+export async function getStandings(leagueId: number): Promise<StandingRow[]> {
   try {
     return await _getStandings(leagueId);
   } catch (error) {

@@ -1,9 +1,11 @@
 import { getSchedule } from '@/lib/getSchedule';
+import { getLeagueId } from '@/lib/getLeagueId';
 import { ScheduleGame } from '@/types';
 import Link from 'next/link';
 
 export default async function NextMatchup() {
-  const games: ScheduleGame[] = await getSchedule();
+  const leagueId = await getLeagueId();
+  const games: ScheduleGame[] = await getSchedule(leagueId);
   
   // Find the first game that doesn't have a score yet
   const nextGame = games.find(g => !g.vScore || g.vScore === '');
