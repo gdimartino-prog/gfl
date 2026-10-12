@@ -763,6 +763,15 @@ function LeaguePlayersTable({
         const cb = POS_GROUPS_ORDER.indexOf(b.posGroup);
         return sort.dir === 'asc' ? ca - cb : cb - ca;
       }
+      if (sort.key === 'age') {
+        // Players without an age always sort to the bottom.
+        const va = a.age;
+        const vb = b.age;
+        if (va == null && vb == null) return 0;
+        if (va == null) return 1;
+        if (vb == null) return -1;
+        return sort.dir === 'asc' ? va - vb : vb - va;
+      }
       return sort.dir === 'desc' ? b.score - a.score : a.score - b.score;
     });
   }, [source, filterGroup, sort]);
@@ -817,7 +826,7 @@ function LeaguePlayersTable({
             <ThL statKey="posGroup" {...s}>Pos</ThL>
             <ThL>GFL Team</ThL>
             <ThL>NFL Team</ThL>
-            <Th>Age</Th>
+            <Th statKey="age" {...s}>Age</Th>
             <Th statKey="score" {...s}>Score</Th>
           </tr>
         </thead>
