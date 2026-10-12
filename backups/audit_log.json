@@ -14587,5 +14587,68 @@
     "team": "VV",
     "action": "LOGIN",
     "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1622,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T04:39:43.887Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "WAIVE",
+    "details": "WR - Darnell Mooney"
+  },
+  {
+    "id": 1623,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T13:34:45.310Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "RB/KR - Braelon Allen"
+  },
+  {
+    "id": 1624,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T13:35:00.674Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "WAIVE",
+    "details": "RB - Jordan James"
+  },
+  {
+    "id": 1625,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T13:35:35.290Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #604 marked Done"
+  },
+  {
+    "id": 1626,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T13:35:36.888Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #603 marked Done"
+  },
+  {
+    "id": 1627,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T13:35:59.806Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #602 marked Done"
+  },
+  {
+    "id": 1628,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T13:37:05.826Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
   }
 ]
