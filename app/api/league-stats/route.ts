@@ -6,6 +6,7 @@ import { eq, and, isNull } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getEspnSeasonStats, getFreshEspnStats, getEspnRookieStatus } from '@/lib/espn-stats';
 import { posGroup, powerScore } from '@/lib/power-score';
+import { getDepthChartDataBounded, normalizePlayerName, type DepthChartEntry } from '@/lib/ourlads';
 import { unstable_cache } from 'next/cache';
 
 const DEF_GROUPS = new Set(['DL', 'LB', 'DB']);
@@ -23,6 +24,9 @@ interface LeaguePlayerOut {
   posGroup: string;
   score: number;
   isRookie?: boolean;
+  longSnapper?: boolean;
+  depthPosition?: string | null;
+  depthRank?: number | null;
 }
 
 interface PlayerRow {
@@ -221,6 +225,32 @@ const _cachedFreeAgentStats = unstable_cache(
 
 export const maxDuration = 300;
 
+// Attach OurLads depth/LS flags outside the 12h roster cache so a corrected
+// chart shows up immediately. The scrape itself is memoized 24h, so this is a
+// cheap per-request lookup; a slow/unavailable upstream degrades to nulls.
+async function annotateDepth<T extends { name: string }>(players: T[]) {
+  let longSnappers = new Set<string>();
+  let depth = new Map<string, DepthChartEntry>();
+  try {
+    const data = await getDepthChartDataBounded();
+    longSnappers = data.longSnappers;
+    depth = data.index;
+  } catch (err) {
+    console.warn('[league-stats] OurLads depth data unavailable:', err);
+  }
+  return players.map((p) => {
+    const key = normalizePlayerName(p.name);
+    const entry = depth.get(key);
+    const isLongSnapper = longSnappers.has(key);
+    return {
+      ...p,
+      longSnapper: isLongSnapper,
+      depthPosition: isLongSnapper ? null : entry?.position ?? null,
+      depthRank: isLongSnapper ? null : entry?.depthRank ?? null,
+    };
+  });
+}
+
 export async function GET(req: NextRequest) {
   const [session, leagueId] = await Promise.all([auth(), getLeagueId()]);
   if (!session?.user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -235,15 +265,16 @@ export async function GET(req: NextRequest) {
 
   if (searchParams.get('fa') === '1') {
     const { players: faPlayers } = await _cachedFreeAgentStats(leagueId, rawYear);
-    return NextResponse.json({ players: faPlayers }, {
+    return NextResponse.json({ players: await annotateDepth(faPlayers) }, {
       headers: { 'Cache-Control': 'private, max-age=3600' },
     });
   }
 
   const result = await _cachedRosterStats(leagueId, rawYear);
   const sortedTeams = [...result.teams].sort((a, b) => b.totalScore - a.totalScore);
+  const players = await annotateDepth(result.players);
 
-  return NextResponse.json({ teams: sortedTeams, players: result.players }, {
+  return NextResponse.json({ teams: sortedTeams, players }, {
     headers: { 'Cache-Control': 'private, max-age=3600' },
   });
 }

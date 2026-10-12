@@ -60,7 +60,7 @@ async function fetchTeamDepth(teamCode: string): Promise<DepthChartEntry[]> {
   try {
     const res = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (GFL scout/1.0)' },
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) return [];
     const html = await res.text();
@@ -123,25 +123,44 @@ const _getAllDepthCharts = unstable_cache(
   { revalidate: 86400, tags: ['ourlads'] },
 );
 
-/**
- * Build a lookup from normalized player name → best depth chart entry.
- * A player can appear multiple times on a team (e.g. RB1 and KR1) — we keep
- * the entry from the most offense/defense-relevant position (lowest depthRank
- * on a non-ST position, falling back to ST).
- */
+// Single-flight + circuit breaker around the scrape. `_getAllDepthCharts` skips
+// its cache write on a degraded (<90%) fetch, so without this an OurLads outage
+// would turn every request into a fresh 32-team scrape. Concurrent callers share
+// one in-flight scrape, and a failure opens a short cool-off during which callers
+// fail fast (getting no depth data) instead of re-hammering the upstream.
+const OURLADS_FAILURE_COOLOFF_MS = 60_000;
+let depthFetchInFlight: Promise<DepthChartEntry[]> | null = null;
+let depthFetchCooloffUntil = 0;
+
+async function getAllDepthCharts(): Promise<DepthChartEntry[]> {
+  if (Date.now() < depthFetchCooloffUntil) {
+    throw new Error('Ourlads temporarily unavailable (cool-off)');
+  }
+  if (!depthFetchInFlight) {
+    depthFetchInFlight = _getAllDepthCharts()
+      .catch((err) => {
+        depthFetchCooloffUntil = Date.now() + OURLADS_FAILURE_COOLOFF_MS;
+        throw err;
+      })
+      .finally(() => {
+        depthFetchInFlight = null;
+      });
+  }
+  return depthFetchInFlight;
+}
+
 export type DepthChartData = {
   index: Map<string, DepthChartEntry>;
   longSnappers: Set<string>;
 };
 
 /**
- * Build the depth-chart index and the long-snapper name set from a single
- * cached scrape. Both are derived from the one `_getAllDepthCharts()` read so
- * we never nest `unstable_cache` calls — a nested call bypasses the inner
- * cache and forces a redundant 32-team re-scrape.
+ * Pure derivation of the name→depth index and the long-snapper name set from a
+ * flat list of depth-chart entries. A player can appear multiple times on a team
+ * (e.g. RB1 and KR1) — we keep the most offense/defense-relevant listing (lowest
+ * depthRank on a non-ST position, falling back to ST).
  */
-export async function getDepthChartData(): Promise<DepthChartData> {
-  const all = await _getAllDepthCharts();
+export function buildDepthChartData(all: DepthChartEntry[]): DepthChartData {
   const index = new Map<string, DepthChartEntry>();
   const longSnappers = new Set<string>();
   const ST_POSITIONS = new Set(['KR', 'PR', 'KO', 'H', 'LS', 'PT', 'PK']);
@@ -164,8 +183,38 @@ export async function getDepthChartData(): Promise<DepthChartData> {
   return { index, longSnappers };
 }
 
+/**
+ * The depth-chart index + long-snapper set, from a single (single-flighted,
+ * cached) scrape. Both are derived from the one `getAllDepthCharts()` read so we
+ * never nest `unstable_cache` calls — a nested call bypasses the inner cache and
+ * forces a redundant 32-team re-scrape.
+ */
+export async function getDepthChartData(): Promise<DepthChartData> {
+  return buildDepthChartData(await getAllDepthCharts());
+}
+
 export async function buildDepthChartIndex(): Promise<Map<string, DepthChartEntry>> {
   return (await getDepthChartData()).index;
+}
+
+const DEFAULT_OURLADS_TIMEOUT_MS = 8000;
+
+/**
+ * `getDepthChartData` bounded by a timeout so a cold/slow OurLads scrape can't
+ * stall a request. Callers degrade gracefully (no depth / LS data) on rejection.
+ */
+export async function getDepthChartDataBounded(
+  ms: number = DEFAULT_OURLADS_TIMEOUT_MS,
+): Promise<DepthChartData> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new Error('ourlads timeout')), ms);
+  });
+  try {
+    return await Promise.race([getDepthChartData(), timeout]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 export function depthRankLabel(position: string, rank: number): string {

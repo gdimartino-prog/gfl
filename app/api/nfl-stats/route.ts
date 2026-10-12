@@ -6,22 +6,8 @@ import { eq, and, sql } from 'drizzle-orm';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { findEspnId, getEspnSeasonStats } from '@/lib/espn-stats';
 import { mapWithConcurrency } from '@/lib/concurrency';
-import { getDepthChartData, normalizePlayerName, type DepthChartEntry } from '@/lib/ourlads';
+import { getDepthChartDataBounded, normalizePlayerName, type DepthChartEntry } from '@/lib/ourlads';
 import { unstable_cache } from 'next/cache';
-
-// Bound the OurLads scrape so a cold/slow upstream can't stall the roster
-// response — we serve depth-less data rather than time out the whole request.
-const OURLADS_TIMEOUT_MS = 8000;
-
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(() => reject(new Error('ourlads timeout')), ms);
-  });
-  return Promise.race([promise, timeout]).finally(() => {
-    if (timer) clearTimeout(timer);
-  });
-}
 
 // One rebuild (~53 ESPN fetches per roster) serves every viewer for an hour
 // instead of re-running after each per-user fetch-cache expiry. Tagged
@@ -101,7 +87,7 @@ export async function GET(req: NextRequest) {
   let longSnappers = new Set<string>();
   let depth = new Map<string, DepthChartEntry>();
   try {
-    const data = await withTimeout(getDepthChartData(), OURLADS_TIMEOUT_MS);
+    const data = await getDepthChartDataBounded();
     longSnappers = data.longSnappers;
     depth = data.index;
   } catch (err) {
@@ -112,11 +98,12 @@ export async function GET(req: NextRequest) {
   const playersWithFlags = results.map((p) => {
     const key = normalizePlayerName(p.name || `${p.first ?? ''} ${p.last ?? ''}`);
     const entry = depth.get(key);
+    const isLongSnapper = longSnappers.has(key);
     return {
       ...p,
-      longSnapper: longSnappers.has(key),
-      depthPosition: entry?.position ?? null,
-      depthRank: entry?.depthRank ?? null,
+      longSnapper: isLongSnapper,
+      depthPosition: isLongSnapper ? null : entry?.position ?? null,
+      depthRank: isLongSnapper ? null : entry?.depthRank ?? null,
     };
   });
 

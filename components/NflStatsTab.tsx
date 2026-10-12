@@ -44,6 +44,9 @@ interface LeaguePlayer {
   posGroup: string;
   score: number;
   isRookie?: boolean;
+  longSnapper?: boolean;
+  depthPosition?: string | null;
+  depthRank?: number | null;
 }
 
 const NewsContext = createContext<Set<string>>(new Set());
@@ -273,11 +276,10 @@ function Td({ v }: { v: string }) {
   );
 }
 
-function SectionHeader({ title, action }: { title: string; action?: React.ReactNode }) {
+function SectionHeader({ title }: { title: string }) {
   return (
-    <div className="mt-8 mb-2 px-1 flex items-center justify-between gap-2">
+    <div className="mt-8 mb-2 px-1">
       <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">{title}</span>
-      {action}
     </div>
   );
 }
@@ -302,13 +304,18 @@ function scoreCell(p: PlayerStat): string {
 }
 
 function DepthCell({ pos, rank }: { pos?: string | null; rank?: number | null }) {
-  if (!pos || !rank) return <td className="py-2 px-3 text-xs text-slate-300">—</td>;
-  const norm = pos === 'LWR' || pos === 'RWR' || pos === 'SWR' ? 'WR' : pos;
+  // Long snappers aren't starter/backup in the fantasy sense — show no depth.
+  if (!pos || rank == null || pos === 'LS') {
+    return <td className="py-2 px-3 text-xs text-slate-300 tabular-nums">—</td>;
+  }
   const starter = rank === 1;
   return (
-    <td className="py-2 px-3 whitespace-nowrap">
-      <span className={`inline-block text-[10px] font-black px-2 py-0.5 rounded-full ${starter ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-        {starter ? 'Starter' : `${norm}${rank}`}
+    <td className="py-2 px-3">
+      <span
+        title={starter ? 'Starter' : `Depth #${rank}`}
+        className={`inline-block min-w-[16px] text-center text-xs font-bold tabular-nums ${starter ? 'text-emerald-600' : 'text-slate-500'}`}
+      >
+        {rank}
       </span>
     </td>
   );
@@ -521,27 +528,12 @@ function DefTable({ players, isCommissioner, onLink }: TableProps) {
 
 function OlTable({ players, isCommissioner, onLink }: TableProps) {
   const [sort, setSort] = useState<SortState>({ key: 'gamesPlayed', dir: 'desc' });
-  const [hideLongSnappers, setHideLongSnappers] = useState(true);
-  const hasLongSnappers = players.some((p) => p.longSnapper);
-  const visible = hideLongSnappers ? players.filter((p) => !p.longSnapper) : players;
-  const sorted = useSortedPlayers(visible, sort);
+  const sorted = useSortedPlayers(players, sort);
   if (!players.length) return null;
   const s = { sort, setSort };
   return (
     <>
-      <SectionHeader
-        title="Offensive Line"
-        action={hasLongSnappers ? (
-          <button
-            type="button"
-            aria-pressed={hideLongSnappers}
-            onClick={() => setHideLongSnappers((v) => !v)}
-            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${hideLongSnappers ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
-          >
-            Hide Long Snappers
-          </button>
-        ) : null}
-      />
+      <SectionHeader title="Offensive Line" />
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm inline-block min-w-[320px]">
         <table className="text-left border-collapse">
           <thead className="border-b border-slate-100 bg-slate-50">
@@ -553,11 +545,6 @@ function OlTable({ players, isCommissioner, onLink }: TableProps) {
             </tr>
           </thead>
           <tbody>
-            {sorted.length === 0 && (
-              <tr>
-                <td colSpan={5} className="py-6 text-center text-xs text-slate-400">All offensive linemen are long snappers.</td>
-              </tr>
-            )}
             {sorted.map((p) => (
               <tr key={p.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
                 <PlayerName player={p} isCommissioner={isCommissioner} onLink={onLink} />
@@ -799,11 +786,14 @@ function LeaguePlayersTable({
   const [faOnly, setFaOnly] = useState(false);
   const [excludeRookies, setExcludeRookies] = useState(false);
   const [sort, setSort] = useState<SortState>({ key: 'score', dir: 'desc' });
+  const [hideLongSnappers, setHideLongSnappers] = useState(true);
 
   const source = useMemo(() => {
     const list = faOnly ? (faPlayers ?? []) : data;
     return faOnly && excludeRookies ? list.filter(p => !p.isRookie) : list;
   }, [faOnly, excludeRookies, faPlayers, data]);
+
+  const hasLongSnappers = useMemo(() => source.some(p => p.longSnapper), [source]);
 
   const availableGroups = useMemo(() => {
     const seen = new Set<string>();
@@ -812,7 +802,8 @@ function LeaguePlayersTable({
   }, [source]);
 
   const filtered = useMemo(() => {
-    const list = filterGroup ? source.filter(p => p.posGroup === filterGroup) : source;
+    const grouped = filterGroup ? source.filter(p => p.posGroup === filterGroup) : source;
+    const list = hideLongSnappers ? grouped.filter(p => !p.longSnapper) : grouped;
     return [...list].sort((a, b) => {
       if (sort.key === 'name') {
         const cmp = a.name.localeCompare(b.name);
@@ -822,6 +813,15 @@ function LeaguePlayersTable({
         const ca = POS_GROUPS_ORDER.indexOf(a.posGroup);
         const cb = POS_GROUPS_ORDER.indexOf(b.posGroup);
         return sort.dir === 'asc' ? ca - cb : cb - ca;
+      }
+      if (sort.key === 'depthRank') {
+        // Players without depth info always sort to the bottom.
+        const va = a.depthRank ?? null;
+        const vb = b.depthRank ?? null;
+        if (va === null && vb === null) return 0;
+        if (va === null) return 1;
+        if (vb === null) return -1;
+        return sort.dir === 'desc' ? vb - va : va - vb;
       }
       if (sort.key === 'age') {
         // Players without an age always sort to the bottom.
@@ -834,7 +834,7 @@ function LeaguePlayersTable({
       }
       return sort.dir === 'desc' ? b.score - a.score : a.score - b.score;
     });
-  }, [source, filterGroup, sort]);
+  }, [source, filterGroup, hideLongSnappers, sort]);
 
   const s = { sort, setSort };
 
@@ -877,6 +877,19 @@ function LeaguePlayersTable({
             {g}
           </button>
         ))}
+        {hasLongSnappers && (
+          <>
+            <span className="w-px bg-slate-200 mx-1" />
+            <button
+              type="button"
+              aria-pressed={hideLongSnappers}
+              onClick={() => setHideLongSnappers((v) => !v)}
+              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${hideLongSnappers ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+            >
+              Hide Long Snappers
+            </button>
+          </>
+        )}
       </div>
       <TableWrap>
         <thead className="border-b border-slate-100 bg-slate-50">
@@ -884,6 +897,7 @@ function LeaguePlayersTable({
             <ThL>Rank</ThL>
             <ThL statKey="name" {...s}>Player</ThL>
             <ThL statKey="posGroup" {...s}>Pos</ThL>
+            <ThL statKey="depthRank" {...s}>Depth</ThL>
             <ThL>GFL Team</ThL>
             <ThL>NFL Team</ThL>
             <Th statKey="age" {...s}>Age</Th>
@@ -940,6 +954,7 @@ function LeaguePlayersTable({
                 </div>
               </td>
               <td className="py-2 px-3"><PosBadge pos={p.posGroup} /></td>
+              <DepthCell pos={p.depthPosition} rank={p.depthRank} />
               <td className="py-2 px-3 text-xs font-bold text-slate-500">{p.teamshort}</td>
               <td className="py-2 px-3 text-xs text-slate-500 whitespace-nowrap">{p.nflTeam ?? '—'}</td>
               <td className="py-2 px-3 text-sm text-right tabular-nums text-slate-500">{p.age ?? '—'}</td>
@@ -950,7 +965,7 @@ function LeaguePlayersTable({
           ))}
           {filtered.length === 0 && (
             <tr>
-              <td colSpan={5} className="py-8 text-center text-xs text-slate-400">No players found</td>
+              <td colSpan={8} className="py-8 text-center text-xs text-slate-400">No players found</td>
             </tr>
           )}
         </tbody>
