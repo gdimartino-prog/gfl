@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { logSystemEvent } from './db-helpers';
 
 const MY_EMAIL = process.env.NOTIFY_MY_EMAIL || 'gdimartino@gmail.com';
 const GROUP_EMAIL = process.env.NOTIFY_GROUP_EMAIL || MY_EMAIL;
@@ -31,38 +32,53 @@ function getTransporter() {
   return _transporter;
 }
 
-export async function sendEmail({ subject, html, text }: {
+export async function sendEmail({ subject, html, text, leagueId }: {
   subject: string;
   html?: string;
   text?: string;
-}) {
+  leagueId?: number;
+}): Promise<boolean> {
+  const targetLeague = leagueId ?? 1;
   if (!process.env.GMAIL_APP_PASSWORD) {
     console.warn('[notify] GMAIL_APP_PASSWORD not set — skipping email');
-    return;
+    await logSystemEvent('System', 'EMAIL', 'ALERT_SKIPPED', `No App Password: ${subject}`, targetLeague);
+    return false;
   }
   console.log('[notify] sending email:', subject);
   try {
+    const ccRecipient = GROUP_EMAIL.toLowerCase() === MY_EMAIL.toLowerCase() ? undefined : MY_EMAIL;
+    const plainText = text || (html ? html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : undefined);
     await getTransporter().sendMail({
       from: FROM_EMAIL,
       to: GROUP_EMAIL,
-      cc: MY_EMAIL,
+      ...(ccRecipient ? { cc: ccRecipient } : {}),
       subject,
       html: html || `<pre>${escapeHtml(text)}</pre>`,
-      text,
+      text: plainText,
     });
+    await logSystemEvent('System', 'EMAIL', 'ALERT_SENT', subject, targetLeague);
+    return true;
   } catch (e) {
-    console.error('Email send failed:', e);
+    const errMsg = e instanceof Error ? e.message : String(e);
+    console.error('Email send failed:', errMsg);
+    await logSystemEvent('System', 'EMAIL', 'ALERT_FAILED', `${subject} (${errMsg})`.slice(0, 1000), targetLeague);
+    return false;
   }
 }
 
-export async function sendWhatsApp(message: string) {
-  if (!SEND_WHATSAPP) { console.warn('[notify] SEND_WHATSAPP=false — skipping'); return; }
+export async function sendWhatsApp(message: string, leagueId?: number): Promise<boolean> {
+  const targetLeague = leagueId ?? 1;
+  if (!SEND_WHATSAPP) {
+    console.warn('[notify] SEND_WHATSAPP=false — skipping');
+    return false;
+  }
   const idInstance = process.env.GREENAPI_INSTANCE_ID?.trim();
   const apiToken = process.env.GREENAPI_API_TOKEN?.trim();
   const groupId = process.env.GREENAPI_GROUP_ID?.trim();
   if (!idInstance || !apiToken || !groupId) {
     console.warn('[notify] WhatsApp env vars missing — skipping (GREENAPI_INSTANCE_ID:', !!idInstance, 'GREENAPI_API_TOKEN:', !!apiToken, 'GREENAPI_GROUP_ID:', !!groupId, ')');
-    return;
+    await logSystemEvent('System', 'WHATSAPP', 'ALERT_SKIPPED', 'Missing credentials', targetLeague);
+    return false;
   }
   console.log('[notify] sending WhatsApp to chatId:', JSON.stringify(groupId));
 
@@ -78,9 +94,16 @@ export async function sendWhatsApp(message: string) {
     if (!res.ok) {
       const body = await res.text();
       console.error('WhatsApp send failed:', res.status, body);
+      await logSystemEvent('System', 'WHATSAPP', 'ALERT_FAILED', `Status ${res.status}: ${body}`.slice(0, 500), targetLeague);
+      return false;
     }
+    await logSystemEvent('System', 'WHATSAPP', 'ALERT_SENT', message.slice(0, 300), targetLeague);
+    return true;
   } catch (e) {
-    console.error('WhatsApp error:', e);
+    const errMsg = e instanceof Error ? e.message : String(e);
+    console.error('WhatsApp error:', errMsg);
+    await logSystemEvent('System', 'WHATSAPP', 'ALERT_FAILED', `Error: ${errMsg}`.slice(0, 500), targetLeague);
+    return false;
   }
 }
 
@@ -177,11 +200,11 @@ export async function notifyDraftPick({
   const subject = `GFL DRAFT (R${round}): Pick #${overallPick}${type === 'PICK' ? ` (${playerName})` : ' ' + type}`;
   const body = `${pingText}${header}:\n----------\nRound: ${round} | Pick: #${overallPick}\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}${skippedBlock}\n\nBoard: ${GFL_URL}/draft`;
 
-  await sendEmail({ subject, text: body });
+  await sendEmail({ subject, text: body, leagueId });
 
   if (leagueId === 1 || leagueId === undefined) {
     const waMessage = `${waHeader}\n----------\n*Round ${round} | Pick #${overallPick}*\n\n${details}\n\nRECENT:\n${recentStr}\n\nON DECK:\n${onDeckStr}${skippedBlock}${nextOwner ? `\n\n👉 *NEXT UP:* ${nextOwner.toUpperCase()} 👈` : ''}\n\n🌐 ${GFL_URL}`;
-    await sendWhatsApp(waMessage);
+    await sendWhatsApp(waMessage, leagueId);
   } else {
     console.log('[notify] skipping WhatsApp for leagueId:', leagueId);
   }
@@ -203,9 +226,9 @@ export async function notifyDraftComplete({
   `;
   const text = `${leagueName} ${draftYear} Draft Complete. All ${totalPicks} picks finalized. ${GFL_URL}/draft`;
 
-  await sendEmail({ subject, html, text });
+  await sendEmail({ subject, html, text, leagueId });
   if (leagueId === 1) {
-    await sendWhatsApp(text);
+    await sendWhatsApp(text, leagueId);
   } else {
     console.log('[notify] skipping WhatsApp for leagueId:', leagueId);
   }
@@ -246,9 +269,9 @@ export async function notifyDraftCutoff({
     ? `${leagueName} ${draftYear} Draft concluded — 48-hour window open until ${deadlineET}. ${GFL_URL}/draft`
     : `${leagueName} ${draftYear} Draft closes in ${hoursLeft}h — deadline ${deadlineET}. ${GFL_URL}/draft`;
 
-  await sendEmail({ subject, html, text });
+  await sendEmail({ subject, html, text, leagueId });
   if (leagueId === 1) {
-    await sendWhatsApp(text);
+    await sendWhatsApp(text, leagueId);
   } else {
     console.log('[notify] skipping WhatsApp for leagueId:', leagueId);
   }
@@ -287,9 +310,31 @@ export async function notifyTransaction({
       </p>
     </div>`;
 
-  await sendEmail({ subject: `GFL Activity: ${type}`, html });
+  // Format unique subject line to prevent Gmail thread collapsing
+  const paths = Object.keys(directions);
+  const pathSummary = paths.length === 2 && paths[0].includes('➔') && paths[1].includes('➔')
+    ? `${paths[0].split('➔')[0].trim()} ↔ ${paths[0].split('➔')[1].trim()}`
+    : paths.join('; ');
+
+  const allAssets = Object.values(directions).flat();
+  const assetSummary = allAssets.length > 0
+    ? ` (${allAssets.slice(0, 2).map(a => a.split(' - ')[0].trim()).join(', ')}${allAssets.length > 2 ? ` +${allAssets.length - 2}` : ''})`
+    : '';
+
+  const nowET = new Date().toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+
+  const subject = `GFL Activity: ${type} — ${pathSummary}${assetSummary} · ${nowET}`;
+  const plainText = `OFFICIAL LEAGUE ACTIVITY: ${type}\n----------------------------\n${waSectionsText}Website: ${GFL_URL}`;
+
+  await sendEmail({ subject, html, text: plainText, leagueId });
   if (leagueId === 1 || leagueId === undefined) {
-    await sendWhatsApp(`📝 *GFL TRANSACTION: ${type}*\n----------------------------\n${waSectionsText}🌐 ${GFL_URL}`);
+    await sendWhatsApp(`📝 *GFL TRANSACTION: ${type}*\n----------------------------\n${waSectionsText}🌐 ${GFL_URL}`, leagueId);
   }
 }
 
@@ -345,13 +390,24 @@ export async function notifyTradeBlock({
       </p>
     </div>`;
 
-  await sendEmail({ subject: `GFL Trade Block: ${newPlayer.playerName.slice(0, 60)} (${newPlayer.team.slice(0, 40)}) listed`, html });
+  const nowET = new Date().toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+  const subject = `GFL Trade Block: ${newPlayer.playerName.slice(0, 60)} (${newPlayer.team.slice(0, 40)}) listed · ${nowET}`;
+  const plainText = `TRADE BLOCK UPDATE\n----------------------------\n${newPlayer.playerName}${newPlayer.position ? ` [${newPlayer.position}]` : ''} listed by ${newPlayer.team}\n\nFULL BLOCK (${block.length}):\n${waBlock}\n\nWebsite: ${GFL_URL}/trade-block`;
+
+  await sendEmail({ subject, html, text: plainText, leagueId });
 
   if (leagueId === 1 || leagueId === undefined) {
     await sendWhatsApp(
       `🔄 *TRADE BLOCK UPDATE*\n----------------------------\n` +
       `*${newPlayer.playerName}*${newPlayer.position ? ` [${newPlayer.position}]` : ''} listed by ${newPlayer.team}\n\n` +
-      `*FULL BLOCK (${block.length}):*\n${waBlock}\n\n🌐 ${GFL_URL}/trade-block`
+      `*FULL BLOCK (${block.length}):*\n${waBlock}\n\n🌐 ${GFL_URL}/trade-block`,
+      leagueId
     );
   }
 }

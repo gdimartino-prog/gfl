@@ -38,7 +38,12 @@ export async function GET(req: Request) {
       ? and(eq(schedule.leagueId, leagueId), eq(schedule.year, parseInt(year)))
       : eq(schedule.leagueId, leagueId)
   )
-  .orderBy(schedule.year, sql`CAST(${schedule.week} AS INTEGER)`);
+  .orderBy(
+    schedule.year,
+    sql`CASE WHEN ${schedule.week} ~ '^[0-9]+$' THEN CAST(${schedule.week} AS INTEGER) ELSE 999 END ASC`,
+    schedule.week,
+    schedule.id
+  );
 
   return NextResponse.json(rows);
 }

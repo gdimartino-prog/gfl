@@ -33,21 +33,21 @@ export default function DropPlayer({
     if (!team) return;
     try {
       const opts: RequestInit = fresh ? { cache: 'no-store' } : {};
-      const [playerRes, teamRes] = await Promise.all([
-        fetch('/api/players', opts),
+      const [rosterRes, teamRes] = await Promise.all([
+        fetch(`/api/rosters/${encodeURIComponent(team)}`, opts),
         fetch('/api/teams', opts)
       ]);
 
-      if (!playerRes.ok || !teamRes.ok) {
+      if (!rosterRes.ok || !teamRes.ok) {
         throw new Error("Failed to load fresh roster data.");
       }
 
-      const playerData = await playerRes.json();
+      const rosterData = await rosterRes.json();
       const teamData = await teamRes.json();
 
-      const players = Array.isArray(playerData)
-        ? playerData.filter((p: Player) => p.team === team)
-        : [];
+      const players = Array.isArray(rosterData?.roster)
+        ? rosterData.roster
+        : Array.isArray(rosterData) ? rosterData : [];
 
       setRoster(players);
       setTeamMetadata(teamData);

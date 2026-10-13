@@ -220,6 +220,15 @@ const handleUndoMyPick = async () => {
     };
   }, [picks]);
 
+  // Real-time draft synchronization: poll board every 3s while a pick is active on the clock
+  useEffect(() => {
+    if (!onClockPick) return;
+    const interval = setInterval(() => {
+      loadData(false);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [onClockPick, loadData]);
+
   const myLastPick = picks
     .filter(p => p.status === 'Drafted' && p.currentOwner?.toUpperCase() === myTeamCode.toUpperCase())
     .at(-1);

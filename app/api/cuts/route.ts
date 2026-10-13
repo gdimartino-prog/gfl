@@ -111,40 +111,42 @@ export async function POST(req: NextRequest) {
     const teamId = teamRow[0].id;
     const yearInt = parseInt(year);
 
-    // Delete existing cuts for this team/year, then re-insert
-    await db.delete(cuts).where(and(
-      eq(cuts.leagueId, leagueId),
-      eq(cuts.teamId, teamId),
-      eq(cuts.year, yearInt),
-    ));
+    // Delete existing cuts for this team/year, then re-insert atomically
+    await db.transaction(async (tx) => {
+      await tx.delete(cuts).where(and(
+        eq(cuts.leagueId, leagueId),
+        eq(cuts.teamId, teamId),
+        eq(cuts.year, yearInt),
+      ));
 
-    if (selections?.length > 0) {
-      const now = new Date();
-      const rows = selections.map((sel: { identity: string; status: string }) => {
-        const parts = sel.identity.split('|');
-        const statusFormatted = sel.status.charAt(0).toUpperCase() + sel.status.slice(1);
-        return {
-          leagueId,
-          teamId,
-          year: yearInt,
-          firstName: parts[0] || null,
-          lastName: parts[1] || null,
-          age: parts[2] ? parseInt(parts[2]) || null : null,
-          offense: parts[3] || null,
-          defense: parts[4] || null,
-          special: parts[5] || null,
-          status: statusFormatted,
-          datetime: now,
-          touch_id: team,
-        };
-      });
-      await db.insert(cuts).values(rows);
-    }
+      if (selections?.length > 0) {
+        const now = new Date();
+        const rows = selections.map((sel: { identity: string; status: string }) => {
+          const parts = sel.identity.split('|');
+          const statusFormatted = sel.status.charAt(0).toUpperCase() + sel.status.slice(1);
+          return {
+            leagueId,
+            teamId,
+            year: yearInt,
+            firstName: parts[0] || null,
+            lastName: parts[1] || null,
+            age: parts[2] ? parseInt(parts[2]) || null : null,
+            offense: parts[3] || null,
+            defense: parts[4] || null,
+            special: parts[5] || null,
+            status: statusFormatted,
+            datetime: now,
+            touch_id: team,
+          };
+        });
+        await tx.insert(cuts).values(rows);
+      }
+    });
 
     const protCount = selections?.filter((s: { status: string }) => s.status === 'protected').length ?? 0;
     const pullCount = selections?.filter((s: { status: string }) => s.status === 'pullback').length ?? 0;
     revalidateTag('cuts', 'max');
-    logSystemEvent(team, team, 'CUTS_SUBMITTED', `Year ${year}: ${protCount} protected, ${pullCount} pullback`, leagueId);
+    await logSystemEvent(team, team, 'CUTS_SUBMITTED', `Year ${year}: ${protCount} protected, ${pullCount} pullback`, leagueId);
 
     return NextResponse.json({ success: true });
   } catch (err: unknown) {

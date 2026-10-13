@@ -184,6 +184,7 @@ export async function POST(req: Request) {
 
     const callerTeamshort = (session.user as { id?: string }).id || '';
     const privileged = await isPrivileged();
+    const actorName = session.user.name || callerTeamshort || 'Commissioner';
 
     const leagueId = await getLeagueId();
 
@@ -216,7 +217,6 @@ export async function POST(req: Request) {
         .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'cuts_year'), isNull(rules.year))).limit(1);
       const seasonNum = seasonRule[0] ? parseInt(seasonRule[0].value) : NaN;
       const season = Number.isFinite(seasonNum) ? seasonNum : undefined;
-      const actorName = session.user.name || callerTeamshort || 'Commissioner';
       await logTransaction({ type, details, fromTeam, toTeam, coach: actorName, leagueId, season });
       revalidateTag('transactions', 'max');
       await logSystemEvent(actorName, fromTeam, 'CONDITIONAL_TRADE', `${fromTeam} → ${toTeam}: ${details.slice(0, 240)}`, leagueId);
@@ -310,49 +310,48 @@ export async function POST(req: Request) {
       }
     }
 
-    if (type === 'DROP' || type === 'WAIVE') {
-      newTeamId = null; // FA
-      if (player.isIR) {
-        await db.update(players).set({ isIR: false, touch_id: 'transaction', touch_dt: new Date() })
-          .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
-      }
-    } else if (type === 'IR' || type === 'IR MOVE') {
-      newTeamId = player.teamId ?? null; // stays on same team, isIR flag would be set
-      await db.update(players).set({ isIR: true, touch_id: 'transaction', touch_dt: new Date() })
-        .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
-    }
-
-    if (type !== 'IR' && type !== 'IR MOVE') {
-      await db.update(players)
-        .set({ teamId: newTeamId, touch_id: 'transaction', touch_dt: new Date() })
-        .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
-    }
-
-    // Remove from trade block if present. tradeBlock.playerId stores the
-    // player identity string (first|last|age|...), NOT the numeric PK.
-    if (player.identity) {
-      await db.delete(tradeBlock)
-        .where(and(eq(tradeBlock.playerId, player.identity), eq(tradeBlock.leagueId, leagueId)));
-    }
-
     // Resolve current season from rules
     const seasonRule = await db.select({ value: rules.value }).from(rules)
       .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'cuts_year'), isNull(rules.year))).limit(1);
     const season = seasonRule[0] ? parseInt(seasonRule[0].value) || null : null;
 
-    const actorName = session.user.name || (session.user as { id?: string }).id || 'Commissioner';
-    // Explicit field list — never spread the client body: coaches could
-    // attach pickIds/touch_id/etc. that downstream commissioner actions
-    // (e.g. DELETE's pick-transfer revert) would act on.
-    await logTransaction({
-      type,
-      details,
-      fromTeam: resolvedFromTeam,
-      toTeam,
-      coach: actorName,
-      weekBack: typeof body.weekBack === 'string' || typeof body.weekBack === 'number' ? body.weekBack : undefined,
-      leagueId,
-      season: season ?? undefined,
+    // Atomically execute roster update, trade block cleanup, and transaction logging
+    await db.transaction(async (tx) => {
+      if (type === 'DROP' || type === 'WAIVE') {
+        newTeamId = null; // FA
+        if (player.isIR) {
+          await tx.update(players).set({ isIR: false, touch_id: 'transaction', touch_dt: new Date() })
+            .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
+        }
+      } else if (type === 'IR' || type === 'IR MOVE') {
+        newTeamId = player.teamId ?? null; // stays on same team, isIR flag would be set
+        await tx.update(players).set({ isIR: true, touch_id: 'transaction', touch_dt: new Date() })
+          .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
+      }
+
+      if (type !== 'IR' && type !== 'IR MOVE') {
+        await tx.update(players)
+          .set({ teamId: newTeamId, touch_id: 'transaction', touch_dt: new Date() })
+          .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
+      }
+
+      // Remove from trade block if present. tradeBlock.playerId stores the
+      // player identity string (first|last|age|...), NOT the numeric PK.
+      if (player.identity) {
+        await tx.delete(tradeBlock)
+          .where(and(eq(tradeBlock.playerId, player.identity), eq(tradeBlock.leagueId, leagueId)));
+      }
+
+      await logTransaction({
+        type,
+        details,
+        fromTeam: resolvedFromTeam,
+        toTeam,
+        coach: actorName,
+        weekBack: typeof body.weekBack === 'string' || typeof body.weekBack === 'number' ? body.weekBack : undefined,
+        leagueId,
+        season: season ?? undefined,
+      }, tx);
     });
     revalidateTag('transactions', 'max');
     revalidateTag('players', 'max');

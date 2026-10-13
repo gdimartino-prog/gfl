@@ -16,20 +16,21 @@ export async function logTransaction(tx: {
   leagueId?: number;
   season?: number;
   pickIds?: number[];
-}) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}, executor: any = db) {
   const leagueId = tx.leagueId ?? 1;
   let fee = 0;
 
   // Look up fa_pickup_fee rule for ADD transactions
   if (tx.type === 'ADD') {
-    const ruleRow = await db.select({ value: rules.value })
+    const ruleRow = await executor.select({ value: rules.value })
       .from(rules)
       .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'fa_pickup_fee'), isNull(rules.year)))
       .limit(1);
     fee = ruleRow[0] ? parseInt(ruleRow[0].value) || 0 : 0;
   }
 
-  await db.insert(transactions).values({
+  await executor.insert(transactions).values({
     date: new Date(),
     leagueId,
     type: tx.type,

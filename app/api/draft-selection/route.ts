@@ -92,14 +92,17 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Find the player in DB
-    const playerRows = await db.select({ id: players.id })
+    // 2. Find the player in DB (and verify not already on a roster)
+    const playerRows = await db.select({ id: players.id, teamId: players.teamId })
       .from(players)
       .where(and(eq(players.identity, playerIdentity), eq(players.leagueId, leagueId)))
       .limit(1);
 
     if (!playerRows[0]) {
       return NextResponse.json({ error: 'Player not found.' }, { status: 400 });
+    }
+    if (playerRows[0].teamId !== null) {
+      return NextResponse.json({ error: 'Player is already on a roster.' }, { status: 400 });
     }
 
     const playerId = playerRows[0].id;
@@ -139,31 +142,37 @@ export async function POST(req: NextRequest) {
       }, { status: 400 });
     }
 
-    // 4. Update draft pick: mark as selected. The WHERE re-asserts the pick is
-    // still unclaimed so two concurrent submissions can't both "win" the same
-    // pick (the pre-check above is not atomic on its own).
-    const claimed = await db.update(draftPicks)
-      .set({
-        playerId,
-        selectedPlayerName,
-        pickedAt: now,
-        touch_id: coachName || 'draft',
-      })
-      .where(and(
-        eq(draftPicks.id, pickRow.id),
-        eq(draftPicks.leagueId, leagueId),
-        isNull(draftPicks.playerId),
-      ))
-      .returning({ id: draftPicks.id });
+    // 4 & 5. Atomically claim pick and update player ownership
+    try {
+      await db.transaction(async (tx) => {
+        const claimed = await tx.update(draftPicks)
+          .set({
+            playerId,
+            selectedPlayerName,
+            pickedAt: now,
+            touch_id: coachName || 'draft',
+          })
+          .where(and(
+            eq(draftPicks.id, pickRow.id),
+            eq(draftPicks.leagueId, leagueId),
+            isNull(draftPicks.playerId),
+          ))
+          .returning({ id: draftPicks.id });
 
-    if (claimed.length === 0) {
-      return NextResponse.json({ error: 'This pick has already been made.' }, { status: 409 });
+        if (claimed.length === 0) {
+          throw new Error('ALREADY_CLAIMED');
+        }
+
+        await tx.update(players)
+          .set({ teamId: newTeamRow[0].id, touch_id: coachName || 'draft' })
+          .where(eq(players.id, playerId));
+      });
+    } catch (err) {
+      if (err instanceof Error && err.message === 'ALREADY_CLAIMED') {
+        return NextResponse.json({ error: 'This pick has already been made.' }, { status: 409 });
+      }
+      throw err;
     }
-
-    // 5. Update player's team ownership
-    await db.update(players)
-      .set({ teamId: newTeamRow[0].id, touch_id: coachName || 'draft' })
-      .where(eq(players.id, playerId));
 
     // 6. Build notification context (recent 5 picks + next 3 on deck)
     const allPicks = await db.select({

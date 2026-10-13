@@ -119,54 +119,50 @@ export async function POST(req: Request) {
     // commissioner to manually correct rosters (or re-sync from the Action
     // game file).
     const touchId = callerTeamshort || 'trade';
-    const playerMoves: Promise<unknown>[] = [];
-    if (Array.isArray(rawIdentitiesFrom) && rawIdentitiesFrom.length > 0 && toTeamId) {
-      playerMoves.push(
-        db.update(players)
-          .set({ teamId: toTeamId, touch_id: touchId })
-          .where(and(
-            eq(players.leagueId, leagueId),
-            inArray(players.identity, rawIdentitiesFrom as string[]),
-          ))
-      );
-    }
-    if (Array.isArray(rawIdentitiesTo) && rawIdentitiesTo.length > 0 && fromTeamId) {
-      playerMoves.push(
-        db.update(players)
-          .set({ teamId: fromTeamId, touch_id: touchId })
-          .where(and(
-            eq(players.leagueId, leagueId),
-            inArray(players.identity, rawIdentitiesTo as string[]),
-          ))
-      );
-    }
-    await Promise.all(playerMoves);
-
-    // Log transactions as Pending — player moves happen in the Action game
     const actorName = session.user.name || callerTeamshort || 'Coach';
     const proposerAssets = [...(playersFrom || []), ...(draftPicksFrom || [])].join(', ');
     const partnerAssets = [...(playersTo || []), ...(draftPicksTo || [])].join(', ');
 
-    if (proposerAssets) {
-      await logTransaction({
-        type: 'TRADE',
-        details: `Traded to ${toFull}: ${proposerAssets}`,
-        fromTeam: fromFull, toTeam: toFull,
-        coach: actorName, status: 'Pending',
-        leagueId,
-        pickIds: rawPicksFrom?.length ? (rawPicksFrom as string[]).map(Number) : undefined,
-      });
-    }
-    if (partnerAssets) {
-      await logTransaction({
-        type: 'TRADE',
-        details: `Traded to ${fromFull}: ${partnerAssets}`,
-        fromTeam: toFull, toTeam: fromFull,
-        coach: actorName, status: 'Pending',
-        leagueId,
-        pickIds: rawPicksTo?.length ? (rawPicksTo as string[]).map(Number) : undefined,
-      });
-    }
+    // Atomically execute player roster transfers and transaction history logs
+    await db.transaction(async (tx) => {
+      if (Array.isArray(rawIdentitiesFrom) && rawIdentitiesFrom.length > 0 && toTeamId) {
+        await tx.update(players)
+          .set({ teamId: toTeamId, touch_id: touchId })
+          .where(and(
+            eq(players.leagueId, leagueId),
+            inArray(players.identity, rawIdentitiesFrom as string[]),
+          ));
+      }
+      if (Array.isArray(rawIdentitiesTo) && rawIdentitiesTo.length > 0 && fromTeamId) {
+        await tx.update(players)
+          .set({ teamId: fromTeamId, touch_id: touchId })
+          .where(and(
+            eq(players.leagueId, leagueId),
+            inArray(players.identity, rawIdentitiesTo as string[]),
+          ));
+      }
+
+      if (proposerAssets) {
+        await logTransaction({
+          type: 'TRADE',
+          details: `Traded to ${toFull}: ${proposerAssets}`,
+          fromTeam: fromFull, toTeam: toFull,
+          coach: actorName, status: 'Pending',
+          leagueId,
+          pickIds: rawPicksFrom?.length ? (rawPicksFrom as string[]).map(Number) : undefined,
+        }, tx);
+      }
+      if (partnerAssets) {
+        await logTransaction({
+          type: 'TRADE',
+          details: `Traded to ${fromFull}: ${partnerAssets}`,
+          fromTeam: toFull, toTeam: fromFull,
+          coach: actorName, status: 'Pending',
+          leagueId,
+          pickIds: rawPicksTo?.length ? (rawPicksTo as string[]).map(Number) : undefined,
+        }, tx);
+      }
+    });
 
     revalidateTag('transactions', 'max');
     revalidateTag('draft-picks', 'max');
