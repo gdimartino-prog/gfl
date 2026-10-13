@@ -12,31 +12,26 @@ config({ path: '.env.local' });
 const { db } = await import('../lib/db');
 const { sql } = await import('drizzle-orm');
 
-const tables = [
-  'leagues',
-  'teams',
-  'players',
-  'transactions',
-  'draft_picks',
-  'cuts',
-  'rules',
-  'resources',
-  'standings',
-  'schedule',
-  'trade_block',
-  'audit_log',
-  'draft_pick_transfers',
-  'draft_auto_pick_queue',
-];
+// Query all tables in the public schema dynamically so newly added
+// tables or non-standard tables (e.g. nfl_draft) are never missed.
+const result = await db.execute<{ tablename: string; rowsecurity: boolean }>(sql`
+  SELECT tablename, rowsecurity
+  FROM pg_tables
+  WHERE schemaname = 'public'
+  ORDER BY tablename;
+`);
+
+const allTables = result.rows;
+console.log(`Discovered ${allTables.length} tables in public schema.\n`);
 
 const failures: string[] = [];
-for (const t of tables) {
+for (const { tablename, rowsecurity } of allTables) {
   try {
-    await db.execute(sql.raw(`ALTER TABLE ${t} ENABLE ROW LEVEL SECURITY`));
-    console.log('✓ RLS enabled:', t);
+    await db.execute(sql.raw(`ALTER TABLE "${tablename}" ENABLE ROW LEVEL SECURITY`));
+    console.log(`✓ RLS enabled: ${tablename}${rowsecurity ? ' (was already enabled)' : ' (ENABLED)'}`);
   } catch (e: any) {
-    console.log('  SKIP:', t, '-', e.message);
-    failures.push(t);
+    console.log(`  FAIL: ${tablename} - ${e.message}`);
+    failures.push(tablename);
   }
 }
 
