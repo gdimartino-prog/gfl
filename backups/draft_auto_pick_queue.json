@@ -1,0 +1,38 @@
+[
+  {
+    "id": 19,
+    "leagueId": 1,
+    "teamId": 42,
+    "playerId": 24519,
+    "year": 2026,
+    "draftType": "free_agent",
+    "sortOrder": 0,
+    "createdAt": "2026-06-18T23:53:58.478Z",
+    "touch_dt": "2026-06-18T23:53:58.478Z",
+    "touch_id": "CT"
+  },
+  {
+    "id": 21,
+    "leagueId": 1,
+    "teamId": 59,
+    "playerId": 23970,
+    "year": 2026,
+    "draftType": "free_agent",
+    "sortOrder": 0,
+    "createdAt": "2026-06-23T00:48:44.013Z",
+    "touch_dt": "2026-06-23T00:48:44.013Z",
+    "touch_id": "PT"
+  },
+  {
+    "id": 23,
+    "leagueId": 1,
+    "teamId": 51,
+    "playerId": 24850,
+    "year": 2026,
+    "draftType": "free_agent",
+    "sortOrder": 0,
+    "createdAt": "2026-09-17T01:47:48.059Z",
+    "touch_dt": "2026-09-17T01:47:48.059Z",
+    "touch_id": "NBT"
+  }
+]

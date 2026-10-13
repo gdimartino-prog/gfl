@@ -14650,5 +14650,158 @@
     "team": "admin",
     "action": "IMPORT_PLAYERS",
     "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1629,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T16:57:03.476Z",
+    "coach": "Jack Wyville",
+    "team": "FA",
+    "action": "ADD",
+    "details": "OLB - D.J. Wonnum"
+  },
+  {
+    "id": 1630,
+    "leagueId": 2,
+    "timestamp": "2026-10-12T20:12:56.024Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1631,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T21:43:22.177Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "WAIVE",
+    "details": "C - John Michael Schmitz"
+  },
+  {
+    "id": 1632,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T21:44:02.890Z",
+    "coach": "Bob Glade",
+    "team": "FA",
+    "action": "ADD",
+    "details": "C-G - Bryan Hudson"
+  },
+  {
+    "id": 1633,
+    "leagueId": 1,
+    "timestamp": "2026-10-12T22:10:45.921Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1634,
+    "leagueId": 2,
+    "timestamp": "2026-10-12T22:12:05.078Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1635,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T02:24:11.944Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "TRADE",
+    "details": "Crimson ↔ Carolina"
+  },
+  {
+    "id": 1636,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T12:13:38.768Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: TRADE — Crimson ↔ Carolina (Brenton Strange, Greg Newsome II) · Oct 13, 8:13 AM"
+  },
+  {
+    "id": 1637,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T12:44:12.402Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #605 marked Done"
+  },
+  {
+    "id": 1638,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T12:44:48.019Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #606 marked Done"
+  },
+  {
+    "id": 1639,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T12:44:49.545Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #607 marked Done"
+  },
+  {
+    "id": 1640,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T12:45:37.671Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #609 marked Done"
+  },
+  {
+    "id": 1641,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T12:45:39.546Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #608 marked Done"
+  },
+  {
+    "id": 1642,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T12:54:41.958Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: TRADE — Crimson ↔ Carolina (Brenton Strange, Greg Newsome II) · Oct 13, 8:54 AM"
+  },
+  {
+    "id": 1643,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T12:57:09.660Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1644,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T12:57:13.355Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1645,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T12:57:34.536Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]
