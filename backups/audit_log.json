@@ -14803,5 +14803,68 @@
     "team": "admin",
     "action": "IMPORT_SCHEDULE",
     "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1646,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T20:18:31.268Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "WAIVE",
+    "details": "DL - Vernon Broughton"
+  },
+  {
+    "id": 1647,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T20:18:32.396Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — DC ➔ FA (DL) · Oct 13, 4:18 PM"
+  },
+  {
+    "id": 1648,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T20:18:32.738Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*DC ➔ FA:*\n• DL - Vernon Broughton\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1649,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T20:18:42.357Z",
+    "coach": "Alex Matsikoudis",
+    "team": "FA",
+    "action": "ADD",
+    "details": "DL - Calijah Kancey"
+  },
+  {
+    "id": 1650,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T20:18:43.417Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ DC (DL) · Oct 13, 4:18 PM"
+  },
+  {
+    "id": 1651,
+    "leagueId": 1,
+    "timestamp": "2026-10-13T20:18:43.767Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ DC:*\n• DL - Calijah Kancey\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1652,
+    "leagueId": 1,
+    "timestamp": "2026-10-14T02:01:39.048Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CRIMSON.COA"
   }
 ]
