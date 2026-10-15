@@ -14866,5 +14866,140 @@
     "team": "CK",
     "action": "COA_UPLOAD",
     "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 1653,
+    "leagueId": 1,
+    "timestamp": "2026-10-14T12:00:16.511Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Update: 2026 Week 4 (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-93ef500809asm474543485a.16 - gsmtp)"
+  },
+  {
+    "id": 1654,
+    "leagueId": 1,
+    "timestamp": "2026-10-14T12:00:16.964Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 4 (2026)*\n----------------------------------\n\n*WEEK 4*\n❌ Amalfi @ Jefferson - 🚨 PAST DUE\n🏈 Crimson @ Old Bridge - Final: 23-7\n❌ LBI @ Tetbury - 🚨 PAST DUE\n❌ Kigali @ Newark Bay - 🚨 PAST DUE\n🏈 DC @ Pyongyang - Final: 27-10\n🏈 Vico @ Satriale - Final: 21-12\n🏈 Tampa @ "
+  },
+  {
+    "id": 1655,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T00:21:56.430Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "WAIVE",
+    "details": "CB - Jarvis Brownlee Jr."
+  },
+  {
+    "id": 1656,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T00:21:56.605Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: WAIVE — Fur Peace ➔ FA (CB) · Oct 14, 8:21 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-93ef4f49861sm632967685a.4 - gsmtp)"
+  },
+  {
+    "id": 1657,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T00:21:56.958Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Fur Peace ➔ FA:*\n• CB - Jarvis Brownlee Jr.\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1658,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T00:22:34.599Z",
+    "coach": "Jack Wyville",
+    "team": "FA",
+    "action": "ADD",
+    "details": "OLB - Princely Umanmielen"
+  },
+  {
+    "id": 1659,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T00:22:34.821Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: ADD — FA ➔ Fur Peace (OLB) · Oct 14, 8:22 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-536127e6dc5sm10812281cf.18 - gsmtp)"
+  },
+  {
+    "id": 1660,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T00:22:35.188Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Fur Peace:*\n• OLB - Princely Umanmielen\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1661,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T01:28:35.850Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #611 marked Done"
+  },
+  {
+    "id": 1662,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T01:28:37.318Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #610 marked Done"
+  },
+  {
+    "id": 1663,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T01:29:19.076Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #613 marked Done"
+  },
+  {
+    "id": 1664,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T01:29:20.362Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #612 marked Done"
+  },
+  {
+    "id": 1665,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T01:31:46.305Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1666,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T01:31:49.755Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1667,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T01:32:06.680Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]
