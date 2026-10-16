@@ -15001,5 +15001,149 @@
     "team": "admin",
     "action": "IMPORT_SCHEDULE",
     "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1668,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:47:50.130Z",
+    "coach": "Tom Fusillo",
+    "team": "FA",
+    "action": "ADD",
+    "details": "WR - Darnell Mooney"
+  },
+  {
+    "id": 1669,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:47:50.877Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Satriale (WR) · Oct 15, 2:47 PM"
+  },
+  {
+    "id": 1670,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:47:51.233Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Satriale:*\n• WR - Darnell Mooney\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1671,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:48:07.879Z",
+    "coach": "Tom Fusillo",
+    "team": "Satriale",
+    "action": "WAIVE",
+    "details": "RB/KR - Michael Carter"
+  },
+  {
+    "id": 1672,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:48:08.713Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Satriale ➔ FA (RB/KR) · Oct 15, 2:48 PM"
+  },
+  {
+    "id": 1673,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:48:09.095Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Satriale ➔ FA:*\n• RB/KR - Michael Carter\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1674,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:55:16.212Z",
+    "coach": "Tom Fusillo",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "T - Jack Conklin for injury to T - Joe Alt in week 4 for 10 weeks"
+  },
+  {
+    "id": 1675,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:55:16.860Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ Satriale (T) · Oct 15, 2:55 PM"
+  },
+  {
+    "id": 1676,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:55:17.247Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Satriale:*\n• T - Jack Conklin for injury to T - Joe Alt in week 4 for 10 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1677,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:59:05.025Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #614 marked Done"
+  },
+  {
+    "id": 1678,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:59:05.978Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #615 marked Done"
+  },
+  {
+    "id": 1679,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:59:40.290Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #616 marked Done"
+  },
+  {
+    "id": 1680,
+    "leagueId": 1,
+    "timestamp": "2026-10-15T18:59:42.210Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #616 marked On Team"
+  },
+  {
+    "id": 1681,
+    "leagueId": 1,
+    "timestamp": "2026-10-16T01:32:10.017Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "C - Jake Andrews for injury to C - Cooper Beebe in week 3 for 4 weeks"
+  },
+  {
+    "id": 1682,
+    "leagueId": 1,
+    "timestamp": "2026-10-16T01:32:10.777Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ Jefferson (C) · Oct 15, 9:32 PM"
+  },
+  {
+    "id": 1683,
+    "leagueId": 1,
+    "timestamp": "2026-10-16T01:32:11.144Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Jefferson:*\n• C - Jake Andrews for injury to C - Cooper Beebe in week 3 for 4 weeks\n\n🌐 https://afl.gddevco.com\n"
   }
 ]
