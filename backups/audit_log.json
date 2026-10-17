@@ -15145,5 +15145,59 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Jefferson:*\n• C - Jake Andrews for injury to C - Cooper Beebe in week 3 for 4 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1684,
+    "leagueId": 1,
+    "timestamp": "2026-10-16T12:00:15.728Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Update: 2026 Week 4 (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-91bcba473easm21281996d6.17 - gsmtp)"
+  },
+  {
+    "id": 1685,
+    "leagueId": 1,
+    "timestamp": "2026-10-16T12:00:16.214Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 4 (2026)*\n----------------------------------\n\n*WEEK 4*\n❌ Amalfi @ Jefferson - 🚨 PAST DUE\n🏈 Crimson @ Old Bridge - Final: 23-7\n🏈 LBI @ Tetbury - Final: 17-23\n🏈 Kigali @ Newark Bay - Final: 15-25\n🏈 DC @ Pyongyang - Final: 27-10\n🏈 Vico @ Satriale - Final: 21-12\n🏈 Tamp"
+  },
+  {
+    "id": 1686,
+    "leagueId": 1,
+    "timestamp": "2026-10-16T13:32:12.447Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1687,
+    "leagueId": 1,
+    "timestamp": "2026-10-16T13:33:18.910Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1688,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T01:20:04.432Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1689,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T01:20:48.114Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]
