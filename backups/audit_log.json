@@ -15199,5 +15199,122 @@
     "team": "admin",
     "action": "IMPORT_SCHEDULE",
     "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1690,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:07:24.415Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "WAIVE",
+    "details": "WR - Mar Valdes-Scantling"
+  },
+  {
+    "id": 1691,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:07:25.720Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Vico ➔ FA (WR) · Oct 17, 1:07 PM"
+  },
+  {
+    "id": 1692,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:07:26.075Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Vico ➔ FA:*\n• WR - Mar Valdes-Scantling\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1693,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:07:42.324Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "WR - Darius Cooper"
+  },
+  {
+    "id": 1694,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:07:43.634Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Vico (WR) · Oct 17, 1:07 PM"
+  },
+  {
+    "id": 1695,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:07:43.965Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Vico:*\n• WR - Darius Cooper\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1696,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:11:34.298Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "WAIVE",
+    "details": "DE - Mike Danna"
+  },
+  {
+    "id": 1697,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:11:35.059Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Vico ➔ FA (DE) · Oct 17, 1:11 PM"
+  },
+  {
+    "id": 1698,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:11:35.391Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Vico ➔ FA:*\n• DE - Mike Danna\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1699,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:11:46.938Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "DL - Malcolm Roach"
+  },
+  {
+    "id": 1700,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:11:47.591Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Vico (DL) · Oct 17, 1:11 PM"
+  },
+  {
+    "id": 1701,
+    "leagueId": 1,
+    "timestamp": "2026-10-17T17:11:47.900Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Vico:*\n• DL - Malcolm Roach\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1702,
+    "leagueId": 2,
+    "timestamp": "2026-10-18T07:07:28.241Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
   }
 ]
