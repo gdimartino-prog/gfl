@@ -34,5 +34,17 @@
     "createdAt": "2026-09-17T01:47:48.059Z",
     "touch_dt": "2026-09-17T01:47:48.059Z",
     "touch_id": "NBT"
+  },
+  {
+    "id": 24,
+    "leagueId": 2,
+    "teamId": 98,
+    "playerId": 22832,
+    "year": 2026,
+    "draftType": "free_agent",
+    "sortOrder": 0,
+    "createdAt": "2026-10-18T16:06:00.003Z",
+    "touch_dt": "2026-10-18T16:06:00.003Z",
+    "touch_id": "VV"
   }
 ]

@@ -820,5 +820,17 @@
     "history": [],
     "touch_dt": "2026-06-27T11:42:19.928Z",
     "touch_id": "VV"
+  },
+  {
+    "id": 157,
+    "leagueId": 2,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 6,
+    "originalTeamId": 95,
+    "currentTeamId": 90,
+    "history": [],
+    "touch_dt": "2026-10-18T13:16:28.891Z",
+    "touch_id": "VV"
   }
 ]

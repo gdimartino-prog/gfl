@@ -1985,25 +1985,6 @@
     "touch_id": "VV"
   },
   {
-    "id": 618,
-    "leagueId": 1,
-    "date": "2026-10-17T17:07:24.374Z",
-    "type": "WAIVE",
-    "description": "WR - Mar Valdes-Scantling",
-    "fromTeam": "Vico",
-    "toTeam": "FA",
-    "owner": "George Di Martino",
-    "status": "Pending",
-    "weekBack": null,
-    "season": 2026,
-    "fee": 0,
-    "emailStatus": null,
-    "pickIds": null,
-    "conditionalDetails": null,
-    "touch_dt": "2026-10-17T17:07:24.342Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 619,
     "leagueId": 1,
     "date": "2026-10-17T17:07:42.310Z",
@@ -2012,7 +1993,7 @@
     "fromTeam": "FA",
     "toTeam": "Vico",
     "owner": "George Di Martino",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 10,
@@ -2020,7 +2001,26 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-10-17T17:07:42.294Z",
-    "touch_id": "George Di Martino"
+    "touch_id": "VV"
+  },
+  {
+    "id": 618,
+    "leagueId": 1,
+    "date": "2026-10-17T17:07:24.374Z",
+    "type": "WAIVE",
+    "description": "WR - Mar Valdes-Scantling",
+    "fromTeam": "Vico",
+    "toTeam": "FA",
+    "owner": "George Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-17T17:07:24.342Z",
+    "touch_id": "VV"
   },
   {
     "id": 524,
@@ -3535,25 +3535,6 @@
     "touch_id": "VV"
   },
   {
-    "id": 620,
-    "leagueId": 1,
-    "date": "2026-10-17T17:11:34.287Z",
-    "type": "WAIVE",
-    "description": "DE - Mike Danna",
-    "fromTeam": "Vico",
-    "toTeam": "FA",
-    "owner": "George Di Martino",
-    "status": "Pending",
-    "weekBack": null,
-    "season": 2026,
-    "fee": 0,
-    "emailStatus": null,
-    "pickIds": null,
-    "conditionalDetails": null,
-    "touch_dt": "2026-10-17T17:11:34.272Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 621,
     "leagueId": 1,
     "date": "2026-10-17T17:11:46.927Z",
@@ -3562,7 +3543,7 @@
     "fromTeam": "FA",
     "toTeam": "Vico",
     "owner": "George Di Martino",
-    "status": "Pending",
+    "status": "Done",
     "weekBack": null,
     "season": 2026,
     "fee": 10,
@@ -3570,7 +3551,26 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-10-17T17:11:46.907Z",
-    "touch_id": "George Di Martino"
+    "touch_id": "VV"
+  },
+  {
+    "id": 620,
+    "leagueId": 1,
+    "date": "2026-10-17T17:11:34.287Z",
+    "type": "WAIVE",
+    "description": "DE - Mike Danna",
+    "fromTeam": "Vico",
+    "toTeam": "FA",
+    "owner": "George Di Martino",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-17T17:11:34.272Z",
+    "touch_id": "VV"
   },
   {
     "id": 515,
@@ -3856,6 +3856,46 @@
     "conditionalDetails": null,
     "touch_dt": "2026-10-15T00:21:56.356Z",
     "touch_id": "VV"
+  },
+  {
+    "id": 622,
+    "leagueId": 2,
+    "date": "2026-10-18T13:16:28.996Z",
+    "type": "TRADE",
+    "description": "Traded to Pyongyang : Braden Fiske - DL",
+    "fromTeam": "Carolina",
+    "toTeam": "Pyongyang ",
+    "owner": "Demo Commissioner",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-18T13:16:28.929Z",
+    "touch_id": "Demo Commissioner"
+  },
+  {
+    "id": 623,
+    "leagueId": 2,
+    "date": "2026-10-18T13:16:29.029Z",
+    "type": "TRADE",
+    "description": "Traded to Carolina: 2027 Pyongyang  6th round pick (103rd overall)",
+    "fromTeam": "Pyongyang ",
+    "toTeam": "Carolina",
+    "owner": "Demo Commissioner",
+    "status": "Pending",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      5573
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-18T13:16:28.929Z",
+    "touch_id": "Demo Commissioner"
   },
   {
     "id": 518,
@@ -7590,7 +7630,7 @@
     "fromTeam": "FA",
     "toTeam": "Jefferson",
     "owner": "George Di Martino",
-    "status": "Pending",
+    "status": "On Team",
     "weekBack": 7,
     "season": 2026,
     "fee": 0,
@@ -7598,6 +7638,6 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-10-16T01:32:09.860Z",
-    "touch_id": "George Di Martino"
+    "touch_id": "VV"
   }
 ]

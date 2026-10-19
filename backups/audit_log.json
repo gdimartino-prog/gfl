@@ -14877,6 +14877,15 @@
     "details": "GFL Update: 2026 Week 4 (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-93ef500809asm474543485a.16 - gsmtp)"
   },
   {
+    "id": 1703,
+    "leagueId": 2,
+    "timestamp": "2026-10-18T13:16:29.041Z",
+    "coach": "Demo Commissioner",
+    "team": "CT",
+    "action": "TRADE",
+    "details": "Carolina ↔ Pyongyang "
+  },
+  {
     "id": 1654,
     "leagueId": 1,
     "timestamp": "2026-10-14T12:00:16.964Z",
@@ -15316,5 +15325,194 @@
     "team": "VV",
     "action": "LOGIN",
     "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1704,
+    "leagueId": 2,
+    "timestamp": "2026-10-18T13:16:29.486Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: TRADE — Carolina ↔ Pyongyang (Braden Fiske, 2027 Pyongyang  6th round pick (103rd overall)) · Oct 18, 9:16 AM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-91bcbae1e06sm72523366d6.27 - gsmtp)"
+  },
+  {
+    "id": 1705,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:12:39.940Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Update: 2026 Week 5 (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-93f1a1916b7sm712268785a.26 - gsmtp)"
+  },
+  {
+    "id": 1706,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:12:40.333Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 5 (2026)*\n----------------------------------\n\n*WEEK 5*\n🏈 Tetbury @ Amalfi - PENDING\n🏈 Jefferson @ Crimson - PENDING\n🏈 Old Bridge @ LBI - PENDING\n🏈 Pyongyang @ Fur Peace - Final: 12-41\n🏈 Las Vegas @ Kigali - PENDING\n🏈 Newark Bay @ DC - PENDING\n🏈 Urban @ Vico - PENDI"
+  },
+  {
+    "id": 1707,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:19:55.192Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Update: 2026 Week 5 (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-91bd13f4b89sm65698276d6.34 - gsmtp)"
+  },
+  {
+    "id": 1708,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:19:55.579Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 5 (2026)*\n----------------------------------\n\n*WEEK 5*\n🏈 Tetbury @ Amalfi - PENDING\n🏈 Jefferson @ Crimson - PENDING\n🏈 Old Bridge @ LBI - PENDING\n🏈 Pyongyang @ Fur Peace - Final: 12-41\n🏈 Las Vegas @ Kigali - PENDING\n🏈 Newark Bay @ DC - PENDING\n🏈 Urban @ Vico - PENDI"
+  },
+  {
+    "id": 1709,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:22:56.300Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Update: 2026 Week 5 (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-93f1a0cf974sm721006385a.1 - gsmtp)"
+  },
+  {
+    "id": 1710,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:22:56.663Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 5 (2026)*\n----------------------------------\n\n*WEEK 5*\n🏈 Tetbury @ Amalfi - PENDING\n🏈 Jefferson @ Crimson - PENDING\n🏈 Old Bridge @ LBI - PENDING\n🏈 Pyongyang @ Fur Peace - Final: 12-41\n🏈 Las Vegas @ Kigali - PENDING\n🏈 Newark Bay @ DC - PENDING\n🏈 Urban @ Vico - PENDI"
+  },
+  {
+    "id": 1711,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:26:47.286Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Email Test"
+  },
+  {
+    "id": 1712,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:31:03.423Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #621 marked Done"
+  },
+  {
+    "id": 1713,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:31:05.115Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #620 marked Done"
+  },
+  {
+    "id": 1714,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:31:07.073Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #619 marked Done"
+  },
+  {
+    "id": 1715,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:31:08.876Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #618 marked Done"
+  },
+  {
+    "id": 1716,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T14:31:15.561Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #617 marked On Team"
+  },
+  {
+    "id": 1717,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T17:57:24.004Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1718,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T22:05:47.567Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 5"
+  },
+  {
+    "id": 1719,
+    "leagueId": 1,
+    "timestamp": "2026-10-18T22:05:48.017Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 5 (2026)*\n----------------------------------\n\n*WEEK 5*\n🏈 Tetbury @ Amalfi - PENDING\n🏈 Jefferson @ Crimson - PENDING\n🏈 Old Bridge @ LBI - PENDING\n🏈 Pyongyang @ Fur Peace - Final: 12-41\n🏈 Las Vegas @ Kigali - PENDING\n🏈 Newark Bay @ DC - PENDING\n🏈 Urban @ Vico - PENDI"
+  },
+  {
+    "id": 1720,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T10:57:35.518Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1721,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T10:57:38.941Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1722,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T10:57:57.167Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1723,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T12:00:17.704Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 5"
+  },
+  {
+    "id": 1724,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T12:00:18.209Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 5 (2026)*\n----------------------------------\n\n*WEEK 5*\n🏈 Tetbury @ Amalfi - PENDING\n🏈 Jefferson @ Crimson - Final: 34-13\n🏈 Old Bridge @ LBI - PENDING\n🏈 Pyongyang @ Fur Peace - Final: 12-41\n🏈 Las Vegas @ Kigali - PENDING\n🏈 Newark Bay @ DC - PENDING\n🏈 Urban @ Vico - "
   }
 ]
