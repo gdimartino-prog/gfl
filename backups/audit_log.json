@@ -15514,5 +15514,77 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📅 *GFL WEEKLY UPDATE: Week 5 (2026)*\n----------------------------------\n\n*WEEK 5*\n🏈 Tetbury @ Amalfi - PENDING\n🏈 Jefferson @ Crimson - Final: 34-13\n🏈 Old Bridge @ LBI - PENDING\n🏈 Pyongyang @ Fur Peace - Final: 12-41\n🏈 Las Vegas @ Kigali - PENDING\n🏈 Newark Bay @ DC - PENDING\n🏈 Urban @ Vico - "
+  },
+  {
+    "id": 1725,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T14:54:08.705Z",
+    "coach": "Mike Fullen",
+    "team": "TT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded TETBURY.COA"
+  },
+  {
+    "id": 1726,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T15:43:18.297Z",
+    "coach": "Pete Vuckovaz",
+    "team": "FA",
+    "action": "ADD",
+    "details": "C-G - Juice Scruggs"
+  },
+  {
+    "id": 1727,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T15:43:19.035Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Carolina (C-G) · Oct 19, 11:43 AM"
+  },
+  {
+    "id": 1728,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T15:43:19.464Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Carolina:*\n• C-G - Juice Scruggs\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1729,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T19:35:19.636Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 5"
+  },
+  {
+    "id": 1730,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T19:35:20.081Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 5 (2026)*\n----------------------------------\n\n*WEEK 5*\n🏈 Tetbury @ Amalfi - PENDING\n🏈 Jefferson @ Crimson - Final: 34-13\n🏈 Old Bridge @ LBI - PENDING\n🏈 Pyongyang @ Fur Peace - Final: 12-41\n🏈 Las Vegas @ Kigali - PENDING\n🏈 Newark Bay @ DC - PENDING\n🏈 Urban @ Vico - "
+  },
+  {
+    "id": 1731,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T20:55:40.335Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1732,
+    "leagueId": 1,
+    "timestamp": "2026-10-19T22:27:44.415Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CAROLINA.COA"
   }
 ]
