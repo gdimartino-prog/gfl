@@ -1,16 +1,17 @@
 import { getSchedule } from '@/lib/getSchedule';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { db } from '@/lib/db';
-import { leagues, rules } from '@/schema';
+import { leagues, rules, teams } from '@/schema';
 import { and, eq } from 'drizzle-orm';
 import { CalendarDays } from 'lucide-react';
 import ScheduleClient from '@/components/ScheduleClient';
 
 export default async function SchedulePage() {
   const leagueId = await getLeagueId();
-  const [leagueRows, seasonRows] = await Promise.all([
+  const [leagueRows, seasonRows, teamRows] = await Promise.all([
     db.select({ name: leagues.name }).from(leagues).where(eq(leagues.id, leagueId)).limit(1),
     db.select({ value: rules.value }).from(rules).where(and(eq(rules.rule, 'cuts_year'), eq(rules.leagueId, leagueId))).limit(1),
+    db.select({ id: teams.id, name: teams.name, teamshort: teams.teamshort }).from(teams).where(eq(teams.leagueId, leagueId)),
   ]);
   const leagueName = leagueRows[0]?.name ?? 'League';
   const season = seasonRows[0]?.value ?? '';
@@ -37,7 +38,7 @@ export default async function SchedulePage() {
         </p>
       </header>
 
-      <ScheduleClient initialGames={sortedGames} />
+      <ScheduleClient initialGames={sortedGames} leagueTeams={teamRows} />
     </div>
   );
 }

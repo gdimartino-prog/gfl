@@ -1,9 +1,16 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
+import Link from 'next/link';
+import { CalendarOff } from 'lucide-react';
 import { ScheduleGame } from '../types';
 
-export default function ScheduleClient({ initialGames }: { initialGames: ScheduleGame[] }) {
+interface ScheduleClientProps {
+  initialGames: ScheduleGame[];
+  leagueTeams?: { id: number; name: string; teamshort: string | null }[];
+}
+
+export default function ScheduleClient({ initialGames, leagueTeams }: ScheduleClientProps) {
   // 🚀 REF: For auto-scrolling the navigation rail
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeWeekRef = useRef<HTMLButtonElement>(null);
@@ -63,6 +70,17 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
     }
   }, [selectedYear, firstIncompleteWeek]);
 
+  // Map team names to teamshort for badge display and roster linking
+  const teamShortMap = useMemo(() => {
+    const map = new Map<string, string>();
+    (leagueTeams || []).forEach(t => {
+      if (t.name && t.teamshort) {
+        map.set(t.name.trim().toLowerCase(), t.teamshort);
+      }
+    });
+    return map;
+  }, [leagueTeams]);
+
   // Handle year change: Reset week to the active/first week of that specific year
   const handleYearChange = (year: string) => {
     setSelectedYear(year);
@@ -81,6 +99,69 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
   };
 
   const filteredGames = gamesInYear.filter(g => String(g.week || "") === selectedWeek);
+
+  // Check if current selected week is a playoff round (no regular byes in playoffs)
+  const isPlayoffWeek = useMemo(() => {
+    const w = String(selectedWeek || "").toUpperCase();
+    return w.includes('-') || ['WC', 'CONF', 'SB', 'SEMIS', 'PLAYOFF'].some(p => w.includes(p));
+  }, [selectedWeek]);
+
+  // Teams playing in the selected week
+  const teamsPlayingInWeek = useMemo(() => {
+    const set = new Set<string>();
+    filteredGames.forEach(g => {
+      if (g.home) set.add(g.home.trim().toLowerCase());
+      if (g.visitor) set.add(g.visitor.trim().toLowerCase());
+    });
+    return set;
+  }, [filteredGames]);
+
+  // Teams with a bye this week (only active regular season weeks)
+  const byeTeams = useMemo(() => {
+    if (isPlayoffWeek || filteredGames.length === 0) return [];
+
+    // Gather all distinct teams that play in this season
+    const seasonTeams = new Set<string>();
+    gamesInYear.forEach(g => {
+      if (g.home) seasonTeams.add(g.home.trim());
+      if (g.visitor) seasonTeams.add(g.visitor.trim());
+    });
+
+    return Array.from(seasonTeams)
+      .filter(name => !teamsPlayingInWeek.has(name.toLowerCase()))
+      .sort((a, b) => a.localeCompare(b))
+      .map(name => ({
+        name,
+        teamshort: teamShortMap.get(name.toLowerCase()) || null,
+      }));
+  }, [isPlayoffWeek, filteredGames, gamesInYear, teamsPlayingInWeek, teamShortMap]);
+
+  // Compute bye counts per week for navigation badges
+  const weekByeCountMap = useMemo(() => {
+    const map = new Map<string, number>();
+    const seasonTeams = new Set<string>();
+    gamesInYear.forEach(g => {
+      if (g.home) seasonTeams.add(g.home.trim().toLowerCase());
+      if (g.visitor) seasonTeams.add(g.visitor.trim().toLowerCase());
+    });
+    const totalSeasonTeams = seasonTeams.size;
+
+    weeksInYear.forEach(w => {
+      const isPlayoff = w.includes('-') || ['WC', 'CONF', 'SB', 'SEMIS'].some(p => w.toUpperCase().includes(p));
+      if (isPlayoff) return;
+      const weekGames = gamesInYear.filter(g => String(g.week || "") === w);
+      const playing = new Set<string>();
+      weekGames.forEach(g => {
+        if (g.home) playing.add(g.home.trim().toLowerCase());
+        if (g.visitor) playing.add(g.visitor.trim().toLowerCase());
+      });
+      const byes = totalSeasonTeams - playing.size;
+      if (byes > 0) {
+        map.set(w, byes);
+      }
+    });
+    return map;
+  }, [gamesInYear, weeksInYear]);
 
   return (
     <div className="space-y-8">
@@ -109,7 +190,8 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
         {weeksInYear.map(week => {
           const isCurrentActiveWeek = week === firstIncompleteWeek;
           const isSelected = selectedWeek === week;
-          const isPlayoffWeek = week.includes('-');
+          const isPlayoff = week.includes('-') || ['WC', 'CONF', 'SB', 'SEMIS'].some(p => week.toUpperCase().includes(p));
+          const byeCount = weekByeCountMap.get(week);
 
           return (
             <button
@@ -117,15 +199,22 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
               // 🚀 ATTACH REF HERE
               ref={week === activeWeek ? activeWeekRef : null}
               onClick={() => setSelectedWeek(week)}
-              className={`px-6 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shrink-0 border-2 flex items-center gap-2 ${
+              className={`px-5 py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shrink-0 border-2 flex items-center gap-2 ${
                 isSelected 
                   ? 'bg-slate-900 text-white border-slate-900 shadow-xl scale-105' 
-                  : isPlayoffWeek 
+                  : isPlayoff 
                     ? 'bg-amber-50 text-amber-700 border-amber-100 hover:border-amber-300'
                     : 'bg-white text-slate-400 border-slate-100 hover:border-slate-300'
               }`}
             >
-              {isPlayoffWeek ? week.split('-')[1] : `Week ${week}`}
+              <span>{isPlayoff ? (week.includes('-') ? week.split('-')[1] : week) : `Week ${week}`}</span>
+              {byeCount && byeCount > 0 ? (
+                <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full transition-colors ${
+                  isSelected ? 'bg-amber-400 text-slate-900' : 'bg-amber-100 text-amber-800'
+                }`}>
+                  {byeCount} {byeCount === 1 ? 'Bye' : 'Byes'}
+                </span>
+              ) : null}
               {isCurrentActiveWeek && (
                 <span className="relative flex h-2 w-2 ml-1">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -136,6 +225,56 @@ export default function ScheduleClient({ initialGames }: { initialGames: Schedul
           );
         })}
       </div>
+
+      {/* BYE TEAMS SECTION */}
+      {byeTeams.length > 0 && (
+        <div className="bg-white rounded-[2rem] border border-amber-200/70 bg-gradient-to-br from-amber-50/40 via-white to-white p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-9 h-9 rounded-2xl bg-amber-100 text-amber-800">
+                <CalendarOff size={18} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-black uppercase italic tracking-wider text-slate-900">
+                    Teams on Bye
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-black tracking-wider uppercase">
+                    {byeTeams.length} {byeTeams.length === 1 ? 'Team' : 'Teams'}
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium text-slate-400">
+                  No matchup scheduled for Week {selectedWeek}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {byeTeams.map(team => (
+              <Link
+                key={team.name}
+                href={`/rosters?team=${encodeURIComponent(team.teamshort || team.name)}`}
+                className="group flex flex-col p-3.5 rounded-2xl border border-slate-200/80 bg-white hover:bg-amber-50/40 hover:border-amber-300 hover:shadow-md transition-all"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[8px] font-black uppercase tracking-widest text-amber-700 bg-amber-100/70 px-1.5 py-0.5 rounded">
+                    Bye
+                  </span>
+                  {team.teamshort && (
+                    <span className="text-[10px] font-mono font-black text-slate-400 group-hover:text-blue-600 transition-colors">
+                      {team.teamshort}
+                    </span>
+                  )}
+                </div>
+                <span className="text-sm font-black uppercase italic tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors truncate">
+                  {team.name}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* GAMES GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-20">
