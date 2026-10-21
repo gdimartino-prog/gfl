@@ -4950,24 +4950,6 @@
     "touch_id": "George Di Martino"
   },
   {
-    "id": 2881,
-    "leagueId": 1,
-    "year": 2027,
-    "round": 6,
-    "pick": 103,
-    "draftType": "free_agent",
-    "originalTeamId": 59,
-    "currentTeamId": 59,
-    "playerId": null,
-    "scheduledAt": null,
-    "pickedAt": null,
-    "passed": false,
-    "warningSent": false,
-    "selectedPlayerName": null,
-    "touch_dt": "2026-04-28T21:16:00.330Z",
-    "touch_id": "George Di Martino"
-  },
-  {
     "id": 2882,
     "leagueId": 1,
     "year": 2027,
@@ -37780,6 +37762,24 @@
     "selectedPlayerName": null,
     "touch_dt": "2026-06-23T19:21:36.827Z",
     "touch_id": "fix-cascade"
+  },
+  {
+    "id": 2881,
+    "leagueId": 1,
+    "year": 2027,
+    "round": 6,
+    "pick": 103,
+    "draftType": "free_agent",
+    "originalTeamId": 59,
+    "currentTeamId": 42,
+    "playerId": null,
+    "scheduledAt": null,
+    "pickedAt": null,
+    "passed": false,
+    "warningSent": false,
+    "selectedPlayerName": null,
+    "touch_dt": "2026-04-28T21:16:00.330Z",
+    "touch_id": "George Di Martino"
   },
   {
     "id": 5573,

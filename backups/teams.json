@@ -150,16 +150,6 @@
     "status": "active"
   },
   {
-    "id": 51,
-    "leagueId": 1,
-    "name": "Newark Bay",
-    "coach": "Phil Matsikoudis",
-    "teamshort": "NBT",
-    "nickname": "Tanks",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 41,
     "leagueId": 1,
     "name": "Amalfi",
@@ -306,6 +296,16 @@
     "coach": "Mark Mari",
     "teamshort": "LV",
     "nickname": "Golden Showers",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 51,
+    "leagueId": 1,
+    "name": "Newark Bay",
+    "coach": "Phil Matsikoudis",
+    "teamshort": "NBT",
+    "nickname": "Tanks",
     "isCommissioner": false,
     "status": "active"
   },

@@ -143,17 +143,6 @@
     "touch_id": "CT"
   },
   {
-    "id": 28,
-    "leagueId": 1,
-    "playerId": "braden|fiske|25||dl|",
-    "playerName": "Braden Fiske",
-    "team": "CT",
-    "position": "DL",
-    "asking": null,
-    "touch_dt": "2026-04-24T15:09:34.712Z",
-    "touch_id": "CT"
-  },
-  {
     "id": 29,
     "leagueId": 1,
     "playerId": "terrel|bernard|26||lb|",
