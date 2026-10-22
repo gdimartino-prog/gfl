@@ -4128,6 +4128,44 @@
     "touch_id": "VV"
   },
   {
+    "id": 631,
+    "leagueId": 1,
+    "date": "2026-10-21T23:45:49.928Z",
+    "type": "IR MOVE",
+    "description": "Placed on IR: TE - Albert Okwuegbunam",
+    "fromTeam": "Tampa",
+    "toTeam": "IR",
+    "owner": "Bill Kobus",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-21T23:45:49.910Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 632,
+    "leagueId": 1,
+    "date": "2026-10-21T23:46:18.197Z",
+    "type": "ADD",
+    "description": "G - Jonah Savaiinaea",
+    "fromTeam": "FA",
+    "toTeam": "Tampa",
+    "owner": "Bill Kobus",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-21T23:46:18.175Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 553,
     "leagueId": 1,
     "date": "2026-09-21T23:16:55.250Z",
@@ -4166,6 +4204,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 629,
+    "leagueId": 1,
+    "date": "2026-10-21T23:44:38.563Z",
+    "type": "WAIVE",
+    "description": "DE-LB - James Houston",
+    "fromTeam": "Old Bridge",
+    "toTeam": "FA",
+    "owner": "Ed Casserly",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-21T23:44:38.525Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 565,
     "leagueId": 1,
     "date": "2026-09-28T11:40:53.691Z",
@@ -4182,6 +4239,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-28T11:40:53.690Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 630,
+    "leagueId": 1,
+    "date": "2026-10-21T23:45:17.769Z",
+    "type": "ADD",
+    "description": "DE - Cameron Thomas",
+    "fromTeam": "FA",
+    "toTeam": "Old Bridge",
+    "owner": "Ed Casserly",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-21T23:45:17.744Z",
     "touch_id": "VV"
   },
   {
@@ -4375,6 +4451,27 @@
     "touch_id": "VV"
   },
   {
+    "id": 633,
+    "leagueId": 1,
+    "date": "2026-10-22T00:45:20.195Z",
+    "type": "TRADE",
+    "description": "Traded to Old Bridge: Jaylen Waddle - WR/KR, British Brooks - RB, 2027 Crimson 1st round pick (3rd overall)",
+    "fromTeam": "Crimson",
+    "toTeam": "Old Bridge",
+    "owner": "Bob Glade",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2781
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-22T00:45:20.160Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 527,
     "leagueId": 1,
     "date": "2026-09-16T00:39:47.299Z",
@@ -4391,6 +4488,27 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-16T00:39:47.301Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 634,
+    "leagueId": 1,
+    "date": "2026-10-22T00:45:20.223Z",
+    "type": "TRADE",
+    "description": "Traded to Crimson: Kayvon Thibodeaux - DE-LB, Tre Tucker - WR/RET, J.J. McCarthy - QB, 2027 Old Bridge 1st round pick (12th overall)",
+    "fromTeam": "Old Bridge",
+    "toTeam": "Crimson",
+    "owner": "Bob Glade",
+    "status": "Done",
+    "weekBack": null,
+    "season": null,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": [
+      2790
+    ],
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-22T00:45:20.160Z",
     "touch_id": "VV"
   },
   {
@@ -7412,6 +7530,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-09-10T18:05:44.890Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 635,
+    "leagueId": 1,
+    "date": "2026-10-22T00:49:34.163Z",
+    "type": "WAIVE",
+    "description": "QB - Jameis Winston",
+    "fromTeam": "Crimson",
+    "toTeam": "FA",
+    "owner": "Bob Glade",
+    "status": "Done",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-22T00:49:34.138Z",
     "touch_id": "VV"
   },
   {

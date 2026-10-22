@@ -46,5 +46,17 @@
     "createdAt": "2026-10-18T16:06:00.003Z",
     "touch_dt": "2026-10-18T16:06:00.003Z",
     "touch_id": "VV"
+  },
+  {
+    "id": 25,
+    "leagueId": 1,
+    "teamId": 52,
+    "playerId": 24224,
+    "year": 2026,
+    "draftType": "free_agent",
+    "sortOrder": 0,
+    "createdAt": "2026-10-21T23:39:40.733Z",
+    "touch_dt": "2026-10-21T23:39:40.733Z",
+    "touch_id": "OBG"
   }
 ]

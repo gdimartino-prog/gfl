@@ -844,5 +844,29 @@
     "history": [],
     "touch_dt": "2026-10-20T23:11:04.392Z",
     "touch_id": "CT"
+  },
+  {
+    "id": 160,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 1,
+    "originalTeamId": 43,
+    "currentTeamId": 52,
+    "history": [],
+    "touch_dt": "2026-10-22T00:45:19.888Z",
+    "touch_id": "CK"
+  },
+  {
+    "id": 159,
+    "leagueId": 1,
+    "year": 2027,
+    "draftType": "free_agent",
+    "round": 1,
+    "originalTeamId": 52,
+    "currentTeamId": 43,
+    "history": [],
+    "touch_dt": "2026-10-22T00:45:19.885Z",
+    "touch_id": "CK"
   }
 ]

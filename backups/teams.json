@@ -150,6 +150,16 @@
     "status": "active"
   },
   {
+    "id": 48,
+    "leagueId": 1,
+    "name": "LE",
+    "coach": "Naz Kikta",
+    "teamshort": "LES",
+    "nickname": "Stallions",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 41,
     "leagueId": 1,
     "name": "Amalfi",
@@ -190,26 +200,6 @@
     "status": "active"
   },
   {
-    "id": 48,
-    "leagueId": 1,
-    "name": "LE",
-    "coach": "Naz Kikta",
-    "teamshort": "LES",
-    "nickname": "Stallions",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 42,
-    "leagueId": 1,
-    "name": "Carolina",
-    "coach": "Pete Vuckovaz",
-    "teamshort": "CT",
-    "nickname": "Thunder",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 46,
     "leagueId": 1,
     "name": "Kigali",
@@ -236,16 +226,6 @@
     "coach": "John Yurchak",
     "teamshort": "UF",
     "nickname": "FUBAR Giants",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 54,
-    "leagueId": 1,
-    "name": "Tampa",
-    "coach": "Bill Kobus",
-    "teamshort": "TC",
-    "nickname": "Cockatoos",
     "isCommissioner": false,
     "status": "active"
   },
@@ -320,6 +300,16 @@
     "status": "active"
   },
   {
+    "id": 42,
+    "leagueId": 1,
+    "name": "Carolina",
+    "coach": "Pete Vuckovaz",
+    "teamshort": "CT",
+    "nickname": "Thunder",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 45,
     "leagueId": 1,
     "name": "Fur Peace",
@@ -336,6 +326,16 @@
     "coach": "Anthony Carter",
     "teamshort": "DC",
     "nickname": "Capital",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 54,
+    "leagueId": 1,
+    "name": "Tampa",
+    "coach": "Bill Kobus",
+    "teamshort": "TC",
+    "nickname": "Cockatoos",
     "isCommissioner": false,
     "status": "active"
   },
