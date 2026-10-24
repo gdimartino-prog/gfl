@@ -17,7 +17,7 @@ To get started, you'll need to log in to your account.
 3.  Enter your **Password**.
 4.  Click the **Enter Front Office** button.
 
-![AFL Front Office Login Page](/manual-screenshots/login.png)
+![GFL Front Office Login Page](/manual-screenshots/login.png)
 
 > **Pro Tip:** Keep the "Keep Me Logged In" box checked, and you'll stay logged in for 30 days!
 
@@ -37,7 +37,7 @@ If you're a new coach, you'll need to create an account.
     *   **Password:** Choose a secure password (at least 6 characters).
 3.  Click **Submit Registration**.
 
-![AFL Front Office Registration Page](/manual-screenshots/signup.png)
+![GFL Front Office Registration Page](/manual-screenshots/signup.png)
 
 After you register, your account will be **pending approval** from the league commissioner. They'll let you know when your account is active and ready to use.
 
@@ -53,9 +53,9 @@ It happens to the best of us. If you forget your password:
 
 ## 2. The Home Page: Your Central Hub
 
-The home page is your command center. From here, you can access all the major features of the AFL Front Office.
+The home page is your command center. From here, you can access all the major features of the GFL Front Office.
 
-![AFL Front Office Home Page](/manual-screenshots/home.png)
+![GFL Front Office Home Page](/manual-screenshots/home.png)
 
 ### Feature Cards
 
