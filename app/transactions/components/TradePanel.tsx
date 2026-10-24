@@ -209,9 +209,9 @@ export default function TradePanel({
     setStatus('⏳ Processing trade assets...');
     try {
       const formattedPlayersFrom = players.filter(p => fromPlayers.includes(p.identity))
-        .map(p => `${p.first} ${p.last} - ${(p.position || '').toUpperCase()}`);
+        .map(p => `${(p.position || '').toUpperCase()} - ${p.first} ${p.last}`);
       const formattedPlayersTo = players.filter(p => toPlayers.includes(p.identity))
-        .map(p => `${p.first} ${p.last} - ${(p.position || '').toUpperCase()}`);
+        .map(p => `${(p.position || '').toUpperCase()} - ${p.first} ${p.last}`);
       const formattedPicksFrom = fromDraftPicks.map(id => {
         const p = draftPicks.find(pick => String(pick.id) === String(id));
         return p ? formatPick(p) : `Pick #${id}`;
