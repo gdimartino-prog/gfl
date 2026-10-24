@@ -845,87 +845,90 @@ function LeaguePlayersTable({
 
   return (
     <div>
-      <div className="flex flex-wrap gap-1.5 mb-4">
-        <button
-          onClick={() => {
-            const next = !faOnly;
-            setFaOnly(next);
-            onToggleFA(next);
-          }}
-          disabled={faLoading}
-          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors disabled:opacity-50 inline-flex items-center gap-1.5 ${faOnly ? 'bg-emerald-600 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
-        >
-          {faOnly && faLoading && <Loader2 size={10} className="animate-spin" />}
-          Only Free Agents
-        </button>
-        {faOnly && (
+      <div className="space-y-2.5 mb-4">
+        <div className="flex flex-wrap items-center gap-1.5">
           <button
-            onClick={() => setExcludeRookies(!excludeRookies)}
-            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${excludeRookies ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+            onClick={() => {
+              const next = !faOnly;
+              setFaOnly(next);
+              onToggleFA(next);
+            }}
+            disabled={faLoading}
+            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors disabled:opacity-50 inline-flex items-center gap-1.5 ${faOnly ? 'bg-emerald-600 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
           >
-            Exclude Rookies
+            {faOnly && faLoading && <Loader2 size={10} className="animate-spin" />}
+            Only Free Agents
           </button>
-        )}
-        <span className="w-px bg-slate-200 mx-1" />
-        <button
-          onClick={() => setFilterGroup(null)}
-          className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${filterGroup === null ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
-        >
-          All
-        </button>
-        {availableGroups.map(g => (
-          <button
-            key={g}
-            onClick={() => setFilterGroup(filterGroup === g ? null : g)}
-            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${filterGroup === g ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
-          >
-            {g}
-          </button>
-        ))}
-        {hasLongSnappers && (
-          <>
-            <span className="w-px bg-slate-200 mx-1" />
+          {faOnly && (
             <button
-              type="button"
-              aria-pressed={hideLongSnappers}
-              onClick={() => setHideLongSnappers((v) => !v)}
-              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${hideLongSnappers ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+              onClick={() => setExcludeRookies(!excludeRookies)}
+              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${excludeRookies ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
             >
-              Hide Long Snappers
+              Exclude Rookies
             </button>
-          </>
-        )}
-        <span className="w-px bg-slate-200 mx-1" />
-        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest self-center">Depth</span>
-        {([null, 1, 2, 3] as (number | null)[]).map((d) => (
+          )}
+          <span className="w-px h-4 bg-slate-200 mx-1 self-center" />
           <button
-            key={d ?? 'all'}
-            onClick={() => setMaxDepth(d)}
-            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${maxDepth === d ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+            onClick={() => setFilterGroup(null)}
+            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${filterGroup === null ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
           >
-            {d === null ? 'All' : d === 1 ? 'Starters' : `≤${d}`}
+            All
           </button>
-        ))}
-        <span className="w-px bg-slate-200 mx-1" />
-        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest self-center">Age &lt;</span>
-        <input
-          type="number"
-          min={18}
-          max={50}
-          placeholder="—"
-          value={maxAge}
-          onChange={(e) => setMaxAge(e.target.value)}
-          className="w-14 px-2 py-1 rounded-full text-[10px] font-black text-center border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-300"
-        />
-        {maxAge && (
-          <button
-            onClick={() => setMaxAge('')}
-            className="text-slate-400 hover:text-slate-600 transition-colors"
-            title="Clear age filter"
-          >
-            <X size={12} />
-          </button>
-        )}
+          {availableGroups.map(g => (
+            <button
+              key={g}
+              onClick={() => setFilterGroup(filterGroup === g ? null : g)}
+              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${filterGroup === g ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+            >
+              {g}
+            </button>
+          ))}
+          {hasLongSnappers && (
+            <>
+              <span className="w-px h-4 bg-slate-200 mx-1 self-center" />
+              <button
+                type="button"
+                aria-pressed={hideLongSnappers}
+                onClick={() => setHideLongSnappers((v) => !v)}
+                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${hideLongSnappers ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+              >
+                Hide Long Snappers
+              </button>
+            </>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest self-center mr-1">Depth</span>
+          {([null, 1, 2, 3] as (number | null)[]).map((d) => (
+            <button
+              key={d ?? 'all'}
+              onClick={() => setMaxDepth(d)}
+              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${maxDepth === d ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+            >
+              {d === null ? 'All' : d === 1 ? 'Starters' : `≤${d}`}
+            </button>
+          ))}
+          <span className="w-px h-4 bg-slate-200 mx-1.5 self-center" />
+          <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest self-center">Age &lt;</span>
+          <input
+            type="number"
+            min={18}
+            max={50}
+            placeholder="—"
+            value={maxAge}
+            onChange={(e) => setMaxAge(e.target.value)}
+            className="w-14 px-2 py-1 rounded-full text-[10px] font-black text-center border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-300"
+          />
+          {maxAge && (
+            <button
+              onClick={() => setMaxAge('')}
+              className="text-slate-400 hover:text-slate-600 transition-colors"
+              title="Clear age filter"
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
       </div>
       <TableWrap>
         <thead className="border-b border-slate-100 bg-slate-50">
