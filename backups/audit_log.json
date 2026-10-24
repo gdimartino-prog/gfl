@@ -16099,5 +16099,149 @@
     "team": "CK",
     "action": "COA_UPLOAD",
     "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 1790,
+    "leagueId": 1,
+    "timestamp": "2026-10-23T12:00:18.577Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 5"
+  },
+  {
+    "id": 1791,
+    "leagueId": 1,
+    "timestamp": "2026-10-23T12:00:19.062Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 5 (2026)*\n----------------------------------\n\n*WEEK 5*\n🏈 Tetbury @ Amalfi - Final: 21-24\n🏈 Jefferson @ Crimson - Final: 34-13\n🏈 Old Bridge @ LBI - Final: 27-16\n🏈 Pyongyang @ Fur Peace - Final: 12-41\n❌ Las Vegas @ Kigali - 🚨 PAST DUE\n🏈 Newark Bay @ DC - Final: 26-23\n"
+  },
+  {
+    "id": 1792,
+    "leagueId": 1,
+    "timestamp": "2026-10-23T14:53:50.364Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1793,
+    "leagueId": 1,
+    "timestamp": "2026-10-23T14:57:56.853Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1794,
+    "leagueId": 1,
+    "timestamp": "2026-10-23T14:58:12.484Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1795,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T01:39:28.864Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "IR MOVE",
+    "details": "Placed on IR: CB - Tyrique Stevenson"
+  },
+  {
+    "id": 1796,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T01:39:29.797Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: IR MOVE — Vico ➔ IR (Placed on IR: CB) · Oct 23, 9:39 PM"
+  },
+  {
+    "id": 1797,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T01:39:30.208Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: IR MOVE*\n----------------------------\n*Vico ➔ IR:*\n• Placed on IR: CB - Tyrique Stevenson\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1798,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T01:39:39.892Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #636 marked Done"
+  },
+  {
+    "id": 1799,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T03:04:03.705Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CAROLINA.COA"
+  },
+  {
+    "id": 1800,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T03:36:13.765Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "WAIVE",
+    "details": "TE - Cole Kmet"
+  },
+  {
+    "id": 1801,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T03:36:13.993Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: WAIVE — Carolina ➔ FA (TE) · Oct 23, 11:36 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-940f05ae2f3sm82241085a.5 - gsmtp)"
+  },
+  {
+    "id": 1802,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T03:36:14.380Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Carolina ➔ FA:*\n• TE - Cole Kmet\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1803,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T03:36:28.229Z",
+    "coach": "Pete Vuckovaz",
+    "team": "FA",
+    "action": "ADD",
+    "details": "CB - Kyler Gordon"
+  },
+  {
+    "id": 1804,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T03:36:28.423Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: ADD — FA ➔ Carolina (CB) · Oct 23, 11:36 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-940f067c0dasm79786185a.17 - gsmtp)"
+  },
+  {
+    "id": 1805,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T03:36:28.798Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Carolina:*\n• CB - Kyler Gordon\n\n🌐 https://afl.gddevco.com\n"
   }
 ]
