@@ -787,6 +787,8 @@ function LeaguePlayersTable({
   const [excludeRookies, setExcludeRookies] = useState(false);
   const [sort, setSort] = useState<SortState>({ key: 'score', dir: 'desc' });
   const [hideLongSnappers, setHideLongSnappers] = useState(true);
+  const [maxDepth, setMaxDepth] = useState<number | null>(null);
+  const [maxAge, setMaxAge] = useState<string>('');
 
   const source = useMemo(() => {
     const list = faOnly ? (faPlayers ?? []) : data;
@@ -803,7 +805,10 @@ function LeaguePlayersTable({
 
   const filtered = useMemo(() => {
     const grouped = filterGroup ? source.filter(p => p.posGroup === filterGroup) : source;
-    const list = hideLongSnappers ? grouped.filter(p => !p.longSnapper) : grouped;
+    const noSnap = hideLongSnappers ? grouped.filter(p => !p.longSnapper) : grouped;
+    const depthFiltered = maxDepth !== null ? noSnap.filter(p => p.depthRank != null && p.depthRank <= maxDepth) : noSnap;
+    const parsedAge = maxAge.trim() !== '' ? parseInt(maxAge, 10) : null;
+    const list = parsedAge !== null && !isNaN(parsedAge) ? depthFiltered.filter(p => p.age != null && p.age < parsedAge) : depthFiltered;
     return [...list].sort((a, b) => {
       if (sort.key === 'name') {
         const cmp = a.name.localeCompare(b.name);
@@ -834,7 +839,7 @@ function LeaguePlayersTable({
       }
       return sort.dir === 'desc' ? b.score - a.score : a.score - b.score;
     });
-  }, [source, filterGroup, hideLongSnappers, sort]);
+  }, [source, filterGroup, hideLongSnappers, maxDepth, maxAge, sort]);
 
   const s = { sort, setSort };
 
@@ -889,6 +894,37 @@ function LeaguePlayersTable({
               Hide Long Snappers
             </button>
           </>
+        )}
+        <span className="w-px bg-slate-200 mx-1" />
+        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest self-center">Depth</span>
+        {([null, 1, 2, 3] as (number | null)[]).map((d) => (
+          <button
+            key={d ?? 'all'}
+            onClick={() => setMaxDepth(d)}
+            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest transition-colors ${maxDepth === d ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50'}`}
+          >
+            {d === null ? 'All' : d === 1 ? 'Starters' : `≤${d}`}
+          </button>
+        ))}
+        <span className="w-px bg-slate-200 mx-1" />
+        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest self-center">Age &lt;</span>
+        <input
+          type="number"
+          min={18}
+          max={50}
+          placeholder="—"
+          value={maxAge}
+          onChange={(e) => setMaxAge(e.target.value)}
+          className="w-14 px-2 py-1 rounded-full text-[10px] font-black text-center border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-300"
+        />
+        {maxAge && (
+          <button
+            onClick={() => setMaxAge('')}
+            className="text-slate-400 hover:text-slate-600 transition-colors"
+            title="Clear age filter"
+          >
+            <X size={12} />
+          </button>
         )}
       </div>
       <TableWrap>
