@@ -5,25 +5,29 @@
 - **Direct Output:** Provide code diffs or technical plans immediately.
 - **Auto-Stop:** Once a task is finished, stop generating text.
 
-## 2. Project Context & Goal
+## 2. Pre-Push Quality Gate (MANDATORY)
+- **Run All Verification Agents Before Push:** Always execute all verification/QA agents and automated checks (`npm run lint`, `npm test`, `npm run build`, and QA review) before pushing to `main`.
+- **Never Push Unverified Code:** Pushes to `main` are strictly blocked until all checks pass with zero errors.
+
+## 3. Project Context & Goal
 - **Primary Goal:** Migrate the GFL Fantasy app's backend from Google Sheets to a modern database stack. The migration is considered **complete**. All new work uses the Postgres/Drizzle stack.
 - **Source of Truth:** The UI and feature set are defined by the sibling project at `../gfl-fantasy`. This is a migration fork.
 
-## 3. Technology Stack
+## 4. Technology Stack
 - **Framework:** Next.js (App Router) with TypeScript
 - **Database:** Vercel Postgres
 - **ORM:** Drizzle ORM (`drizzle-orm`)
 - **Authentication:** NextAuth v5
 - **Styling:** Tailwind CSS & shadcn/ui
 
-## 4. Key Files & Directories
+## 5. Key Files & Directories
 - **DB Schema:** `schema.ts` (Source of truth for all database tables)
 - **Business Logic:** `lib/` (All new DB logic goes here)
 - **API Routes:** `app/api/` (Should be kept thin)
 - **DB Migrations:** `drizzle/`
 - **One-off Scripts:** `scripts/`
 
-## 5. Roles & Responsibilities
+## 6. Roles & Responsibilities
 
 ### A. Project Manager & Architect
 - **Mandate:** Plan and sequence tasks. Output step-by-step task lists ONLY.
@@ -65,13 +69,13 @@
    - Check for browser console errors.
    - Report any failures with page, action, expected result, and actual result.
 
-## 6. Common Commands
+## 7. Common Commands
 - `npm run dev`: Start development server.
 - `npm run lint`: Check for code style issues.
 - `npm run build`: Compile the application.
 - `npm run db:push`: Push `schema.ts` changes to the database.
 - `npm run db:studio`: Open Drizzle Studio to inspect data.
 
-## 7. Safety & Environment
+## 8. Safety & Environment
 - **Environment Variables:** Access secrets via `process.env` from `.env.local`.
 - **No Commits/Pushes:** Do not stage commits or push to the remote repository unless explicitly instructed.
