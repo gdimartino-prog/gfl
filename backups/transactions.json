@@ -3727,6 +3727,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 639,
+    "leagueId": 1,
+    "date": "2026-10-24T11:08:54.973Z",
+    "type": "ADD",
+    "description": "CB - Max Melton",
+    "fromTeam": "FA",
+    "toTeam": "Vico",
+    "owner": "George Di Martino",
+    "status": "Pending",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-24T11:08:54.933Z",
+    "touch_id": "George Di Martino"
+  },
+  {
     "id": 515,
     "leagueId": 1,
     "date": "2026-09-05T01:14:30.595Z",

@@ -16243,5 +16243,59 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Carolina:*\n• CB - Kyler Gordon\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1806,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T11:08:55.011Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "CB - Max Melton"
+  },
+  {
+    "id": 1807,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T11:08:55.257Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: ADD — FA ➔ Vico (CB) · Oct 24, 7:08 AM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-91c47a69853sm18819466d6.6 - gsmtp)"
+  },
+  {
+    "id": 1808,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T11:08:55.605Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Vico:*\n• CB - Max Melton\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1809,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T19:02:00.977Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1810,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T19:02:05.069Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1811,
+    "leagueId": 1,
+    "timestamp": "2026-10-24T19:02:14.823Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]
