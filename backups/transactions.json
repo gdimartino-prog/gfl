@@ -4356,6 +4356,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 640,
+    "leagueId": 1,
+    "date": "2026-10-25T14:15:11.221Z",
+    "type": "INJURY PICKUP",
+    "description": "T - Jonah Williams for injury to T - Trent Brown in week 6 for 6 weeks",
+    "fromTeam": "FA",
+    "toTeam": "Tampa",
+    "owner": "Bill Kobus",
+    "status": "Pending",
+    "weekBack": 12,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-10-25T14:15:11.183Z",
+    "touch_id": "Bill Kobus"
+  },
+  {
     "id": 579,
     "leagueId": 1,
     "date": "2026-10-01T23:08:29.751Z",

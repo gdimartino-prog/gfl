@@ -16297,5 +16297,50 @@
     "team": "admin",
     "action": "IMPORT_SCHEDULE",
     "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1812,
+    "leagueId": 1,
+    "timestamp": "2026-10-25T14:15:11.253Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "T - Jonah Williams for injury to T - Trent Brown in week 6 for 6 weeks"
+  },
+  {
+    "id": 1813,
+    "leagueId": 1,
+    "timestamp": "2026-10-25T14:15:12.021Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ Tampa (T) · Oct 25, 10:15 AM"
+  },
+  {
+    "id": 1814,
+    "leagueId": 1,
+    "timestamp": "2026-10-25T14:15:12.385Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Tampa:*\n• T - Jonah Williams for injury to T - Trent Brown in week 6 for 6 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1815,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T12:00:17.798Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 6"
+  },
+  {
+    "id": 1816,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T12:00:18.270Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 6 (2026)*\n----------------------------------\n\n*WEEK 6*\n🏈 Las Vegas @ Amalfi - PENDING\n🏈 Tampa @ Old Bridge - Final: 31-17\n🏈 Satriale @ Fur Peace - PENDING\n🏈 Carolina @ DC - PENDING\n🏈 Vico @ Tetbury - Final: 22-30\n🏈 Newark Bay @ LBI - Final: 15-23\n\n*WEEK 7*\n🏈 Amalfi"
   }
 ]
