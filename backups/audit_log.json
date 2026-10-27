@@ -16342,5 +16342,122 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📅 *GFL WEEKLY UPDATE: Week 6 (2026)*\n----------------------------------\n\n*WEEK 6*\n🏈 Las Vegas @ Amalfi - PENDING\n🏈 Tampa @ Old Bridge - Final: 31-17\n🏈 Satriale @ Fur Peace - PENDING\n🏈 Carolina @ DC - PENDING\n🏈 Vico @ Tetbury - Final: 22-30\n🏈 Newark Bay @ LBI - Final: 15-23\n\n*WEEK 7*\n🏈 Amalfi"
+  },
+  {
+    "id": 1817,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T19:40:34.832Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Update: 2026 Week 6 (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-538394c38easm62411721cf.7 - gsmtp)"
+  },
+  {
+    "id": 1818,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T19:40:35.249Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 6 (2026)*\n----------------------------------\n\n*WEEK 6*\n🏈 Las Vegas @ Amalfi - PENDING\n🏈 Tampa @ Old Bridge - Final: 31-17\n🏈 Satriale @ Fur Peace - PENDING\n🏈 Carolina @ DC - PENDING\n🏈 Vico @ Tetbury - Final: 22-30\n🏈 Newark Bay @ LBI - Final: 15-23\n\n*WEEK 7*\n🏈 Amalfi"
+  },
+  {
+    "id": 1819,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T19:48:16.528Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #637 marked Done"
+  },
+  {
+    "id": 1820,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T19:48:17.855Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #638 marked Done"
+  },
+  {
+    "id": 1821,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T19:48:26.282Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #639 marked Done"
+  },
+  {
+    "id": 1822,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T19:49:15.367Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #640 marked On Team"
+  },
+  {
+    "id": 1823,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T19:50:11.070Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1824,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T20:01:00.395Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1825,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T22:36:45.392Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1826,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T22:56:08.655Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded LAS_VEGAS.COA"
+  },
+  {
+    "id": 1827,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T23:08:43.201Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 1828,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T23:29:57.785Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded DC.COA"
+  },
+  {
+    "id": 1829,
+    "leagueId": 1,
+    "timestamp": "2026-10-26T23:31:16.388Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CRIMSON.COA"
   }
 ]
