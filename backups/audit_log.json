@@ -16459,5 +16459,113 @@
     "team": "CK",
     "action": "COA_UPLOAD",
     "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 1830,
+    "leagueId": 1,
+    "timestamp": "2026-10-27T17:10:19.406Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded TAMPA.COA"
+  },
+  {
+    "id": 1831,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T03:05:27.357Z",
+    "coach": "Bill Kobus",
+    "team": "Tampa",
+    "action": "IR MOVE",
+    "details": "Placed on IR: T - Rob Havenstein"
+  },
+  {
+    "id": 1832,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T03:05:27.826Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: IR MOVE — Tampa ➔ IR (Placed on IR: T) · Oct 27, 11:05 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-940f05b20d5sm1145439685a.2 - gsmtp)"
+  },
+  {
+    "id": 1833,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T03:05:28.200Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: IR MOVE*\n----------------------------\n*Tampa ➔ IR:*\n• Placed on IR: T - Rob Havenstein\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1834,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T03:06:07.479Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "ADD",
+    "details": "T - Jawaan Taylor"
+  },
+  {
+    "id": 1835,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T03:06:07.646Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: ADD — FA ➔ Tampa (T) · Oct 27, 11:06 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-940f05af648sm1144501085a.1 - gsmtp)"
+  },
+  {
+    "id": 1836,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T03:06:08.000Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Tampa:*\n• T - Jawaan Taylor\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1837,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T05:07:30.743Z",
+    "coach": "Ed Casserly",
+    "team": "FA",
+    "action": "ADD",
+    "details": "DB - Josh Wallace"
+  },
+  {
+    "id": 1838,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T05:07:30.915Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: ADD — FA ➔ Old Bridge (DB) · Oct 28, 1:07 AM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-91c6e20ba4fsm43962956d6.14 - gsmtp)"
+  },
+  {
+    "id": 1839,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T05:07:31.304Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Old Bridge:*\n• DB - Josh Wallace\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1840,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T12:00:18.420Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Update: 2026 Week 6 (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-5383970ac84sm102951581cf.20 - gsmtp)"
+  },
+  {
+    "id": 1841,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T12:00:18.864Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 6 (2026)*\n----------------------------------\n\n*WEEK 6*\n❌ Las Vegas @ Amalfi - 🚨 PAST DUE\n🏈 Tampa @ Old Bridge - Final: 31-17\n❌ Satriale @ Fur Peace - 🚨 PAST DUE\n❌ Carolina @ DC - 🚨 PAST DUE\n🏈 Vico @ Tetbury - Final: 22-30\n🏈 Newark Bay @ LBI - Final: 15-23\n\n*WEEK 7*\n"
   }
 ]
