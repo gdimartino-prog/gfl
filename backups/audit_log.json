@@ -16200,6 +16200,24 @@
     "details": "TE - Cole Kmet"
   },
   {
+    "id": 1843,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T18:51:21.870Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #642 marked Done"
+  },
+  {
+    "id": 1844,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T18:54:54.035Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #643 marked Done"
+  },
+  {
     "id": 1801,
     "leagueId": 1,
     "timestamp": "2026-10-24T03:36:13.993Z",
@@ -16567,5 +16585,176 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📅 *GFL WEEKLY UPDATE: Week 6 (2026)*\n----------------------------------\n\n*WEEK 6*\n❌ Las Vegas @ Amalfi - 🚨 PAST DUE\n🏈 Tampa @ Old Bridge - Final: 31-17\n❌ Satriale @ Fur Peace - 🚨 PAST DUE\n❌ Carolina @ DC - 🚨 PAST DUE\n🏈 Vico @ Tetbury - Final: 22-30\n🏈 Newark Bay @ LBI - Final: 15-23\n\n*WEEK 7*\n"
+  },
+  {
+    "id": 1842,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T18:51:08.137Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #641 marked Done"
+  },
+  {
+    "id": 1845,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T18:56:31.820Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1846,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T18:56:35.721Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1847,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T18:56:54.066Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1848,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T18:58:50.288Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 1849,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T18:58:51.323Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Test Notification"
+  },
+  {
+    "id": 1850,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T18:58:51.728Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "🧪 *GFL TEST MESSAGE*\nWhatsApp notifications are working! ✅"
+  },
+  {
+    "id": 1851,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T19:13:55.950Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "IR MOVE",
+    "details": "Placed on IR: RB - Jaylen Wright"
+  },
+  {
+    "id": 1852,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T19:13:56.261Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: IR MOVE — Vico ➔ IR (Placed on IR: RB) · Oct 28, 3:13 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-91c6c4e7565sm66471686d6.15 - gsmtp)"
+  },
+  {
+    "id": 1853,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T19:13:56.634Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: IR MOVE*\n----------------------------\n*Vico ➔ IR:*\n• Placed on IR: RB - Jaylen Wright\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1854,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T19:14:09.052Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "RB/KR - Kendre Miller"
+  },
+  {
+    "id": 1855,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T19:14:09.249Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: ADD — FA ➔ Vico (RB/KR) · Oct 28, 3:14 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-538397405e1sm110917171cf.25 - gsmtp)"
+  },
+  {
+    "id": 1856,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T19:14:09.637Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Vico:*\n• RB/KR - Kendre Miller\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1857,
+    "leagueId": 1,
+    "timestamp": "2026-10-28T23:45:39.327Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CAROLINA.COA"
+  },
+  {
+    "id": 1858,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T00:26:55.565Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1859,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T02:40:21.483Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1860,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T02:40:38.497Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1861,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T11:06:00.588Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #644 marked Done"
+  },
+  {
+    "id": 1862,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T11:06:03.231Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #645 marked Done"
   }
 ]

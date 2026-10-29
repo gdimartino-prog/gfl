@@ -240,16 +240,6 @@
     "status": "active"
   },
   {
-    "id": 42,
-    "leagueId": 1,
-    "name": "Carolina",
-    "coach": "Pete Vuckovaz",
-    "teamshort": "CT",
-    "nickname": "Thunder",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 57,
     "leagueId": 1,
     "name": "Urban",
@@ -276,6 +266,16 @@
     "coach": "Chad Cooper",
     "teamshort": "FPR",
     "nickname": "Ranch",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 42,
+    "leagueId": 1,
+    "name": "Carolina",
+    "coach": "Pete Vuckovaz",
+    "teamshort": "CT",
+    "nickname": "Thunder",
     "isCommissioner": false,
     "status": "active"
   },
