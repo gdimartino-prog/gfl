@@ -16756,5 +16756,248 @@
     "team": "VV",
     "action": "TRANSACTION_STATUS",
     "details": "Transaction #645 marked Done"
+  },
+  {
+    "id": 1863,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T18:17:14.068Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1864,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T18:17:35.058Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1865,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T18:42:24.818Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1866,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T19:45:31.433Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "IR MOVE",
+    "details": "Placed on IR: LB - DeMarvion Overshown"
+  },
+  {
+    "id": 1867,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T19:45:31.688Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: IR MOVE — Crimson ➔ IR (Placed on IR: LB) · Oct 29, 3:45 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-944211e2018sm25924585a.13 - gsmtp)"
+  },
+  {
+    "id": 1868,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T19:45:32.112Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: IR MOVE*\n----------------------------\n*Crimson ➔ IR:*\n• Placed on IR: LB - DeMarvion Overshown\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1869,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T19:46:37.030Z",
+    "coach": "Bob Glade",
+    "team": "FA",
+    "action": "ADD",
+    "details": "ILB - Micah McFadden"
+  },
+  {
+    "id": 1870,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T19:46:37.889Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Crimson (ILB) · Oct 29, 3:46 PM"
+  },
+  {
+    "id": 1871,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T19:46:38.252Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Crimson:*\n• ILB - Micah McFadden\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1872,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T19:57:01.628Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #647 marked Done"
+  },
+  {
+    "id": 1873,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T19:57:12.574Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #646 marked Done"
+  },
+  {
+    "id": 1874,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T19:58:46.777Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1875,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T20:03:44.347Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: IR MOVE — Crimson ➔ IR (Placed on IR: LB) · Oct 29, 4:03 PM"
+  },
+  {
+    "id": 1876,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T20:11:35.185Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1877,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T20:14:57.759Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1878,
+    "leagueId": 1,
+    "timestamp": "2026-10-29T20:18:28.676Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1879,
+    "leagueId": 2,
+    "timestamp": "2026-10-29T20:36:40.934Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1880,
+    "leagueId": 2,
+    "timestamp": "2026-10-29T20:37:02.807Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded 2/VICO.COA"
+  },
+  {
+    "id": 1881,
+    "leagueId": 2,
+    "timestamp": "2026-10-29T20:40:58.619Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded 2/VICO.COA"
+  },
+  {
+    "id": 1882,
+    "leagueId": 1,
+    "timestamp": "2026-10-30T01:23:44.072Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team UF"
+  },
+  {
+    "id": 1883,
+    "leagueId": 1,
+    "timestamp": "2026-10-30T01:24:38.002Z",
+    "coach": "George Di Martino",
+    "team": "admin",
+    "action": "RESET_PASSWORD",
+    "details": "Reset password for team UF"
+  },
+  {
+    "id": 1884,
+    "leagueId": 1,
+    "timestamp": "2026-10-30T01:24:47.301Z",
+    "coach": "John Yurchak",
+    "team": "Urban",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1885,
+    "leagueId": 1,
+    "timestamp": "2026-10-30T09:54:03.634Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "IR MOVE",
+    "details": "Placed on IR: QB - Jayden Daniels"
+  },
+  {
+    "id": 1886,
+    "leagueId": 1,
+    "timestamp": "2026-10-30T09:54:03.886Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: IR MOVE — Carolina ➔ IR (Placed on IR: QB) · Oct 30, 5:54 AM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-94425ac196fsm100325085a.38 - gsmtp)"
+  },
+  {
+    "id": 1887,
+    "leagueId": 1,
+    "timestamp": "2026-10-30T09:54:04.324Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: IR MOVE*\n----------------------------\n*Carolina ➔ IR:*\n• Placed on IR: QB - Jayden Daniels\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1888,
+    "leagueId": 1,
+    "timestamp": "2026-10-30T12:00:18.995Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 7"
+  },
+  {
+    "id": 1889,
+    "leagueId": 1,
+    "timestamp": "2026-10-30T12:00:19.499Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 7 (2026)*\n----------------------------------\n\n*WEEK 7*\n🏈 Amalfi @ Newark Bay - PENDING\n🏈 Pyongyang @ Crimson - Final: 24-17\n🏈 LBI @ Las Vegas - PENDING\n🏈 Old Bridge @ Vico - Final: 34-13\n🏈 LE @ Jefferson - PENDING\n🏈 Tetbury @ Tampa - Final: 10-23\n🏈 Fur Peace @ Caro"
   }
 ]
