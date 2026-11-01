@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { schedule, standings, teams, rules, leagues } from '@/schema';
 import { eq, and } from 'drizzle-orm';
-import { sendEmail, sendWhatsApp } from '@/lib/notify';
+import { sendEmail, sendWhatsApp, escapeHtml } from '@/lib/notify';
 import { alias } from 'drizzle-orm/pg-core';
 import { isAuthorizedCron } from '@/lib/cronAuth';
 
@@ -202,7 +202,7 @@ export async function GET(req: Request) {
         const rowStyle = isPastDue || isCurrentWeekPending ? 'background-color:#fff4f4;color:#d93025;font-weight:bold;' : '';
         htmlRows += `<tr style="${rowStyle}">
           <td style="padding:8px;border:1px solid #ddd;text-align:center;">${wk}</td>
-          <td style="padding:8px;border:1px solid #ddd;">${g.away} @ ${g.home}</td>
+          <td style="padding:8px;border:1px solid #ddd;">${escapeHtml(g.away)} @ ${escapeHtml(g.home)}</td>
           <td style="padding:8px;border:1px solid #ddd;">${displayStatus}</td>
         </tr>`;
       }
@@ -211,12 +211,33 @@ export async function GET(req: Request) {
     // Get standings
     const standingsRows = await db.select({
       teamName: teams.name,
-      wins: standings.wins, losses: standings.losses, ties: standings.ties,
+      wins: standings.wins,
+      losses: standings.losses,
+      ties: standings.ties,
       division: standings.division,
+      offPts: standings.offPts,
+      defPts: standings.defPts,
     })
     .from(standings)
     .leftJoin(teams, eq(standings.teamId, teams.id))
     .where(and(eq(standings.leagueId, leagueId), eq(standings.year, currentSeasonYear)));
+
+    const getH2H = (teamA: string, teamB: string) => {
+      const finalGames = games.filter(g =>
+        g.homeScore !== null && g.awayScore !== null &&
+        !playoffOrder.includes(g.week) &&
+        ((g.home === teamA && g.away === teamB) || (g.home === teamB && g.away === teamA))
+      );
+      if (finalGames.length === 0) return 0.5;
+      let points = 0;
+      for (const g of finalGames) {
+        const aScore = g.home === teamA ? g.homeScore! : g.awayScore!;
+        const bScore = g.home === teamA ? g.awayScore! : g.homeScore!;
+        if (aScore > bScore) points += 1;
+        else if (aScore === bScore) points += 0.5;
+      }
+      return points / finalGames.length;
+    };
 
     const divisions: Record<string, typeof standingsRows> = {};
     for (const s of standingsRows) {
@@ -225,16 +246,49 @@ export async function GET(req: Request) {
       divisions[s.division].push(s);
     }
 
+    const sortedDivisions = Object.keys(divisions).sort();
     let standingsHtml = `<h3 style="color:#0047AB;margin-top:25px;border-bottom:2px solid #eee;">League Standings (${currentSeasonYear})</h3>`;
-    for (const div in divisions) {
-      standingsHtml += `<h4 style="color:#333;margin-bottom:5px;text-transform:uppercase;font-size:14px;">${div}</h4>
+    for (const div of sortedDivisions) {
+      divisions[div].sort((a, b) => {
+        const totalA = a.wins + a.losses + a.ties;
+        const totalB = b.wins + b.losses + b.ties;
+        const pctA = totalA > 0 ? (a.wins + a.ties * 0.5) / totalA : 0;
+        const pctB = totalB > 0 ? (b.wins + b.ties * 0.5) / totalB : 0;
+        if (pctB !== pctA) return pctB - pctA;
+
+        if (a.teamName && b.teamName) {
+          const h2h = getH2H(a.teamName, b.teamName);
+          if (h2h !== 0.5) return h2h > 0.5 ? -1 : 1;
+        }
+
+        const diffA = (a.offPts ?? 0) - (a.defPts ?? 0);
+        const diffB = (b.offPts ?? 0) - (b.defPts ?? 0);
+        if (diffB !== diffA) return diffB - diffA;
+
+        if ((b.offPts ?? 0) !== (a.offPts ?? 0)) return (b.offPts ?? 0) - (a.offPts ?? 0);
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        return (a.teamName || '').localeCompare(b.teamName || '');
+      });
+
+      standingsHtml += `<h4 style="color:#333;margin-bottom:5px;text-transform:uppercase;font-size:14px;">${escapeHtml(div)}</h4>
         <table style="border-collapse:collapse;width:100%;font-size:12px;margin-bottom:15px;">
-          <tr style="background:#f8f9fa;"><th style="border:1px solid #ddd;padding:5px;">Team</th><th style="border:1px solid #ddd;padding:5px;">W</th><th style="border:1px solid #ddd;padding:5px;">L</th><th style="border:1px solid #ddd;padding:5px;">T</th></tr>`;
+          <tr style="background:#f8f9fa;">
+            <th style="border:1px solid #ddd;padding:5px;text-align:left;">Team</th>
+            <th style="border:1px solid #ddd;padding:5px;text-align:center;">W</th>
+            <th style="border:1px solid #ddd;padding:5px;text-align:center;">L</th>
+            <th style="border:1px solid #ddd;padding:5px;text-align:center;">T</th>
+            <th style="border:1px solid #ddd;padding:5px;text-align:center;">Pct</th>
+          </tr>`;
       for (const t of divisions[div]) {
-        standingsHtml += `<tr><td style="border:1px solid #ddd;padding:5px;">${t.teamName}</td>
+        const total = t.wins + t.losses + t.ties;
+        const pct = total > 0 ? ((t.wins + 0.5 * t.ties) / total).toFixed(3).replace(/^0/, '') : '.000';
+        standingsHtml += `<tr>
+          <td style="border:1px solid #ddd;padding:5px;">${escapeHtml(t.teamName)}</td>
           <td style="border:1px solid #ddd;padding:5px;text-align:center;">${t.wins}</td>
           <td style="border:1px solid #ddd;padding:5px;text-align:center;">${t.losses}</td>
-          <td style="border:1px solid #ddd;padding:5px;text-align:center;">${t.ties}</td></tr>`;
+          <td style="border:1px solid #ddd;padding:5px;text-align:center;">${t.ties}</td>
+          <td style="border:1px solid #ddd;padding:5px;text-align:center;">${pct}</td>
+        </tr>`;
       }
       standingsHtml += '</table>';
     }

@@ -21,11 +21,13 @@ export function escapeHtml(s: string | null | undefined): string {
 let _transporter: nodemailer.Transporter | null = null;
 function getTransporter() {
   if (!_transporter) {
+    const user = (process.env.GMAIL_USER || MY_EMAIL).trim();
+    const pass = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
     _transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.GMAIL_USER || MY_EMAIL,
-        pass: process.env.GMAIL_APP_PASSWORD,
+        user,
+        pass,
       },
     });
   }
@@ -39,31 +41,45 @@ export async function sendEmail({ subject, html, text, leagueId }: {
   leagueId?: number;
 }): Promise<boolean> {
   const targetLeague = leagueId ?? 1;
-  if (!process.env.GMAIL_APP_PASSWORD) {
+  const appPassword = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
+  if (!appPassword) {
     console.warn('[notify] GMAIL_APP_PASSWORD not set — skipping email');
     await logSystemEvent('System', 'EMAIL', 'ALERT_SKIPPED', `No App Password: ${subject}`, targetLeague);
     return false;
   }
   console.log('[notify] sending email:', subject);
-  try {
-    const ccRecipient = GROUP_EMAIL.toLowerCase() === MY_EMAIL.toLowerCase() ? undefined : MY_EMAIL;
-    const plainText = text || (html ? html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : undefined);
-    await getTransporter().sendMail({
-      from: FROM_EMAIL,
-      to: GROUP_EMAIL,
-      ...(ccRecipient ? { cc: ccRecipient } : {}),
-      subject,
-      html: html || `<pre>${escapeHtml(text)}</pre>`,
-      text: plainText,
-    });
-    await logSystemEvent('System', 'EMAIL', 'ALERT_SENT', subject, targetLeague);
-    return true;
-  } catch (e) {
-    const errMsg = e instanceof Error ? e.message : String(e);
-    console.error('Email send failed:', errMsg);
-    await logSystemEvent('System', 'EMAIL', 'ALERT_FAILED', `${subject} (${errMsg})`.slice(0, 1000), targetLeague);
-    return false;
+  const ccRecipient = GROUP_EMAIL.toLowerCase() === MY_EMAIL.toLowerCase() ? undefined : MY_EMAIL;
+  const plainText = text || (html ? html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : undefined);
+
+  const MAX_RETRIES = 3;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await getTransporter().sendMail({
+        from: FROM_EMAIL,
+        to: GROUP_EMAIL,
+        ...(ccRecipient ? { cc: ccRecipient } : {}),
+        subject,
+        html: html || `<pre>${escapeHtml(text)}</pre>`,
+        text: plainText,
+      });
+      await logSystemEvent('System', 'EMAIL', 'ALERT_SENT', subject, targetLeague);
+      return true;
+    } catch (e) {
+      // Invalidate cached transporter on failure to force fresh socket connection on retry
+      _transporter = null;
+      const errMsg = e instanceof Error ? e.message : String(e);
+      console.error(`[notify] Email send attempt ${attempt + 1}/${MAX_RETRIES + 1} failed:`, errMsg);
+
+      if (attempt < MAX_RETRIES) {
+        await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
+        continue;
+      }
+
+      await logSystemEvent('System', 'EMAIL', 'ALERT_FAILED', `${subject} (${errMsg})`.slice(0, 1000), targetLeague);
+      return false;
+    }
   }
+  return false;
 }
 
 export async function sendWhatsApp(message: string, leagueId?: number): Promise<boolean> {
