@@ -1,0 +1,56 @@
+rules:
+  - id: gfl-revalidate-tag-requires-second-arg
+    message: >
+      Next.js 16 requires two arguments for revalidateTag: revalidateTag(tag, 'max').
+      Calling revalidateTag(tag) with a single argument breaks the production build.
+    severity: ERROR
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - /app/
+        - /lib/
+    pattern: revalidateTag($TAG)
+
+  - id: gfl-no-shared-cdn-cache-on-api-routes
+    message: >
+      Never use s-maxage on league-scoped API routes whose response depends on the
+      gfl-league-id cookie or session. Shared CDN caching leaks one league's data
+      to another league's users. Use "private, max-age=N" instead.
+    severity: ERROR
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - /app/api/
+      exclude:
+        - /app/api/leagues/route.ts
+    pattern-regex: 'Cache-Control["'']?\s*[:,]\s*["''`][^"''`]*\bs-maxage='
+
+  - id: gfl-no-server-secrets-in-client-components
+    message: >
+      Server-only environment variables (POSTGRES_URL, AUTH_SECRET, CRON_SECRET,
+      SUPERUSER_PASSWORD, BLOB_READ_WRITE_TOKEN, RESEND_API_KEY, GEMINI_API_KEY)
+      must never be referenced in client code.
+    severity: ERROR
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - /components/
+    pattern-regex: 'process\.env\.(POSTGRES_URL|AUTH_SECRET|CRON_SECRET|SUPERUSER_PASSWORD|BLOB_READ_WRITE_TOKEN|RESEND_API_KEY|GEMINI_API_KEY)\b'
+
+  # TODO(teamshort): add `pattern: eq(teams.teamshort, $X)` as a WARNING once the
+  # 7 existing bare comparisons are migrated to upper() — see the secops agent.
+
+  - id: gfl-no-redundant-admin-commissioner-check
+    message: >
+      Do not call await isAdmin() || await isCommissioner() (causes redundant DB
+      lookups). Use await isPrivileged() from lib/auth.ts instead.
+    severity: WARNING
+    languages: [typescript, javascript]
+    paths:
+      include:
+        - /app/
+        - /lib/
+    patterns:
+      - pattern-either:
+          - pattern: (await isAdmin(...)) || (await isCommissioner(...))
+          - pattern: (await isCommissioner(...)) || (await isAdmin(...))

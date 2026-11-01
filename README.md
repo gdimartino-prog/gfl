@@ -3,7 +3,7 @@
 Next.js + Vercel Postgres (Supabase) + Drizzle, multi-league via row-level tenancy. GFL = leagueId 1.
 
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** — canonical reference: tech stack, DB schema, API routes, auth, draft system, notifications, cron jobs, caching.
-- **[CLAUDE.md](./CLAUDE.md)** — working agreements, conventions, and gotchas.
+- **[AGENTS.md](./AGENTS.md)** — canonical agent/engineering rules, conventions, gotchas, pre-push review (shared by Claude Code and Antigravity; `CLAUDE.md` and `.agents/rules/gfl.md` are thin adapters).
 - **User manual** — served in-app at `/manual`.
 
 ```bash

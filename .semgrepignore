@@ -1,0 +1,12 @@
+node_modules/
+.next/
+.venv/
+.agents/
+.claude/
+.vercel/
+backups/
+drizzle/
+scripts/
+test-results/
+playwright-report/
+package-lock.json

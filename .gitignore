@@ -35,8 +35,22 @@ server.log
 # Misc
 response.txt
 AGENTmd.txt
-.claude/settings.local.json
 repomix-output.xml
+
+# Claude Code — machine-local settings and worktrees stay out of git;
+# the shared agent architecture (agents, commands, rules, skills, workflows)
+# and the Antigravity mirror (.agents/rules, .agents/skills) are tracked.
+.claude/settings.json
+.claude/settings*.json
+.claude/worktrees/
+!.claude/agents/
+!.claude/commands/
+!.claude/rules/
+!.claude/skills/
+!.claude/workflows/
+!.agents/rules/
+!.agents/skills/
+skills-lock.json
 
 *-current.md
 *-after-*.md

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Tool-agnostic pre-push gate (works for Claude Code, Antigravity, and plain
+# git alike). Enable once per clone:
+#     git config core.hooksPath .githooks
+# Runs the fast checks every push must pass. The full CI-equivalent gate
+# (lint + semgrep + test + build) is `npm run verify:prepush`.
+set -e
+echo "[pre-push] Semgrep SAST ruleset"
+npm run --silent semgrep
+echo "[pre-push] Unit suite"
+npm test --silent
+echo "[pre-push] OK"
