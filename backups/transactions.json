@@ -4835,6 +4835,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 649,
+    "leagueId": 1,
+    "date": "2026-11-01T01:39:42.022Z",
+    "type": "ADD",
+    "description": "DE - Barryn Sorrell",
+    "fromTeam": "FA",
+    "toTeam": "Carolina",
+    "owner": "Pete Vuckovaz",
+    "status": "Pending",
+    "weekBack": null,
+    "season": 2026,
+    "fee": 10,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-11-01T01:39:41.969Z",
+    "touch_id": "Pete Vuckovaz"
+  },
+  {
     "id": 566,
     "leagueId": 1,
     "date": "2026-09-28T11:41:07.677Z",

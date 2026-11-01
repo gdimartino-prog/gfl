@@ -16999,5 +16999,77 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📅 *GFL WEEKLY UPDATE: Week 7 (2026)*\n----------------------------------\n\n*WEEK 7*\n🏈 Amalfi @ Newark Bay - PENDING\n🏈 Pyongyang @ Crimson - Final: 24-17\n🏈 LBI @ Las Vegas - PENDING\n🏈 Old Bridge @ Vico - Final: 34-13\n🏈 LE @ Jefferson - PENDING\n🏈 Tetbury @ Tampa - Final: 10-23\n🏈 Fur Peace @ Caro"
+  },
+  {
+    "id": 1890,
+    "leagueId": 1,
+    "timestamp": "2026-10-31T19:38:48.889Z",
+    "coach": "Phil Matsikoudis",
+    "team": "Newark Bay",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1891,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T01:39:42.063Z",
+    "coach": "Pete Vuckovaz",
+    "team": "FA",
+    "action": "ADD",
+    "details": "DE - Barryn Sorrell"
+  },
+  {
+    "id": 1892,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T01:39:42.209Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: ADD — FA ➔ Carolina (DE) · Oct 31, 9:39 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-91ca805529csm55001936d6.32 - gsmtp)"
+  },
+  {
+    "id": 1893,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T01:39:42.573Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Carolina:*\n• DE - Barryn Sorrell\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1894,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T02:57:42.547Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1895,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T02:58:00.759Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1896,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T13:00:25.237Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 7"
+  },
+  {
+    "id": 1897,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T13:00:25.743Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 7 (2026)*\n----------------------------------\n\n*WEEK 7*\n🏈 Amalfi @ Newark Bay - Final: 34-33\n🏈 Pyongyang @ Crimson - Final: 24-17\n🏈 LBI @ Las Vegas - PENDING\n🏈 Old Bridge @ Vico - Final: 34-13\n🏈 LE @ Jefferson - PENDING\n🏈 Tetbury @ Tampa - Final: 10-23\n🏈 Fur Peace @"
   }
 ]
