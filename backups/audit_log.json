@@ -17071,5 +17071,176 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📅 *GFL WEEKLY UPDATE: Week 7 (2026)*\n----------------------------------\n\n*WEEK 7*\n🏈 Amalfi @ Newark Bay - Final: 34-33\n🏈 Pyongyang @ Crimson - Final: 24-17\n🏈 LBI @ Las Vegas - PENDING\n🏈 Old Bridge @ Vico - Final: 34-13\n🏈 LE @ Jefferson - PENDING\n🏈 Tetbury @ Tampa - Final: 10-23\n🏈 Fur Peace @"
+  },
+  {
+    "id": 1898,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T13:06:04.684Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #648 marked Done"
+  },
+  {
+    "id": 1899,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T13:07:05.377Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #649 marked Done"
+  },
+  {
+    "id": 1900,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T13:07:55.850Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #165 marked Done"
+  },
+  {
+    "id": 1901,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T18:03:22.814Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded LAS_VEGAS.COA"
+  },
+  {
+    "id": 1902,
+    "leagueId": 2,
+    "timestamp": "2026-11-01T20:14:56.397Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 1903,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T23:33:26.680Z",
+    "coach": "Bob Glade",
+    "team": "Crimson",
+    "action": "WAIVE",
+    "details": "TE - Jackson Hawes"
+  },
+  {
+    "id": 1904,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T23:33:27.807Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Crimson ➔ FA (TE) · Nov 1, 6:33 PM"
+  },
+  {
+    "id": 1905,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T23:33:28.161Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Crimson ➔ FA:*\n• TE - Jackson Hawes\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1906,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T23:34:08.030Z",
+    "coach": "Bob Glade",
+    "team": "FA",
+    "action": "ADD",
+    "details": "RB/KR - Dylan Laube"
+  },
+  {
+    "id": 1907,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T23:34:08.628Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Crimson (RB/KR) · Nov 1, 6:34 PM"
+  },
+  {
+    "id": 1908,
+    "leagueId": 1,
+    "timestamp": "2026-11-01T23:34:08.968Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Crimson:*\n• RB/KR - Dylan Laube\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1909,
+    "leagueId": 1,
+    "timestamp": "2026-11-02T12:23:21.298Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #650 marked Done"
+  },
+  {
+    "id": 1910,
+    "leagueId": 1,
+    "timestamp": "2026-11-02T12:23:41.743Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #651 marked Done"
+  },
+  {
+    "id": 1911,
+    "leagueId": 1,
+    "timestamp": "2026-11-02T12:24:52.554Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1912,
+    "leagueId": 1,
+    "timestamp": "2026-11-02T12:24:56.120Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1913,
+    "leagueId": 1,
+    "timestamp": "2026-11-02T12:25:41.409Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1914,
+    "leagueId": 1,
+    "timestamp": "2026-11-02T12:26:48.608Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #617 marked Done"
+  },
+  {
+    "id": 1915,
+    "leagueId": 1,
+    "timestamp": "2026-11-02T14:10:07.103Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded LAS_VEGAS.COA"
+  },
+  {
+    "id": 1916,
+    "leagueId": 1,
+    "timestamp": "2026-11-02T15:06:07.351Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]

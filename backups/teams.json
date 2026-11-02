@@ -250,16 +250,6 @@
     "status": "active"
   },
   {
-    "id": 49,
-    "leagueId": 1,
-    "name": "Las Vegas",
-    "coach": "Mark Mari",
-    "teamshort": "LV",
-    "nickname": "Golden Showers",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 94,
     "leagueId": 2,
     "name": "Fur Peace",
@@ -306,6 +296,16 @@
     "coach": "John Yurchak",
     "teamshort": "UF",
     "nickname": "FUBAR Giants",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 49,
+    "leagueId": 1,
+    "name": "Las Vegas",
+    "coach": "Mark Mari",
+    "teamshort": "LV",
+    "nickname": "Golden Showers",
     "isCommissioner": false,
     "status": "active"
   },
