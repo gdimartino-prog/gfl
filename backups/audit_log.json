@@ -17251,5 +17251,23 @@
     "team": "DC",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1918,
+    "leagueId": 1,
+    "timestamp": "2026-11-04T13:00:28.046Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Update: 2026 Week 8 (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-945d479cc7esm196042985a.11 - gsmtp)"
+  },
+  {
+    "id": 1919,
+    "leagueId": 1,
+    "timestamp": "2026-11-04T13:00:28.476Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 8 (2026)*\n----------------------------------\n\n*WEEK 8*\n🏈 Crimson @ Las Vegas - PENDING\n🏈 LBI @ Pyongyang - PENDING\n🏈 Jefferson @ Tampa - PENDING\n🏈 Tetbury @ LE - PENDING\n🏈 Kigali @ Satriale - PENDING\n🏈 DC @ Urban - PENDING\n\n*WEEK 9*\n🏈 Carolina @ Crimson - PENDING\n�"
   }
 ]
