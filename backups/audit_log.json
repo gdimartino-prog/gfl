@@ -17269,5 +17269,14 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📅 *GFL WEEKLY UPDATE: Week 8 (2026)*\n----------------------------------\n\n*WEEK 8*\n🏈 Crimson @ Las Vegas - PENDING\n🏈 LBI @ Pyongyang - PENDING\n🏈 Jefferson @ Tampa - PENDING\n🏈 Tetbury @ LE - PENDING\n🏈 Kigali @ Satriale - PENDING\n🏈 DC @ Urban - PENDING\n\n*WEEK 9*\n🏈 Carolina @ Crimson - PENDING\n�"
+  },
+  {
+    "id": 1920,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T00:44:26.643Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
