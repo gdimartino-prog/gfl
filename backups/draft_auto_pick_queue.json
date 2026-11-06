@@ -58,5 +58,17 @@
     "createdAt": "2026-10-21T23:39:40.733Z",
     "touch_dt": "2026-10-21T23:39:40.733Z",
     "touch_id": "OBG"
+  },
+  {
+    "id": 26,
+    "leagueId": 1,
+    "teamId": 54,
+    "playerId": 23753,
+    "year": 2026,
+    "draftType": "free_agent",
+    "sortOrder": 0,
+    "createdAt": "2026-11-05T21:07:17.684Z",
+    "touch_dt": "2026-11-05T21:07:17.684Z",
+    "touch_id": "TC"
   }
 ]

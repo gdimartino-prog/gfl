@@ -17278,5 +17278,176 @@
     "team": "Carolina",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1921,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:07:56.150Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "ADD",
+    "details": "TE - Jackson Hawes"
+  },
+  {
+    "id": 1922,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:08:05.766Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: ADD — FA ➔ Tampa (TE) · Nov 5, 4:07 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-945d48577ebsm542122285a.33 - gsmtp)"
+  },
+  {
+    "id": 1923,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:08:06.120Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Tampa:*\n• TE - Jackson Hawes\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1924,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:08:30.467Z",
+    "coach": "Bill Kobus",
+    "team": "Tampa",
+    "action": "WAIVE",
+    "details": "G - Anthony Bradford"
+  },
+  {
+    "id": 1925,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:08:40.146Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: WAIVE — Tampa ➔ FA (G) · Nov 5, 4:08 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-54e231d0710sm3151211cf.2 - gsmtp)"
+  },
+  {
+    "id": 1926,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:08:40.502Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Tampa ➔ FA:*\n• G - Anthony Bradford\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1927,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:22:49.550Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "ADD",
+    "details": "C - Christian Kuntz"
+  },
+  {
+    "id": 1928,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:22:59.127Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: ADD — FA ➔ Tampa (C) · Nov 5, 4:22 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials 6a1803df08f44-91ea6acebb0sm4670626d6.45 - gsmtp)"
+  },
+  {
+    "id": 1929,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:22:59.481Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Tampa:*\n• C - Christian Kuntz\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1930,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:23:22.245Z",
+    "coach": "Bill Kobus",
+    "team": "Tampa",
+    "action": "WAIVE",
+    "details": "C - Julian Ashby"
+  },
+  {
+    "id": 1931,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:23:31.779Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Activity: WAIVE — Tampa ➔ FA (C) · Nov 5, 4:23 PM (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials d75a77b69052e-54e230d967fsm3404361cf.3 - gsmtp)"
+  },
+  {
+    "id": 1932,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T21:23:32.127Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Tampa ➔ FA:*\n• C - Julian Ashby\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1933,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T22:07:57.735Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 8"
+  },
+  {
+    "id": 1934,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T22:07:58.524Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Tampa (TE) · Nov 5, 5:07 PM"
+  },
+  {
+    "id": 1935,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T22:07:59.718Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Tampa ➔ FA (G) · Nov 5, 5:07 PM"
+  },
+  {
+    "id": 1936,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T22:08:00.898Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Tampa (C) · Nov 5, 5:08 PM"
+  },
+  {
+    "id": 1937,
+    "leagueId": 1,
+    "timestamp": "2026-11-05T22:08:01.709Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Tampa ➔ FA (C) · Nov 5, 5:08 PM"
+  },
+  {
+    "id": 1938,
+    "leagueId": 1,
+    "timestamp": "2026-11-06T13:00:15.378Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 8"
+  },
+  {
+    "id": 1939,
+    "leagueId": 1,
+    "timestamp": "2026-11-06T13:00:15.829Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 8 (2026)*\n----------------------------------\n\n*WEEK 8*\n🏈 Crimson @ Las Vegas - PENDING\n🏈 LBI @ Pyongyang - PENDING\n🏈 Jefferson @ Tampa - PENDING\n🏈 Tetbury @ LE - PENDING\n🏈 Kigali @ Satriale - PENDING\n🏈 DC @ Urban - PENDING\n\n*WEEK 9*\n🏈 Carolina @ Crimson - PENDING\n�"
   }
 ]
