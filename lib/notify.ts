@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { revalidateTag } from 'next/cache';
 import { logSystemEvent } from './db-helpers';
 
 const MY_EMAIL = process.env.NOTIFY_MY_EMAIL || 'gdimartino@gmail.com';
@@ -76,6 +77,7 @@ export async function sendEmail({ subject, html, text, leagueId }: {
       }
 
       await logSystemEvent('System', 'EMAIL', 'ALERT_FAILED', `${subject} (${errMsg})`.slice(0, 1000), targetLeague);
+      try { revalidateTag('email-alerts', 'max'); } catch {}
       return false;
     }
   }
