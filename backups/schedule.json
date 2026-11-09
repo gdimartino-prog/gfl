@@ -12584,32 +12584,6 @@
     "touch_id": "maintenance"
   },
   {
-    "id": 1451,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "8",
-    "homeTeamId": 59,
-    "awayTeamId": 47,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.268Z",
-    "touch_id": "maintenance"
-  },
-  {
-    "id": 1452,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "8",
-    "homeTeamId": 54,
-    "awayTeamId": 50,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.279Z",
-    "touch_id": "maintenance"
-  },
-  {
     "id": 1453,
     "leagueId": 1,
     "year": 2026,
@@ -12620,19 +12594,6 @@
     "away_score": null,
     "is_bye": false,
     "touch_dt": "2026-05-06T14:16:49.291Z",
-    "touch_id": "maintenance"
-  },
-  {
-    "id": 1454,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "8",
-    "homeTeamId": 53,
-    "awayTeamId": 46,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.302Z",
     "touch_id": "maintenance"
   },
   {
@@ -13660,6 +13621,45 @@
     "away_score": 29,
     "is_bye": false,
     "touch_dt": "2026-05-06T14:16:49.225Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1451,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "8",
+    "homeTeamId": 59,
+    "awayTeamId": 47,
+    "home_score": 22,
+    "away_score": 30,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.268Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1452,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "8",
+    "homeTeamId": 54,
+    "awayTeamId": 50,
+    "home_score": 41,
+    "away_score": 12,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.279Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1454,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "8",
+    "homeTeamId": 53,
+    "awayTeamId": 46,
+    "home_score": 17,
+    "away_score": 24,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.302Z",
     "touch_id": "maintenance"
   },
   {

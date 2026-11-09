@@ -17064,6 +17064,15 @@
     "details": "GFL Update: 2026 Week 7"
   },
   {
+    "id": 1945,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T13:00:17.777Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 8"
+  },
+  {
     "id": 1897,
     "leagueId": 1,
     "timestamp": "2026-11-01T13:00:25.743Z",
@@ -17467,5 +17476,122 @@
     "team": "NBT",
     "action": "COA_UPLOAD",
     "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 1942,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T00:41:57.464Z",
+    "coach": "Bill Kobus",
+    "team": "Tampa",
+    "action": "IR MOVE",
+    "details": "Placed on IR: DL - Alim McNeill"
+  },
+  {
+    "id": 1943,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T00:41:58.497Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: IR MOVE — Tampa ➔ IR (Placed on IR: DL) · Nov 8, 7:41 PM"
+  },
+  {
+    "id": 1944,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T00:41:58.891Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: IR MOVE*\n----------------------------\n*Tampa ➔ IR:*\n• Placed on IR: DL - Alim McNeill\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1946,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T13:00:18.376Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 8 (2026)*\n----------------------------------\n\n*WEEK 8*\n🏈 Crimson @ Las Vegas - PENDING\n🏈 LBI @ Pyongyang - PENDING\n🏈 Jefferson @ Tampa - PENDING\n🏈 Tetbury @ LE - PENDING\n🏈 Kigali @ Satriale - PENDING\n🏈 DC @ Urban - PENDING\n\n*WEEK 9*\n🏈 Carolina @ Crimson - PENDING\n�"
+  },
+  {
+    "id": 1947,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T14:50:04.497Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #653 marked Done"
+  },
+  {
+    "id": 1948,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T14:50:16.911Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #655 marked Done"
+  },
+  {
+    "id": 1949,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T14:50:37.114Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #652 marked Done"
+  },
+  {
+    "id": 1950,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T14:50:53.333Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #654 marked Done"
+  },
+  {
+    "id": 1951,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T14:51:09.299Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #656 marked Done"
+  },
+  {
+    "id": 1952,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T14:51:56.199Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 1953,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T14:51:59.812Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 1954,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T14:52:10.868Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1955,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T15:34:21.393Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]
