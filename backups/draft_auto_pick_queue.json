@@ -70,5 +70,17 @@
     "createdAt": "2026-11-05T21:07:17.684Z",
     "touch_dt": "2026-11-05T21:07:17.684Z",
     "touch_id": "TC"
+  },
+  {
+    "id": 27,
+    "leagueId": 1,
+    "teamId": 54,
+    "playerId": 22975,
+    "year": 2026,
+    "draftType": "free_agent",
+    "sortOrder": 1,
+    "createdAt": "2026-11-09T21:14:16.002Z",
+    "touch_dt": "2026-11-09T21:14:16.002Z",
+    "touch_id": "TC"
   }
 ]

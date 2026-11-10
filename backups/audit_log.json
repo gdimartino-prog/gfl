@@ -17593,5 +17593,653 @@
     "team": "admin",
     "action": "IMPORT_SCHEDULE",
     "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 1956,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T20:08:00.414Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 8"
+  },
+  {
+    "id": 1957,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:15:08.571Z",
+    "coach": "Bill Kobus",
+    "team": "Tampa",
+    "action": "WAIVE",
+    "details": "CB - Roger McCreary"
+  },
+  {
+    "id": 1958,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:15:09.949Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Tampa ➔ FA (CB) · Nov 9, 4:15 PM"
+  },
+  {
+    "id": 1959,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:15:10.334Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Tampa ➔ FA:*\n• CB - Roger McCreary\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1960,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:15:24.846Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "ADD",
+    "details": "CB - Emmanuel Forbes"
+  },
+  {
+    "id": 1961,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:15:25.607Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Tampa (CB) · Nov 9, 4:15 PM"
+  },
+  {
+    "id": 1962,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:15:25.957Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Tampa:*\n• CB - Emmanuel Forbes\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1963,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:29:29.711Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 1964,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:52:38.315Z",
+    "coach": "Bill Kobus",
+    "team": "Tampa",
+    "action": "WAIVE",
+    "details": "WR - Christian Kirk"
+  },
+  {
+    "id": 1965,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:52:39.500Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Tampa ➔ FA (WR) · Nov 9, 4:52 PM"
+  },
+  {
+    "id": 1966,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:52:39.881Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Tampa ➔ FA:*\n• WR - Christian Kirk\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1967,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:52:56.478Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "ADD",
+    "details": "RB/KR - Dylan Sampson"
+  },
+  {
+    "id": 1968,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:52:57.384Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Tampa (RB/KR) · Nov 9, 4:52 PM"
+  },
+  {
+    "id": 1969,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T21:52:57.711Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Tampa:*\n• RB/KR - Dylan Sampson\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1970,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T22:05:26.689Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 1971,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T22:13:50.233Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #659 marked Done"
+  },
+  {
+    "id": 1972,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T22:13:51.444Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #657 marked Done"
+  },
+  {
+    "id": 1973,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T22:14:21.293Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #658 marked Done"
+  },
+  {
+    "id": 1974,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T22:14:22.536Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #660 marked Done"
+  },
+  {
+    "id": 1975,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:14:24.024Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 8"
+  },
+  {
+    "id": 1976,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:14:24.437Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 8 (2026)*\n----------------------------------\n\n*WEEK 8*\n🏈 Crimson @ Las Vegas - PENDING\n🏈 LBI @ Pyongyang - Final: 30-22\n🏈 Jefferson @ Tampa - Final: 12-41\n🏈 Tetbury @ LE - PENDING\n🏈 Kigali @ Satriale - Final: 24-17\n🏈 DC @ Urban - PENDING\n\n*WEEK 9*\n🏈 Carolina @ Crim"
+  },
+  {
+    "id": 1977,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:34:39.899Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "WAIVE",
+    "details": "WR/PR - Calvin Austin III"
+  },
+  {
+    "id": 1978,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:34:40.717Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Vico ➔ FA (WR/PR) · Nov 9, 6:34 PM"
+  },
+  {
+    "id": 1979,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:34:41.067Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Vico ➔ FA:*\n• WR/PR - Calvin Austin III\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1980,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:35:33.503Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "S - Chuck Clark"
+  },
+  {
+    "id": 1981,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:35:34.471Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Vico (S) · Nov 9, 6:35 PM"
+  },
+  {
+    "id": 1982,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:35:34.808Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Vico:*\n• S - Chuck Clark\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1983,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:36:41.282Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "ADD",
+    "details": "RB/KR - Justice Hill"
+  },
+  {
+    "id": 1984,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:36:42.328Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Vico (RB/KR) · Nov 9, 6:36 PM"
+  },
+  {
+    "id": 1985,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:36:42.673Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Vico:*\n• RB/KR - Justice Hill\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1986,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:38:01.092Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "WAIVE",
+    "details": "WR/KR - Kyle Williams"
+  },
+  {
+    "id": 1987,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:38:01.799Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Vico ➔ FA (WR/KR) · Nov 9, 6:38 PM"
+  },
+  {
+    "id": 1988,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:38:02.211Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Vico ➔ FA:*\n• WR/KR - Kyle Williams\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1989,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:43:08.761Z",
+    "coach": "Alex Matsikoudis",
+    "team": "FA",
+    "action": "ADD",
+    "details": "S - Jeremy Reaves"
+  },
+  {
+    "id": 1990,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:43:10.108Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ DC (S) · Nov 9, 6:43 PM"
+  },
+  {
+    "id": 1991,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:43:10.456Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ DC:*\n• S - Jeremy Reaves\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1992,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:43:18.761Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "WAIVE",
+    "details": "S - Tyler Nubin"
+  },
+  {
+    "id": 1993,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:43:19.502Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — DC ➔ FA (S) · Nov 9, 6:43 PM"
+  },
+  {
+    "id": 1994,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:43:19.833Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*DC ➔ FA:*\n• S - Tyler Nubin\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1995,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:47:59.397Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "WAIVE",
+    "details": "CB - Jahdae Barron"
+  },
+  {
+    "id": 1996,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:48:00.312Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — DC ➔ FA (CB) · Nov 9, 6:47 PM"
+  },
+  {
+    "id": 1997,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:48:00.655Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*DC ➔ FA:*\n• CB - Jahdae Barron\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 1998,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:54:30.195Z",
+    "coach": "Alex Matsikoudis",
+    "team": "FA",
+    "action": "ADD",
+    "details": "WR/RET - Efton Chism III"
+  },
+  {
+    "id": 1999,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:54:31.050Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ DC (WR/RET) · Nov 9, 6:54 PM"
+  },
+  {
+    "id": 2000,
+    "leagueId": 1,
+    "timestamp": "2026-11-09T23:54:31.418Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ DC:*\n• WR/RET - Efton Chism III\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2001,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T00:07:24.689Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #661 marked Done"
+  },
+  {
+    "id": 2002,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T00:07:32.953Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #664 marked Done"
+  },
+  {
+    "id": 2003,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T00:07:34.553Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #663 marked Done"
+  },
+  {
+    "id": 2004,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T00:07:35.952Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #662 marked Done"
+  },
+  {
+    "id": 2005,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T00:10:05.331Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #668 marked Done"
+  },
+  {
+    "id": 2006,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T00:10:06.858Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #667 marked Done"
+  },
+  {
+    "id": 2007,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T00:10:08.270Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #666 marked Done"
+  },
+  {
+    "id": 2008,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T00:10:09.766Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #665 marked Done"
+  },
+  {
+    "id": 2009,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T00:10:50.066Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 2010,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T03:15:02.024Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 2011,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T03:15:02.139Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2012,
+    "leagueId": 2,
+    "timestamp": "2026-11-10T03:56:57.737Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 2013,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T03:57:23.145Z",
+    "coach": "Jack Wyville",
+    "team": "Fur Peace",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2014,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T05:46:38.672Z",
+    "coach": "Ed Casserly",
+    "team": "FA",
+    "action": "ADD",
+    "details": "ILB - Jeremiah Trotter Jr."
+  },
+  {
+    "id": 2015,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T05:46:40.426Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Old Bridge (ILB) · Nov 10, 12:46 AM"
+  },
+  {
+    "id": 2016,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T05:46:40.781Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Old Bridge:*\n• ILB - Jeremiah Trotter Jr.\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2017,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T05:47:18.673Z",
+    "coach": "Ed Casserly",
+    "team": "Old Bridge",
+    "action": "WAIVE",
+    "details": "RB - British Brooks"
+  },
+  {
+    "id": 2018,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T05:47:19.410Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Old Bridge ➔ FA (RB) · Nov 10, 12:47 AM"
+  },
+  {
+    "id": 2019,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T05:47:19.759Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Old Bridge ➔ FA:*\n• RB - British Brooks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2020,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T12:45:52.074Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #669 marked Done"
+  },
+  {
+    "id": 2021,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T12:45:53.280Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #670 marked Done"
+  },
+  {
+    "id": 2022,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T12:46:40.704Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 2023,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T12:47:09.833Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2024,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T12:47:13.386Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 2025,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T14:03:57.695Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "ADD",
+    "details": "C-G - Drew Kendall"
+  },
+  {
+    "id": 2026,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T14:03:58.980Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Tampa (C-G) · Nov 10, 9:03 AM"
+  },
+  {
+    "id": 2027,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T14:03:59.373Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Tampa:*\n• C-G - Drew Kendall\n\n🌐 https://afl.gddevco.com\n"
   }
 ]

@@ -12571,19 +12571,6 @@
     "touch_id": "maintenance"
   },
   {
-    "id": 1450,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "8",
-    "homeTeamId": 49,
-    "awayTeamId": 43,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.251Z",
-    "touch_id": "maintenance"
-  },
-  {
     "id": 1453,
     "leagueId": 1,
     "year": 2026,
@@ -12633,19 +12620,6 @@
     "away_score": null,
     "is_bye": false,
     "touch_dt": "2026-05-06T14:16:49.343Z",
-    "touch_id": "maintenance"
-  },
-  {
-    "id": 1458,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "9",
-    "homeTeamId": 52,
-    "awayTeamId": 59,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.358Z",
     "touch_id": "maintenance"
   },
   {
@@ -13660,6 +13634,32 @@
     "away_score": 24,
     "is_bye": false,
     "touch_dt": "2026-05-06T14:16:49.302Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1450,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "8",
+    "homeTeamId": 49,
+    "awayTeamId": 43,
+    "home_score": 16,
+    "away_score": 6,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.251Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1458,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "9",
+    "homeTeamId": 52,
+    "awayTeamId": 59,
+    "home_score": 40,
+    "away_score": 14,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.358Z",
     "touch_id": "maintenance"
   },
   {
