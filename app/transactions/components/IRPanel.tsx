@@ -61,6 +61,10 @@ export default function IRPanel({
   function handleIRClick() {
     if (!selectedIdentity || !team) return;
     const p = roster.find(player => player.identity === selectedIdentity);
+    if (p?.isIR) {
+      showToast('Player is already on Injured Reserve (IR).', 'error');
+      return;
+    }
     const pos = (p?.position || p?.pos || "").toUpperCase();
     const cleanName = p ? `${p.first || ''} ${p.last || p.name || ''}`.trim() : selectedIdentity;
     const fullDescription = `${pos ? `${pos} - ` : ""}${cleanName}`;
@@ -97,7 +101,8 @@ export default function IRPanel({
         if (onComplete) onComplete();
         showToast(`${confirmPlayer.description} moved to IR.`);
       } else {
-        showToast('Error saving IR transaction.', 'error');
+        const err = await res.json().catch(() => ({}));
+        showToast(err.error || 'Error saving IR transaction.', 'error');
       }
     } catch {
       showToast('Error saving IR transaction.', 'error');
@@ -167,14 +172,16 @@ export default function IRPanel({
           {sortedRoster
             .filter(p => p.identity === selectedIdentity || `${p.first} ${p.last} ${p.name}`.toLowerCase().includes(rosterSearch.toLowerCase()))
             .map((p, i) => (
-            <option key={i} value={p.identity}>{playerOptionLabel(p)}</option>
+            <option key={i} value={p.identity} disabled={Boolean(p.isIR)}>
+              {playerOptionLabel(p)}{p.isIR ? ' [ON IR]' : ''}
+            </option>
           ))}
         </select>
       </div>
 
       <button
         onClick={handleIRClick}
-        disabled={loading || !selectedIdentity}
+        disabled={loading || !selectedIdentity || Boolean(roster.find(p => p.identity === selectedIdentity)?.isIR)}
         className="w-full p-4 rounded-xl font-black uppercase tracking-widest text-white bg-amber-500 hover:bg-amber-600 disabled:bg-gray-200 transition-all active:scale-95 shadow-md"
       >
         {loading ? 'Processing IR Move...' : 'Confirm IR Move'}

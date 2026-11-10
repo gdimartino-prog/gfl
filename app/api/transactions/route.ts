@@ -295,9 +295,15 @@ export async function POST(req: Request) {
       }
     }
 
-    // IR restriction: during draft season, only players who haven't played
-    // any NFL games (durability = 0) may be placed on IR.
+    // IR restriction: cannot place a player on IR if they are already on IR;
+    // during draft season, only players who haven't played any NFL games
+    // (durability = 0) may be placed on IR.
     if (type === 'IR' || type === 'IR MOVE') {
+      if (player.isIR) {
+        return Response.json({
+          error: 'Player is already on Injured Reserve (IR).',
+        }, { status: 400 });
+      }
       const nflWeekRow = await db.select({ value: rules.value })
         .from(rules)
         .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'current_nfl_week'), isNull(rules.year)))

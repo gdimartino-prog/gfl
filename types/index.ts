@@ -86,6 +86,7 @@ export interface Player {
   age?: number;
   espnId?: string | null;
   salary?: string | number;
+  isIR?: boolean;
   team?: string;
   group?: string;
   core?: {

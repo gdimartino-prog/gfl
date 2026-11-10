@@ -57,7 +57,6 @@ function RosterContent() {
   const [detailLoading, setDetailLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const lastPlayedRef = useRef<HTMLDivElement>(null);
   const hasSynced = useRef(false);
 
   const showToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
@@ -290,17 +289,6 @@ function RosterContent() {
     const sessionUserId = (session.user as { id?: string })?.id;
     return sessionUserId === data.coachContact.short || sessionUserId === data.coachContact.teamshort;
   }, [status, session, data?.coachContact]);
-
-  useEffect(() => {
-    if (data?.schedule && !loading) {
-      const scrollTimer = setTimeout(() => {
-        if (lastPlayedRef.current) {
-          lastPlayedRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 600);
-      return () => clearTimeout(scrollTimer);
-    }
-  }, [data, loading]);
 
   const recentForm = useMemo(() => {
     if (!data?.schedule || !data?.stats?.currentYear || !data?.coachContact) return [];
@@ -637,7 +625,7 @@ function RosterContent() {
                   
                   const isWin = isHome ? (parseInt(String(game.hScore || '0')) > parseInt(String(game.vScore || '0'))) : (parseInt(String(game.vScore || '0')) > parseInt(String(game.hScore || '0')));
                   return (
-                    <div key={i} ref={i === targetIdx ? lastPlayedRef : null} className={`flex items-center justify-between p-6 transition-all ${i === targetIdx ? 'bg-amber-50/50' : 'hover:bg-slate-50'}`}>
+                    <div key={i} className={`flex items-center justify-between p-6 transition-all ${i === targetIdx ? 'bg-amber-50/50' : 'hover:bg-slate-50'}`}>
                       <div><span className="text-[8px] font-black text-slate-400 uppercase">Week {game.week}</span><p className="text-xs font-black uppercase italic mt-1">{isHome ? 'VS' : 'AT'} {isHome ? game.visitor : game.home}</p></div>
                       <div className={`font-mono text-xs font-black ${game.status === 'Final' ? (isWin ? 'text-emerald-500' : 'text-red-500') : 'text-slate-200'}`}>{game.status === 'Final' ? `${game.hScore}-${game.vScore}` : 'UPCOMING'}</div>
                     </div>
