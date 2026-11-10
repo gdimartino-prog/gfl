@@ -326,15 +326,15 @@ function RosterContent() {
     if (!data?.roster || Object.keys(rules).length === 0) return [];
     const counts: Record<string, number> = {};
     data?.roster?.forEach(p => {
-      // Only count player in their first position category (prevent double-counting multi-position players)
+      // Count player in all eligible position categories (e.g. DE-LB in both DL and LB)
       const slots = [p.offensePos, p.defensePos, p.specialPos].filter((s): s is string => Boolean(s));
-      for (const slot of slots) {
-        const cats = getNormalizedCategories(slot);
-        if (cats.length > 0) {
-          counts[cats[0]] = (counts[cats[0]] || 0) + 1;
-          break;
-        }
-      }
+      const uniqueCats = new Set<string>();
+      slots.forEach(slot => {
+        getNormalizedCategories(slot).forEach(cat => uniqueCats.add(cat));
+      });
+      uniqueCats.forEach(cat => {
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
     });
     return Object.entries(rules).map(([pos, min]) => {
       const current = counts[pos] || 0;
@@ -382,19 +382,18 @@ function RosterContent() {
   const depthGroups = useMemo(() => {
     if (!data?.roster) return {} as Record<string, Player[]>;
     const groups = data?.roster?.reduce((acc, p) => {
-      // Only place player in their first position category (prevent double-counting multi-position players)
+      // Place player in all eligible position categories (e.g. DE-LB in both DL and LB)
       const slots = [p.offensePos, p.defensePos, p.specialPos].filter((s): s is string => Boolean(s));
-      for (const slot of slots) {
-        const cats = getNormalizedCategories(slot);
-        if (cats.length > 0) {
-          const cat = cats[0];
-          if (!acc[cat]) acc[cat] = [];
-          if (!acc[cat].find(existing => existing.identity === p.identity)) {
-            acc[cat].push(p);
-          }
-          break;
+      const uniqueCats = new Set<string>();
+      slots.forEach(slot => {
+        getNormalizedCategories(slot).forEach(cat => uniqueCats.add(cat));
+      });
+      uniqueCats.forEach(cat => {
+        if (!acc[cat]) acc[cat] = [];
+        if (!acc[cat].find(existing => existing.identity === p.identity)) {
+          acc[cat].push(p);
         }
-      }
+      });
       return acc;
     }, {} as Record<string, Player[]>);
 
