@@ -150,16 +150,6 @@
     "status": "active"
   },
   {
-    "id": 48,
-    "leagueId": 1,
-    "name": "LE",
-    "coach": "Naz Kikta",
-    "teamshort": "LES",
-    "nickname": "Stallions",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 41,
     "leagueId": 1,
     "name": "Amalfi",
@@ -210,16 +200,6 @@
     "status": "active"
   },
   {
-    "id": 46,
-    "leagueId": 1,
-    "name": "Kigali",
-    "coach": "Bill Matsikoudis",
-    "teamshort": "Kig",
-    "nickname": "Rhinos",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 53,
     "leagueId": 1,
     "name": "Satriale",
@@ -250,6 +230,16 @@
     "status": "active"
   },
   {
+    "id": 46,
+    "leagueId": 1,
+    "name": "Kigali",
+    "coach": "Bill Matsikoudis",
+    "teamshort": "Kig",
+    "nickname": "Rhinos",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 94,
     "leagueId": 2,
     "name": "Fur Peace",
@@ -276,6 +266,16 @@
     "coach": "James Di Martino",
     "teamshort": "JJ",
     "nickname": "Jets",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 48,
+    "leagueId": 1,
+    "name": "LE",
+    "coach": "Naz Kikta",
+    "teamshort": "LES",
+    "nickname": "Stallions",
     "isCommissioner": false,
     "status": "active"
   },

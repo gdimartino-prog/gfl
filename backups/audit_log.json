@@ -18241,5 +18241,365 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Tampa:*\n• C-G - Drew Kendall\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2028,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T14:52:54.000Z",
+    "coach": "Pete Vuckovaz",
+    "team": "FA",
+    "action": "ADD",
+    "details": "DE-LB - JT Tuimoloau"
+  },
+  {
+    "id": 2029,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T14:52:55.867Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Carolina (DE-LB) · Nov 10, 9:52 AM"
+  },
+  {
+    "id": 2030,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T14:52:56.223Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Carolina:*\n• DE-LB - JT Tuimoloau\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2031,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T16:53:05.224Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2032,
+    "leagueId": 2,
+    "timestamp": "2026-11-10T17:11:12.733Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 2033,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T18:14:21.499Z",
+    "coach": "Mark Mari",
+    "team": "FA",
+    "action": "ADD",
+    "details": "T - James Hudson III"
+  },
+  {
+    "id": 2034,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T18:14:23.633Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Las Vegas (T) · Nov 10, 1:14 PM"
+  },
+  {
+    "id": 2035,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T18:14:23.986Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Las Vegas:*\n• T - James Hudson III\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2036,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T18:17:06.606Z",
+    "coach": "Mark Mari",
+    "team": "Las Vegas",
+    "action": "IR MOVE",
+    "details": "Placed on IR: CB - Kader Kohou"
+  },
+  {
+    "id": 2037,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T18:17:07.721Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: IR MOVE — Las Vegas ➔ IR (Placed on IR: CB) · Nov 10, 1:17 PM"
+  },
+  {
+    "id": 2038,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T18:17:08.090Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: IR MOVE*\n----------------------------\n*Las Vegas ➔ IR:*\n• Placed on IR: CB - Kader Kohou\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2039,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T19:23:31.569Z",
+    "coach": "Pete Vuckovaz",
+    "team": "Carolina",
+    "action": "WAIVE",
+    "details": "CB - Garrett Williams"
+  },
+  {
+    "id": 2040,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T19:23:32.554Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Carolina ➔ FA (CB) · Nov 10, 2:23 PM"
+  },
+  {
+    "id": 2041,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T19:23:32.915Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Carolina ➔ FA:*\n• CB - Garrett Williams\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2042,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T21:12:15.077Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #671 marked Done"
+  },
+  {
+    "id": 2043,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T21:12:47.587Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #672 marked Done"
+  },
+  {
+    "id": 2044,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T21:12:59.643Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #675 marked Done"
+  },
+  {
+    "id": 2045,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T21:15:09.482Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #673 marked Done"
+  },
+  {
+    "id": 2046,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:14:33.044Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_DELETE",
+    "details": "Transaction #674 deleted"
+  },
+  {
+    "id": 2047,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:20:53.757Z",
+    "coach": "Bob Glade",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "RB - British Brooks for injury to RB - Cam Skattebo in week 8 for 9 weeks"
+  },
+  {
+    "id": 2048,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:20:55.298Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ Crimson (RB) · Nov 10, 5:20 PM"
+  },
+  {
+    "id": 2049,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:20:55.641Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Crimson:*\n• RB - British Brooks for injury to RB - Cam Skattebo in week 8 for 9 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2050,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:47:25.582Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "WAIVE",
+    "details": "WR/KR - Roman Wilson"
+  },
+  {
+    "id": 2051,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:47:26.386Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: WAIVE — Vico ➔ FA (WR/KR) · Nov 10, 5:47 PM"
+  },
+  {
+    "id": 2052,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:47:26.741Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: WAIVE*\n----------------------------\n*Vico ➔ FA:*\n• WR/KR - Roman Wilson\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2053,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:47:33.414Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #677 marked Done"
+  },
+  {
+    "id": 2054,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:48:01.892Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #676 marked On Team"
+  },
+  {
+    "id": 2055,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:48:44.108Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2056,
+    "leagueId": 1,
+    "timestamp": "2026-11-10T22:48:54.648Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 2057,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T01:39:41.407Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kig",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded KIGALI.COA"
+  },
+  {
+    "id": 2058,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T02:29:04.707Z",
+    "coach": "Naz Kikta",
+    "team": "LES",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded LE.COA"
+  },
+  {
+    "id": 2059,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T02:52:56.844Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2060,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T04:20:05.483Z",
+    "coach": "Naz Kikta",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "S - Jordan Poyer for injury to S - Jalen Pitre in week 7 for 3 weeks"
+  },
+  {
+    "id": 2061,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T04:20:06.491Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ LE (S) · Nov 10, 11:20 PM"
+  },
+  {
+    "id": 2062,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T04:20:06.871Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ LE:*\n• S - Jordan Poyer for injury to S - Jalen Pitre in week 7 for 3 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2063,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T04:21:04.426Z",
+    "coach": "Naz Kikta",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "CB - Brandin Echols for injury to CB - Taron Johnson in week 7 for 3 weeks"
+  },
+  {
+    "id": 2064,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T04:21:05.343Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ LE (CB) · Nov 10, 11:21 PM"
+  },
+  {
+    "id": 2065,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T04:21:05.711Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ LE:*\n• CB - Brandin Echols for injury to CB - Taron Johnson in week 7 for 3 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2066,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T13:00:24.468Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_FAILED",
+    "details": "GFL Update: 2026 Week 8 (Invalid login: 535-5.7.8 Username and Password not accepted. For more information, go to\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials af79cd13be357-9479e61c333sm475540085a.3 - gsmtp)"
+  },
+  {
+    "id": 2067,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T13:00:24.888Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 8 (2026)*\n----------------------------------\n\n*WEEK 8*\n🏈 Crimson @ Las Vegas - Final: 6-16\n🏈 LBI @ Pyongyang - Final: 30-22\n🏈 Jefferson @ Tampa - Final: 12-41\n❌ Tetbury @ LE - 🚨 PAST DUE\n🏈 Kigali @ Satriale - Final: 24-17\n❌ DC @ Urban - 🚨 PAST DUE\n\n*WEEK 9*\n🏈 Carol"
   }
 ]
