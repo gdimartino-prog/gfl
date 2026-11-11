@@ -42,7 +42,8 @@ function RosterContent() {
     history: DraftPick[], 
     schedule: ScheduleGame[], 
     stats: StandingRow & { diff: number, currentYear: string, rosterLimit: number }, 
-    coachContact?: Team 
+    coachContact?: Team,
+    injuryPickups?: number
   } | null>(null);
   const [rules, setRules] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
@@ -213,7 +214,8 @@ function RosterContent() {
             currentYear: DYNAMIC_YEAR, 
             rosterLimit 
           },
-          coachContact
+          coachContact,
+          injuryPickups: rosterData.injuryPickups || 0
         });
       } catch (err) { 
         console.error(err); 
@@ -315,12 +317,16 @@ function RosterContent() {
   }, [data, normalize]);
 
   const rosterStatus = useMemo(() => {
-    if (!data?.roster) return { active: 0, ir: 0 };
+    if (!data?.roster) return { active: 0, ir: 0, injuryPickups: 0 };
+    const nonIr = data.roster.filter(p => !p.isIR).length;
+    const ir = data.roster.filter(p => p.isIR).length;
+    const injuryPickups = data.injuryPickups || 0;
     return {
-      active: data.roster.filter(p => !p.isIR).length,
-      ir: data.roster.filter(p => p.isIR).length
+      active: Math.max(0, nonIr - injuryPickups),
+      ir,
+      injuryPickups
     };
-  }, [data?.roster]);
+  }, [data?.roster, data?.injuryPickups]);
 
   const teamNeeds = useMemo(() => {
     if (!data?.roster || Object.keys(rules).length === 0) return [];
@@ -507,6 +513,9 @@ function RosterContent() {
                 {rosterStatus.ir > 0 && (
                   <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest">+{rosterStatus.ir} IR</p>
                 )}
+                {rosterStatus.injuryPickups > 0 && (
+                  <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest">+{rosterStatus.injuryPickups} INJ</p>
+                )}
                 </div>
               </div>
             </div>
@@ -574,7 +583,7 @@ function RosterContent() {
             <div className="flex flex-wrap gap-2 mt-4">
               {rosterStatus.active > (data?.stats?.rosterLimit || 53) && (
                 <span className="bg-white border border-red-200 text-red-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
-                  Roster Size: {data?.roster?.length} / {data?.stats?.rosterLimit}{rosterStatus.ir > 0 ? ` · ${rosterStatus.ir} on IR · ${rosterStatus.active} active` : ''}
+                  Roster Size: {data?.roster?.length} / {data?.stats?.rosterLimit}{rosterStatus.ir > 0 ? ` · ${rosterStatus.ir} on IR` : ''}{rosterStatus.injuryPickups > 0 ? ` · ${rosterStatus.injuryPickups} injury pickup` : ''}{(rosterStatus.ir > 0 || rosterStatus.injuryPickups > 0) ? ` · ${rosterStatus.active} active` : ''}
                 </span>
               )}
               {complianceIssues.map(issue => (

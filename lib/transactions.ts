@@ -76,6 +76,27 @@ export async function getTransactions(leagueId: number) {
   return _getTransactions(leagueId);
 }
 
+const _getActiveInjuryPickups = unstable_cache(
+  async (leagueId: number) => {
+    return db.select({
+      id: transactions.id,
+      toTeam: transactions.toTeam,
+      description: transactions.description,
+    }).from(transactions)
+      .where(and(
+        eq(transactions.leagueId, leagueId),
+        eq(transactions.type, 'INJURY PICKUP'),
+        eq(transactions.status, 'On Team')
+      ));
+  },
+  ['active-injury-pickups'],
+  { revalidate: 60, tags: ['transactions'] }
+);
+
+export async function getActiveInjuryPickups(leagueId: number = 1) {
+  return _getActiveInjuryPickups(leagueId);
+}
+
 export async function updateTransactionStatus(id: number, status: string, leagueId: number, actor: string = 'commissioner') {
   await db.update(transactions)
     .set({ status, touch_id: actor })

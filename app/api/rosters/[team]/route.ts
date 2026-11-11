@@ -1,5 +1,6 @@
 import { getPlayers } from '@/lib/players';
 import { getAllDraftPicks } from '@/lib/draftPicks';
+import { getActiveInjuryPickups } from '@/lib/transactions';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
@@ -17,13 +18,20 @@ export async function GET(_req: Request, { params }: RouteContext) {
     const teamShort = resolvedParams.team.toUpperCase();
 
     const leagueId = await getLeagueId();
-    const [allPlayers, allPicks] = await Promise.all([
+    const [allPlayers, allPicks, activeInjuryPickups] = await Promise.all([
       getPlayers(leagueId),
-      getAllDraftPicks(leagueId)
+      getAllDraftPicks(leagueId),
+      getActiveInjuryPickups(leagueId),
     ]);
 
-    const roster = allPlayers
-      .filter(p => p.team?.toUpperCase() === teamShort)
+    const teamPlayers = allPlayers.filter(p => p.team?.toUpperCase() === teamShort);
+    const teamNameUpper = (teamPlayers[0]?.teamName || '').trim().toUpperCase();
+    const injuryPickups = activeInjuryPickups.filter(tx => {
+      const to = (tx.toTeam || '').trim().toUpperCase();
+      return to === teamShort || (teamNameUpper !== '' && to === teamNameUpper);
+    }).length;
+
+    const roster = teamPlayers
       .map(p => ({
         identity: p.identity,
         name: `${p.first} ${p.last}`.trim() || p.name,
@@ -60,7 +68,7 @@ export async function GET(_req: Request, { params }: RouteContext) {
       }))
       .sort((a, b) => (a.year ?? 0) - (b.year ?? 0) || (a.round ?? 0) - (b.round ?? 0) || (a.overall ?? 0) - (b.overall ?? 0));
 
-    return NextResponse.json({ roster, picks }, {
+    return NextResponse.json({ roster, picks, injuryPickups }, {
       headers: { 'Cache-Control': 'private, max-age=60, stale-while-revalidate=120' },
     });
   } catch (error: unknown) {
