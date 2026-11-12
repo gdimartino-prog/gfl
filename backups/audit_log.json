@@ -18601,5 +18601,32 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📅 *GFL WEEKLY UPDATE: Week 8 (2026)*\n----------------------------------\n\n*WEEK 8*\n🏈 Crimson @ Las Vegas - Final: 6-16\n🏈 LBI @ Pyongyang - Final: 30-22\n🏈 Jefferson @ Tampa - Final: 12-41\n❌ Tetbury @ LE - 🚨 PAST DUE\n🏈 Kigali @ Satriale - Final: 24-17\n❌ DC @ Urban - 🚨 PAST DUE\n\n*WEEK 9*\n🏈 Carol"
+  },
+  {
+    "id": 2068,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T14:34:45.308Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #679 marked Done"
+  },
+  {
+    "id": 2069,
+    "leagueId": 1,
+    "timestamp": "2026-11-11T14:34:46.892Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #678 marked Done"
+  },
+  {
+    "id": 2070,
+    "leagueId": 1,
+    "timestamp": "2026-11-12T03:54:06.426Z",
+    "coach": "Adrian Scherer",
+    "team": "Amalfi",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
