@@ -740,6 +740,33 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
 
   const [photosDl, setPhotosDl] = useState<'idle' | 'running' | 'done' | 'error'>('idle');
   const [photosProgress, setPhotosProgress] = useState({ ok: 0, err: 0, total: 0, dir: '' });
+  const [weeklyAlertState, setWeeklyAlertState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle');
+  const [weeklyAlertMsg, setWeeklyAlertMsg] = useState('');
+
+  const sendWeeklyAlert = async () => {
+    if (!await confirm('Send the weekly schedule & standings update to the league via Email and WhatsApp now?', { title: 'Send Weekly Update', confirmLabel: 'Send Update' })) return;
+    setWeeklyAlertState('sending');
+    setWeeklyAlertMsg('');
+    try {
+      const res = await fetch('/api/admin/email-alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'send-weekly' }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setWeeklyAlertMsg(data.error || 'Failed to send weekly update.');
+        setWeeklyAlertState('error');
+        return;
+      }
+      const weekLabel = data.week ? `Week ${data.week}` : 'Preseason';
+      setWeeklyAlertMsg(`✓ ${weekLabel} sent (Email${data.whatsappSent ? ' + WhatsApp' : ''})`);
+      setWeeklyAlertState('done');
+    } catch {
+      setWeeklyAlertMsg('Network error — please try again.');
+      setWeeklyAlertState('error');
+    }
+  };
 
   const downloadPhotos = async () => {
     setPhotosDl('running');
@@ -855,6 +882,55 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
             )}
             {photosDl === 'error' && (
               <button onClick={() => setPhotosDl('idle')} className="text-[10px] text-red-500 font-black uppercase">Error — try again</button>
+            )}
+          </div>
+        </div>
+
+        {/* Weekly Schedule & Standings Update */}
+        <div className="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl px-5 py-4 shadow-sm min-w-[220px]">
+          <div className="bg-amber-50 p-2 rounded-xl text-amber-700 mt-0.5 shrink-0">
+            <Bell size={18} aria-hidden="true" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">League Alerts</p>
+            <p className="text-sm font-black uppercase italic text-slate-900 mb-2">Weekly Update</p>
+            {weeklyAlertState === 'idle' && (
+              <button
+                type="button"
+                onClick={sendWeeklyAlert}
+                className="flex items-center gap-1.5 bg-amber-700 hover:bg-amber-800 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all cursor-pointer"
+              >
+                <Bell size={11} aria-hidden="true" /> Send Weekly Update
+              </button>
+            )}
+            {weeklyAlertState === 'sending' && (
+              <p role="status" aria-live="polite" className="text-[10px] font-black text-amber-700 uppercase tracking-widest animate-pulse">
+                Sending Email &amp; WhatsApp…
+              </p>
+            )}
+            {weeklyAlertState === 'done' && (
+              <div role="status" aria-live="polite" className="space-y-1">
+                <p className="text-[10px] font-black text-emerald-600">{weeklyAlertMsg}</p>
+                <button
+                  type="button"
+                  onClick={() => setWeeklyAlertState('idle')}
+                  className="text-[10px] text-amber-700 hover:text-amber-800 font-black uppercase cursor-pointer"
+                >
+                  Send again
+                </button>
+              </div>
+            )}
+            {weeklyAlertState === 'error' && (
+              <div className="space-y-1">
+                <p role="alert" className="text-[10px] font-bold text-red-600">{weeklyAlertMsg}</p>
+                <button
+                  type="button"
+                  onClick={() => setWeeklyAlertState('idle')}
+                  className="text-[10px] text-red-500 hover:text-red-700 font-black uppercase cursor-pointer"
+                >
+                  Try again
+                </button>
+              </div>
             )}
           </div>
         </div>

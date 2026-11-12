@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => ({}));
   const action = body?.action;
-  if (action !== 'dismiss' && action !== 'retry-weekly') {
+  if (action !== 'dismiss' && action !== 'retry-weekly' && action !== 'send-weekly') {
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   }
 
@@ -97,19 +97,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, ackId });
   }
 
-  // action === 'retry-weekly'
-  const rl = tokenBucket(`retry-weekly:${leagueId}`, 3, 600);
+  // action === 'retry-weekly' || action === 'send-weekly'
+  const emailOnly = action === 'retry-weekly';
+  const rl = tokenBucket(`weekly-alert:${leagueId}`, 3, 600);
   if (!rl.ok) {
     return NextResponse.json(
       { error: `Rate limited — please wait ${rl.retryAfterSec}s before retrying.` },
       { status: 429 },
     );
   }
-  const result = await runScheduleReminderForLeague(leagueId, { emailOnly: true });
+  const result = await runScheduleReminderForLeague(leagueId, { emailOnly });
   if (!result.emailSent) {
     revalidateTag('email-alerts', 'max');
     return NextResponse.json(
-      { error: result.skipped || 'Weekly email retry failed — check SMTP credentials.' },
+      { error: result.skipped || 'Weekly email failed — check SMTP credentials.' },
       { status: 502 },
     );
   }
@@ -118,10 +119,18 @@ export async function POST(req: NextRequest) {
   await logSystemEvent(
     coachName,
     teamName,
-    'EMAIL_WEEKLY_RETRIED',
-    `Retried weekly update email (Week ${result.week ?? 'preseason'}) and acknowledged alerts up to #${ackId}`,
+    emailOnly ? 'EMAIL_WEEKLY_RETRIED' : 'WEEKLY_UPDATE_SENT',
+    emailOnly
+      ? `Retried weekly update email (Week ${result.week ?? 'preseason'}) and acknowledged alerts up to #${ackId}`
+      : `Manually sent weekly update email & WhatsApp (Week ${result.week ?? 'preseason'})`,
     leagueId,
   );
   revalidateTag('email-alerts', 'max');
-  return NextResponse.json({ success: true, week: result.week, ackId });
+  return NextResponse.json({
+    success: true,
+    week: result.week,
+    emailSent: result.emailSent,
+    whatsappSent: result.whatsappSent,
+    ackId,
+  });
 }

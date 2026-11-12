@@ -11,6 +11,7 @@ export type ScheduleReminderResult = {
   preseason?: boolean;
   sent?: boolean;
   emailSent?: boolean;
+  whatsappSent?: boolean;
   week?: string;
 };
 
@@ -107,11 +108,11 @@ export async function runScheduleReminderForLeague(
 
     const psWaFull = `📅 *GFL ${currentSeasonYear} Season — Coming Soon*\nNFL season opens ${kickoffStr}. GFL Week 1 scores open on that date.\n\n*WEEK 1 MATCHUPS*\n${psWa}`;
 
-    const emailSent = await sendEmail({ subject: `GFL ${currentSeasonYear} Season — Coming Soon`, html: psHtml, leagueId });
-    if (!emailOnly) {
-      await sendWhatsApp(psWaFull, leagueId);
-    }
-    return { leagueId, preseason: true, emailSent };
+    const [emailSent, whatsappSent] = await Promise.all([
+      sendEmail({ subject: `GFL ${currentSeasonYear} Season — Coming Soon`, html: psHtml, leagueId }),
+      emailOnly ? Promise.resolve(false) : sendWhatsApp(psWaFull, leagueId),
+    ]);
+    return { leagueId, preseason: true, emailSent, whatsappSent };
   }
 
   const playoffOrder = ['WC', 'CONF', 'SB'];
@@ -291,9 +292,9 @@ export async function runScheduleReminderForLeague(
     ${standingsHtml}
   </div>`;
 
-  const emailSent = await sendEmail({ subject: `GFL Update: ${currentSeasonYear} Week ${displayWeek}`, html, leagueId });
-  if (!emailOnly) {
-    await sendWhatsApp(waMessage, leagueId);
-  }
-  return { leagueId, sent: true, emailSent, week: displayWeek };
+  const [emailSent, whatsappSent] = await Promise.all([
+    sendEmail({ subject: `GFL Update: ${currentSeasonYear} Week ${displayWeek}`, html, leagueId }),
+    emailOnly ? Promise.resolve(false) : sendWhatsApp(waMessage, leagueId),
+  ]);
+  return { leagueId, sent: true, emailSent, whatsappSent, week: displayWeek };
 }
