@@ -4451,6 +4451,25 @@
     "touch_id": "Demo Commissioner"
   },
   {
+    "id": 680,
+    "leagueId": 1,
+    "date": "2026-11-12T17:16:16.119Z",
+    "type": "INJURY PICKUP",
+    "description": "QB - Spencer Rattler for injury to QB - Brock Purdy in week 9 for 8 weeks",
+    "fromTeam": "FA",
+    "toTeam": "Vico",
+    "owner": "George Di Martino",
+    "status": "On Team",
+    "weekBack": 17,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-11-12T17:16:16.083Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 518,
     "leagueId": 1,
     "date": "2026-09-08T22:31:45.266Z",

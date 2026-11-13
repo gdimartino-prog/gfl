@@ -18628,5 +18628,95 @@
     "team": "Amalfi",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2071,
+    "leagueId": 1,
+    "timestamp": "2026-11-12T17:16:16.162Z",
+    "coach": "George Di Martino",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "QB - Spencer Rattler for injury to QB - Brock Purdy in week 9 for 8 weeks"
+  },
+  {
+    "id": 2072,
+    "leagueId": 1,
+    "timestamp": "2026-11-12T17:16:16.942Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ Vico (QB) · Nov 12, 12:16 PM"
+  },
+  {
+    "id": 2073,
+    "leagueId": 1,
+    "timestamp": "2026-11-12T17:16:17.324Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Vico:*\n• QB - Spencer Rattler for injury to QB - Brock Purdy in week 9 for 8 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2074,
+    "leagueId": 1,
+    "timestamp": "2026-11-12T17:16:24.130Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #680 marked On Team"
+  },
+  {
+    "id": 2075,
+    "leagueId": 1,
+    "timestamp": "2026-11-12T17:17:02.982Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 8"
+  },
+  {
+    "id": 2076,
+    "leagueId": 1,
+    "timestamp": "2026-11-12T17:17:03.019Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "EMAIL_WEEKLY_RETRIED",
+    "details": "Retried weekly update email (Week 8) and acknowledged alerts up to #2066"
+  },
+  {
+    "id": 2077,
+    "leagueId": 1,
+    "timestamp": "2026-11-12T17:17:59.044Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 2078,
+    "leagueId": 1,
+    "timestamp": "2026-11-12T17:18:10.785Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2079,
+    "leagueId": 1,
+    "timestamp": "2026-11-13T13:00:17.568Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 8 (2026)*\n----------------------------------\n\n*WEEK 8*\n🏈 Crimson @ Las Vegas - Final: 6-16\n🏈 LBI @ Pyongyang - Final: 30-22\n🏈 Jefferson @ Tampa - Final: 12-41\n🏈 Tetbury @ LE - Final: 19-29\n🏈 Kigali @ Satriale - Final: 24-17\n❌ DC @ Urban - 🚨 PAST DUE\n\n*WEEK 9*\n🏈 Car"
+  },
+  {
+    "id": 2080,
+    "leagueId": 1,
+    "timestamp": "2026-11-13T13:00:18.323Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 8"
   }
 ]

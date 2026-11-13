@@ -253965,9 +253965,9 @@
     },
     "espnId": "4426339",
     "nflTeam": "NO",
-    "teamId": null,
-    "touch_dt": "2026-07-24T01:41:59.041Z",
-    "touch_id": "maintenance"
+    "teamId": 58,
+    "touch_dt": "2026-11-12T17:16:16.083Z",
+    "touch_id": "transaction"
   },
   {
     "id": 23413,

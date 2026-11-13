@@ -12571,19 +12571,6 @@
     "touch_id": "maintenance"
   },
   {
-    "id": 1453,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "8",
-    "homeTeamId": 48,
-    "awayTeamId": 55,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.291Z",
-    "touch_id": "maintenance"
-  },
-  {
     "id": 1455,
     "leagueId": 1,
     "year": 2026,
@@ -12623,19 +12610,6 @@
     "touch_id": "maintenance"
   },
   {
-    "id": 1459,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "9",
-    "homeTeamId": 50,
-    "awayTeamId": 51,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.368Z",
-    "touch_id": "maintenance"
-  },
-  {
     "id": 1460,
     "leagueId": 1,
     "year": 2026,
@@ -12649,19 +12623,6 @@
     "touch_id": "maintenance"
   },
   {
-    "id": 1461,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "9",
-    "homeTeamId": 45,
-    "awayTeamId": 48,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.395Z",
-    "touch_id": "maintenance"
-  },
-  {
     "id": 1462,
     "leagueId": 1,
     "year": 2026,
@@ -12672,19 +12633,6 @@
     "away_score": null,
     "is_bye": false,
     "touch_dt": "2026-05-06T14:16:49.415Z",
-    "touch_id": "maintenance"
-  },
-  {
-    "id": 1463,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "9",
-    "homeTeamId": 46,
-    "awayTeamId": 58,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.427Z",
     "touch_id": "maintenance"
   },
   {
@@ -12724,32 +12672,6 @@
     "away_score": null,
     "is_bye": false,
     "touch_dt": "2026-05-06T14:16:49.466Z",
-    "touch_id": "maintenance"
-  },
-  {
-    "id": 1467,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "10",
-    "homeTeamId": 48,
-    "awayTeamId": 52,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.485Z",
-    "touch_id": "maintenance"
-  },
-  {
-    "id": 1468,
-    "leagueId": 1,
-    "year": 2026,
-    "week": "10",
-    "homeTeamId": 58,
-    "awayTeamId": 50,
-    "home_score": null,
-    "away_score": null,
-    "is_bye": false,
-    "touch_dt": "2026-05-06T14:16:49.498Z",
     "touch_id": "maintenance"
   },
   {
@@ -13660,6 +13582,84 @@
     "away_score": 14,
     "is_bye": false,
     "touch_dt": "2026-05-06T14:16:49.358Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1453,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "8",
+    "homeTeamId": 48,
+    "awayTeamId": 55,
+    "home_score": 29,
+    "away_score": 19,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.291Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1468,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "10",
+    "homeTeamId": 58,
+    "awayTeamId": 50,
+    "home_score": 14,
+    "away_score": 33,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.498Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1461,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "9",
+    "homeTeamId": 45,
+    "awayTeamId": 48,
+    "home_score": 24,
+    "away_score": 23,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.395Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1459,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "9",
+    "homeTeamId": 50,
+    "awayTeamId": 51,
+    "home_score": 33,
+    "away_score": 17,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.368Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1463,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "9",
+    "homeTeamId": 46,
+    "awayTeamId": 58,
+    "home_score": 51,
+    "away_score": 21,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.427Z",
+    "touch_id": "maintenance"
+  },
+  {
+    "id": 1467,
+    "leagueId": 1,
+    "year": 2026,
+    "week": "10",
+    "homeTeamId": 48,
+    "awayTeamId": 52,
+    "home_score": 14,
+    "away_score": 21,
+    "is_bye": false,
+    "touch_dt": "2026-05-06T14:16:49.485Z",
     "touch_id": "maintenance"
   },
   {
