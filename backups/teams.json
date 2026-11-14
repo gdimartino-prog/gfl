@@ -250,16 +250,6 @@
     "status": "active"
   },
   {
-    "id": 42,
-    "leagueId": 1,
-    "name": "Carolina",
-    "coach": "Pete Vuckovaz",
-    "teamshort": "CT",
-    "nickname": "Thunder",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 50,
     "leagueId": 1,
     "name": "Jefferson",
@@ -296,6 +286,16 @@
     "coach": "John Yurchak",
     "teamshort": "UF",
     "nickname": "FUBAR Giants",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 42,
+    "leagueId": 1,
+    "name": "Carolina",
+    "coach": "Pete Vuckovaz",
+    "teamshort": "CT",
+    "nickname": "Thunder",
     "isCommissioner": false,
     "status": "active"
   },

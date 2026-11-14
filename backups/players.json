@@ -271675,9 +271675,9 @@
     },
     "espnId": "4243389",
     "nflTeam": "NYG",
-    "teamId": null,
-    "touch_dt": "2026-11-09T23:34:39.833Z",
-    "touch_id": "maintenance"
+    "teamId": 42,
+    "touch_dt": "2026-11-14T02:04:36.584Z",
+    "touch_id": "transaction"
   },
   {
     "id": 24243,

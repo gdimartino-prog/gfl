@@ -5021,6 +5021,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 681,
+    "leagueId": 1,
+    "date": "2026-11-14T02:04:36.625Z",
+    "type": "INJURY PICKUP",
+    "description": "WR/PR - Calvin Austin III for injury to WR/PR - Khalil Shakir in week -9 for 1 weeks",
+    "fromTeam": "FA",
+    "toTeam": "Carolina",
+    "owner": "Pete Vuckovaz",
+    "status": "Pending",
+    "weekBack": -8,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-11-14T02:04:36.583Z",
+    "touch_id": "Pete Vuckovaz"
+  },
+  {
     "id": 519,
     "leagueId": 1,
     "date": "2026-09-10T18:05:05.666Z",

@@ -18718,5 +18718,41 @@
     "team": "EMAIL",
     "action": "ALERT_SENT",
     "details": "GFL Update: 2026 Week 8"
+  },
+  {
+    "id": 2081,
+    "leagueId": 1,
+    "timestamp": "2026-11-13T18:27:30.687Z",
+    "coach": "Pete Vuckovaz",
+    "team": "CT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CAROLINA.COA"
+  },
+  {
+    "id": 2082,
+    "leagueId": 1,
+    "timestamp": "2026-11-14T02:04:36.682Z",
+    "coach": "Pete Vuckovaz",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "WR/PR - Calvin Austin III for injury to WR/PR - Khalil Shakir in week -9 for 1 weeks"
+  },
+  {
+    "id": 2083,
+    "leagueId": 1,
+    "timestamp": "2026-11-14T02:04:37.544Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ Carolina (WR/PR) · Nov 13, 9:04 PM"
+  },
+  {
+    "id": 2084,
+    "leagueId": 1,
+    "timestamp": "2026-11-14T02:04:37.913Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Carolina:*\n• WR/PR - Calvin Austin III for injury to WR/PR - Khalil Shakir in week -9 for 1 weeks\n\n🌐 https://afl.gddevco.com\n"
   }
 ]
