@@ -18754,5 +18754,77 @@
     "team": "WHATSAPP",
     "action": "ALERT_SENT",
     "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Carolina:*\n• WR/PR - Calvin Austin III for injury to WR/PR - Khalil Shakir in week -9 for 1 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2085,
+    "leagueId": 1,
+    "timestamp": "2026-11-14T21:46:27.894Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2086,
+    "leagueId": 1,
+    "timestamp": "2026-11-14T21:46:46.886Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 2087,
+    "leagueId": 1,
+    "timestamp": "2026-11-14T21:50:10.890Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #681 marked On Team"
+  },
+  {
+    "id": 2088,
+    "leagueId": 1,
+    "timestamp": "2026-11-15T01:00:25.722Z",
+    "coach": "Mike Fullen",
+    "team": "FA",
+    "action": "ADD",
+    "details": "HB - Robbie Ouzts"
+  },
+  {
+    "id": 2089,
+    "leagueId": 1,
+    "timestamp": "2026-11-15T01:00:26.595Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Tetbury (HB) · Nov 14, 8:00 PM"
+  },
+  {
+    "id": 2090,
+    "leagueId": 1,
+    "timestamp": "2026-11-15T01:00:26.953Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Tetbury:*\n• HB - Robbie Ouzts\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2091,
+    "leagueId": 1,
+    "timestamp": "2026-11-15T01:24:21.690Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded TAMPA.COA"
+  },
+  {
+    "id": 2092,
+    "leagueId": 1,
+    "timestamp": "2026-11-15T03:58:47.426Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]
