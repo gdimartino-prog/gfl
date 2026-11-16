@@ -8711,6 +8711,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 683,
+    "leagueId": 1,
+    "date": "2026-11-16T00:20:12.837Z",
+    "type": "INJURY PICKUP",
+    "description": "T - Fred Johnson for injury to T - Brian O'Neill in week 8 for 4 weeks",
+    "fromTeam": "FA",
+    "toTeam": "DC",
+    "owner": "Alex Matsikoudis",
+    "status": "Pending",
+    "weekBack": 12,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-11-16T00:20:12.795Z",
+    "touch_id": "Alex Matsikoudis"
+  },
+  {
     "id": 606,
     "leagueId": 1,
     "date": "2026-10-12T21:43:22.150Z",

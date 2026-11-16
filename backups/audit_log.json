@@ -18826,5 +18826,59 @@
     "team": "admin",
     "action": "IMPORT_SCHEDULE",
     "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 2093,
+    "leagueId": 1,
+    "timestamp": "2026-11-16T00:20:12.872Z",
+    "coach": "Alex Matsikoudis",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "T - Fred Johnson for injury to T - Brian O'Neill in week 8 for 4 weeks"
+  },
+  {
+    "id": 2094,
+    "leagueId": 1,
+    "timestamp": "2026-11-16T00:20:13.717Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ DC (T) · Nov 15, 7:20 PM"
+  },
+  {
+    "id": 2095,
+    "leagueId": 1,
+    "timestamp": "2026-11-16T00:20:14.116Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ DC:*\n• T - Fred Johnson for injury to T - Brian O'Neill in week 8 for 4 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2096,
+    "leagueId": 1,
+    "timestamp": "2026-11-16T02:32:35.563Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded DC.COA"
+  },
+  {
+    "id": 2097,
+    "leagueId": 1,
+    "timestamp": "2026-11-16T13:00:16.495Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 9 (2026)*\n----------------------------------\n\n*WEEK 9*\n🏈 Carolina @ Crimson - Final: 20-7\n🏈 Satriale @ LBI - PENDING\n🏈 Pyongyang @ Old Bridge - Final: 14-40\n🏈 Newark Bay @ Jefferson - Final: 17-33\n🏈 Las Vegas @ Tetbury - PENDING\n🏈 LE @ Fur Peace - Final: 23-24\n🏈 Ur"
+  },
+  {
+    "id": 2098,
+    "leagueId": 1,
+    "timestamp": "2026-11-16T13:00:18.121Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 9"
   }
 ]
