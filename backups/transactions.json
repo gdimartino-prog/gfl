@@ -5462,25 +5462,6 @@
     "touch_id": "VV"
   },
   {
-    "id": 682,
-    "leagueId": 1,
-    "date": "2026-11-15T01:00:25.696Z",
-    "type": "ADD",
-    "description": "HB - Robbie Ouzts",
-    "fromTeam": "FA",
-    "toTeam": "Tetbury",
-    "owner": "Mike Fullen",
-    "status": "Pending",
-    "weekBack": null,
-    "season": 2026,
-    "fee": 10,
-    "emailStatus": null,
-    "pickIds": null,
-    "conditionalDetails": null,
-    "touch_dt": "2026-11-15T01:00:25.656Z",
-    "touch_id": "Mike Fullen"
-  },
-  {
     "id": 605,
     "leagueId": 1,
     "date": "2026-10-12T16:57:03.453Z",
@@ -5497,6 +5478,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-10-12T16:57:03.455Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 682,
+    "leagueId": 1,
+    "date": "2026-11-15T01:00:25.696Z",
+    "type": "INJURY PICKUP",
+    "description": "HB - Robbie Ouzts FOR INJURY TO HB - PATRICK RICARD IN WEEK 8 FOR 4 WEEKS",
+    "fromTeam": "FA",
+    "toTeam": "Tetbury",
+    "owner": "Mike Fullen",
+    "status": "On Team",
+    "weekBack": 12,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-11-15T01:00:25.656Z",
     "touch_id": "VV"
   },
   {
@@ -8719,7 +8719,7 @@
     "fromTeam": "FA",
     "toTeam": "DC",
     "owner": "Alex Matsikoudis",
-    "status": "Pending",
+    "status": "On Team",
     "weekBack": 12,
     "season": 2026,
     "fee": 0,
@@ -8727,7 +8727,7 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-11-16T00:20:12.795Z",
-    "touch_id": "Alex Matsikoudis"
+    "touch_id": "VV"
   },
   {
     "id": 606,

@@ -18880,5 +18880,95 @@
     "team": "EMAIL",
     "action": "ALERT_SENT",
     "details": "GFL Update: 2026 Week 9"
+  },
+  {
+    "id": 2099,
+    "leagueId": 1,
+    "timestamp": "2026-11-16T21:00:45.048Z",
+    "coach": "Alex Matsikoudis",
+    "team": "DC",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2100,
+    "leagueId": 1,
+    "timestamp": "2026-11-16T23:08:55.888Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 9 (2026)*\n----------------------------------\n\n*WEEK 9*\n🏈 Carolina @ Crimson - Final: 20-7\n🏈 Satriale @ LBI - PENDING\n🏈 Pyongyang @ Old Bridge - Final: 14-40\n🏈 Newark Bay @ Jefferson - Final: 17-33\n🏈 Las Vegas @ Tetbury - PENDING\n🏈 LE @ Fur Peace - Final: 23-24\n🏈 Ur"
+  },
+  {
+    "id": 2101,
+    "leagueId": 1,
+    "timestamp": "2026-11-16T23:08:56.263Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 9"
+  },
+  {
+    "id": 2102,
+    "leagueId": 1,
+    "timestamp": "2026-11-16T23:26:40.962Z",
+    "coach": "Bob Glade",
+    "team": "CK",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded CRIMSON.COA"
+  },
+  {
+    "id": 2103,
+    "leagueId": 1,
+    "timestamp": "2026-11-17T06:41:51.493Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_EDIT",
+    "details": "Transaction #682 updated"
+  },
+  {
+    "id": 2104,
+    "leagueId": 1,
+    "timestamp": "2026-11-17T06:42:00.354Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #682 marked On Team"
+  },
+  {
+    "id": 2105,
+    "leagueId": 1,
+    "timestamp": "2026-11-17T06:42:02.482Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #683 marked On Team"
+  },
+  {
+    "id": 2106,
+    "leagueId": 1,
+    "timestamp": "2026-11-17T06:43:09.906Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2107,
+    "leagueId": 1,
+    "timestamp": "2026-11-17T06:43:13.474Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 2108,
+    "leagueId": 1,
+    "timestamp": "2026-11-17T06:43:57.500Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]

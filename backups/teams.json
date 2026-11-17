@@ -200,6 +200,16 @@
     "status": "active"
   },
   {
+    "id": 43,
+    "leagueId": 1,
+    "name": "Crimson",
+    "coach": "Bob Glade",
+    "teamshort": "CK",
+    "nickname": "Kings",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 53,
     "leagueId": 1,
     "name": "Satriale",
@@ -216,16 +226,6 @@
     "coach": "Phil Matsikoudis",
     "teamshort": "NBT",
     "nickname": "Tanks",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 43,
-    "leagueId": 1,
-    "name": "Crimson",
-    "coach": "Bob Glade",
-    "teamshort": "CK",
-    "nickname": "Kings",
     "isCommissioner": false,
     "status": "active"
   },
