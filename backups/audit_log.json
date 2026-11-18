@@ -18000,6 +18000,15 @@
     "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ DC:*\n• WR/RET - Efton Chism III\n\n🌐 https://afl.gddevco.com\n"
   },
   {
+    "id": 2110,
+    "leagueId": 1,
+    "timestamp": "2026-11-18T02:49:23.674Z",
+    "coach": "Mike Fullen",
+    "team": "FA",
+    "action": "ADD",
+    "details": "WR - Calvin Ridley"
+  },
+  {
     "id": 2001,
     "leagueId": 1,
     "timestamp": "2026-11-10T00:07:24.689Z",
@@ -18970,5 +18979,50 @@
     "team": "admin",
     "action": "IMPORT_SCHEDULE",
     "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 2109,
+    "leagueId": 1,
+    "timestamp": "2026-11-18T00:20:23.781Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded LAS_VEGAS.COA"
+  },
+  {
+    "id": 2111,
+    "leagueId": 1,
+    "timestamp": "2026-11-18T02:49:24.556Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: ADD — FA ➔ Tetbury (WR) · Nov 17, 9:49 PM"
+  },
+  {
+    "id": 2112,
+    "leagueId": 1,
+    "timestamp": "2026-11-18T02:49:24.938Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: ADD*\n----------------------------\n*FA ➔ Tetbury:*\n• WR - Calvin Ridley\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2113,
+    "leagueId": 1,
+    "timestamp": "2026-11-18T13:00:15.219Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 9 (2026)*\n----------------------------------\n\n*WEEK 9*\n🏈 Carolina @ Crimson - Final: 20-7\n❌ Satriale @ LBI - 🚨 PAST DUE\n🏈 Pyongyang @ Old Bridge - Final: 14-40\n🏈 Newark Bay @ Jefferson - Final: 17-33\n❌ Las Vegas @ Tetbury - 🚨 PAST DUE\n🏈 LE @ Fur Peace - Final: 23-24"
+  },
+  {
+    "id": 2114,
+    "leagueId": 1,
+    "timestamp": "2026-11-18T13:00:16.058Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 9"
   }
 ]
