@@ -8,7 +8,15 @@ import { isAdmin } from '@/lib/auth';
 import { auth } from '@/auth';
 import { revalidateTag, unstable_cache } from 'next/cache';
 
-const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
+const GLOBAL_ONLY_RULES = new Set([
+  'cuts_year',
+  'current_nfl_week',
+  'player_sync',
+  'fa_pickup_fee',
+  'fa_trade_deadline',
+  'cuts_due_date',
+  'draft_start_date',
+]);
 const isGlobalOnlyRule = (r: string) => GLOBAL_ONLY_RULES.has(r) || r.startsWith('draft_clock_');
 
 const _getAllRules = unstable_cache(
@@ -72,7 +80,7 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: 'rule and value are required' }, { status: 400 });
     }
     const leagueId = await getLeagueId();
-    const yearVal = year != null ? Number(year) : null;
+    const yearVal = isGlobalOnlyRule(String(rule).trim()) ? null : (year != null ? Number(year) : null);
     const whereClause = and(
       eq(rules.rule, rule),
       eq(rules.leagueId, leagueId),
@@ -99,7 +107,7 @@ export async function DELETE(req: NextRequest) {
     const { rule, year } = await req.json();
     if (!rule) return NextResponse.json({ error: 'rule is required' }, { status: 400 });
     const leagueId = await getLeagueId();
-    const yearVal = year != null ? Number(year) : null;
+    const yearVal = isGlobalOnlyRule(String(rule).trim()) ? null : (year != null ? Number(year) : null);
     await db.delete(rules).where(and(
       eq(rules.rule, rule),
       eq(rules.leagueId, leagueId),

@@ -6,7 +6,15 @@ import Link from "next/link";
 import { UploadCloud, File as FileIcon, X, Save, RefreshCw, UserCheck, UserX, Clock, Users, Plus, Pencil, ChevronDown, ChevronRight, CalendarDays, Trash2, Trophy, ClipboardList, Bell, Search, Eye, Terminal } from "lucide-react";
 
 type RuleRow = { setting: string; value: string; desc: string | null; year: number | null };
-const GLOBAL_ONLY_RULES = new Set(['cuts_year', 'current_nfl_week', 'player_sync']);
+const GLOBAL_ONLY_RULES = new Set([
+  'cuts_year',
+  'current_nfl_week',
+  'player_sync',
+  'fa_pickup_fee',
+  'fa_trade_deadline',
+  'cuts_due_date',
+  'draft_start_date',
+]);
 const isGlobalOnlyRule = (r: string) => GLOBAL_ONLY_RULES.has(r) || r.startsWith('draft_clock_');
 type PendingSignup = { id: number; name: string; teamshort: string; coach: string; email: string | null; mobile: string | null; leagueId: number | null; touch_dt: string };
 type TeamRow = { id: number; name: string; teamshort: string | null; coach: string | null; email: string | null; mobile: string | null; nickname: string | null; isCommissioner: boolean | null; status: string | null };
@@ -1936,8 +1944,16 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                       }
                       const selected = rulesData.find(r => r.year == null && r.setting === e.target.value);
                       const draftClockMatch = e.target.value.match(/^draft_clock_round_(\d+)$/);
-                      const autoDesc = draftClockMatch ? `Draft clock duration for round ${draftClockMatch[1]}+ (minutes). Rounds without their own rule inherit the nearest lower configured round.` : '';
-                      setNewRule(r => ({ ...r, setting: e.target.value, desc: selected?.desc ?? autoDesc }));
+                      const faPresetDesc =
+                        e.target.value === 'fa_trade_deadline'
+                          ? 'Deadline for paid Free Agent (ADD) pickups (ISO timestamp or M/D/YYYY in ET; blank = open)'
+                          : e.target.value === 'fa_pickup_fee'
+                            ? 'Fee charged per free agent pickup (ADD transaction)'
+                            : '';
+                      const autoDesc = draftClockMatch
+                        ? `Draft clock duration for round ${draftClockMatch[1]}+ (minutes). Rounds without their own rule inherit the nearest lower configured round.`
+                        : faPresetDesc;
+                      setNewRule(r => ({ ...r, setting: e.target.value, desc: selected?.desc || autoDesc }));
                     }}
                     className="px-3 py-2 rounded-xl border-2 border-slate-200 text-sm font-bold w-48 outline-none focus:border-emerald-400 bg-white"
                   >
@@ -1947,13 +1963,24 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                     ))}
                     {(() => {
                       const existing = new Set(rulesData.filter(r => r.year == null).map(r => r.setting));
+                      const faPresets = ['fa_trade_deadline', 'fa_pickup_fee'].filter(k => !existing.has(k));
                       const presets = Array.from({ length: 10 }, (_, i) => `draft_clock_round_${i + 1}`).filter(k => !existing.has(k));
-                      return presets.length > 0 ? (
+                      return (
                         <>
-                          <option disabled>— Draft Clock Presets —</option>
-                          {presets.map(k => <option key={k} value={k}>{k}</option>)}
+                          {faPresets.length > 0 && (
+                            <>
+                              <option disabled>— Free Agency Presets —</option>
+                              {faPresets.map(k => <option key={k} value={k}>{k}</option>)}
+                            </>
+                          )}
+                          {presets.length > 0 && (
+                            <>
+                              <option disabled>— Draft Clock Presets —</option>
+                              {presets.map(k => <option key={k} value={k}>{k}</option>)}
+                            </>
+                          )}
                         </>
-                      ) : null;
+                      );
                     })()}
                     <option value="__manual__">— Type manually —</option>
                   </select>
@@ -1961,9 +1988,15 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Value</label>
-                <input type="text" placeholder="e.g. 12" value={newRule.value}
+                <input
+                  type="text"
+                  placeholder={newRule.setting === 'fa_trade_deadline' ? 'e.g. 2026-11-03T16:00:00-05:00' : 'e.g. 12'}
+                  value={newRule.value}
                   onChange={e => setNewRule(r => ({ ...r, value: e.target.value }))}
-                  className="px-3 py-2 rounded-xl border-2 border-slate-200 text-sm font-bold w-32 outline-none focus:border-emerald-400" />
+                  className={`px-3 py-2 rounded-xl border-2 border-slate-200 text-sm font-bold outline-none focus:border-emerald-400 ${
+                    newRule.setting === 'fa_trade_deadline' ? 'w-56' : 'w-32'
+                  }`}
+                />
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Year</label>

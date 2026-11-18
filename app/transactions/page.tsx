@@ -16,6 +16,8 @@ import {
   GitMerge,
   Download,
   Pencil,
+  HeartPulse,
+  Lock,
 } from 'lucide-react';
 import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
@@ -25,6 +27,7 @@ import TeamSelector from '@/components/TeamSelector';
 import { useConfirm } from '@/components/ConfirmDialog';
 import { useTeam } from '@/context/TeamContext';
 import { Team } from '@/types';
+import { FA_DEADLINE_RULE, isFaDeadlinePassed, formatFaDeadlineET } from '@/lib/pickupRules';
 
 const STATUS_STYLES: Record<string, string> = {
   'Done':    'bg-emerald-100 text-emerald-700',
@@ -45,7 +48,11 @@ export default function TransactionsPage() {
   const [filterType, setFilterType] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
-  const [activeTab, setActiveTab] = useState<'FA' | 'DROP' | 'IR' | 'TRADE'>('FA');
+  const [activeTab, setActiveTab] = useState<'FA' | 'INJURY' | 'DROP' | 'IR' | 'TRADE'>('FA');
+  const [faPickupFee, setFaPickupFee] = useState(0);
+  const [faDeadlineRaw, setFaDeadlineRaw] = useState('');
+  const [rulesLoaded, setRulesLoaded] = useState(false);
+  const [teamsLoaded, setTeamsLoaded] = useState(false);
   const [savingStatus, setSavingStatus] = useState<string | null>(null);
   const [reprocessId, setReprocessId] = useState<string | null>(null);
   const [reprocessForm, setReprocessForm] = useState({ year: new Date().getFullYear(), round: 1, fromTeam: '', toTeam: '' });
@@ -67,6 +74,8 @@ export default function TransactionsPage() {
   const [spendTo, setSpendTo] = useState('');
 
   const hasSynced = useRef(false);
+  const hasAutoTabSelected = useRef(false);
+  const userPickedTab = useRef(false);
   const [confirm, ConfirmDialog] = useConfirm();
 
   // 1. SESSION SYNC
@@ -79,19 +88,37 @@ export default function TransactionsPage() {
 
   // 2. DATA LOAD
   useEffect(() => {
-    fetch('/api/teams').then(res => res.json()).then(data => {
-      setTeams(Array.isArray(data) ? data : []);
-    });
+    fetch('/api/teams')
+      .then(res => res.json())
+      .then(data => {
+        setTeams(Array.isArray(data) ? data : []);
+      })
+      .catch(err => console.error(err))
+      .finally(() => setTeamsLoaded(true));
 
-    fetch('/api/rules', { cache: 'no-store' }).then(res => res.json()).then(data => {
-      if (Array.isArray(data)) {
-        const cYear = data.find(r => r.setting === 'cuts_year');
-        if (cYear?.value) setCurrentSeason(cYear.value.toString());
+    fetch('/api/rules')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const globalRule = (name: string) =>
+            data.find(r => r.setting === name && r.year == null) ||
+            data.find(r => r.setting === name);
 
-        const limit = data.find(r => r.setting === 'limit_roster');
-        if (limit?.value) console.log(`✅ Transaction Terminal: Roster Limit set to ${limit.value}`);
-      }
-    });
+          const cYear = globalRule('cuts_year');
+          if (cYear?.value) setCurrentSeason(cYear.value.toString());
+
+          const feeRule = globalRule('fa_pickup_fee');
+          if (feeRule?.value !== undefined) setFaPickupFee(parseInt(feeRule.value, 10) || 0);
+
+          const deadlineRule = globalRule(FA_DEADLINE_RULE);
+          if (deadlineRule?.value !== undefined) setFaDeadlineRaw(String(deadlineRule.value));
+
+          const limit = globalRule('limit_roster');
+          if (limit?.value) console.log(`✅ Transaction Terminal: Roster Limit set to ${limit.value}`);
+        }
+      })
+      .catch(err => console.error(err))
+      .finally(() => setRulesLoaded(true));
   }, []);
 
   const fetchLogs = useCallback(async () => {
@@ -107,18 +134,34 @@ export default function TransactionsPage() {
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
   useEffect(() => {
-    const teamObj = teams.find(t => t.teamshort === selectedTeam || t.short === selectedTeam);
+    const selectedUpper = selectedTeam?.toUpperCase();
+    const teamObj = teams.find(
+      t => t.teamshort?.toUpperCase() === selectedUpper || t.short?.toUpperCase() === selectedUpper
+    );
     setCoach(teamObj?.coach || '');
   }, [selectedTeam, teams]);
 
   const isCommissioner = useMemo(() => {
     if (status !== 'authenticated' || !session?.user) return false;
     const role = (session.user as { role?: string })?.role;
-    if (role === 'superuser' || role === 'admin') return true;
-    const sessionId = (session.user as { id?: string })?.id;
-    const myTeam = teams.find(t => t.teamshort === sessionId || t.short === sessionId);
+    if (role === 'superuser') return true;
+    const sessionId = (session.user as { id?: string })?.id?.toUpperCase();
+    const myTeam = teams.find(
+      t => t.teamshort?.toUpperCase() === sessionId || t.short?.toUpperCase() === sessionId
+    );
     return (myTeam as Team & { commissioner?: boolean })?.commissioner || false;
   }, [status, session, teams]);
+
+  const isFaClosed = useMemo(() => isFaDeadlinePassed(faDeadlineRaw), [faDeadlineRaw]);
+  const faDeadlineLabel = useMemo(() => formatFaDeadlineET(faDeadlineRaw), [faDeadlineRaw]);
+
+  useEffect(() => {
+    if (!rulesLoaded || !teamsLoaded || status === 'loading' || hasAutoTabSelected.current) return;
+    hasAutoTabSelected.current = true;
+    if (isFaClosed && !isCommissioner && !userPickedTab.current) {
+      setActiveTab('INJURY');
+    }
+  }, [rulesLoaded, teamsLoaded, status, isFaClosed, isCommissioner]);
 
   const handleDelete = useCallback(async (logId: string) => {
     if (!await confirm('This cannot be undone.', { title: 'Delete this transaction?', confirmLabel: 'Delete', destructive: true })) return;
@@ -324,10 +367,49 @@ export default function TransactionsPage() {
   }, [logs, spendSeason, spendFrom, spendTo]);
 
   const tabs = [
-    { id: 'FA', label: 'Add Player', icon: <UserPlus size={20} />, activeColor: 'bg-blue-600' },
-    { id: 'DROP', label: 'Waive/Drop Player', icon: <UserMinus size={20} />, activeColor: 'bg-red-600' },
-    { id: 'IR', label: 'IR Movement', icon: <Zap size={20} />, activeColor: 'bg-amber-500' },
-    { id: 'TRADE', label: 'Team Trade', icon: <ArrowLeftRight size={20} />, activeColor: 'bg-purple-600' },
+    {
+      id: 'FA' as const,
+      label: 'FA Pickup',
+      badge: !rulesLoaded
+        ? '…'
+        : isFaClosed
+          ? isCommissioner
+            ? 'Override'
+            : 'Closed'
+          : faPickupFee > 0
+            ? `$${faPickupFee} Fee`
+            : 'Open',
+      icon: isFaClosed && !isCommissioner ? <Lock size={20} /> : <UserPlus size={20} />,
+      activeColor: 'bg-blue-600',
+    },
+    {
+      id: 'INJURY' as const,
+      label: 'Injury Pickup',
+      badge: '$0 • Temp',
+      icon: <HeartPulse size={20} />,
+      activeColor: 'bg-teal-700',
+    },
+    {
+      id: 'DROP' as const,
+      label: 'Waive/Drop',
+      badge: 'Release',
+      icon: <UserMinus size={20} />,
+      activeColor: 'bg-red-600',
+    },
+    {
+      id: 'IR' as const,
+      label: 'IR Movement',
+      badge: 'Season IR',
+      icon: <Zap size={20} />,
+      activeColor: 'bg-amber-600',
+    },
+    {
+      id: 'TRADE' as const,
+      label: 'Team Trade',
+      badge: 'Swap',
+      icon: <ArrowLeftRight size={20} />,
+      activeColor: 'bg-purple-600',
+    },
   ];
 
   return (
@@ -357,39 +439,82 @@ export default function TransactionsPage() {
         <div className="space-y-8">
 
           {/* HORIZONTAL OPERATION SELECTOR */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-[2rem] shadow-xl border border-slate-100">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as 'FA' | 'DROP' | 'IR' | 'TRADE')}
-                className={`flex flex-col items-center justify-center gap-3 p-6 rounded-2xl transition-all group ${
-                  activeTab === tab.id
-                    ? `${tab.activeColor} text-white shadow-lg scale-[1.02]`
-                    : 'bg-slate-50 text-slate-400 hover:bg-slate-100'
-                }`}
-              >
-                <div className={`${activeTab === tab.id ? 'text-white' : 'text-slate-300 group-hover:text-slate-500'} transition-colors`}>
-                  {tab.icon}
-                </div>
-                <span className="text-[11px] font-black uppercase tracking-[0.15em]">{tab.label}</span>
-              </button>
-            ))}
+          <div
+            role="tablist"
+            aria-label="Transaction types"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-[2rem] shadow-xl border border-slate-100"
+          >
+            {tabs.map((tab) => {
+              const isSelected = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isSelected}
+                  onClick={() => {
+                    userPickedTab.current = true;
+                    setActiveTab(tab.id);
+                  }}
+                  className={`flex flex-col items-center justify-center gap-2 p-4 sm:p-5 rounded-2xl transition-all group last:col-span-2 sm:last:col-span-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 ${
+                    isSelected
+                      ? `${tab.activeColor} text-white shadow-lg scale-[1.02]`
+                      : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className={`${isSelected ? 'text-white' : 'text-slate-500 group-hover:text-slate-700'} transition-colors`}>
+                    {tab.icon}
+                  </div>
+                  <span className="text-[11px] font-black uppercase tracking-[0.15em]">{tab.label}</span>
+                  <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                    isSelected
+                      ? 'bg-slate-900/25 text-white'
+                      : tab.id === 'FA' && isFaClosed && !isCommissioner
+                        ? 'bg-red-100 text-red-700'
+                        : tab.id === 'INJURY'
+                          ? 'bg-teal-100 text-teal-800'
+                          : 'bg-slate-200 text-slate-700'
+                  }`}>
+                    {tab.badge}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {/* MAIN ACTION TERMINAL */}
           <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden flex flex-col min-h-[600px]">
-            <div className="p-8 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+            <div className="p-6 sm:p-8 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
               <h2 className="text-2xl font-black uppercase italic tracking-tighter">
-                {tabs.find(t => t.id === activeTab)?.label} <span className="text-blue-600">Terminal</span>
+                {tabs.find(t => t.id === activeTab)?.label}{' '}
+                <span className={activeTab === 'INJURY' ? 'text-teal-700' : 'text-blue-600'}>Terminal</span>
               </h2>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Sync Active</span>
+                <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Secure Sync Active</span>
               </div>
             </div>
 
-            <div className="p-8 md:p-12 flex-1 overflow-y-auto">
-              {activeTab === 'FA' && <FreeAgentPanel key={`fa-${refreshKey}`} team={selectedTeam} coach={coach} onComplete={handleTransactionComplete} />}
+            <div className="p-4 sm:p-8 md:p-12 flex-1 overflow-y-auto">
+              {(activeTab === 'FA' || activeTab === 'INJURY') && (
+                <FreeAgentPanel
+                  key={`pickup-${refreshKey}`}
+                  mode={activeTab}
+                  team={selectedTeam}
+                  coach={coach}
+                  teams={teams}
+                  faFee={faPickupFee}
+                  faDeadlineRaw={faDeadlineRaw}
+                  faDeadlineLabel={faDeadlineLabel}
+                  isFaClosed={isFaClosed}
+                  isCommissioner={isCommissioner}
+                  onSwitchMode={(m) => {
+                    userPickedTab.current = true;
+                    setActiveTab(m);
+                  }}
+                  onComplete={handleTransactionComplete}
+                />
+              )}
               {activeTab === 'DROP' && <DropPlayer key={`drop-${refreshKey}`} team={selectedTeam} coach={coach} onComplete={handleTransactionComplete} />}
               {activeTab === 'IR' && <IRPanel key={`ir-${refreshKey}`} team={selectedTeam} coach={coach} onComplete={handleTransactionComplete} />}
               {activeTab === 'TRADE' && <TradePanel key={`trade-${refreshKey}`} team={selectedTeam} coach={coach} isCommissioner={isCommissioner} onComplete={handleTransactionComplete} />}

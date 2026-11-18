@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { players, teams, transactions, rules, tradeBlock } from '@/schema';
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and, isNull, inArray } from 'drizzle-orm';
 import { logTransaction, getTransactions, updateTransactionStatus, updateTransactionConditional, updateTransactionDetails } from '@/lib/transactions';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
@@ -11,6 +11,7 @@ import { revalidateTag } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { revertPickTransferByPickId } from '@/lib/draftPicks';
 import { restoreIRFlags } from '@/lib/maintenance';
+import { FA_DEADLINE_RULE, isFaDeadlinePassed, formatFaDeadlineET } from '@/lib/pickupRules';
 
 export async function GET() {
   const session = await auth();
@@ -195,6 +196,37 @@ export async function POST(req: Request) {
     if (details !== undefined && (typeof details !== 'string' || details.length > 2000)) {
       return Response.json({ error: 'details must be a string ≤ 2000 characters' }, { status: 400 });
     }
+    if (type === 'INJURY PICKUP' && (typeof details !== 'string' || !details.trim())) {
+      return Response.json({ error: 'Injury pickup details are required.' }, { status: 400 });
+    }
+
+    let validatedWeekBack: number | undefined = undefined;
+    const hasWeekBack = body.weekBack !== undefined && body.weekBack !== '' && body.weekBack !== null;
+    if (type === 'INJURY PICKUP') {
+      const rawWb = hasWeekBack && (typeof body.weekBack === 'string' || typeof body.weekBack === 'number')
+        ? String(body.weekBack).trim()
+        : '';
+      const n = /^\d+$/.test(rawWb) ? parseInt(rawWb, 10) : NaN;
+      if (!Number.isInteger(n) || n < 1 || n > 30) {
+        return Response.json(
+          { error: 'Injury pickup requires a valid return week between 1 and 30.' },
+          { status: 400 },
+        );
+      }
+      validatedWeekBack = n;
+    } else if (hasWeekBack) {
+      const rawWb = typeof body.weekBack === 'string' || typeof body.weekBack === 'number'
+        ? String(body.weekBack).trim()
+        : '';
+      const n = /^\d+$/.test(rawWb) ? parseInt(rawWb, 10) : NaN;
+      if (!Number.isInteger(n) || n < 0 || n > 30) {
+        return Response.json(
+          { error: 'weekBack must be a whole number between 0 and 30.' },
+          { status: 400 },
+        );
+      }
+      validatedWeekBack = n;
+    }
 
     // CONDITIONAL TRADE is a record-keeping entry only — no player moves, no
     // team-id update, no trade-block cleanup. The standard player-lookup path
@@ -232,26 +264,36 @@ export async function POST(req: Request) {
       return Response.json({ success: true });
     }
 
-    // Find player by identity (required for all non-CONDITIONAL types)
+    // Find player by identity (required for all non-CONDITIONAL types) alongside global rules
     if (!identity) {
       return Response.json({ error: 'identity required' }, { status: 400 });
     }
-    const playerRows = await db.select({
-      id: players.id,
-      identity: players.identity,
-      teamId: players.teamId,
-      teamshort: teams.teamshort,
-      teamName: teams.name,
-      durability: players.durability,
-      isIR: players.isIR,
-    })
-    .from(players)
-    .leftJoin(teams, eq(players.teamId, teams.id))
-    .where(and(eq(players.identity, identity), eq(players.leagueId, leagueId)))
-    .limit(1);
+    const [playerRows, globalRuleRows] = await Promise.all([
+      db.select({
+        id: players.id,
+        identity: players.identity,
+        teamId: players.teamId,
+        teamshort: teams.teamshort,
+        teamName: teams.name,
+        durability: players.durability,
+        isIR: players.isIR,
+      })
+      .from(players)
+      .leftJoin(teams, eq(players.teamId, teams.id))
+      .where(and(eq(players.identity, identity), eq(players.leagueId, leagueId)))
+      .limit(1),
+      db.select({ rule: rules.rule, value: rules.value })
+        .from(rules)
+        .where(and(
+          eq(rules.leagueId, leagueId),
+          isNull(rules.year),
+          inArray(rules.rule, [FA_DEADLINE_RULE, 'cuts_year', 'current_nfl_week']),
+        )),
+    ]);
 
     if (!playerRows[0]) return Response.json({ error: 'Player not found' }, { status: 404 });
     const player = playerRows[0];
+    const globalRulesMap = new Map(globalRuleRows.map(r => [r.rule, r.value]));
 
     // Resolve new team ownership
     let newTeamId: number | null = player.teamId ?? null;
@@ -293,6 +335,15 @@ export async function POST(req: Request) {
           callerTeamshort.toLowerCase() !== (player.teamshort || '').toLowerCase()) {
         return Response.json({ error: 'Forbidden: you can only drop or IR your own players' }, { status: 403 });
       }
+      if (type === 'ADD') {
+        const rawDeadline = globalRulesMap.get(FA_DEADLINE_RULE);
+        if (isFaDeadlinePassed(rawDeadline)) {
+          const formatted = formatFaDeadlineET(rawDeadline);
+          return Response.json({
+            error: `Free agent pickups closed after the deadline${formatted ? ` (${formatted})` : ''}. Use Injury Pickup for injury replacements.`,
+          }, { status: 403 });
+        }
+      }
     }
 
     // IR restriction: cannot place a player on IR if they are already on IR;
@@ -304,11 +355,7 @@ export async function POST(req: Request) {
           error: 'Player is already on Injured Reserve (IR).',
         }, { status: 400 });
       }
-      const nflWeekRow = await db.select({ value: rules.value })
-        .from(rules)
-        .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'current_nfl_week'), isNull(rules.year)))
-        .limit(1);
-      const currentNflWeek = parseInt(nflWeekRow[0]?.value ?? '0') || 0;
+      const currentNflWeek = parseInt(globalRulesMap.get('current_nfl_week') ?? '0') || 0;
       if (currentNflWeek === 0 && Number(player.durability ?? 0) !== 0) {
         return Response.json({
           error: 'During the draft, only players who have not played any NFL games (durability 0) can be placed on IR.',
@@ -317,9 +364,8 @@ export async function POST(req: Request) {
     }
 
     // Resolve current season from rules
-    const seasonRule = await db.select({ value: rules.value }).from(rules)
-      .where(and(eq(rules.leagueId, leagueId), eq(rules.rule, 'cuts_year'), isNull(rules.year))).limit(1);
-    const season = seasonRule[0] ? parseInt(seasonRule[0].value) || null : null;
+    const seasonRaw = globalRulesMap.get('cuts_year');
+    const season = seasonRaw ? parseInt(seasonRaw) || null : null;
 
     // Atomically execute roster update, trade block cleanup, and transaction logging
     await db.transaction(async (tx) => {
@@ -354,7 +400,7 @@ export async function POST(req: Request) {
         fromTeam: resolvedFromTeam,
         toTeam,
         coach: actorName,
-        weekBack: typeof body.weekBack === 'string' || typeof body.weekBack === 'number' ? body.weekBack : undefined,
+        weekBack: validatedWeekBack,
         leagueId,
         season: season ?? undefined,
       }, tx);
