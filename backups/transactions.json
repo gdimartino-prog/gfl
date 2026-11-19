@@ -2118,25 +2118,6 @@
     "touch_id": "VV"
   },
   {
-    "id": 684,
-    "leagueId": 1,
-    "date": "2026-11-18T02:49:23.628Z",
-    "type": "ADD",
-    "description": "WR - Calvin Ridley",
-    "fromTeam": "FA",
-    "toTeam": "Tetbury",
-    "owner": "Mike Fullen",
-    "status": "Pending",
-    "weekBack": null,
-    "season": 2026,
-    "fee": 10,
-    "emailStatus": null,
-    "pickIds": null,
-    "conditionalDetails": null,
-    "touch_dt": "2026-11-18T02:49:23.588Z",
-    "touch_id": "Mike Fullen"
-  },
-  {
     "id": 609,
     "leagueId": 1,
     "date": "2026-10-13T02:24:11.937Z",
@@ -2172,6 +2153,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-10-13T02:24:11.909Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 684,
+    "leagueId": 1,
+    "date": "2026-11-18T02:49:23.628Z",
+    "type": "INJURY PICKUP",
+    "description": "WR - Calvin Ridley FOR INJURY TO WR - TERRY MCLAURIN IN WEEK 9 FOR 4 WEEKS",
+    "fromTeam": "FA",
+    "toTeam": "Tetbury",
+    "owner": "Mike Fullen",
+    "status": "On Team",
+    "weekBack": 13,
+    "season": 2026,
+    "fee": null,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-11-18T02:49:23.588Z",
     "touch_id": "VV"
   },
   {
