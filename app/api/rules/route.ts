@@ -14,6 +14,7 @@ const GLOBAL_ONLY_RULES = new Set([
   'player_sync',
   'fa_pickup_fee',
   'fa_trade_deadline',
+  'limit_ir',
   'cuts_due_date',
   'draft_start_date',
 ]);

@@ -26,8 +26,10 @@ import TradePanel from './components/TradePanel';
 import TeamSelector from '@/components/TeamSelector';
 import { useConfirm } from '@/components/ConfirmDialog';
 import { useTeam } from '@/context/TeamContext';
+import { useLeague } from '@/context/LeagueContext';
 import { Team } from '@/types';
 import { FA_DEADLINE_RULE, isFaDeadlinePassed, formatFaDeadlineET } from '@/lib/pickupRules';
+import { IR_LIMIT_RULE, resolveIrLimit } from '@/lib/irRules';
 
 const STATUS_STYLES: Record<string, string> = {
   'Done':    'bg-emerald-100 text-emerald-700',
@@ -38,6 +40,7 @@ const STATUS_STYLES: Record<string, string> = {
 export default function TransactionsPage() {
   const { data: session, status } = useSession();
   const { selectedTeam, setSelectedTeam } = useTeam();
+  const { currentLeague } = useLeague();
 
   const [teams, setTeams] = useState<Team[]>([]);
   const [currentSeason, setCurrentSeason] = useState('');
@@ -51,6 +54,7 @@ export default function TransactionsPage() {
   const [activeTab, setActiveTab] = useState<'FA' | 'INJURY' | 'DROP' | 'IR' | 'TRADE'>('FA');
   const [faPickupFee, setFaPickupFee] = useState(0);
   const [faDeadlineRaw, setFaDeadlineRaw] = useState('');
+  const [irLimitRaw, setIrLimitRaw] = useState<string | null>(null);
   const [rulesLoaded, setRulesLoaded] = useState(false);
   const [teamsLoaded, setTeamsLoaded] = useState(false);
   const [savingStatus, setSavingStatus] = useState<string | null>(null);
@@ -113,6 +117,9 @@ export default function TransactionsPage() {
           const deadlineRule = globalRule(FA_DEADLINE_RULE);
           if (deadlineRule?.value !== undefined) setFaDeadlineRaw(String(deadlineRule.value));
 
+          const irRule = globalRule(IR_LIMIT_RULE);
+          setIrLimitRaw(irRule?.value !== undefined ? String(irRule.value) : null);
+
           const limit = globalRule('limit_roster');
           if (limit?.value) console.log(`✅ Transaction Terminal: Roster Limit set to ${limit.value}`);
         }
@@ -154,6 +161,8 @@ export default function TransactionsPage() {
 
   const isFaClosed = useMemo(() => isFaDeadlinePassed(faDeadlineRaw), [faDeadlineRaw]);
   const faDeadlineLabel = useMemo(() => formatFaDeadlineET(faDeadlineRaw), [faDeadlineRaw]);
+  const activeLeagueId = currentLeague?.id ?? (session?.user as { leagueId?: number })?.leagueId ?? 1;
+  const irLimit = useMemo(() => resolveIrLimit(activeLeagueId, irLimitRaw), [activeLeagueId, irLimitRaw]);
 
   useEffect(() => {
     if (!rulesLoaded || !teamsLoaded || status === 'loading' || hasAutoTabSelected.current) return;
@@ -516,7 +525,7 @@ export default function TransactionsPage() {
                 />
               )}
               {activeTab === 'DROP' && <DropPlayer key={`drop-${refreshKey}`} team={selectedTeam} coach={coach} onComplete={handleTransactionComplete} />}
-              {activeTab === 'IR' && <IRPanel key={`ir-${refreshKey}`} team={selectedTeam} coach={coach} onComplete={handleTransactionComplete} />}
+              {activeTab === 'IR' && <IRPanel key={`ir-${refreshKey}`} team={selectedTeam} coach={coach} irLimit={irLimit} isCommissioner={isCommissioner} onComplete={handleTransactionComplete} />}
               {activeTab === 'TRADE' && <TradePanel key={`trade-${refreshKey}`} team={selectedTeam} coach={coach} isCommissioner={isCommissioner} onComplete={handleTransactionComplete} />}
             </div>
 

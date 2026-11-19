@@ -30,6 +30,7 @@ export const config = {
     "/transactions/:path*",
     "/draft/:path*",
     "/cuts/:path*",
+    "/polls/:path*",
     // Bot bait — 404 at edge before hitting the Node /_not-found function
     "/wp-admin/:path*",
     "/wp-login.php",

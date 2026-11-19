@@ -93,6 +93,14 @@ export default async function HomePage() {
       protected: false
     },
     {
+      title: 'League Polls',
+      desc: 'Vote on rule proposals, track quorum, and review enacted decisions.',
+      href: '/polls',
+      icon: '🗳️',
+      color: 'border-indigo-500',
+      protected: true
+    },
+    {
       title: 'Training',
       desc: 'Find nearby recovery facilities for player "rehabilitation".',
       href: 'https://www.google.com/search?q=asian+massage+spa+near+me',

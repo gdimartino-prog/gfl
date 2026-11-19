@@ -1,17 +1,22 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, AlertTriangle, Lock } from 'lucide-react';
 import { Player, Team } from '@/types';
 import { playerOptionLabel } from '@/lib/playerUtils';
+import { isIrCapReached } from '@/lib/irRules';
 
 export default function IRPanel({
   team,
   coach,
+  irLimit = null,
+  isCommissioner = false,
   onComplete
 }: {
   team: string;
   coach: string;
+  irLimit?: number | null;
+  isCommissioner?: boolean;
   onComplete?: () => void
 }) {
   const [roster, setRoster] = useState<Player[]>([]);
@@ -58,8 +63,16 @@ export default function IRPanel({
 
   useEffect(() => { loadData(); }, [loadData]);
 
+  const currentIrCount = useMemo(() => roster.filter(p => Boolean(p.isIR)).length, [roster]);
+  const atIrCap = isIrCapReached(currentIrCount, irLimit);
+  const isLockedForCoach = atIrCap && !isCommissioner;
+
   function handleIRClick() {
     if (!selectedIdentity || !team) return;
+    if (isLockedForCoach) {
+      showToast(`Injured Reserve limit reached (${currentIrCount}/${irLimit}).`, 'error');
+      return;
+    }
     const p = roster.find(player => player.identity === selectedIdentity);
     if (p?.isIR) {
       showToast('Player is already on Injured Reserve (IR).', 'error');
@@ -68,7 +81,7 @@ export default function IRPanel({
     const pos = (p?.position || p?.pos || "").toUpperCase();
     const cleanName = p ? `${p.first || ''} ${p.last || p.name || ''}`.trim() : selectedIdentity;
     const fullDescription = `${pos ? `${pos} - ` : ""}${cleanName}`;
-    const entry = teamMetadata.find(t => t.short === team);
+    const entry = teamMetadata.find(t => (t.short || t.teamshort || '').toUpperCase() === team.toUpperCase());
     const fullTeamName = entry ? entry.name : team;
     setConfirmPlayer({ identity: selectedIdentity, description: fullDescription, fullTeamName });
   }
@@ -131,13 +144,28 @@ export default function IRPanel({
       {confirmPlayer && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setConfirmPlayer(null)} />
-          <div className="relative bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full space-y-5 text-center">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="ir-confirm-title"
+            className="relative bg-white rounded-3xl shadow-2xl p-8 max-w-sm w-full space-y-5 text-center"
+          >
             <div className="text-4xl">🏥</div>
-            <h3 className="text-xl font-black uppercase text-amber-600 tracking-tighter">Confirm IR Move</h3>
+            <h3 id="ir-confirm-title" className="text-xl font-black uppercase text-amber-600 tracking-tighter">Confirm IR Move</h3>
             <p className="text-sm font-bold text-slate-600">
               Move <span className="text-amber-600">{confirmPlayer.description}</span> to Injured Reserve?
             </p>
-            <p className="text-[10px] text-slate-400 uppercase tracking-widest">Their roster slot will be tagged with -IR.</p>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Once placed on IR, this player is out for the season and does not count against the active roster limit.
+            </p>
+            {atIrCap && isCommissioner && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-left flex items-start gap-2.5">
+                <AlertTriangle size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-xs font-bold text-amber-900">
+                  Commissioner override: team already has {currentIrCount}/{irLimit} players on IR.
+                </p>
+              </div>
+            )}
             <div className="flex gap-3">
               <button onClick={() => setConfirmPlayer(null)} className="flex-1 py-3 rounded-xl border-2 border-slate-200 text-slate-500 font-black uppercase text-xs hover:bg-slate-50 transition-all">Cancel</button>
               <button onClick={handleConfirmIR} className="flex-1 py-3 rounded-xl bg-amber-500 text-white font-black uppercase text-xs hover:bg-amber-600 transition-all shadow-lg">Move to IR</button>
@@ -146,10 +174,55 @@ export default function IRPanel({
         </div>
       )}
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap justify-between items-center gap-2">
         <h3 className="font-bold text-lg uppercase text-amber-600 italic tracking-tight">IR Player</h3>
-        <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded font-bold uppercase tracking-widest italic">Injured Reserve Move</span>
+        <div className="flex items-center gap-2">
+          <span
+            className={`text-[10px] px-2.5 py-1 rounded font-black uppercase tracking-widest ${
+              atIrCap
+                ? 'bg-red-100 text-red-700'
+                : 'bg-amber-50 text-amber-700'
+            }`}
+          >
+            {irLimit != null ? `IR Slots: ${currentIrCount}/${irLimit}` : `On IR: ${currentIrCount}`}
+          </span>
+          <span className="text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded font-bold uppercase tracking-widest italic">Injured Reserve Move</span>
+        </div>
       </div>
+
+      {isLockedForCoach && (
+        <div
+          role="alert"
+          className="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-start gap-3 text-red-900"
+        >
+          <Lock size={18} className="text-red-600 shrink-0 mt-0.5" />
+          <div className="space-y-1 text-xs">
+            <p className="font-black uppercase tracking-wider text-red-800">
+              Injured Reserve Full ({currentIrCount}/{irLimit})
+            </p>
+            <p className="font-medium text-red-800/90 leading-relaxed">
+              Constitution Rule B7 caps Injured Reserve at {irLimit} players per team. You must waive/drop a player currently on IR before placing another player on IR.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {atIrCap && isCommissioner && (
+        <div
+          role="alert"
+          className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 flex items-start gap-3 text-amber-900"
+        >
+          <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+          <div className="space-y-1 text-xs">
+            <p className="font-black uppercase tracking-wider text-amber-800">
+              Commissioner Override — IR Limit Reached ({currentIrCount}/{irLimit})
+            </p>
+            <p className="font-medium text-amber-800/90 leading-relaxed">
+              Coaches are blocked at {irLimit} IR players. Proceeding as Commissioner will move this team to {currentIrCount + 1}/{irLimit} players on IR.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2">
         <div className="relative">
@@ -165,14 +238,15 @@ export default function IRPanel({
         <select
           size={6}
           value={selectedIdentity}
+          disabled={isLockedForCoach}
           onChange={e => setSelectedIdentity(e.target.value)}
-          className="border-2 border-amber-50 p-2 w-full h-48 rounded-lg text-sm outline-none focus:border-amber-400 transition-colors text-black font-medium bg-white custom-scrollbar"
+          className="border-2 border-amber-50 p-2 w-full h-48 rounded-lg text-sm outline-none focus:border-amber-400 transition-colors text-black font-medium bg-white disabled:bg-slate-50 disabled:text-slate-500 custom-scrollbar"
         >
           <option value="">-- Select Player for IR --</option>
           {sortedRoster
             .filter(p => p.identity === selectedIdentity || `${p.first} ${p.last} ${p.name}`.toLowerCase().includes(rosterSearch.toLowerCase()))
             .map((p, i) => (
-            <option key={i} value={p.identity} disabled={Boolean(p.isIR)}>
+            <option key={i} value={p.identity} disabled={Boolean(p.isIR) || isLockedForCoach}>
               {playerOptionLabel(p)}{p.isIR ? ' [ON IR]' : ''}
             </option>
           ))}
@@ -181,10 +255,14 @@ export default function IRPanel({
 
       <button
         onClick={handleIRClick}
-        disabled={loading || !selectedIdentity || Boolean(roster.find(p => p.identity === selectedIdentity)?.isIR)}
-        className="w-full p-4 rounded-xl font-black uppercase tracking-widest text-white bg-amber-500 hover:bg-amber-600 disabled:bg-gray-200 transition-all active:scale-95 shadow-md"
+        disabled={loading || isLockedForCoach || !selectedIdentity || Boolean(roster.find(p => p.identity === selectedIdentity)?.isIR)}
+        className="w-full p-4 rounded-xl font-black uppercase tracking-widest text-white bg-amber-500 hover:bg-amber-600 disabled:bg-gray-200 disabled:text-gray-500 transition-all active:scale-95 shadow-md"
       >
-        {loading ? 'Processing IR Move...' : 'Confirm IR Move'}
+        {loading
+          ? 'Processing IR Move...'
+          : isLockedForCoach
+            ? `IR Limit Reached (${currentIrCount}/${irLimit})`
+            : 'Confirm IR Move'}
       </button>
     </div>
   );

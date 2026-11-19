@@ -159,3 +159,94 @@ export interface StandingRow {
   isChampion?: boolean;
   oldTeamName?: string | null;
 }
+
+export type PollType = 'rule_change' | 'general';
+
+export type PollStatus = 'open' | 'closed' | 'runoff_needed' | 'null_quorum' | 'tied';
+
+export interface PollVoterSummary {
+  teamId: number;
+  teamName: string;
+  teamshort: string;
+  coach: string;
+  isProxy: boolean;
+  votedAt: string;
+}
+
+export interface PollOptionView {
+  id: number;
+  label: string;
+  sortOrder: number;
+  voteCount: number | null;
+  percentage: number | null;
+  voters: PollVoterSummary[];
+}
+
+export interface PollActiveTeam {
+  id: number;
+  name: string;
+  teamshort: string;
+  coach: string;
+}
+
+export interface PollOutcome {
+  status: Exclude<PollStatus, 'open'>;
+  winnerOptionId: number | null;
+  totalVotes: number;
+  quorumRequired: number;
+  quorumMet: boolean;
+  majorityRequired: number | null;
+  suggestedRunoffOptionIds: number[];
+  hasRunoffTie: boolean;
+  tiedAtCutoffOptionIds: number[];
+}
+
+export interface PollItem {
+  id: number;
+  leagueId: number;
+  title: string;
+  description: string | null;
+  pollType: PollType;
+  status: PollStatus;
+  effectiveSeason: number | null;
+  constitutionRef: string | null;
+  parentPollId: number | null;
+  childRunoffPollId: number | null;
+  winnerOptionId: number | null;
+  eligibleTeamCount: number;
+  quorumRequired: number;
+  majorityRequired: number | null;
+  votesCast: number;
+  quorumMet: boolean;
+  isVotingOpen: boolean;
+  isExpiredPendingFinalization: boolean;
+  choicesHidden: boolean;
+  computedOutcome: PollOutcome | null;
+  e10Locked: boolean;
+  closesAt: string;
+  closedAt: string | null;
+  lastReminderAt: string | null;
+  createdAt: string;
+  createdBy: string;
+  myVoteOptionId: number | null;
+  options: PollOptionView[];
+  votedTeams: PollVoterSummary[];
+  nonVotedTeams: PollActiveTeam[];
+}
+
+export interface PollsViewer {
+  teamId: number | null;
+  teamshort: string | null;
+  teamName: string | null;
+  isPrivileged: boolean;
+  isDemo: boolean;
+  canVote: boolean;
+  canManage: boolean;
+}
+
+export interface PollsPayload {
+  polls: PollItem[];
+  activeTeams: PollActiveTeam[];
+  currentSeason: number | null;
+  viewer: PollsViewer;
+}

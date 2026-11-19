@@ -12,6 +12,7 @@ const GLOBAL_ONLY_RULES = new Set([
   'player_sync',
   'fa_pickup_fee',
   'fa_trade_deadline',
+  'limit_ir',
   'cuts_due_date',
   'draft_start_date',
 ]);
@@ -1949,7 +1950,9 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                           ? 'Deadline for paid Free Agent (ADD) pickups (ISO timestamp or M/D/YYYY in ET; blank = open)'
                           : e.target.value === 'fa_pickup_fee'
                             ? 'Fee charged per free agent pickup (ADD transaction)'
-                            : '';
+                            : e.target.value === 'limit_ir'
+                              ? 'Max players allowed on Injured Reserve (IR) per team (GFL defaults to 5; 0 = unlimited)'
+                              : '';
                       const autoDesc = draftClockMatch
                         ? `Draft clock duration for round ${draftClockMatch[1]}+ (minutes). Rounds without their own rule inherit the nearest lower configured round.`
                         : faPresetDesc;
@@ -1963,13 +1966,13 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                     ))}
                     {(() => {
                       const existing = new Set(rulesData.filter(r => r.year == null).map(r => r.setting));
-                      const faPresets = ['fa_trade_deadline', 'fa_pickup_fee'].filter(k => !existing.has(k));
+                      const faPresets = ['fa_trade_deadline', 'fa_pickup_fee', 'limit_ir'].filter(k => !existing.has(k));
                       const presets = Array.from({ length: 10 }, (_, i) => `draft_clock_round_${i + 1}`).filter(k => !existing.has(k));
                       return (
                         <>
                           {faPresets.length > 0 && (
                             <>
-                              <option disabled>— Free Agency Presets —</option>
+                              <option disabled>— Free Agency / Roster Presets —</option>
                               {faPresets.map(k => <option key={k} value={k}>{k}</option>)}
                             </>
                           )}
@@ -1990,7 +1993,13 @@ const MaintenanceClient = ({ isSuperuser = false }: { isSuperuser?: boolean }) =
                 <label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Value</label>
                 <input
                   type="text"
-                  placeholder={newRule.setting === 'fa_trade_deadline' ? 'e.g. 2026-11-03T16:00:00-05:00' : 'e.g. 12'}
+                  placeholder={
+                    newRule.setting === 'fa_trade_deadline'
+                      ? 'e.g. 2026-11-03T16:00:00-05:00'
+                      : newRule.setting === 'limit_ir'
+                        ? 'e.g. 5'
+                        : 'e.g. 12'
+                  }
                   value={newRule.value}
                   onChange={e => setNewRule(r => ({ ...r, value: e.target.value }))}
                   className={`px-3 py-2 rounded-xl border-2 border-slate-200 text-sm font-bold outline-none focus:border-emerald-400 ${

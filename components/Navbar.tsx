@@ -56,6 +56,7 @@ export default function Navbar() {
     { name: 'Press Box', href: '/press-box' },
     { name: 'Resources', href: '/resources' },
     { name: 'Directory', href: '/directory' },
+    { name: 'Polls', href: '/polls' },
     { name: 'Constitution', href: '/rules' },
   ];
 

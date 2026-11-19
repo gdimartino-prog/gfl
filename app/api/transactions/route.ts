@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { players, teams, transactions, rules, tradeBlock } from '@/schema';
-import { eq, and, isNull, inArray } from 'drizzle-orm';
+import { eq, and, isNull, inArray, sql } from 'drizzle-orm';
 import { logTransaction, getTransactions, updateTransactionStatus, updateTransactionConditional, updateTransactionDetails } from '@/lib/transactions';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { auth } from '@/auth';
@@ -12,6 +12,7 @@ import { NextRequest } from 'next/server';
 import { revertPickTransferByPickId } from '@/lib/draftPicks';
 import { restoreIRFlags } from '@/lib/maintenance';
 import { FA_DEADLINE_RULE, isFaDeadlinePassed, formatFaDeadlineET } from '@/lib/pickupRules';
+import { IR_LIMIT_RULE, resolveIrLimit, isIrCapReached } from '@/lib/irRules';
 
 export async function GET() {
   const session = await auth();
@@ -287,7 +288,7 @@ export async function POST(req: Request) {
         .where(and(
           eq(rules.leagueId, leagueId),
           isNull(rules.year),
-          inArray(rules.rule, [FA_DEADLINE_RULE, 'cuts_year', 'current_nfl_week']),
+          inArray(rules.rule, [FA_DEADLINE_RULE, IR_LIMIT_RULE, 'cuts_year', 'current_nfl_week']),
         )),
     ]);
 
@@ -346,10 +347,15 @@ export async function POST(req: Request) {
       }
     }
 
-    // IR restriction: cannot place a player on IR if they are already on IR;
+    // IR restriction: cannot place a free agent or already-IR player on IR;
     // during draft season, only players who haven't played any NFL games
     // (durability = 0) may be placed on IR.
     if (type === 'IR' || type === 'IR MOVE') {
+      if (player.teamId === null) {
+        return Response.json({
+          error: 'Cannot place a free agent on Injured Reserve (IR).',
+        }, { status: 400 });
+      }
       if (player.isIR) {
         return Response.json({
           error: 'Player is already on Injured Reserve (IR).',
@@ -362,6 +368,9 @@ export async function POST(req: Request) {
         }, { status: 400 });
       }
     }
+
+    const irLimit = resolveIrLimit(leagueId, globalRulesMap.get(IR_LIMIT_RULE));
+    let irOverrideNote = '';
 
     // Resolve current season from rules
     const seasonRaw = globalRulesMap.get('cuts_year');
@@ -376,6 +385,41 @@ export async function POST(req: Request) {
             .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
         }
       } else if (type === 'IR' || type === 'IR MOVE') {
+        // Lock the team's row to serialize concurrent IR placements for that team
+        await tx.select({ id: teams.id })
+          .from(teams)
+          .where(and(eq(teams.id, player.teamId!), eq(teams.leagueId, leagueId)))
+          .for('update');
+
+        const [freshPlayer, irCountRows] = await Promise.all([
+          tx.select({ isIR: players.isIR })
+            .from(players)
+            .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)))
+            .limit(1),
+          tx.select({ count: sql<number>`cast(count(*) as int)` })
+            .from(players)
+            .where(and(
+              eq(players.leagueId, leagueId),
+              eq(players.teamId, player.teamId!),
+              eq(players.isIR, true),
+            )),
+        ]);
+
+        if (freshPlayer[0]?.isIR) {
+          throw Object.assign(new Error('Player is already on Injured Reserve (IR).'), { status: 400 });
+        }
+
+        const currentIrCount = Number(irCountRows[0]?.count ?? 0);
+        if (isIrCapReached(currentIrCount, irLimit)) {
+          if (!privileged) {
+            throw Object.assign(
+              new Error(`Injured Reserve limit reached (${currentIrCount}/${irLimit}). Maximum ${irLimit} players allowed on IR per team.`),
+              { status: 403 },
+            );
+          }
+          irOverrideNote = ` [Commissioner IR cap override: ${currentIrCount + 1}/${irLimit}]`;
+        }
+
         newTeamId = player.teamId ?? null; // stays on same team, isIR flag would be set
         await tx.update(players).set({ isIR: true, touch_id: 'transaction', touch_dt: new Date() })
           .where(and(eq(players.id, player.id), eq(players.leagueId, leagueId)));
@@ -408,7 +452,7 @@ export async function POST(req: Request) {
     revalidateTag('transactions', 'max');
     revalidateTag('players', 'max');
     revalidateTag('trade-block', 'max'); // player may have been delisted above
-    await logSystemEvent(actorName, resolvedFromTeam, type, details || identity, leagueId);
+    await logSystemEvent(actorName, resolvedFromTeam, type, `${details || identity}${irOverrideNote}`, leagueId);
 
     if (type === 'IR' || type === 'IR MOVE') {
       await restoreIRFlags(leagueId);
@@ -424,6 +468,15 @@ export async function POST(req: Request) {
 
     return Response.json({ success: true });
   } catch (err: unknown) {
+    const errStatus = typeof (err as { status?: unknown })?.status === 'number'
+      ? (err as { status: number }).status
+      : null;
+    if (errStatus === 400 || errStatus === 403) {
+      return Response.json(
+        { error: err instanceof Error ? err.message : 'Request rejected' },
+        { status: errStatus },
+      );
+    }
     console.error('[Transactions POST]', err);
     return Response.json({ error: 'Internal Server Error' }, { status: 500 });
   }

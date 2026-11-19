@@ -9,7 +9,9 @@ import {
   boolean,
   jsonb,
   unique,
+  uniqueIndex,
   index,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
@@ -302,6 +304,59 @@ export const draftAutoPickQueue = pgTable("draft_auto_pick_queue", {
   unique("draft_auto_pick_queue_unique_player").on(table.leagueId, table.teamId, table.playerId, table.year, table.draftType),
 ]);
 
+// League Polls (Constitution E9–E13)
+export const polls = pgTable("polls", {
+  id: serial("id").primaryKey(),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
+  title: varchar("title", { length: 256 }).notNull(),
+  description: text("description"),
+  pollType: varchar("poll_type", { length: 30 }).notNull().default("rule_change"),
+  status: varchar("status", { length: 30 }).notNull().default("open"),
+  effectiveSeason: integer("effective_season"),
+  constitutionRef: varchar("constitution_ref", { length: 100 }),
+  parentPollId: integer("parent_poll_id").references((): AnyPgColumn => polls.id, { onDelete: "set null" }),
+  winnerOptionId: integer("winner_option_id"),
+  eligibleTeamCount: integer("eligible_team_count"),
+  closesAt: timestamp("closes_at").notNull(),
+  closedAt: timestamp("closed_at"),
+  lastReminderAt: timestamp("last_reminder_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdBy: varchar("created_by", { length: 256 }).notNull(),
+  touch_dt: timestamp("touch_dt").defaultNow().notNull(),
+  touch_id: varchar("touch_id", { length: 256 }),
+}, (table) => [
+  index("polls_league_status_closes_idx").on(table.leagueId, table.status, table.closesAt),
+  index("polls_parent_poll_idx").on(table.parentPollId),
+]);
+
+export const pollOptions = pgTable("poll_options", {
+  id: serial("id").primaryKey(),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
+  pollId: integer("poll_id").references(() => polls.id, { onDelete: "cascade" }).notNull(),
+  label: varchar("label", { length: 256 }).notNull(),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  touch_dt: timestamp("touch_dt").defaultNow().notNull(),
+  touch_id: varchar("touch_id", { length: 256 }),
+}, (table) => [
+  index("poll_options_poll_idx").on(table.leagueId, table.pollId, table.sortOrder),
+]);
+
+export const pollVotes = pgTable("poll_votes", {
+  id: serial("id").primaryKey(),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
+  pollId: integer("poll_id").references(() => polls.id, { onDelete: "cascade" }).notNull(),
+  optionId: integer("option_id").references(() => pollOptions.id, { onDelete: "cascade" }).notNull(),
+  teamId: integer("team_id").references(() => teams.id, { onDelete: "cascade" }).notNull(),
+  castBy: varchar("cast_by", { length: 256 }).notNull(),
+  isProxy: boolean("is_proxy").default(false).notNull(),
+  votedAt: timestamp("voted_at").defaultNow().notNull(),
+  touch_dt: timestamp("touch_dt").defaultNow().notNull(),
+  touch_id: varchar("touch_id", { length: 256 }),
+}, (table) => [
+  uniqueIndex("poll_votes_poll_team_unique").on(table.pollId, table.teamId),
+  index("poll_votes_league_poll_idx").on(table.leagueId, table.pollId),
+]);
+
 // Relationships
 
 export const leaguesRelations = relations(leagues, ({ many }) => ({
@@ -318,6 +373,31 @@ export const leaguesRelations = relations(leagues, ({ many }) => ({
   tradeBlock: many(tradeBlock),
   auditLog: many(auditLog),
   draftAutoPickQueue: many(draftAutoPickQueue),
+  polls: many(polls),
+}));
+
+export const pollsRelations = relations(polls, ({ one, many }) => ({
+  league: one(leagues, { fields: [polls.leagueId], references: [leagues.id] }),
+  parentPoll: one(polls, {
+    fields: [polls.parentPollId],
+    references: [polls.id],
+    relationName: "poll_runoff",
+  }),
+  options: many(pollOptions),
+  votes: many(pollVotes),
+}));
+
+export const pollOptionsRelations = relations(pollOptions, ({ one, many }) => ({
+  league: one(leagues, { fields: [pollOptions.leagueId], references: [leagues.id] }),
+  poll: one(polls, { fields: [pollOptions.pollId], references: [polls.id] }),
+  votes: many(pollVotes),
+}));
+
+export const pollVotesRelations = relations(pollVotes, ({ one }) => ({
+  league: one(leagues, { fields: [pollVotes.leagueId], references: [leagues.id] }),
+  poll: one(polls, { fields: [pollVotes.pollId], references: [polls.id] }),
+  option: one(pollOptions, { fields: [pollVotes.optionId], references: [pollOptions.id] }),
+  team: one(teams, { fields: [pollVotes.teamId], references: [teams.id] }),
 }));
 
 export const teamsRelations = relations(teams, ({ one, many }) => ({

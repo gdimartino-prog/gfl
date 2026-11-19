@@ -429,3 +429,200 @@ export async function notifyTradeBlock({
     );
   }
 }
+
+function formatEasternDateTime(date: Date): string {
+  return date.toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  });
+}
+
+export async function notifyPollOpened({
+  title,
+  description,
+  pollType,
+  options,
+  closesAt,
+  isRunoff = false,
+  leagueId,
+}: {
+  title: string;
+  description?: string | null;
+  pollType: string;
+  options: string[];
+  closesAt: Date;
+  isRunoff?: boolean;
+  leagueId: number;
+}) {
+  if (leagueId !== 1) {
+    console.log('[notify] skipping poll opened notification for leagueId:', leagueId);
+    return;
+  }
+
+  const closesET = formatEasternDateTime(closesAt);
+  const kindLabel = isRunoff
+    ? 'Runoff Poll (E11)'
+    : pollType === 'rule_change'
+      ? 'Rule Change Proposal (E12)'
+      : 'League Poll';
+  const subject = isRunoff ? `GFL Runoff Poll: ${title.slice(0, 90)}` : `GFL Poll Open: ${title.slice(0, 90)}`;
+
+  const optionsHtml = options.map((opt) => `<li style="margin:4px 0;">${escapeHtml(opt)}</li>`).join('');
+  const optionsText = options.map((opt, idx) => `${idx + 1}. ${opt}`).join('\n');
+
+  const html = `
+    <div style="max-width:560px;border:2px solid #0047AB;border-radius:12px;font-family:sans-serif;overflow:hidden;">
+      <div style="background:#0047AB;color:white;padding:10px;text-align:center;">
+        <p style="margin:0;font-size:12px;font-weight:bold;">GFL LEAGUE POLL — ${escapeHtml(kindLabel.toUpperCase())}</p>
+      </div>
+      <div style="padding:20px;">
+        <h2 style="margin:0 0 8px 0;color:#0f172a;">${escapeHtml(title)}</h2>
+        ${description ? `<p style="color:#475569;font-size:14px;line-height:1.5;margin:0 0 14px 0;">${escapeHtml(description)}</p>` : ''}
+        <p style="font-size:12px;font-weight:bold;color:#334155;margin-bottom:6px;text-transform:uppercase;">Ballot Choices</p>
+        <ol style="margin:0 0 16px 0;padding-left:20px;color:#1e293b;font-size:14px;">${optionsHtml}</ol>
+        <p style="font-size:13px;color:#334155;"><strong>Voting Closes:</strong> ${escapeHtml(closesET)}</p>
+        <p style="font-size:12px;color:#64748b;">Choices remain private until the poll closes; roll call tracks participation.</p>
+      </div>
+      <p style="text-align:center;padding:0 20px 20px;">
+        <a href="${GFL_URL}/polls" style="background:#0047AB;color:white;padding:12px 24px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;">Vote on GFL Polls</a>
+      </p>
+    </div>`;
+
+  const text = `${kindLabel}: ${title}\n${description ? `${description}\n\n` : '\n'}Choices:\n${optionsText}\n\nCloses: ${closesET}\nVote: ${GFL_URL}/polls`;
+
+  await sendEmail({ subject, html, text, leagueId });
+  await sendWhatsApp(
+    `🗳️ *${isRunoff ? 'GFL RUNOFF POLL' : 'NEW GFL POLL'}*\n----------------------------\n*${title}*${description ? `\n${description}` : ''}\n\n*Choices:*\n${optionsText}\n\n⏰ Closes: ${closesET}\n👉 ${GFL_URL}/polls`,
+    leagueId,
+  );
+}
+
+export async function notifyPollReminder({
+  title,
+  closesAt,
+  votesCast,
+  eligibleTeamCount,
+  nonVotedTeams,
+  leagueId,
+}: {
+  title: string;
+  closesAt: Date;
+  votesCast: number;
+  eligibleTeamCount: number;
+  nonVotedTeams: string[];
+  leagueId: number;
+}) {
+  if (leagueId !== 1) {
+    console.log('[notify] skipping poll reminder notification for leagueId:', leagueId);
+    return;
+  }
+
+  const closesET = formatEasternDateTime(closesAt);
+  const subject = `GFL Poll Reminder: ${title.slice(0, 90)}`;
+  const waitingHtml = nonVotedTeams.map((t) => `<li>${escapeHtml(t)}</li>`).join('');
+  const waitingText = nonVotedTeams.map((t) => `• ${t}`).join('\n');
+
+  const html = `
+    <div style="max-width:560px;border:2px solid #d97706;border-radius:12px;font-family:sans-serif;overflow:hidden;">
+      <div style="background:#d97706;color:white;padding:10px;text-align:center;">
+        <p style="margin:0;font-size:12px;font-weight:bold;">POLL VOTING REMINDER (E12)</p>
+      </div>
+      <div style="padding:20px;">
+        <h2 style="margin:0 0 8px 0;color:#0f172a;">${escapeHtml(title)}</h2>
+        <p style="font-size:13px;color:#334155;"><strong>Turnout:</strong> ${votesCast} of ${eligibleTeamCount} teams voted</p>
+        <p style="font-size:13px;color:#334155;"><strong>Closes:</strong> ${escapeHtml(closesET)}</p>
+        <p style="font-size:12px;font-weight:bold;color:#334155;margin:12px 0 6px 0;text-transform:uppercase;">Still Waiting On (${nonVotedTeams.length})</p>
+        <ul style="margin:0;padding-left:20px;color:#1e293b;font-size:13px;">${waitingHtml}</ul>
+      </div>
+      <p style="text-align:center;padding:0 20px 20px;">
+        <a href="${GFL_URL}/polls" style="background:#d97706;color:white;padding:12px 24px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;">Cast Your Vote</a>
+      </p>
+    </div>`;
+
+  const text = `POLL REMINDER: ${title}\nTurnout: ${votesCast}/${eligibleTeamCount}\nCloses: ${closesET}\n\nNot yet voted (${nonVotedTeams.length}):\n${waitingText}\n\nVote: ${GFL_URL}/polls`;
+
+  await sendEmail({ subject, html, text, leagueId });
+  await sendWhatsApp(
+    `⏳ *GFL POLL REMINDER*\n----------------------------\n*${title}*\nTurnout: ${votesCast}/${eligibleTeamCount}\nCloses: ${closesET}\n\n*Not yet voted:*\n${nonVotedTeams.join(', ')}\n\n👉 ${GFL_URL}/polls`,
+    leagueId,
+  );
+}
+
+export async function notifyPollFinalized({
+  title,
+  pollType,
+  status,
+  winnerLabel,
+  votesCast,
+  eligibleTeamCount,
+  optionTallies,
+  leagueId,
+}: {
+  title: string;
+  pollType: string;
+  status: string;
+  winnerLabel: string | null;
+  votesCast: number;
+  eligibleTeamCount: number;
+  optionTallies: { label: string; count: number; pct: number }[];
+  leagueId: number;
+}) {
+  if (leagueId !== 1) {
+    console.log('[notify] skipping poll finalized notification for leagueId:', leagueId);
+    return;
+  }
+
+  let outcomeHeadline = 'Poll Closed';
+  if (status === 'null_quorum') {
+    outcomeHeadline = 'Null Result — Quorum Not Met (Rule E13; Status Quo Remains)';
+  } else if (status === 'runoff_needed') {
+    outcomeHeadline = 'Runoff Required — No Choice Reached 50% + 1 (Rule E11)';
+  } else if (status === 'tied') {
+    outcomeHeadline = 'Tied — Status Quo Remains';
+  } else if (winnerLabel) {
+    outcomeHeadline = `Approved: ${winnerLabel}`;
+  } else if (pollType === 'general') {
+    outcomeHeadline = 'Closed — No Votes Cast';
+  }
+
+  const subject = `GFL Poll Result: ${title.slice(0, 80)}`;
+  const rowsHtml = optionTallies
+    .map(
+      (o) =>
+        `<tr><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;">${escapeHtml(o.label)}</td><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:bold;">${o.count} (${o.pct}%)</td></tr>`,
+    )
+    .join('');
+  const tallyText = optionTallies.map((o) => `• ${o.label}: ${o.count} (${o.pct}%)`).join('\n');
+
+  const html = `
+    <div style="max-width:560px;border:2px solid #0f172a;border-radius:12px;font-family:sans-serif;overflow:hidden;">
+      <div style="background:#0f172a;color:white;padding:10px;text-align:center;">
+        <p style="margin:0;font-size:12px;font-weight:bold;">GFL POLL OFFICIAL RESULTS</p>
+      </div>
+      <div style="padding:20px;">
+        <h2 style="margin:0 0 8px 0;color:#0f172a;">${escapeHtml(title)}</h2>
+        <p style="padding:10px 12px;background:#f1f5f9;border-radius:8px;font-weight:bold;color:#0f172a;">${escapeHtml(outcomeHeadline)}</p>
+        <p style="font-size:13px;color:#475569;"><strong>Turnout:</strong> ${votesCast} of ${eligibleTeamCount} teams</p>
+        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;">
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      </div>
+      <p style="text-align:center;padding:0 20px 20px;">
+        <a href="${GFL_URL}/polls" style="background:#0047AB;color:white;padding:12px 24px;text-decoration:none;border-radius:5px;font-weight:bold;display:inline-block;">View Full Vote Breakdown</a>
+      </p>
+    </div>`;
+
+  const text = `POLL RESULT: ${title}\n${outcomeHeadline}\nTurnout: ${votesCast}/${eligibleTeamCount}\n\nResults:\n${tallyText}\n\nDetails: ${GFL_URL}/polls`;
+
+  await sendEmail({ subject, html, text, leagueId });
+  await sendWhatsApp(
+    `📊 *GFL POLL RESULTS*\n----------------------------\n*${title}*\n*Outcome:* ${outcomeHeadline}\nTurnout: ${votesCast}/${eligibleTeamCount}\n\n${tallyText}\n\n🌐 ${GFL_URL}/polls`,
+    leagueId,
+  );
+}
