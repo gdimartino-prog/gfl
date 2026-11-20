@@ -3974,6 +3974,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 685,
+    "leagueId": 1,
+    "date": "2026-11-20T12:50:50.006Z",
+    "type": "INJURY PICKUP",
+    "description": "QB - Mitch Trubisky for injury to QB - Lamar Jackson in week 9 for 3 weeks",
+    "fromTeam": "FA",
+    "toTeam": "Tampa",
+    "owner": "Bill Kobus",
+    "status": "Pending",
+    "weekBack": 12,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-11-20T12:50:49.952Z",
+    "touch_id": "Bill Kobus"
+  },
+  {
     "id": 624,
     "leagueId": 1,
     "date": "2026-10-19T15:43:18.223Z",

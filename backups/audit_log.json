@@ -19150,5 +19150,608 @@
     "team": "Vico",
     "action": "LOGIN",
     "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2129,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:22:26.700Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 2130,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:22:50.713Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 2131,
+    "leagueId": 1,
+    "timestamp": "2026-11-19T17:22:53.094Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 2132,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:22:54.154Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_CREATED",
+    "details": "Poll #1: \"[QA] Playoff Seed Format 1795108973274\" (rule_change, 3 options, closes 2026-12-03T17:22:00.000Z)"
+  },
+  {
+    "id": 2133,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:22:55.159Z",
+    "coach": "Administrator",
+    "team": "AFL",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #1: \"[QA] Playoff Seed Format 1795108973274\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2134,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:23:00.475Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_DELETED",
+    "details": "Deleted poll #1: \"[QA] Playoff Seed Format 1795108973274\""
+  },
+  {
+    "id": 2135,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:37.235Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 2136,
+    "leagueId": 1,
+    "timestamp": "2026-11-19T17:26:39.804Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 2137,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:40.827Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_CREATED",
+    "details": "Poll #2: \"[QA] Playoff Seed Format 1795109199964\" (rule_change, 3 options, closes 2026-12-03T17:26:00.000Z)"
+  },
+  {
+    "id": 2138,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:41.907Z",
+    "coach": "Administrator",
+    "team": "AFL",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #2: \"[QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2139,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:43.187Z",
+    "coach": "Administrator",
+    "team": "CT",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #2: \"[QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2140,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:43.344Z",
+    "coach": "Administrator",
+    "team": "CK",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #2: \"[QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2141,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:43.498Z",
+    "coach": "Administrator",
+    "team": "DC",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #2: \"[QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2142,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:43.684Z",
+    "coach": "Administrator",
+    "team": "FPR",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #2: \"[QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2143,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:43.825Z",
+    "coach": "Administrator",
+    "team": "Kig",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #2: \"[QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2144,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:43.996Z",
+    "coach": "Administrator",
+    "team": "LV",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #2: \"[QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2145,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:44.137Z",
+    "coach": "Administrator",
+    "team": "LBI",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #2: \"[QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2146,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:44.370Z",
+    "coach": "Administrator",
+    "team": "LES",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #2: \"[QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2147,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:45.206Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_REMINDER_SENT",
+    "details": "Sent non-voter reminder for poll #2: \"[QA] Playoff Seed Format 1795109199964\" (9 pending)"
+  },
+  {
+    "id": 2148,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:45.623Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_FINALIZED",
+    "details": "Finalized poll #2: \"[QA] Playoff Seed Format 1795109199964\" → runoff_needed (9/18 votes)"
+  },
+  {
+    "id": 2149,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:46.257Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_RUNOFF_CREATED",
+    "details": "Created runoff poll #3 (\"Runoff: [QA] Playoff Seed Format 1795109199964\") from parent poll #2: [Keep 8 Teams vs Expand to 10 Teams]"
+  },
+  {
+    "id": 2150,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:46.908Z",
+    "coach": "Administrator",
+    "team": "AFL",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2151,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:47.157Z",
+    "coach": "Administrator",
+    "team": "CT",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2152,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:47.360Z",
+    "coach": "Administrator",
+    "team": "CK",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2153,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:47.612Z",
+    "coach": "Administrator",
+    "team": "DC",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2154,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:47.789Z",
+    "coach": "Administrator",
+    "team": "FPR",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2155,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:47.958Z",
+    "coach": "Administrator",
+    "team": "Kig",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2156,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:48.159Z",
+    "coach": "Administrator",
+    "team": "LV",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2157,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:48.315Z",
+    "coach": "Administrator",
+    "team": "LBI",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2158,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:48.481Z",
+    "coach": "Administrator",
+    "team": "LES",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2159,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:49.342Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_FINALIZED",
+    "details": "Finalized poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\" → closed (9/18 votes, winner: \"Keep 8 Teams\")"
+  },
+  {
+    "id": 2163,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:27:53.912Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 2160,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:49.561Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_DELETED",
+    "details": "Deleted poll #2: \"[QA] Playoff Seed Format 1795109199964\""
+  },
+  {
+    "id": 2161,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:26:49.622Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_DELETED",
+    "details": "Deleted poll #3: \"Runoff: [QA] Playoff Seed Format 1795109199964\""
+  },
+  {
+    "id": 2162,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:27:09.068Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 2167,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:01.637Z",
+    "coach": "Administrator",
+    "team": "CT",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #4: \"[QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2168,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:01.820Z",
+    "coach": "Administrator",
+    "team": "CK",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #4: \"[QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2169,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:01.995Z",
+    "coach": "Administrator",
+    "team": "DC",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #4: \"[QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2170,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:02.191Z",
+    "coach": "Administrator",
+    "team": "FPR",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #4: \"[QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2171,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:02.452Z",
+    "coach": "Administrator",
+    "team": "Kig",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #4: \"[QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2172,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:02.654Z",
+    "coach": "Administrator",
+    "team": "LV",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #4: \"[QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2173,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:02.869Z",
+    "coach": "Administrator",
+    "team": "LBI",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #4: \"[QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2174,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:03.086Z",
+    "coach": "Administrator",
+    "team": "LES",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #4: \"[QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2164,
+    "leagueId": 1,
+    "timestamp": "2026-11-19T17:27:57.660Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "LOGIN",
+    "details": "Superuser accessed Front Office"
+  },
+  {
+    "id": 2165,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:27:59.242Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_CREATED",
+    "details": "Poll #4: \"[QA] Playoff Seed Format 1795109278377\" (rule_change, 3 options, closes 2026-12-03T17:27:00.000Z)"
+  },
+  {
+    "id": 2166,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:00.565Z",
+    "coach": "Administrator",
+    "team": "AFL",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #4: \"[QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2175,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:04.015Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_REMINDER_SENT",
+    "details": "Sent non-voter reminder for poll #4: \"[QA] Playoff Seed Format 1795109278377\" (9 pending)"
+  },
+  {
+    "id": 2187,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:08.179Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_FINALIZED",
+    "details": "Finalized poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\" → closed (9/18 votes, winner: \"Keep 8 Teams\")"
+  },
+  {
+    "id": 2176,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:04.481Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_FINALIZED",
+    "details": "Finalized poll #4: \"[QA] Playoff Seed Format 1795109278377\" → runoff_needed (9/18 votes)"
+  },
+  {
+    "id": 2177,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:05.147Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_RUNOFF_CREATED",
+    "details": "Created runoff poll #5 (\"Runoff: [QA] Playoff Seed Format 1795109278377\") from parent poll #4: [Keep 8 Teams vs Expand to 10 Teams]"
+  },
+  {
+    "id": 2178,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:05.624Z",
+    "coach": "Administrator",
+    "team": "AFL",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2179,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:05.856Z",
+    "coach": "Administrator",
+    "team": "CT",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2180,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:06.092Z",
+    "coach": "Administrator",
+    "team": "CK",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2181,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:06.322Z",
+    "coach": "Administrator",
+    "team": "DC",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2182,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:06.523Z",
+    "coach": "Administrator",
+    "team": "FPR",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2183,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:06.724Z",
+    "coach": "Administrator",
+    "team": "Kig",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2184,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:06.894Z",
+    "coach": "Administrator",
+    "team": "LV",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2185,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:07.068Z",
+    "coach": "Administrator",
+    "team": "LBI",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2186,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:07.298Z",
+    "coach": "Administrator",
+    "team": "LES",
+    "action": "POLL_PROXY_VOTE",
+    "details": "Poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\" — ballot recorded (Commissioner proxy)"
+  },
+  {
+    "id": 2188,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:08.771Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_DELETED",
+    "details": "Deleted poll #4: \"[QA] Playoff Seed Format 1795109278377\""
+  },
+  {
+    "id": 2189,
+    "leagueId": 2,
+    "timestamp": "2026-11-19T17:28:08.834Z",
+    "coach": "Administrator",
+    "team": "System",
+    "action": "POLL_DELETED",
+    "details": "Deleted poll #5: \"Runoff: [QA] Playoff Seed Format 1795109278377\""
+  },
+  {
+    "id": 2190,
+    "leagueId": 1,
+    "timestamp": "2026-11-20T02:57:03.286Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 2191,
+    "leagueId": 1,
+    "timestamp": "2026-11-20T12:50:50.048Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "QB - Mitch Trubisky for injury to QB - Lamar Jackson in week 9 for 3 weeks"
+  },
+  {
+    "id": 2192,
+    "leagueId": 1,
+    "timestamp": "2026-11-20T12:50:51.066Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ Tampa (QB) · Nov 20, 7:50 AM"
+  },
+  {
+    "id": 2193,
+    "leagueId": 1,
+    "timestamp": "2026-11-20T12:50:51.419Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Tampa:*\n• QB - Mitch Trubisky for injury to QB - Lamar Jackson in week 9 for 3 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2194,
+    "leagueId": 1,
+    "timestamp": "2026-11-20T13:00:16.072Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 10 (2026)*\n----------------------------------\n\n*WEEK 10*\n🏈 Amalfi @ Pyongyang - PENDING\n🏈 Crimson @ Newark Bay - Final: 14-28\n🏈 Old Bridge @ LE - Final: 21-14\n🏈 Jefferson @ Vico - Final: 33-14\n🏈 Fur Peace @ Urban - PENDING\n🏈 Kigali @ Carolina - Final: 6-23\n\n*WEEK 11"
+  },
+  {
+    "id": 2195,
+    "leagueId": 1,
+    "timestamp": "2026-11-20T13:00:17.921Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 10"
   }
 ]

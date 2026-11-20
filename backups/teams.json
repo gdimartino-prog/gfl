@@ -220,22 +220,22 @@
     "status": "active"
   },
   {
-    "id": 53,
-    "leagueId": 1,
-    "name": "Satriale",
-    "coach": "Tom Fusillo",
-    "teamshort": "SG",
-    "nickname": "Gabagool",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 51,
     "leagueId": 1,
     "name": "Newark Bay",
     "coach": "Phil Matsikoudis",
     "teamshort": "NBT",
     "nickname": "Tanks",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 53,
+    "leagueId": 1,
+    "name": "Satriale",
+    "coach": "Tom Fusillo",
+    "teamshort": "SG",
+    "nickname": "Gabagool",
     "isCommissioner": false,
     "status": "active"
   },

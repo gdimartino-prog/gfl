@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-11-19T15-37-18",
-  "totalRows": 12922,
+  "timestamp": "2026-11-20T15-16-26",
+  "totalRows": 12991,
   "tables": [
     "leagues",
     "teams",
@@ -16,6 +16,9 @@
     "audit_log",
     "draft_pick_transfers",
     "draft_auto_pick_queue",
-    "nfl_draft"
+    "nfl_draft",
+    "polls",
+    "poll_options",
+    "poll_votes"
   ]
 }
