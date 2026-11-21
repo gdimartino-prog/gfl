@@ -220,16 +220,6 @@
     "status": "active"
   },
   {
-    "id": 51,
-    "leagueId": 1,
-    "name": "Newark Bay",
-    "coach": "Phil Matsikoudis",
-    "teamshort": "NBT",
-    "nickname": "Tanks",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 53,
     "leagueId": 1,
     "name": "Satriale",
@@ -240,22 +230,22 @@
     "status": "active"
   },
   {
-    "id": 46,
-    "leagueId": 1,
-    "name": "Kigali",
-    "coach": "Bill Matsikoudis",
-    "teamshort": "Kig",
-    "nickname": "Rhinos",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 94,
     "leagueId": 2,
     "name": "Fur Peace",
     "coach": "Chad Cooper",
     "teamshort": "FPR",
     "nickname": "Ranch",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 51,
+    "leagueId": 1,
+    "name": "Newark Bay",
+    "coach": "Phil Matsikoudis",
+    "teamshort": "NBT",
+    "nickname": "Tanks",
     "isCommissioner": false,
     "status": "active"
   },
@@ -336,6 +326,16 @@
     "coach": "Anthony Carter",
     "teamshort": "DC",
     "nickname": "Capital",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 46,
+    "leagueId": 1,
+    "name": "Kigali",
+    "coach": "Bill Matsikoudis",
+    "teamshort": "Kig",
+    "nickname": "Rhinos",
     "isCommissioner": false,
     "status": "active"
   },

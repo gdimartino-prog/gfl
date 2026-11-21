@@ -4508,6 +4508,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 686,
+    "leagueId": 1,
+    "date": "2026-11-21T01:58:07.152Z",
+    "type": "INJURY PICKUP",
+    "description": "WR - Tyler Lockett for injury to WR/KR - Rome Odunze in week 10 for 5 weeks",
+    "fromTeam": "FA",
+    "toTeam": "Kigali",
+    "owner": "Bill Matsikoudis",
+    "status": "Pending",
+    "weekBack": 15,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-11-21T01:58:07.105Z",
+    "touch_id": "Bill Matsikoudis"
+  },
+  {
     "id": 518,
     "leagueId": 1,
     "date": "2026-09-08T22:31:45.266Z",

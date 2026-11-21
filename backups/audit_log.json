@@ -19753,5 +19753,68 @@
     "team": "EMAIL",
     "action": "ALERT_SENT",
     "details": "GFL Update: 2026 Week 10"
+  },
+  {
+    "id": 2196,
+    "leagueId": 2,
+    "timestamp": "2026-11-20T18:05:26.426Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 2197,
+    "leagueId": 2,
+    "timestamp": "2026-11-20T18:05:45.398Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 2198,
+    "leagueId": 1,
+    "timestamp": "2026-11-21T01:28:19.241Z",
+    "coach": "Phil Matsikoudis",
+    "team": "NBT",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded NEWARK_BAY.COA"
+  },
+  {
+    "id": 2199,
+    "leagueId": 1,
+    "timestamp": "2026-11-21T01:58:07.216Z",
+    "coach": "Bill Matsikoudis",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "WR - Tyler Lockett for injury to WR/KR - Rome Odunze in week 10 for 5 weeks"
+  },
+  {
+    "id": 2200,
+    "leagueId": 1,
+    "timestamp": "2026-11-21T01:58:07.953Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ Kigali (WR) · Nov 20, 8:58 PM"
+  },
+  {
+    "id": 2201,
+    "leagueId": 1,
+    "timestamp": "2026-11-21T01:58:08.311Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Kigali:*\n• WR - Tyler Lockett for injury to WR/KR - Rome Odunze in week 10 for 5 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2202,
+    "leagueId": 1,
+    "timestamp": "2026-11-21T02:28:59.843Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kig",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded KIGALI.COA"
   }
 ]
