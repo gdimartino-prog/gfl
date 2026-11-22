@@ -19816,5 +19816,23 @@
     "team": "Kig",
     "action": "COA_UPLOAD",
     "details": "Uploaded KIGALI.COA"
+  },
+  {
+    "id": 2203,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T01:53:59.880Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kig",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded KIGALI.COA"
+  },
+  {
+    "id": 2204,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T02:16:09.844Z",
+    "coach": "Jack Wyville",
+    "team": "FPR",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded FUR_PEACE.COA"
   }
 ]

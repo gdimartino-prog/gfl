@@ -1,15 +1,5 @@
 [
   {
-    "id": 38,
-    "leagueId": 1,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "11",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-04T16:08:49.166Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
     "id": 46,
     "leagueId": 2,
     "year": null,
@@ -400,6 +390,16 @@
     "touch_id": "maintenance"
   },
   {
+    "id": 62,
+    "leagueId": 2,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "11",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-05T15:35:08.929Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
     "id": 37,
     "leagueId": 1,
     "year": null,
@@ -420,6 +420,16 @@
     "touch_id": "maintenance"
   },
   {
+    "id": 71,
+    "leagueId": 3,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "11",
+    "desc": null,
+    "touch_dt": "2026-03-25T12:38:20.671Z",
+    "touch_id": "cron-nfl-week"
+  },
+  {
     "id": 24,
     "leagueId": 1,
     "year": null,
@@ -428,6 +438,16 @@
     "desc": "Current season, this is used for Cuts",
     "touch_dt": "2026-03-04T16:08:49.166Z",
     "touch_id": "maintenance"
+  },
+  {
+    "id": 38,
+    "leagueId": 1,
+    "year": null,
+    "rule": "current_nfl_week",
+    "value": "11",
+    "desc": "Current NFL Week",
+    "touch_dt": "2026-03-04T16:08:49.166Z",
+    "touch_id": "cron-nfl-week"
   },
   {
     "id": 49,
@@ -518,25 +538,5 @@
     "desc": "Deadline for paid Free Agent (ADD) pickups (NFL Trade Deadline)",
     "touch_dt": "2026-11-18T21:44:47.307Z",
     "touch_id": "setup"
-  },
-  {
-    "id": 62,
-    "leagueId": 2,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "11",
-    "desc": "Current NFL Week",
-    "touch_dt": "2026-03-05T15:35:08.929Z",
-    "touch_id": "cron-nfl-week"
-  },
-  {
-    "id": 71,
-    "leagueId": 3,
-    "year": null,
-    "rule": "current_nfl_week",
-    "value": "11",
-    "desc": null,
-    "touch_dt": "2026-03-25T12:38:20.671Z",
-    "touch_id": "cron-nfl-week"
   }
 ]

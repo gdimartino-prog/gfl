@@ -220,12 +220,32 @@
     "status": "active"
   },
   {
+    "id": 46,
+    "leagueId": 1,
+    "name": "Kigali",
+    "coach": "Bill Matsikoudis",
+    "teamshort": "Kig",
+    "nickname": "Rhinos",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
     "id": 53,
     "leagueId": 1,
     "name": "Satriale",
     "coach": "Tom Fusillo",
     "teamshort": "SG",
     "nickname": "Gabagool",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 45,
+    "leagueId": 1,
+    "name": "Fur Peace",
+    "coach": "Jack Wyville",
+    "teamshort": "FPR",
+    "nickname": "Ranchers",
     "isCommissioner": false,
     "status": "active"
   },
@@ -310,32 +330,12 @@
     "status": "active"
   },
   {
-    "id": 45,
-    "leagueId": 1,
-    "name": "Fur Peace",
-    "coach": "Jack Wyville",
-    "teamshort": "FPR",
-    "nickname": "Ranchers",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 88,
     "leagueId": 2,
     "name": "DC",
     "coach": "Anthony Carter",
     "teamshort": "DC",
     "nickname": "Capital",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 46,
-    "leagueId": 1,
-    "name": "Kigali",
-    "coach": "Bill Matsikoudis",
-    "teamshort": "Kig",
-    "nickname": "Rhinos",
     "isCommissioner": false,
     "status": "active"
   },
