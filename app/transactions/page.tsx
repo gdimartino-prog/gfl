@@ -18,6 +18,9 @@ import {
   Pencil,
   HeartPulse,
   Lock,
+  ChevronUp,
+  ChevronDown,
+  ChevronsUpDown,
 } from 'lucide-react';
 import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
@@ -30,6 +33,18 @@ import { useLeague } from '@/context/LeagueContext';
 import { Team } from '@/types';
 import { FA_DEADLINE_RULE, isFaDeadlinePassed, formatFaDeadlineET } from '@/lib/pickupRules';
 import { IR_LIMIT_RULE, resolveIrLimit } from '@/lib/irRules';
+import { sortTransactions, DEFAULT_SORT_DIR, TransactionSortKey, SortDir } from '@/lib/transactionSort';
+
+const LOG_COLUMNS: { key: TransactionSortKey; label: string; align: 'left' | 'center' }[] = [
+  { key: 'timestamp', label: 'Timestamp', align: 'left' },
+  { key: 'type', label: 'Operation', align: 'left' },
+  { key: 'details', label: 'Details', align: 'left' },
+  { key: 'fromFull', label: 'From', align: 'left' },
+  { key: 'toFull', label: 'To', align: 'left' },
+  { key: 'weekBack', label: 'Week', align: 'center' },
+  { key: 'fee', label: 'Fee', align: 'center' },
+  { key: 'status', label: 'Status', align: 'center' },
+];
 
 const STATUS_STYLES: Record<string, string> = {
   'Done':    'bg-emerald-100 text-emerald-700',
@@ -50,6 +65,11 @@ export default function TransactionsPage() {
   const [filterTeam, setFilterTeam] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [sortState, setSortState] = useState<{ key: TransactionSortKey; dir: SortDir }>({
+    key: 'timestamp',
+    dir: 'desc',
+  });
+  const { key: sortKey, dir: sortDir } = sortState;
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState<'FA' | 'INJURY' | 'DROP' | 'IR' | 'TRADE'>('FA');
   const [faPickupFee, setFaPickupFee] = useState(0);
@@ -299,7 +319,7 @@ export default function TransactionsPage() {
 
   const handleExportCsv = () => {
     const headers = ['Timestamp', 'Type', 'Details', 'Conditional', 'From', 'To', 'Week', 'Fee', 'Status', 'Coach'];
-    const rows = filteredLogs.map(log => [
+    const rows = sortedLogs.map(log => [
       log.timestamp || '',
       log.type || '',
       log.details || '',
@@ -326,6 +346,14 @@ export default function TransactionsPage() {
     setRefreshKey(prev => prev + 1);
   };
 
+  const handleSort = useCallback((key: TransactionSortKey) => {
+    setSortState(prev =>
+      prev.key === key
+        ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
+        : { key, dir: DEFAULT_SORT_DIR[key] },
+    );
+  }, []);
+
   const filteredLogs = useMemo(() => {
     let safeLogs = Array.isArray(logs) ? logs : [];
     if (filterTeam) {
@@ -342,6 +370,11 @@ export default function TransactionsPage() {
     }
     return safeLogs;
   }, [logs, filterTeam, filterType, filterStatus]);
+
+  const sortedLogs = useMemo(
+    () => sortTransactions(filteredLogs, sortKey, sortDir),
+    [filteredLogs, sortKey, sortDir],
+  );
 
   // Available seasons for the spend report dropdown
   const availableSpendSeasons = useMemo(() => {
@@ -543,14 +576,17 @@ export default function TransactionsPage() {
               Transaction <span className="text-blue-600">Log</span>
             </h2>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2 ml-1">
-              {filteredLogs.length} record{filteredLogs.length !== 1 ? 's' : ''}
+              {sortedLogs.length} record{sortedLogs.length !== 1 ? 's' : ''}
               {(filterTeam || filterType || filterStatus) && ' · filtered'}
+              {!(sortKey === 'timestamp' && sortDir === 'desc') && (
+                <> · sorted by {LOG_COLUMNS.find(c => c.key === sortKey)?.label} {sortDir === 'asc' ? '↑' : '↓'}</>
+              )}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handleExportCsv}
-              disabled={filteredLogs.length === 0}
+              disabled={sortedLogs.length === 0}
               title="Export to CSV"
               className="bg-slate-900 text-white p-3 rounded-xl hover:bg-emerald-600 transition-all active:scale-95 shadow-lg disabled:opacity-40"
             >
@@ -637,24 +673,43 @@ export default function TransactionsPage() {
             <table className="w-full text-left">
               <thead className="bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.2em] sticky top-0 z-10">
                 <tr>
-                  <th className="px-6 py-5">Timestamp</th>
-                  <th className="px-6 py-5">Operation</th>
-                  <th className="px-6 py-5">Details</th>
-                  <th className="px-6 py-5">From</th>
-                  <th className="px-6 py-5">To</th>
-                  <th className="px-6 py-5 text-center">Week</th>
-                  <th className="px-6 py-5 text-center">Fee</th>
-                  <th className="px-6 py-5 text-center">Status</th>
+                  {LOG_COLUMNS.map(col => {
+                    const isActive = sortKey === col.key;
+                    return (
+                      <th
+                        key={col.key}
+                        aria-sort={isActive ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                        className={`px-6 py-5 ${col.align === 'center' ? 'text-center' : ''}`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleSort(col.key)}
+                          className={`inline-flex items-center gap-1.5 hover:text-blue-300 transition-colors cursor-pointer uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded ${
+                            col.align === 'center' ? 'justify-center' : ''
+                          } ${isActive ? 'text-blue-300' : ''}`}
+                        >
+                          <span>{col.label}</span>
+                          {isActive ? (
+                            sortDir === 'asc'
+                              ? <ChevronUp size={12} className="text-blue-400 shrink-0" />
+                              : <ChevronDown size={12} className="text-blue-400 shrink-0" />
+                          ) : (
+                            <ChevronsUpDown size={12} className="opacity-40 shrink-0" />
+                          )}
+                        </button>
+                      </th>
+                    );
+                  })}
                   {isCommissioner && <th className="px-6 py-5 text-center"></th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {loadingLogs ? (
                   <tr><td colSpan={isCommissioner ? 9 : 8} className="p-24 text-center text-slate-300 font-black uppercase animate-pulse italic">Synchronizing Records...</td></tr>
-                ) : filteredLogs.length === 0 ? (
+                ) : sortedLogs.length === 0 ? (
                   <tr><td colSpan={isCommissioner ? 9 : 8} className="p-24 text-center text-slate-300 italic font-black uppercase">No Recent Records</td></tr>
-                ) : filteredLogs.map((log, i) => (
-                  <React.Fragment key={i}>
+                ) : sortedLogs.map((log, i) => (
+                  <React.Fragment key={log.id ?? i}>
                   <tr className={`text-[11px] hover:bg-slate-50 transition-colors ${log.coach === session?.user?.name ? 'bg-blue-50/30' : ''}`}>
                     <td className="px-6 py-5 font-mono text-slate-400 tabular-nums whitespace-nowrap">{log.timestamp}</td>
                     <td className="px-6 py-5">

@@ -26,6 +26,7 @@ export async function GET() {
       timestamp: t.date
         ? new Date(t.date).toLocaleString('en-US', { timeZone: 'America/New_York' })
         : '',
+      dateIso: t.date ? new Date(t.date).toISOString() : '',
       type: t.type || '',
       details: t.description || '',
       fromFull: t.fromTeam || '',
