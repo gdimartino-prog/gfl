@@ -8,6 +8,8 @@ import {
   extractUnitGroups,
   isInjuryPositionMatch,
   matchesPositionFilter,
+  computeCurrentLeagueWeek,
+  isInjuryPickupDueBack,
 } from '../lib/pickupRules';
 
 test('parseFaDeadline and isFaDeadlinePassed handle empty, invalid, ISO, and date-only strings', () => {
@@ -119,4 +121,36 @@ test('matchesPositionFilter evaluates MATCH unit groups, unit filters, and ALL',
   assert.equal(matchesPositionFilter(candidateIlb, 'LB'), true);
   assert.equal(matchesPositionFilter(candidateK, 'K/P'), true);
   assert.equal(matchesPositionFilter(candidateK, 'ALL'), true);
+});
+
+test('computeCurrentLeagueWeek subtracts schedule_due and returns null in offseason or invalid inputs', () => {
+  assert.equal(computeCurrentLeagueWeek('11', '1'), 10);
+  assert.equal(computeCurrentLeagueWeek('11', '5'), 6);
+  assert.equal(computeCurrentLeagueWeek(11, null), 11);
+  assert.equal(computeCurrentLeagueWeek('11', ''), 11);
+  assert.equal(computeCurrentLeagueWeek('0', '1'), null);
+  assert.equal(computeCurrentLeagueWeek('3', '5'), null);
+  assert.equal(computeCurrentLeagueWeek(null, '1'), null);
+  assert.equal(computeCurrentLeagueWeek('abc', '1'), null);
+});
+
+test('isInjuryPickupDueBack flags On Team INJURY PICKUP rows when currentLeagueWeek >= weekBack', () => {
+  assert.equal(isInjuryPickupDueBack({ type: 'INJURY PICKUP', status: 'On Team', weekBack: 10 }, 10), true);
+  assert.equal(isInjuryPickupDueBack({ type: 'INJURY PICKUP', status: 'On Team', weekBack: '8' }, 10), true);
+  assert.equal(isInjuryPickupDueBack({ type: 'INJURY PICKUP', status: 'On Team', weekBack: '12' }, 10), false);
+
+  // Other statuses or types never highlight
+  assert.equal(isInjuryPickupDueBack({ type: 'INJURY PICKUP', status: 'Done', weekBack: 8 }, 10), false);
+  assert.equal(isInjuryPickupDueBack({ type: 'INJURY PICKUP', status: 'Pending', weekBack: 8 }, 10), false);
+  assert.equal(isInjuryPickupDueBack({ type: 'ADD', status: 'On Team', weekBack: 8 }, 10), false);
+  assert.equal(isInjuryPickupDueBack({ type: 'WAIVE', status: 'On Team', weekBack: 8 }, 10), false);
+  assert.equal(isInjuryPickupDueBack({ type: 'IR MOVE', status: 'On Team', weekBack: 8 }, 10), false);
+  assert.equal(isInjuryPickupDueBack({ type: 'TRADE', status: 'On Team', weekBack: 8 }, 10), false);
+
+  // Missing, zero, negative, or non-numeric weekBack and null currentLeagueWeek
+  assert.equal(isInjuryPickupDueBack({ type: 'INJURY PICKUP', status: 'On Team', weekBack: '' }, 10), false);
+  assert.equal(isInjuryPickupDueBack({ type: 'INJURY PICKUP', status: 'On Team', weekBack: 0 }, 10), false);
+  assert.equal(isInjuryPickupDueBack({ type: 'INJURY PICKUP', status: 'On Team', weekBack: '-8' }, 10), false);
+  assert.equal(isInjuryPickupDueBack({ type: 'INJURY PICKUP', status: 'On Team', weekBack: '10abc' }, 10), false);
+  assert.equal(isInjuryPickupDueBack({ type: 'INJURY PICKUP', status: 'On Team', weekBack: 10 }, null), false);
 });

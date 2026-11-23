@@ -21,6 +21,7 @@ import {
   ChevronUp,
   ChevronDown,
   ChevronsUpDown,
+  AlertTriangle,
 } from 'lucide-react';
 import FreeAgentPanel from './components/FreeAgentPanel';
 import DropPlayer from './components/DropPlayer';
@@ -31,7 +32,13 @@ import { useConfirm } from '@/components/ConfirmDialog';
 import { useTeam } from '@/context/TeamContext';
 import { useLeague } from '@/context/LeagueContext';
 import { Team } from '@/types';
-import { FA_DEADLINE_RULE, isFaDeadlinePassed, formatFaDeadlineET } from '@/lib/pickupRules';
+import {
+  FA_DEADLINE_RULE,
+  isFaDeadlinePassed,
+  formatFaDeadlineET,
+  computeCurrentLeagueWeek,
+  isInjuryPickupDueBack,
+} from '@/lib/pickupRules';
 import { IR_LIMIT_RULE, resolveIrLimit } from '@/lib/irRules';
 import { sortTransactions, DEFAULT_SORT_DIR, TransactionSortKey, SortDir } from '@/lib/transactionSort';
 
@@ -75,6 +82,7 @@ export default function TransactionsPage() {
   const [faPickupFee, setFaPickupFee] = useState(0);
   const [faDeadlineRaw, setFaDeadlineRaw] = useState('');
   const [irLimitRaw, setIrLimitRaw] = useState<string | null>(null);
+  const [currentLeagueWeek, setCurrentLeagueWeek] = useState<number | null>(null);
   const [rulesLoaded, setRulesLoaded] = useState(false);
   const [teamsLoaded, setTeamsLoaded] = useState(false);
   const [savingStatus, setSavingStatus] = useState<string | null>(null);
@@ -139,6 +147,12 @@ export default function TransactionsPage() {
 
           const irRule = globalRule(IR_LIMIT_RULE);
           setIrLimitRaw(irRule?.value !== undefined ? String(irRule.value) : null);
+
+          const nflWeekRule = globalRule('current_nfl_week');
+          const scheduleDueRule = globalRule('schedule_due');
+          setCurrentLeagueWeek(
+            computeCurrentLeagueWeek(nflWeekRule?.value ?? null, scheduleDueRule?.value ?? null),
+          );
 
           const limit = globalRule('limit_roster');
           if (limit?.value) console.log(`✅ Transaction Terminal: Roster Limit set to ${limit.value}`);
@@ -376,6 +390,11 @@ export default function TransactionsPage() {
     [filteredLogs, sortKey, sortDir],
   );
 
+  const dueBackCount = useMemo(
+    () => (Array.isArray(logs) ? logs : []).filter(l => isInjuryPickupDueBack(l, currentLeagueWeek)).length,
+    [logs, currentLeagueWeek],
+  );
+
   // Available seasons for the spend report dropdown
   const availableSpendSeasons = useMemo(() => {
     const seasons = new Set<string>();
@@ -575,15 +594,33 @@ export default function TransactionsPage() {
               <Activity className="text-blue-600" size={32} />
               Transaction <span className="text-blue-600">Log</span>
             </h2>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2 ml-1">
+            <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest mt-2 ml-1">
               {sortedLogs.length} record{sortedLogs.length !== 1 ? 's' : ''}
+              {currentLeagueWeek !== null && ` · League Week ${currentLeagueWeek}`}
               {(filterTeam || filterType || filterStatus) && ' · filtered'}
               {!(sortKey === 'timestamp' && sortDir === 'desc') && (
                 <> · sorted by {LOG_COLUMNS.find(c => c.key === sortKey)?.label} {sortDir === 'asc' ? '↑' : '↓'}</>
               )}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {dueBackCount > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterStatus('On Team');
+                  setFilterType('INJURY PICKUP');
+                  setSortState({ key: 'weekBack', dir: 'asc' });
+                }}
+                title="Filter to Injury Pickups due back"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-red-100 hover:bg-red-200 border border-red-300 text-red-700 text-[10px] font-black uppercase tracking-widest transition-colors shadow-sm"
+              >
+                <AlertTriangle size={13} className="shrink-0" />
+                <span>
+                  {dueBackCount} Injury Pickup{dueBackCount !== 1 ? 's' : ''} Due Back (Wk {currentLeagueWeek})
+                </span>
+              </button>
+            )}
             <button
               onClick={handleExportCsv}
               disabled={sortedLogs.length === 0}
@@ -708,10 +745,20 @@ export default function TransactionsPage() {
                   <tr><td colSpan={isCommissioner ? 9 : 8} className="p-24 text-center text-slate-300 font-black uppercase animate-pulse italic">Synchronizing Records...</td></tr>
                 ) : sortedLogs.length === 0 ? (
                   <tr><td colSpan={isCommissioner ? 9 : 8} className="p-24 text-center text-slate-300 italic font-black uppercase">No Recent Records</td></tr>
-                ) : sortedLogs.map((log, i) => (
+                ) : sortedLogs.map((log, i) => {
+                  const isDueBack = isInjuryPickupDueBack(log, currentLeagueWeek);
+                  return (
                   <React.Fragment key={log.id ?? i}>
-                  <tr className={`text-[11px] hover:bg-slate-50 transition-colors ${log.coach === session?.user?.name ? 'bg-blue-50/30' : ''}`}>
-                    <td className="px-6 py-5 font-mono text-slate-400 tabular-nums whitespace-nowrap">{log.timestamp}</td>
+                  <tr className={`text-[11px] transition-colors ${
+                    isDueBack
+                      ? 'bg-red-50/80 hover:bg-red-100/70'
+                      : log.coach === session?.user?.name
+                        ? 'bg-blue-50/30 hover:bg-slate-50'
+                        : 'hover:bg-slate-50'
+                  }`}>
+                    <td className={`px-6 py-5 font-mono tabular-nums whitespace-nowrap ${
+                      isDueBack ? 'border-l-4 border-l-red-600 text-slate-600' : 'text-slate-400'
+                    }`}>{log.timestamp}</td>
                     <td className="px-6 py-5">
                       <span className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap ${
                         log.type === 'TRADE' ? 'bg-purple-100 text-purple-700' :
@@ -734,7 +781,18 @@ export default function TransactionsPage() {
                     <td className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase whitespace-nowrap">{log.fromFull || '—'}</td>
                     <td className="px-6 py-5 text-[10px] font-black text-slate-500 uppercase whitespace-nowrap">{log.toFull || '—'}</td>
                     <td className="px-6 py-5 text-center">
-                      <span className="font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl text-xs">{log.weekBack || '—'}</span>
+                      {isDueBack ? (
+                        <div className="inline-flex flex-col items-center gap-1">
+                          <span className="font-black text-red-700 bg-red-100 border border-red-300 px-3 py-1 rounded-xl text-xs">
+                            {log.weekBack}
+                          </span>
+                          <span className="text-[9px] font-black uppercase tracking-wider text-red-700 whitespace-nowrap">
+                            Due Back
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-xl text-xs">{log.weekBack || '—'}</span>
+                      )}
                     </td>
                     <td className="px-6 py-5 text-center">
                       {Number(log.fee) > 0
@@ -978,7 +1036,8 @@ export default function TransactionsPage() {
                     </tr>
                   )}
                   </React.Fragment>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -229,3 +229,55 @@ export function matchesPositionFilter(
   const tokens = extractPositionTokens(p);
   return tokens.some(t => allowed.includes(t));
 }
+
+export interface InjuryReturnCheckInput {
+  type?: string | null;
+  status?: string | null;
+  weekBack?: string | number | null;
+}
+
+/**
+ * Computes the active league week (`current_nfl_week - schedule_due`).
+ * Returns `null` when NFL week is unset or in preseason/offseason (`<= 0`),
+ * or when the resulting league week is `<= 0`.
+ */
+export function computeCurrentLeagueWeek(
+  nflWeekRaw?: string | number | null,
+  scheduleDueRaw?: string | number | null,
+): number | null {
+  if (nflWeekRaw === undefined || nflWeekRaw === null) return null;
+  const nflStr = String(nflWeekRaw).trim();
+  if (!/^-?\d+$/.test(nflStr)) return null;
+  const nflWeek = parseInt(nflStr, 10);
+  if (!Number.isFinite(nflWeek) || nflWeek <= 0) return null;
+
+  const dueStr = scheduleDueRaw !== undefined && scheduleDueRaw !== null ? String(scheduleDueRaw).trim() : '';
+  const scheduleDue = /^-?\d+$/.test(dueStr) ? parseInt(dueStr, 10) : 0;
+
+  const leagueWeek = nflWeek - scheduleDue;
+  return leagueWeek > 0 ? leagueWeek : null;
+}
+
+/**
+ * Returns `true` when an `INJURY PICKUP` transaction has status `On Team`,
+ * a positive integer `weekBack`, and `currentLeagueWeek >= weekBack`.
+ */
+export function isInjuryPickupDueBack(
+  tx: InjuryReturnCheckInput,
+  currentLeagueWeek: number | null,
+): boolean {
+  if (currentLeagueWeek === null || !Number.isFinite(currentLeagueWeek) || currentLeagueWeek < 1) {
+    return false;
+  }
+  if (String(tx.type ?? '').trim().toUpperCase() !== 'INJURY PICKUP') {
+    return false;
+  }
+  if (String(tx.status ?? '').trim().toLowerCase() !== 'on team') {
+    return false;
+  }
+  const rawWb = tx.weekBack !== undefined && tx.weekBack !== null ? String(tx.weekBack).trim() : '';
+  if (!/^\d+$/.test(rawWb)) return false;
+  const weekBack = parseInt(rawWb, 10);
+  if (!Number.isFinite(weekBack) || weekBack < 1) return false;
+  return currentLeagueWeek >= weekBack;
+}
