@@ -1,0 +1,103 @@
+[
+  {
+    "id": "2026-11-23-whats-new-changelog",
+    "date": "2026-11-23",
+    "category": "General",
+    "title": "In-App What's New Changelog",
+    "summary": "Added this What's New page so coaches and commissioners can see plain-English summaries of every new feature and fix as soon as it goes live. Click the What's New pill in the footer or the dashboard card anytime to catch up."
+  },
+  {
+    "id": "2026-11-23-injury-due-back-highlights",
+    "date": "2026-11-23",
+    "category": "Transactions",
+    "title": "Due-Back Alerts for Active Injury Pickups",
+    "summary": "Active On Team injury pickups whose injured player is due back in the current league week or earlier are now highlighted in red on the Transaction Log, with a one-click header button to filter straight to them."
+  },
+  {
+    "id": "2026-11-22-self-service-password-reset",
+    "date": "2026-11-22",
+    "category": "Account & Settings",
+    "title": "Self-Service Password Reset",
+    "summary": "Coaches who forget their password can now request a secure reset link right from the login page and set a new password by email without waiting on a commissioner."
+  },
+  {
+    "id": "2026-11-22-any-position-injury-pickups",
+    "date": "2026-11-22",
+    "category": "Transactions",
+    "title": "Any-Position Injury Pickups Allowed",
+    "summary": "Teams submitting an injury pickup can now sign any available free agent regardless of position, matching updated Constitution rule D5."
+  },
+  {
+    "id": "2026-11-22-transaction-log-sorting",
+    "date": "2026-11-22",
+    "category": "Transactions",
+    "title": "Sortable Transaction Log Columns",
+    "summary": "Every column in the Transaction Log table can now be sorted ascending or descending by clicking its header, making it easier to review moves by date, team, type, week, fee, or status."
+  },
+  {
+    "id": "2026-11-19-league-polls-and-ir-cap",
+    "date": "2026-11-19",
+    "category": "Polls",
+    "title": "League Polls & Voting + IR Roster Cap",
+    "summary": "Launched the League Polls page where coaches can vote on rule proposals and general polls with live quorum tracking and runoff support. Also added automatic enforcement of the 10-player Injured Reserve cap when placing players on IR."
+  },
+  {
+    "id": "2026-11-18-split-fa-and-injury-pickup-tabs",
+    "date": "2026-11-18",
+    "category": "Transactions",
+    "title": "Separate Free Agent & Injury Pickup Tabs + Deadline Check",
+    "summary": "Split the Add Player form into dedicated Free Agent Pickup and Injury Pickup tabs with confirmation prompts, and automatically enforced the league Free Agent pickup deadline while keeping Injury Pickups available all season."
+  },
+  {
+    "id": "2026-11-12-commissioner-weekly-update-button",
+    "date": "2026-11-12",
+    "category": "Commissioner",
+    "audience": "commissioners",
+    "title": "On-Demand Weekly Update Email Button",
+    "summary": "Added a Send Weekly Update button in the Commissioner panel so commissioners can send the weekly standings and schedule reminder email on demand at any time."
+  },
+  {
+    "id": "2026-11-10-roster-injury-exemption-and-hybrids",
+    "date": "2026-11-10",
+    "category": "Rosters",
+    "title": "Smarter Roster Counts for Injury Pickups & Hybrid Players",
+    "summary": "Active injury pickups no longer count against the 53-man active roster limit, multi-position hybrid players now appear under every position they qualify for, and teams can no longer accidentally place the same player on IR twice."
+  },
+  {
+    "id": "2026-11-09-failed-email-alert-banner",
+    "date": "2026-11-09",
+    "category": "Commissioner",
+    "audience": "commissioners",
+    "title": "Failed Email Alert Banner for Commissioners",
+    "summary": "Commissioners now see an alert banner whenever an automated league email fails to deliver, with built-in weekly retry and a dismiss option once resolved."
+  },
+  {
+    "id": "2026-10-24-top-players-depth-and-age-filters",
+    "date": "2026-10-24",
+    "category": "Schedule & Stats",
+    "title": "Depth Chart & Age Filters on League Top Players",
+    "summary": "Added NFL depth chart starter status and player age filters (plus age sorting) to the Top Players stats tables so coaches can quickly scout young players and active starters."
+  },
+  {
+    "id": "2026-10-21-schedule-bye-weeks",
+    "date": "2026-10-21",
+    "category": "Schedule & Stats",
+    "title": "Bye Week Teams Shown on League Schedule",
+    "summary": "Each week on the League Schedule page now clearly lists which teams are on a bye alongside that week's matchups."
+  },
+  {
+    "id": "2026-09-21-free-agent-rookie-and-position-filters",
+    "date": "2026-09-21",
+    "category": "Schedule & Stats",
+    "title": "Free Agent & Rookie Filtering in NFL Stats",
+    "summary": "Coaches can now filter NFL stats to show only available Free Agents, combine that filter with position filters, and see rookies clearly flagged or excluded from the free-agent pool."
+  },
+  {
+    "id": "2026-09-04-commissioner-transaction-editing",
+    "date": "2026-09-04",
+    "category": "Commissioner",
+    "audience": "commissioners",
+    "title": "Edit Transaction Details & Manage COA Files",
+    "summary": "Commissioners can edit a logged transaction's type, teams, details, week, or fee after submission, and can delete outdated Coaching Hub (.COA) uploads when needed."
+  }
+]

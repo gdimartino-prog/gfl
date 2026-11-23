@@ -1,6 +1,9 @@
+import Link from 'next/link';
 import { auth } from '@/auth';
 import { getLeagueId } from '@/lib/getLeagueId';
 import { getLeagueRow, getLeagueRuleValue } from '@/lib/getLeagueInfo';
+import { getLatestChangelogId } from '@/lib/changelog';
+import ChangelogNewBadge from '@/components/ChangelogNewBadge';
 
 const APP_BUILD_TIME = new Date().toLocaleString('en-US', {
   month: 'short',
@@ -13,6 +16,7 @@ const APP_BUILD_TIME = new Date().toLocaleString('en-US', {
 
 export default async function Footer() {
   const session = await auth();
+  const latestChangelogId = getLatestChangelogId();
 
   let leagueName = 'Football League';
   let syncTime: string | null = null;
@@ -59,15 +63,19 @@ export default async function Footer() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 shadow-sm">
+          <Link
+            href="/changelog"
+            className="flex items-center gap-3 min-h-[44px] bg-slate-50 hover:bg-blue-50/70 px-4 py-2 rounded-full border border-slate-200 hover:border-blue-300 shadow-sm transition-colors"
+          >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
             </span>
-            <span className="text-[10px] font-black uppercase tracking-tight text-slate-500">
-              App Build: <span className="text-slate-900">{APP_BUILD_TIME}</span>
+            <span className="text-[10px] font-black uppercase tracking-tight text-slate-600">
+              What&apos;s New · App Build: <span className="text-slate-900">{APP_BUILD_TIME}</span>
             </span>
-          </div>
+            <ChangelogNewBadge latestId={latestChangelogId} variant="pill" />
+          </Link>
         </div>
       </div>
     </footer>

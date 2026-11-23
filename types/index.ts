@@ -250,3 +250,24 @@ export interface PollsPayload {
   currentSeason: number | null;
   viewer: PollsViewer;
 }
+
+export type ChangelogCategory =
+  | 'Transactions'
+  | 'Rosters'
+  | 'Polls'
+  | 'Schedule & Stats'
+  | 'Draft'
+  | 'Account & Settings'
+  | 'Commissioner'
+  | 'General';
+
+export type ChangelogAudience = 'coaches' | 'commissioners';
+
+export interface ChangelogEntry {
+  id: string;
+  date: string; // YYYY-MM-DD
+  category: ChangelogCategory;
+  title: string;
+  summary: string;
+  audience?: ChangelogAudience;
+}

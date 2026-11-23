@@ -8,9 +8,12 @@ import { getLeagueId } from '@/lib/getLeagueId';
 import { getLeagueRow } from '@/lib/getLeagueInfo';
 import DemoLoginButton from '@/components/DemoLoginButton';
 import { getResources } from '@/lib/getResources';
+import { getLatestChangelogId } from '@/lib/changelog';
+import ChangelogNewBadge from '@/components/ChangelogNewBadge';
 
 export default async function HomePage() {
   const session = await auth();
+  const latestChangelogId = getLatestChangelogId();
 
   let leagueName = 'Football League';
   let leagueSlug = '';
@@ -143,6 +146,15 @@ export default async function HomePage() {
       color: 'border-sky-500',
       protected: false
     },
+    {
+      title: "What's New",
+      desc: 'Plain-English log of recent features, fixes, and improvements.',
+      href: '/changelog',
+      icon: '✨',
+      color: 'border-cyan-500',
+      protected: false,
+      showChangelogBadge: true,
+    },
     ...(photosResource?.url ? [{
       title: 'Player Photos',
       desc: 'Download Action PC Football player headshots for all GFL rosters (106×116 px).',
@@ -228,6 +240,9 @@ export default async function HomePage() {
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-2 py-1 rounded">
                         Not Configured
                       </span>
+                    )}
+                    {(card as { showChangelogBadge?: boolean }).showChangelogBadge && !isLocked && !isDisabled && (
+                      <ChangelogNewBadge latestId={latestChangelogId} variant="pill" />
                     )}
                   </div>
                   <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight leading-tight">

@@ -9,6 +9,13 @@ description: >-
 
 # Pre-push review pipeline
 
+## Step 0 — Update Changelog (`data/changelog.json`)
+
+For any user-facing change (features, UI updates, behavior/rule changes, or bug fixes visible to coaches/commissioners), prepend a short plain-English layman entry to `data/changelog.json` before running `verify:prepush`:
+- Required schema (enforced by `tests/changelog.test.ts`): unique `id`, `date` (`YYYY-MM-DD`, ordered newest-first), `category` (`Transactions` | `Rosters` | `Polls` | `Schedule & Stats` | `Draft` | `Account & Settings` | `Commissioner` | `General`), non-empty `title`, plain-English layman `summary` (no jargon/file names/PR mechanics), and optional `audience` (`coaches` | `commissioners`).
+- Skip for internal-only diffs (tests, refactors, tooling, docs, CI, backups).
+- Include the drafted changelog entry in your pre-push summary before asking **"Push?"**.
+
 ## Step 1 — Deterministic gate (parent agent, once)
 
 ```bash

@@ -62,16 +62,17 @@ Also ask when a request contradicts a rule here or a recorded decision (see "Int
 ## Pre-push review (every `git push`)
 
 1. Compute the diff: `git diff origin/main...HEAD` (add `git diff HEAD` for uncommitted work).
-2. **Deterministic gate** — enforced by `.githooks/pre-push` (enable once per clone with `git config core.hooksPath .githooks`) and, in Claude Code, by the `PreToolUse` hook in `scripts/claude-prepush-gate.mjs`: `npm run semgrep` must report **0 findings** and `npm test` must be green. Full CI-equivalent: `npm run verify:prepush` (lint + semgrep + test + build). Fix the underlying issue; never bypass the hook.
-3. **Reviewers, scoped to the diff, run in parallel** — definitions in `.claude/agents/*.md` (plain markdown, usable as prompts by any tool):
+2. **Changelog (`data/changelog.json`):** For any user-facing change (features, UI updates, behavior/rule changes, or bug fixes visible to coaches/commissioners), prepend a short plain-English layman entry (`id`, `date` `YYYY-MM-DD`, `category`, `title`, `summary`, optional `audience`) to `data/changelog.json` before running `verify:prepush` and show the drafted entry before asking **"Push?"**. Skip internal-only diffs (tests, refactors, tooling, docs, CI, backups).
+3. **Deterministic gate** — enforced by `.githooks/pre-push` (enable once per clone with `git config core.hooksPath .githooks`) and, in Claude Code, by the `PreToolUse` hook in `scripts/claude-prepush-gate.mjs`: `npm run semgrep` must report **0 findings** and `npm test` must be green. Full CI-equivalent: `npm run verify:prepush` (lint + semgrep + test + build). Fix the underlying issue; never bypass the hook.
+4. **Reviewers, scoped to the diff, run in parallel** — definitions in `.claude/agents/*.md` (plain markdown, usable as prompts by any tool):
    - **secops** — always. Owns the `Semgrep SAST Audit: <N> findings` attestation, `isPrivileged()`/`leagueId`/cache-header checks, secret scanning, input validation.
    - **finops** — when `app/api/**`, `lib/**`, `lib/gemini.ts`, `lib/notify.ts`, cron routes, Blob uploads, or any client polling/fetch loop changed. Skip for test-only/docs-only diffs. FinOps findings outrank Perf findings when they conflict, except `s-maxage` is never allowed on tenant-scoped routes.
    - **perf** — when `app/**` pages, `components/**`, `lib/**` readers, or any DB query changed.
    - **supabase-dba** — when `schema.ts`, `scripts/enable-rls.ts`, any `scripts/*` that writes to the DB, `drizzle/**`, or a raw `sql\`\`` fragment changed.
    - **ui-ux** — when a user-facing page/component changed materially (new page, layout, form, dialog, state).
    - **qa** (`.claude/agents/qa.md`) — when UI, auth/login, or interactive elements changed: TARGETED mode by default (Playwright on `/login` + affected routes); FULL mode (all pages) only when asked.
-4. Report a punch list by severity — 🔴 Critical / 🟠 High / 🟡 Medium / ⚪ Suggestion — with `file:line`, grouped by reviewer. Pre-existing issues outside the diff are noted, not blocking.
-5. Fix 🔴/🟠 SecOps/FinOps/DBA first and re-review; 🟡/⚪ may be deferred with user approval. Then ask **"Push?"** and wait for the explicit yes.
+5. Report a punch list by severity — 🔴 Critical / 🟠 High / 🟡 Medium / ⚪ Suggestion — with `file:line`, grouped by reviewer. Pre-existing issues outside the diff are noted, not blocking.
+6. Fix 🔴/🟠 SecOps/FinOps/DBA first and re-review; 🟡/⚪ may be deferred with user approval. Then ask **"Push?"** and wait for the explicit yes.
 
 Skip the review for `.md`-only or comment-only diffs (the deterministic gate still runs).
 
