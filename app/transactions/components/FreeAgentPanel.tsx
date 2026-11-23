@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import {
   Search,
   X,
-  AlertTriangle,
   HeartPulse,
   Lock,
   ArrowRight,
@@ -14,7 +13,6 @@ import { Player, Team } from '@/types';
 import { playerOptionLabel } from '@/lib/playerUtils';
 import {
   extractUnitGroups,
-  isInjuryPositionMatch,
   matchesPositionFilter,
 } from '@/lib/pickupRules';
 
@@ -171,7 +169,7 @@ export default function FreeAgentPanel({
     [freeAgents, selectedIdentity],
   );
 
-  const activePosFilter = mode === 'FA' && faPosFilter === 'MATCH' ? 'ALL' : faPosFilter;
+  const activePosFilter = (mode === 'FA' || !injuredPlayer) && faPosFilter === 'MATCH' ? 'ALL' : faPosFilter;
 
   const baseFilteredFreeAgents = useMemo(() => {
     const search = faSearch.toLowerCase();
@@ -224,13 +222,6 @@ export default function FreeAgentPanel({
     ? (injuredPlayer.name || `${injuredPlayer.first} ${injuredPlayer.last}`.trim())
     : '___';
 
-  const hasPositionMismatch = Boolean(
-    mode === 'INJURY' &&
-    injuredPlayer &&
-    selectedFa &&
-    !isInjuryPositionMatch(injuredPlayer, selectedFa),
-  );
-
   const entry = teamMetadata.find(
     t => (t.short || t.teamshort || '').toString().trim().toUpperCase() === activeCode,
   );
@@ -245,9 +236,7 @@ export default function FreeAgentPanel({
   function handleInjuredSelect(identity: string) {
     setInjuredIdentity(identity);
     setSubmitError(null);
-    if (identity) {
-      setFaPosFilter('MATCH');
-    } else if (faPosFilter === 'MATCH') {
+    if (!identity && faPosFilter === 'MATCH') {
       setFaPosFilter('ALL');
     }
   }
@@ -508,14 +497,6 @@ export default function FreeAgentPanel({
                     <span className="font-black text-emerald-700 text-right">$0 (Return to FA when healed)</span>
                   </div>
                 </div>
-                {hasPositionMismatch && (
-                  <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-left text-xs font-bold text-amber-900 flex items-start gap-2">
-                    <AlertTriangle size={16} className="shrink-0 mt-0.5 text-amber-700" />
-                    <span>
-                      Position Mismatch ({faPos} replacing {injuredPos}): League Rule D5 normally requires the same position. You may still submit — the Commissioner will verify this pickup.
-                    </span>
-                  </div>
-                )}
                 <p className="text-xs text-slate-600">
                   Submitting logs this pickup as Pending for Commissioner review and notifies the league.
                 </p>
@@ -555,7 +536,7 @@ export default function FreeAgentPanel({
           </h3>
           <p className="text-[11px] font-bold text-slate-600 uppercase tracking-widest mt-0.5">
             {mode === 'INJURY'
-              ? 'Temporary $0 replacement — player returns to FA when injured player heals'
+              ? 'Any position • Temporary $0 replacement — player returns to FA when injured player heals'
               : `Permanent roster addition${faDeadlineLabel ? ` • Deadline: ${faDeadlineLabel}` : ''}`}
           </p>
         </div>
@@ -807,16 +788,6 @@ export default function FreeAgentPanel({
           {baseFilteredFreeAgents.length} player{baseFilteredFreeAgents.length !== 1 ? 's' : ''} available
         </p>
       </div>
-
-      {/* NON-BLOCKING POSITION MISMATCH WARNING */}
-      {hasPositionMismatch && (
-        <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-xl text-xs font-bold text-amber-900 flex items-start gap-2.5">
-          <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-700" />
-          <span>
-            Position Mismatch ({faPos} replacing {injuredPos}): League Rule D5 normally requires the same position. You may still submit — the Commissioner will verify this pickup.
-          </span>
-        </div>
-      )}
 
       {/* INLINE SERVER / VALIDATION ERROR */}
       {submitError && (

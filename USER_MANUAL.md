@@ -352,7 +352,7 @@ The **Transactions** page is where you can add, drop, IR, and trade players.
 Select your transaction type from the five tabs at the top:
 
 *   **FA Pickup:** Sign a permanent free agent from the available players list (fee configured per league, e.g. $10). Paid FA Pickups close after the NFL Trade Deadline (`fa_trade_deadline` rule).
-*   **Injury Pickup:** Sign a temporary **$0** replacement for an injured player on your roster. Select your injured player, the week the injury occurred, and the duration first, then choose a replacement free agent. If the replacement position differs from the injured player, a warning is displayed for Commissioner verification. Remains open after the FA/Trade deadline.
+*   **Injury Pickup:** Sign a temporary **$0** replacement at **any position** for an injured player on your roster (per Constitution D5). Select your injured player, the week the injury occurred, and the duration first, then choose any available replacement free agent (use the optional **MATCH** filter pill to narrow to the injured player's unit). Remains open after the FA/Trade deadline.
 *   **Waive/Drop:** Remove a player from your roster, returning them to the free agent pool.
 *   **IR Movement:** Move a player to or from Injured Reserve.
 *   **Team Trade:** Execute a multi-asset trade with another franchise.

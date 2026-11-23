@@ -27,6 +27,7 @@ Coaches have been submitting paid Free Agent pickups (`ADD`, $10) instead of $0 
 - **Deadline Rule:** Global per-league rule `fa_trade_deadline` in `rules` (registered in `GLOBAL_ONLY_RULES` and Maintenance presets). Seeded for GFL (`leagueId = 1`) to `2026-11-03T16:00:00-05:00`; empty/absent means open.
 - **Post-Deadline Scope:** Lock `ADD` (`FA Pickup`) only for non-privileged coaches; Commissioners/Superusers (`isPrivileged()`) can override; `TRADE` remains unaffected.
 - **Injury Position Rule:** Auto-filter by unit group (`DB` for `CB`/`S`, `OL` for `C`/`G`/`T`/`C-G`, `DL` for `DE`/`DT`, `LB` for `ILB`/`OLB`, `RB/HB`, `K/P`; dual-position codes split on `-`/`/`; `KR`/`PR`/`RET` stripped when primary positions exist) with no warning inside the same unit group and a non-blocking amber warning on cross-group mismatches (e.g., `RB` for `DT`) for Commissioner verification.
+- **Amendment (2026-11-20 — Constitution D5 vote):** League vote changed Rule D5 to allow $0 Injury Pickups at **any position** across all leagues. The Injury Pickup UI now defaults the position filter to `ALL` (keeping the optional `MATCH (<UNIT>)` quick-filter pill) and removes all position-mismatch warnings.
 
 ## 6. Open
 None.

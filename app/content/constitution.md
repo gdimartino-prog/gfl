@@ -1,5 +1,5 @@
 # GFL Constitution
-**Updated February 17, 2024**
+**Updated November 20, 2026**
 
 ---
 
@@ -119,11 +119,11 @@ D3. A trade effective for the following season may be made anytime with the foll
 
 D5. INJURY PLAYER PICKUPS: 
 
-1. A $0.00 Interim Injury pick-up can be made with the stipulation that the player signed must play the same position as the injured player and be returned to the Free Agent pool when the Injured Player is healed.    A team's roster may exceed the 53 player limit when there is an injury pick-up until the injured player heals.     
-      
-2. ~~A $0.00 Interim Injury pick-up can be made with the stipulation that the player signed does not have to play the same position as the injured player and be returned to the Free Agent pool when the Injured Player is healed.  A team's roster may exceed the 53 player limit when there is an injury pick up until the injured player heals.~~    ***This rule was changed by vote.  Injury pickup must be at same position.  4/14/2024*** 3. INJURY PLAYER PICKUP RETAINED: A player picked-up due to an injury may be retained at no additional cost for more than one injury when another player on that team is hurt in a subsequent game.   When the player that was injured in the subsequent game is healed, you must then cut the player picked-up.   
-      
-4. No injury pickups can be included on post season 30 or 38 man rosters.   
+1. A $0.00 Interim Injury pick-up may be made at **any position** (does not have to play the same position as the injured player) and must be returned to the Free Agent pool when the injured player is healed. A team's roster may exceed the 53 player limit when there is an injury pick-up until the injured player heals. *(Updated by league vote on 11/20/2026 to allow any position; previously restricted to same position on 4/14/2024.)*
+
+2. INJURY PLAYER PICKUP RETAINED: A player picked-up due to an injury may be retained at no additional cost for more than one injury when another player on that team is hurt in a subsequent game. When the player that was injured in the subsequent game is healed, you must then cut the player picked-up.
+
+3. No injury pickups can be included on post season 30 or 38 man rosters.
 
 D6.  Injury rule pertaining to games unavailable for the injured player.   
     
