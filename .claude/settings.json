@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/claude-prepush-gate.mjs",
+            "timeout": 300,
+            "statusMessage": "Gate: lint on commit · semgrep + unit suite on push"
+          }
+        ]
+      }
+    ]
+  }
+}

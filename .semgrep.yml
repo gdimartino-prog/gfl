@@ -27,15 +27,20 @@ rules:
 
   - id: gfl-no-server-secrets-in-client-components
     message: >
-      Server-only environment variables (POSTGRES_URL, AUTH_SECRET, CRON_SECRET,
-      SUPERUSER_PASSWORD, BLOB_READ_WRITE_TOKEN, RESEND_API_KEY, GEMINI_API_KEY)
-      must never be referenced in client code.
+      Server-only environment variables (POSTGRES_*, AUTH_SECRET, CRON_SECRET,
+      SUPERUSER_*, DEMO_*, BLOB_READ_WRITE_TOKEN, GOOGLE_GENERATIVE_AI_KEY,
+      GMAIL_APP_PASSWORD, GREENAPI_*, RESEND_API_KEY) must never be referenced
+      in client code.
     severity: ERROR
     languages: [typescript, javascript]
     paths:
       include:
         - /components/
-    pattern-regex: 'process\.env\.(POSTGRES_URL|AUTH_SECRET|CRON_SECRET|SUPERUSER_PASSWORD|BLOB_READ_WRITE_TOKEN|RESEND_API_KEY|GEMINI_API_KEY)\b'
+        - /context/
+        - /app/
+      exclude:
+        - /app/api/
+    pattern-regex: 'process\.env(?:\.|\[[''"`])(POSTGRES_\w+|AUTH_SECRET|CRON_SECRET|SUPERUSER_\w+|DEMO_\w+|BLOB_READ_WRITE_TOKEN|GOOGLE_GENERATIVE_AI_KEY|GMAIL_APP_PASSWORD|GREENAPI_\w+|RESEND_API_KEY)\b'
 
   # TODO(teamshort): add `pattern: eq(teams.teamshort, $X)` as a WARNING once the
   # 7 existing bare comparisons are migrated to upper() — see the secops agent.

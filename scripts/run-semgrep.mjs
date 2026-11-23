@@ -17,18 +17,19 @@ const candidates = isWin
 
 const bin = candidates.find((p) => existsSync(p)) ?? "semgrep";
 const extraArgs = process.argv.slice(2);
-const defaultArgs = [
+const hasConfig = extraArgs.some(
+  (a) => a === "--config" || a === "-c" || a.startsWith("--config=") || a.startsWith("-c="),
+);
+const cleanArgs = extraArgs[0] === "scan" ? extraArgs.slice(1) : extraArgs;
+const hasErrorFlag = cleanArgs.includes("--error") || cleanArgs.includes("--no-error");
+const finalArgs = [
   "scan",
-  "--config",
-  ".semgrep.yml",
-  "--no-git-ignore",
-  "--error",
-  "app",
-  "lib",
-  "components",
+  ...(hasConfig ? [] : ["--config", ".semgrep.yml"]),
+  ...(hasErrorFlag ? [] : ["--error"]),
+  ...(cleanArgs.length > 0 ? cleanArgs : ["--no-git-ignore", "app", "lib", "components", "context"]),
 ];
 
-const res = spawnSync(bin, extraArgs.length > 0 ? extraArgs : defaultArgs, {
+const res = spawnSync(bin, finalArgs, {
   stdio: "inherit",
   env: { ...process.env, PYTHONUTF8: "1" },
 });

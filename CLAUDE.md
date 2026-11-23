@@ -13,6 +13,6 @@
 
 ## Housekeeping
 
-- `.gitignore` ignores `.claude/settings.json`, `.claude/settings.local.json`, and `.claude/worktrees/`; the shared files — `.claude/{agents,commands,rules,skills,workflows}` and `.agents/{rules,skills}` — are tracked. Settings stay local to each machine; re-create the hook wiring from this file if you clone fresh.
+- `.gitignore` ignores `.claude/settings.local.json` and `.claude/worktrees/`; `.claude/settings.json` is tracked so hook wiring is preserved on fresh clones. The shared agent architecture — `.claude/{agents,commands,rules,skills,workflows}` and `.agents/{rules,skills}` — is tracked.
 - Design/visual skills belong at user level (`~/.claude/skills/`), not in this repo.
 - Memory for this project lives in `~/.claude/projects/c--Users-George-Documents-Dev-gfl/memory/`; the intentional trust-model decisions recorded there are summarized in `AGENTS.md`.
