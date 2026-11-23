@@ -210,16 +210,6 @@
     "status": "active"
   },
   {
-    "id": 49,
-    "leagueId": 1,
-    "name": "Las Vegas",
-    "coach": "Mark Mari",
-    "teamshort": "LV",
-    "nickname": "Golden Showers",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 46,
     "leagueId": 1,
     "name": "Kigali",
@@ -246,6 +236,26 @@
     "coach": "Jack Wyville",
     "teamshort": "FPR",
     "nickname": "Ranchers",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 54,
+    "leagueId": 1,
+    "name": "Tampa",
+    "coach": "Bill Kobus",
+    "teamshort": "TC",
+    "nickname": "Cockatoos",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 49,
+    "leagueId": 1,
+    "name": "Las Vegas",
+    "coach": "Mark Mari",
+    "teamshort": "LV",
+    "nickname": "Golden Showers",
     "isCommissioner": false,
     "status": "active"
   },
@@ -316,16 +326,6 @@
     "coach": "Pete Vuckovaz",
     "teamshort": "CT",
     "nickname": "Thunder",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
-    "id": 54,
-    "leagueId": 1,
-    "name": "Tampa",
-    "coach": "Bill Kobus",
-    "teamshort": "TC",
-    "nickname": "Cockatoos",
     "isCommissioner": false,
     "status": "active"
   },

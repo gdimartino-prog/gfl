@@ -19834,5 +19834,275 @@
     "team": "FPR",
     "action": "COA_UPLOAD",
     "details": "Uploaded FUR_PEACE.COA"
+  },
+  {
+    "id": 2205,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T19:02:35.852Z",
+    "coach": "Bill Kobus",
+    "team": "FA",
+    "action": "INJURY PICKUP",
+    "details": "DL - Neville Gallimore for injury to DL - Alim McNeill in week 8 for 7 weeks"
+  },
+  {
+    "id": 2206,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T19:02:36.639Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Activity: INJURY PICKUP — FA ➔ Tampa (DL) · Nov 22, 2:02 PM"
+  },
+  {
+    "id": 2207,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T19:02:37.005Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📝 *GFL TRANSACTION: INJURY PICKUP*\n----------------------------\n*FA ➔ Tampa:*\n• DL - Neville Gallimore for injury to DL - Alim McNeill in week 8 for 7 weeks\n\n🌐 https://afl.gddevco.com\n"
+  },
+  {
+    "id": 2208,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T19:42:05.087Z",
+    "coach": "Bill Kobus",
+    "team": "TC",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded TAMPA.COA"
+  },
+  {
+    "id": 2209,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T22:51:02.257Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #685 marked On Team"
+  },
+  {
+    "id": 2210,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T22:51:58.074Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #687 marked On Team"
+  },
+  {
+    "id": 2211,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T22:52:19.918Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #686 marked On Team"
+  },
+  {
+    "id": 2212,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T22:53:23.444Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2213,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T22:53:41.045Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 2214,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T22:54:58.599Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_EDIT",
+    "details": "Transaction #681 updated"
+  },
+  {
+    "id": 2215,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T22:56:19.431Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #601 marked Done"
+  },
+  {
+    "id": 2216,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T22:57:31.925Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #681 marked Done"
+  },
+  {
+    "id": 2217,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T22:58:02.846Z",
+    "coach": "George Di Martino",
+    "team": "VV",
+    "action": "TRANSACTION_STATUS",
+    "details": "Transaction #515 marked Done"
+  },
+  {
+    "id": 2218,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T22:59:03.568Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_PLAYERS",
+    "details": "Imported players: Complete League.csv"
+  },
+  {
+    "id": 2219,
+    "leagueId": 1,
+    "timestamp": "2026-11-22T23:03:49.451Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2220,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T00:38:34.335Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2221,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T00:39:00.782Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2222,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T00:41:43.980Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2223,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T02:37:05.439Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2224,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T02:37:19.696Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 2225,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T02:45:58.623Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "DIRECT_EMAIL_SENT",
+    "details": "Password reset for VV"
+  },
+  {
+    "id": 2226,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T02:45:58.632Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "PASSWORD_RESET_REQUESTED",
+    "details": "Self-service reset link issued for VV"
+  },
+  {
+    "id": 2227,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T02:46:22.111Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2228,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T13:00:16.255Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 10 (2026)*\n----------------------------------\n\n*WEEK 10*\n🏈 Amalfi @ Pyongyang - PENDING\n🏈 Crimson @ Newark Bay - Final: 14-28\n🏈 Old Bridge @ LE - Final: 21-14\n🏈 Jefferson @ Vico - Final: 33-14\n🏈 Fur Peace @ Urban - Final: 38-14\n🏈 Kigali @ Carolina - Final: 6-23\n\n*WE"
+  },
+  {
+    "id": 2229,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T13:00:16.573Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 10"
+  },
+  {
+    "id": 2230,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T13:53:02.544Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
+  },
+  {
+    "id": 2231,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T13:53:16.126Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2232,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T14:08:46.739Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2233,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T14:30:24.945Z",
+    "coach": "Mark Mari",
+    "team": "LV",
+    "action": "COA_UPLOAD",
+    "details": "Uploaded LAS_VEGAS.COA"
+  },
+  {
+    "id": 2234,
+    "leagueId": 1,
+    "timestamp": "2026-11-23T15:03:24.505Z",
+    "coach": "George Di Martino",
+    "team": "Vico",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
   }
 ]
