@@ -96,7 +96,7 @@ Codebase review backlog generated **2026-11-19**. Reference any item by its ID t
 - [ ] **F11 — Full NFL Playoff Tiebreakers & Dynamic Playoff Bracket** (`constitution.md` F4–F5, `components/StandingsClient.tsx`): Add common-games, SOV, SOS, and multi-team tiebreakers plus consistent playoff bracket week mapping.
 
 ### Platform & Workflow
-- [ ] **F12 — Self-Service Password Reset Flow** (`components/LoginForm.tsx`, `app/api/`): Replace manual "email George" recovery with tokenized email password reset links.
+- [x] **F12 — Self-Service Password Reset Flow** (`components/LoginForm.tsx`, `app/api/`): Replace manual "email George" recovery with tokenized email password reset links.
 - [ ] **F13 — Filterable Audit Log Viewer in Maintenance** (`components/MaintenanceClient.tsx`, `schema.ts`): Expose league-scoped, filterable `audit_log` inspection (logins, picks, trades, edits, rule changes, alerts) in the Commissioner panel.
 - [ ] **F14 — Per-League Notification Channels & Direct Coach "On The Clock" Alerts / PWA Push** (`lib/notify.ts`, `app/`): Add per-league group email, WhatsApp/Discord/Slack webhooks, opt-in direct coach "On The Clock" email alerts, and Web Push / PWA manifest.
 - [ ] **F15 — Multi-League Provisioning Wizard & Per-League Constitution Editor** (`components/MaintenanceClient.tsx`, `app/rules/page.tsx`): Provision teams, initial commissioner, schedules, and league-specific constitution content from the UI instead of CLI scripts.

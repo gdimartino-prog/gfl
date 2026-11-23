@@ -8,6 +8,8 @@ import { logSystemEvent } from '@/lib/db-helpers';
 import { auth } from '@/auth';
 import bcrypt from 'bcrypt';
 import { revalidateTag } from 'next/cache';
+import { validateNewPassword } from '@/lib/passwordResetRules';
+import { revokePasswordResetTokensForTeam } from '@/lib/passwordReset';
 
 
 export async function GET() {
@@ -76,36 +78,57 @@ export async function PATCH(req: Request) {
 
   // Password-only reset
   if (newPassword !== undefined) {
-    if (!newPassword || newPassword.length < 8) {
-      return NextResponse.json({ error: 'Password must be at least 8 characters.' }, { status: 400 });
+    const pw = validateNewPassword(newPassword);
+    if (!pw.ok) {
+      return NextResponse.json({ error: pw.error }, { status: 400 });
     }
-    const hashed = await bcrypt.hash(newPassword, 10);
     const target = await db.select({ teamshort: teams.teamshort })
       .from(teams).where(and(eq(teams.id, id), eq(teams.leagueId, leagueId))).limit(1);
     if (!target[0]) return NextResponse.json({ error: 'Team not found.' }, { status: 404 });
 
-    await db.update(teams).set({ password: hashed, touch_id: actor })
-      .where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
+    const hashed = await bcrypt.hash(pw.value, 10);
+    await db.transaction(async (tx) => {
+      await tx.update(teams).set({ password: hashed, touch_id: actor, touch_dt: new Date() })
+        .where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
+      await revokePasswordResetTokensForTeam(id, leagueId, tx);
+    });
     revalidateTag('coaches', 'max');
-    logSystemEvent(actor, 'admin', 'RESET_PASSWORD', `Reset password for team ${target[0].teamshort}`, leagueId);
+    revalidateTag('team-leagues', 'max');
+    await logSystemEvent(actor, 'admin', 'RESET_PASSWORD', `Reset password for team ${target[0].teamshort}`, leagueId);
     return NextResponse.json({ success: true });
   }
 
-  await db.update(teams).set({
-    name: name?.trim(),
-    teamshort: teamshort?.trim().toUpperCase(),
-    coach: coach?.trim() || null,
-    email: email?.trim() || null,
-    mobile: mobile?.trim() || null,
-    nickname: nickname?.trim() || null,
-    isCommissioner: isCommissioner ?? false,
-    status: status || 'active',
-    touch_id: actor,
-  }).where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
+  const existing = await db.select({ email: teams.email })
+    .from(teams).where(and(eq(teams.id, id), eq(teams.leagueId, leagueId))).limit(1);
+  if (!existing[0]) return NextResponse.json({ error: 'Team not found.' }, { status: 404 });
+
+  const normalizedNextEmail = email?.trim() || null;
+  const emailChanged =
+    (existing[0].email?.trim().toLowerCase() || null) !==
+    (normalizedNextEmail?.toLowerCase() || null);
+
+  await db.transaction(async (tx) => {
+    await tx.update(teams).set({
+      name: name?.trim(),
+      teamshort: teamshort?.trim().toUpperCase(),
+      coach: coach?.trim() || null,
+      email: normalizedNextEmail,
+      mobile: mobile?.trim() || null,
+      nickname: nickname?.trim() || null,
+      isCommissioner: isCommissioner ?? false,
+      status: status || 'active',
+      touch_id: actor,
+      touch_dt: new Date(),
+    }).where(and(eq(teams.id, id), eq(teams.leagueId, leagueId)));
+
+    if (emailChanged) {
+      await revokePasswordResetTokensForTeam(id, leagueId, tx);
+    }
+  });
 
   revalidateTag('coaches', 'max');
   revalidateTag('players', 'max');
   revalidateTag('team-leagues', 'max');
-  logSystemEvent(actor, 'admin', 'UPDATE_TEAM', `Updated team id ${id}`, leagueId);
+  await logSystemEvent(actor, 'admin', 'UPDATE_TEAM', `Updated team id ${id}`, leagueId);
   return NextResponse.json({ success: true });
 }

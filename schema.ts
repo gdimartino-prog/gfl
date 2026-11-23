@@ -357,6 +357,23 @@ export const pollVotes = pgTable("poll_votes", {
   index("poll_votes_league_poll_idx").on(table.leagueId, table.pollId),
 ]);
 
+// Self-service password reset tokens (SHA-256 hashed, single-use, short-lived)
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: serial("id").primaryKey(),
+  leagueId: integer("league_id").references(() => leagues.id).notNull(),
+  teamId: integer("team_id").references(() => teams.id, { onDelete: "cascade" }).notNull(),
+  tokenHash: varchar("token_hash", { length: 64 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  touch_dt: timestamp("touch_dt").defaultNow().notNull(),
+  touch_id: varchar("touch_id", { length: 256 }),
+}, (table) => [
+  uniqueIndex("password_reset_tokens_hash_unique").on(table.tokenHash),
+  index("password_reset_tokens_team_created_idx").on(table.leagueId, table.teamId, table.createdAt),
+  index("password_reset_tokens_expires_idx").on(table.expiresAt),
+]);
+
 // Relationships
 
 export const leaguesRelations = relations(leagues, ({ many }) => ({
@@ -374,6 +391,7 @@ export const leaguesRelations = relations(leagues, ({ many }) => ({
   auditLog: many(auditLog),
   draftAutoPickQueue: many(draftAutoPickQueue),
   polls: many(polls),
+  passwordResetTokens: many(passwordResetTokens),
 }));
 
 export const pollsRelations = relations(polls, ({ one, many }) => ({
@@ -406,6 +424,12 @@ export const teamsRelations = relations(teams, ({ one, many }) => ({
     references: [leagues.id],
   }),
   autoPickQueue: many(draftAutoPickQueue),
+  passwordResetTokens: many(passwordResetTokens),
+}));
+
+export const passwordResetTokensRelations = relations(passwordResetTokens, ({ one }) => ({
+  league: one(leagues, { fields: [passwordResetTokens.leagueId], references: [leagues.id] }),
+  team: one(teams, { fields: [passwordResetTokens.teamId], references: [teams.id] }),
 }));
 
 export const draftAutoPickQueueRelations = relations(draftAutoPickQueue, ({ one }) => ({

@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { revalidateTag } from 'next/cache';
 import { logSystemEvent } from './db-helpers';
+import { redactEmailAddresses } from './passwordResetRules';
 
 const MY_EMAIL = process.env.NOTIFY_MY_EMAIL || 'gdimartino@gmail.com';
 const GROUP_EMAIL = process.env.NOTIFY_GROUP_EMAIL || MY_EMAIL;
@@ -78,6 +79,67 @@ export async function sendEmail({ subject, html, text, leagueId }: {
 
       await logSystemEvent('System', 'EMAIL', 'ALERT_FAILED', `${subject} (${errMsg})`.slice(0, 1000), targetLeague);
       try { revalidateTag('email-alerts', 'max'); } catch {}
+      return false;
+    }
+  }
+  return false;
+}
+
+export async function sendDirectEmail({
+  to,
+  subject,
+  html,
+  text,
+  leagueId,
+  auditDetail,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+  leagueId: number;
+  auditDetail: string;
+}): Promise<boolean> {
+  if (!to || /[\r\n,;<>]/.test(to) || /[\r\n]/.test(subject) || !to.trim()) {
+    return false;
+  }
+
+  const appPassword = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, '');
+  if (!appPassword) {
+    console.warn('[notify] GMAIL_APP_PASSWORD not set — skipping direct email');
+    await logSystemEvent('System', 'EMAIL', 'ALERT_SKIPPED', `No App Password: ${auditDetail}`, leagueId);
+    return false;
+  }
+
+  const cleanTo = to.trim();
+  const plainText = text || html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+  const MAX_RETRIES = 2;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await getTransporter().sendMail({
+        from: FROM_EMAIL,
+        to: cleanTo,
+        subject,
+        html,
+        text: plainText,
+      });
+      await logSystemEvent('System', 'EMAIL', 'DIRECT_EMAIL_SENT', auditDetail, leagueId);
+      return true;
+    } catch (e) {
+      _transporter = null;
+      const errMsg = e instanceof Error ? e.message : String(e);
+      const safeErr = redactEmailAddresses(errMsg);
+      const responseCode = (e as { responseCode?: number })?.responseCode;
+      const isPermanent5xx = typeof responseCode === 'number' && responseCode >= 500 && responseCode < 600;
+      console.error(`[notify] Direct email attempt ${attempt + 1}/${MAX_RETRIES + 1} failed:`, safeErr);
+
+      if (!isPermanent5xx && attempt < MAX_RETRIES) {
+        await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+        continue;
+      }
+
+      await logSystemEvent('System', 'EMAIL', 'DIRECT_EMAIL_FAILED', `${auditDetail} (${safeErr})`.slice(0, 1000), leagueId);
       return false;
     }
   }

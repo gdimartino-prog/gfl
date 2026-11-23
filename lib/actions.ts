@@ -7,6 +7,7 @@ import { and, eq, sql } from "drizzle-orm";
 import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
 import { getLeagueId } from "@/lib/getLeagueId";
+import { revokePasswordResetTokensForTeam } from "@/lib/passwordReset";
 
 export async function updatePassword(newPassword: string) {
   const session = await auth();
@@ -23,14 +24,21 @@ export async function updatePassword(newPassword: string) {
   try {
     const leagueId = await getLeagueId();
     const hashed = await bcrypt.hash(newPassword, 10);
-    const result = await db
-      .update(teams)
-      .set({ password: hashed, touch_id: teamshort, touch_dt: new Date() })
-      .where(and(
-        eq(teams.leagueId, leagueId),
-        sql`upper(${teams.teamshort}) = ${teamshort}`,
-      ))
-      .returning({ id: teams.id });
+    const result = await db.transaction(async (tx) => {
+      const updated = await tx
+        .update(teams)
+        .set({ password: hashed, touch_id: teamshort, touch_dt: new Date() })
+        .where(and(
+          eq(teams.leagueId, leagueId),
+          sql`upper(${teams.teamshort}) = ${teamshort}`,
+        ))
+        .returning({ id: teams.id });
+
+      if (updated.length > 0) {
+        await revokePasswordResetTokensForTeam(updated[0].id, leagueId, tx);
+      }
+      return updated;
+    });
 
     if (result.length === 0) {
       return { success: false, error: "Team not found in this league." };
