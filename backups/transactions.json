@@ -5595,6 +5595,25 @@
     "touch_id": "VV"
   },
   {
+    "id": 688,
+    "leagueId": 1,
+    "date": "2026-11-23T23:33:44.452Z",
+    "type": "INJURY PICKUP",
+    "description": "TE - Cole Kmet for injury to TE/KR - Brenton Strange in week 11 for 5 weeks",
+    "fromTeam": "FA",
+    "toTeam": "Carolina",
+    "owner": "Pete Vuckovaz",
+    "status": "On Team",
+    "weekBack": 16,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-11-23T23:33:44.365Z",
+    "touch_id": "VV"
+  },
+  {
     "id": 367,
     "leagueId": 2,
     "date": "2026-05-27T22:15:47.802Z",
@@ -8841,6 +8860,25 @@
     "pickIds": null,
     "conditionalDetails": null,
     "touch_dt": "2026-10-12T21:44:02.861Z",
+    "touch_id": "VV"
+  },
+  {
+    "id": 689,
+    "leagueId": 1,
+    "date": "2026-11-24T05:07:27.730Z",
+    "type": "INJURY PICKUP",
+    "description": "LB-S - Kyle Dugger for injury to S - Xavier Woods in week 9 for 4 weeks",
+    "fromTeam": "FA",
+    "toTeam": "Fur Peace",
+    "owner": "Jack Wyville",
+    "status": "On Team",
+    "weekBack": 13,
+    "season": 2026,
+    "fee": 0,
+    "emailStatus": null,
+    "pickIds": null,
+    "conditionalDetails": null,
+    "touch_dt": "2026-11-24T05:07:27.686Z",
     "touch_id": "VV"
   }
 ]

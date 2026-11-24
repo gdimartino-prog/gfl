@@ -1000,11 +1000,11 @@
     "touch_id": "history-import"
   },
   {
-    "id": 1495,
+    "id": 1513,
     "leagueId": 1,
     "teamId": 41,
     "year": 2026,
-    "wins": 8,
+    "wins": 9,
     "losses": 1,
     "ties": 0,
     "division": "East",
@@ -1016,11 +1016,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Adrian Scherer",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1496,
+    "id": 1514,
     "leagueId": 1,
     "teamId": 52,
     "year": 2026,
@@ -1036,11 +1036,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Ed Casserly",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1497,
+    "id": 1515,
     "leagueId": 1,
     "teamId": 50,
     "year": 2026,
@@ -1056,16 +1056,16 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "James Di Martino",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1498,
+    "id": 1516,
     "leagueId": 1,
     "teamId": 47,
     "year": 2026,
     "wins": 5,
-    "losses": 4,
+    "losses": 5,
     "ties": 0,
     "division": "East",
     "offPts": null,
@@ -1076,11 +1076,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Glenn Gardner",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1499,
+    "id": 1517,
     "leagueId": 1,
     "teamId": 55,
     "year": 2026,
@@ -1096,11 +1096,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Mike Fullen",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1500,
+    "id": 1518,
     "leagueId": 1,
     "teamId": 43,
     "year": 2026,
@@ -1116,11 +1116,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Bob Glade",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1501,
+    "id": 1519,
     "leagueId": 1,
     "teamId": 45,
     "year": 2026,
@@ -1136,11 +1136,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Jack Wyville",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1502,
+    "id": 1520,
     "leagueId": 1,
     "teamId": 44,
     "year": 2026,
@@ -1156,11 +1156,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Alex Matsikoudis",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1503,
+    "id": 1521,
     "leagueId": 1,
     "teamId": 51,
     "year": 2026,
@@ -1176,11 +1176,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Phil Matsikoudis",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1504,
+    "id": 1522,
     "leagueId": 1,
     "teamId": 49,
     "year": 2026,
@@ -1196,11 +1196,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Mark Mari",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1505,
+    "id": 1523,
     "leagueId": 1,
     "teamId": 46,
     "year": 2026,
@@ -1216,11 +1216,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Bill Matsikoudis",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1506,
+    "id": 1524,
     "leagueId": 1,
     "teamId": 59,
     "year": 2026,
@@ -1236,11 +1236,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "James Thurlow",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1507,
+    "id": 1525,
     "leagueId": 1,
     "teamId": 54,
     "year": 2026,
@@ -1256,11 +1256,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Bill Kobus",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1508,
+    "id": 1526,
     "leagueId": 1,
     "teamId": 48,
     "year": 2026,
@@ -1276,15 +1276,15 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Naz Kikta",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1509,
+    "id": 1527,
     "leagueId": 1,
     "teamId": 42,
     "year": 2026,
-    "wins": 4,
+    "wins": 5,
     "losses": 5,
     "ties": 0,
     "division": "West",
@@ -1296,11 +1296,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Pete Vuckovaz",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1510,
+    "id": 1528,
     "leagueId": 1,
     "teamId": 57,
     "year": 2026,
@@ -1316,11 +1316,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "John Yurchak",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1511,
+    "id": 1529,
     "leagueId": 1,
     "teamId": 58,
     "year": 2026,
@@ -1336,16 +1336,16 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "George Di Martino",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1512,
+    "id": 1530,
     "leagueId": 1,
     "teamId": 53,
     "year": 2026,
     "wins": 1,
-    "losses": 8,
+    "losses": 9,
     "ties": 0,
     "division": "West",
     "offPts": null,
@@ -1356,7 +1356,7 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Tom Fusillo",
-    "touch_dt": "2026-11-23T13:53:16.104Z",
+    "touch_dt": "2026-11-24T02:56:49.701Z",
     "touch_id": "maintenance"
   },
   {

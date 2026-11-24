@@ -230,16 +230,6 @@
     "status": "active"
   },
   {
-    "id": 45,
-    "leagueId": 1,
-    "name": "Fur Peace",
-    "coach": "Jack Wyville",
-    "teamshort": "FPR",
-    "nickname": "Ranchers",
-    "isCommissioner": false,
-    "status": "active"
-  },
-  {
     "id": 54,
     "leagueId": 1,
     "name": "Tampa",
@@ -326,6 +316,16 @@
     "coach": "Pete Vuckovaz",
     "teamshort": "CT",
     "nickname": "Thunder",
+    "isCommissioner": false,
+    "status": "active"
+  },
+  {
+    "id": 45,
+    "leagueId": 1,
+    "name": "Fur Peace",
+    "coach": "Jack Wyville",
+    "teamshort": "FPR",
+    "nickname": "Ranchers",
     "isCommissioner": false,
     "status": "active"
   },
