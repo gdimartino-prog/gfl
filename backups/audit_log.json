@@ -20221,5 +20221,23 @@
     "team": "VV",
     "action": "TRANSACTION_STATUS",
     "details": "Transaction #689 marked On Team"
+  },
+  {
+    "id": 2248,
+    "leagueId": 1,
+    "timestamp": "2026-11-25T13:00:15.812Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 11 (2026)*\n----------------------------------\n\n*WEEK 11*\n🏈 Amalfi @ Satriale - Final: 38-6\n🏈 Crimson @ Urban - Final: 13-20\n🏈 LBI @ Carolina - Final: 17-35\n🏈 Old Bridge @ Las Vegas - PENDING\n🏈 Jefferson @ Pyongyang - PENDING\n🏈 Tetbury @ Newark Bay - PENDING\n🏈 Fur P"
+  },
+  {
+    "id": 2249,
+    "leagueId": 1,
+    "timestamp": "2026-11-25T13:00:17.683Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 11"
   }
 ]
