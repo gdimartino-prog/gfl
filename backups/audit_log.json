@@ -20239,5 +20239,14 @@
     "team": "EMAIL",
     "action": "ALERT_SENT",
     "details": "GFL Update: 2026 Week 11"
+  },
+  {
+    "id": 2250,
+    "leagueId": 2,
+    "timestamp": "2026-11-25T17:42:34.771Z",
+    "coach": "Demo Commissioner",
+    "team": "VV",
+    "action": "LOGIN",
+    "details": "Demo user accessed Front Office"
   }
 ]
