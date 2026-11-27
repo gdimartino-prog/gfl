@@ -20248,5 +20248,32 @@
     "team": "VV",
     "action": "LOGIN",
     "details": "Demo user accessed Front Office"
+  },
+  {
+    "id": 2251,
+    "leagueId": 1,
+    "timestamp": "2026-11-27T05:04:05.362Z",
+    "coach": "Bill Matsikoudis",
+    "team": "Kigali",
+    "action": "LOGIN",
+    "details": "Coach entered Front Office"
+  },
+  {
+    "id": 2252,
+    "leagueId": 1,
+    "timestamp": "2026-11-27T13:00:17.843Z",
+    "coach": "System",
+    "team": "WHATSAPP",
+    "action": "ALERT_SENT",
+    "details": "📅 *GFL WEEKLY UPDATE: Week 11 (2026)*\n----------------------------------\n\n*WEEK 11*\n🏈 Amalfi @ Satriale - Final: 38-6\n🏈 Crimson @ Urban - Final: 13-20\n🏈 LBI @ Carolina - Final: 17-35\n🏈 Old Bridge @ Las Vegas - PENDING\n🏈 Jefferson @ Pyongyang - PENDING\n🏈 Tetbury @ Newark Bay - PENDING\n🏈 Fur P"
+  },
+  {
+    "id": 2253,
+    "leagueId": 1,
+    "timestamp": "2026-11-27T13:00:18.344Z",
+    "coach": "System",
+    "team": "EMAIL",
+    "action": "ALERT_SENT",
+    "details": "GFL Update: 2026 Week 11"
   }
 ]
