@@ -20275,5 +20275,23 @@
     "team": "EMAIL",
     "action": "ALERT_SENT",
     "details": "GFL Update: 2026 Week 11"
+  },
+  {
+    "id": 2254,
+    "leagueId": 1,
+    "timestamp": "2026-11-27T22:41:04.386Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_STANDINGS",
+    "details": "Imported standings: TEMPAPC.TXT"
+  },
+  {
+    "id": 2255,
+    "leagueId": 1,
+    "timestamp": "2026-11-27T22:41:25.210Z",
+    "coach": "admin",
+    "team": "admin",
+    "action": "IMPORT_SCHEDULE",
+    "details": "Imported schedule: TEMPAPC.TXT"
   }
 ]

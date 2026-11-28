@@ -1000,7 +1000,7 @@
     "touch_id": "history-import"
   },
   {
-    "id": 1513,
+    "id": 1531,
     "leagueId": 1,
     "teamId": 41,
     "year": 2026,
@@ -1016,11 +1016,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Adrian Scherer",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1514,
+    "id": 1532,
     "leagueId": 1,
     "teamId": 52,
     "year": 2026,
@@ -1036,15 +1036,15 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Ed Casserly",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1515,
+    "id": 1533,
     "leagueId": 1,
     "teamId": 50,
     "year": 2026,
-    "wins": 5,
+    "wins": 6,
     "losses": 4,
     "ties": 0,
     "division": "East",
@@ -1056,11 +1056,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "James Di Martino",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1516,
+    "id": 1534,
     "leagueId": 1,
     "teamId": 47,
     "year": 2026,
@@ -1076,11 +1076,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Glenn Gardner",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1517,
+    "id": 1535,
     "leagueId": 1,
     "teamId": 55,
     "year": 2026,
@@ -1096,11 +1096,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Mike Fullen",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1518,
+    "id": 1536,
     "leagueId": 1,
     "teamId": 43,
     "year": 2026,
@@ -1116,11 +1116,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Bob Glade",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1519,
+    "id": 1537,
     "leagueId": 1,
     "teamId": 45,
     "year": 2026,
@@ -1136,11 +1136,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Jack Wyville",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1520,
+    "id": 1538,
     "leagueId": 1,
     "teamId": 44,
     "year": 2026,
@@ -1156,11 +1156,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Alex Matsikoudis",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1521,
+    "id": 1539,
     "leagueId": 1,
     "teamId": 51,
     "year": 2026,
@@ -1176,11 +1176,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Phil Matsikoudis",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1522,
+    "id": 1540,
     "leagueId": 1,
     "teamId": 49,
     "year": 2026,
@@ -1196,11 +1196,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Mark Mari",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1523,
+    "id": 1541,
     "leagueId": 1,
     "teamId": 46,
     "year": 2026,
@@ -1216,16 +1216,16 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Bill Matsikoudis",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1524,
+    "id": 1542,
     "leagueId": 1,
     "teamId": 59,
     "year": 2026,
     "wins": 1,
-    "losses": 8,
+    "losses": 9,
     "ties": 0,
     "division": "Central",
     "offPts": null,
@@ -1236,11 +1236,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "James Thurlow",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1525,
+    "id": 1543,
     "leagueId": 1,
     "teamId": 54,
     "year": 2026,
@@ -1256,11 +1256,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Bill Kobus",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1526,
+    "id": 1544,
     "leagueId": 1,
     "teamId": 48,
     "year": 2026,
@@ -1276,11 +1276,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Naz Kikta",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1527,
+    "id": 1545,
     "leagueId": 1,
     "teamId": 42,
     "year": 2026,
@@ -1296,11 +1296,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Pete Vuckovaz",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1528,
+    "id": 1546,
     "leagueId": 1,
     "teamId": 57,
     "year": 2026,
@@ -1316,11 +1316,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "John Yurchak",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1529,
+    "id": 1547,
     "leagueId": 1,
     "teamId": 58,
     "year": 2026,
@@ -1336,11 +1336,11 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "George Di Martino",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
-    "id": 1530,
+    "id": 1548,
     "leagueId": 1,
     "teamId": 53,
     "year": 2026,
@@ -1356,7 +1356,7 @@
     "isChampion": false,
     "oldTeamName": null,
     "coachName": "Tom Fusillo",
-    "touch_dt": "2026-11-24T02:56:49.701Z",
+    "touch_dt": "2026-11-27T22:41:04.352Z",
     "touch_id": "maintenance"
   },
   {
